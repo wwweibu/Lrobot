@@ -69,7 +69,6 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 - **[微信开放平台](https://chatbot.weixin.qq.com/)** : 微信对话开放平台
 - **[公众号爬取](https://blog.csdn.net/kuailebuzhidao/article/details/136490529)** : 公众号爬取
 - **[NewsNow](https://github.com/ourongxing/newsnow/blob/main/README.zh-CN.md)** : 实时热门新闻
-- 
 
 ---
 
@@ -89,11 +88,12 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 2. 为了最大化利用设备，本项目采用本地运行+服务器+域名的模式，当然其他模式也可以通过调整配置来实现
 3. 本项目模式填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 storage/lrobot.pem 处。如果项目本身在服务器上运行则不用填写后者。如果是正向代理+反向代理的配置请自行参考上方的服务器配置教程
 4. 填写平台相关信息（ID、SECRET）即代表启用该平台服务，留空（注意不是注释掉）则不启用
-5. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录
-6. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
-7. `docker compose up --bulid -d mysql` `docker compose up --bulid -d mongodb` 启动数据库服务
-8. `docker compose up --bulid lrobot` 启动 lrobot 主服务
-9. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
+5. 下载项目 `git clone https://github.com/wwweibu/lrobot.git` ，进入项目目录 `cd lrobot`
+6. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
+7. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
+8. `docker compose up --bulid -d mysql` `docker compose up --bulid -d mongodb` 启动数据库服务
+9. `docker compose up --bulid lrobot` 启动 lrobot 主服务
+10. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 
 #### 项目开发
 1. 项目搭载网页服务，其中 vue 前端可自行开发并打包，页面可在服务器及域名处访问
@@ -760,23 +760,14 @@ serve_task = asyncio.create_task(init_serve())
 ***
 
 ## 许可证
-本项目采用 **GPL-3.0 许可证**，这意味着：  
-- 您可以自由使用、修改和分发本项目代码。  
-- 如果您修改并分发本项目代码，您**必须**在相同的 **GPL-3.0** 许可证下发布您的修改版本。  
-- 详情请见 [`LICENSE`](./LICENSE)。  
 
-此外，本项目涉及以下第三方工具，使用时请遵循各自的许可证要求：  
+本项目包含以下许可证的代码及内容：
 
-1. **NapCat（用户可选下载）**  
-   - 本项目的某些功能可与 NapCat 配合使用，但不包含 NapCat 代码。  
-   - 如果用户选择使用 NapCat，需要自行下载，并遵守 **NapCat 许可证（Limited Redistribution License for NapCat）**。  
-   - NapCat 许可证详情请参考 [NapCat 官方仓库](https://github.com/NapNeko/NapCatQQ)。  
+- 核心代码采用 MIT 许可证（详见 LICENSE 文件）。
+- 部分内容采用 Creative Commons Attribution-NonCommercial 4.0 International 协议，禁止商业用途。
+- 项目运行依赖的 NapCat 服务由远程仓库通过 Docker Compose 拉取，NapCat 采用自定义的 Limited Redistribution License，禁止未经授权的商业使用。
 
-2. **MIT 许可证代码（用户可选下载）**  
-   - 本项目的部分功能可与 **wewe-rss** 项目配合使用，但不包含其代码。  
-   - 用户如果选择使用，需要自行下载，并遵守 **MIT 许可证**。  
-
-完整的 GNU 通用公共许可证 (GPL-3.0) 可在 [这里](https://www.gnu.org/licenses/gpl-3.0.html) 查看。
+使用本项目即表示您同意遵守上述各项许可证的条款。如有疑问，请联系项目维护者。
 
 ***
 
