@@ -746,8 +746,6 @@ serve_task = asyncio.create_task(init_serve())
 - 修改 config 路径使不同容器共享日志和配置
 </details>
 
-
-
 ***
 
 ## 常见问题
@@ -761,13 +759,14 @@ serve_task = asyncio.create_task(init_serve())
 
 ## 许可证
 
-本项目包含以下许可证的代码及内容：
+本项目采用混合许可证，包含：
 
-- 核心代码采用 MIT 许可证（详见 LICENSE 文件）。
-- 部分内容采用 Creative Commons Attribution-NonCommercial 4.0 International 协议，禁止商业用途。
-- 项目运行依赖的 NapCat 服务由远程仓库通过 Docker Compose 拉取，NapCat 采用自定义的 Limited Redistribution License，禁止未经授权的商业使用。
+- 自定义有限使用许可，仅限非商业及内部学习使用；
+- 部分代码采用 MIT 许可证；
+- 部分内容遵循 Creative Commons Attribution-NonCommercial 4.0 国际许可协议（禁止商业用途）；
+- 项目依赖的 NapCat 服务采用其自定义有限再发布许可。
 
-使用本项目即表示您同意遵守上述各项许可证的条款。如有疑问，请联系项目维护者。
+详细许可证请参见项目根目录 LICENSE 文件。
 
 ***
 
