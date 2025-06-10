@@ -2,6 +2,7 @@
 
 <img src="storage/file/firefly/firefly.png" alt="Firefly takes over the world" width="100"/>
 
+> 开发中，过几天再来看看吧
 ---
 
 ## ***LR232*** & ***LR5921***
@@ -104,7 +105,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 ---
 
 ## 项目结构
-![项目架构图](refer/record/img/readme_1.png)
+![项目架构图](storage/record/img/readme_1.png)
 - 部署完成后，项目结构应该类似于：
 - **command/**                     : 命令行服务(连接服务器)
 - **lrobot/**                      : 主服务
