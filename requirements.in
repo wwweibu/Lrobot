@@ -1,0 +1,7 @@
+aiomysql
+colorama
+httpx
+httpx_socks
+motor
+PyYAML
+watchdog

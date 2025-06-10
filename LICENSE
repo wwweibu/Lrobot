@@ -1,0 +1,34 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2025 [weibu]
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+---
+
+## 依赖和附加许可证
+
+本项目包含并依赖第三方软件，部分软件受不同的许可证约束：
+
+1. **NapCat（用户可选下载）**
+   - 本项目的某些功能可与 NapCat 配合使用，但不包含 NapCat 代码。
+   - 如果用户选择使用 NapCat，需要自行下载，并遵守 **NapCat 许可证（Limited Redistribution License for NapCat）**。
+   - NapCat 许可证详情请参考 [NapCat 官方仓库](https://github.com/NapNeko/NapCatQQ)。
+
+2. **MIT 许可证代码（用户可选下载）**
+   - 本项目的部分功能可与 **wewe-rss** 项目配合使用，但不包含其代码。
+   - 用户如果选择使用，需要自行下载，并遵守 **MIT 许可证**。
+
+完整的 GNU 通用公共许可证 (GPL) 可在 [这里](https://www.gnu.org/licenses/gpl-3.0.html) 查看。

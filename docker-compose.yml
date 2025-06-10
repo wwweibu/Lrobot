@@ -1,0 +1,73 @@
+services:
+  napcat:
+    environment:
+      # 时区-上海
+      - TZ=Asia/Shanghai
+      # 需要执行 id -u 和 id -g 获取这两个值
+      - NAPCAT_UID=1000
+      - NAPCAT_GID=1000
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "6099:6099"
+    container_name: napcat
+    network_mode: bridge
+    image: mlikiowa/napcat-docker:latest
+    volumes:
+      - ./storage/napcat/config/QQ:/app/.config/QQ
+      - ./storage/napcat/config:/app/napcat/config
+
+  lrobot:
+    build: ./lrobot
+    container_name: lrobot
+    ports:
+      - "5922:5922"
+    volumes:
+      - ./lrobot/logic:/app/logic
+      - ./lrobot/message/adapter:/app/message/adapter
+      - ./storage:/app/storage
+      - ./lrobot/web/frontend:/app/web/frontend
+      - ./config.py:/app/config.py  # 挂载这个为了共享而不是热更新
+    environment:
+      - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
+    depends_on:  # 先启动这个
+      - mongodb
+
+  command:
+    build: ./command
+    container_name: command
+    volumes:
+      - ./config.py:/app/config.py
+      - ./storage/yml:/app/storage/yml  # 配置信息
+      - ./storage/lrobot.pem:/app/storage/lrobot.pem  # 密钥
+    environment:
+      - TZ=Asia/Shanghai
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "5924:27017"
+    volumes:
+      - ./storage/data/mongodb:/data/db
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: lrobot_data
+      MYSQL_USER: weibu
+    ports:
+      - "5925:3306"
+    volumes:
+      - ./storage/data/mysql:/var/lib/mysql
+
+  #  wewe-rss:
+  #    build: ./wewe-rss
+  #    container_name: wewe-rss
+  #    restart: always
+  #    ports:
+  #      - "8010:8010"
+

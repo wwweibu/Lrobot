@@ -1,0 +1,13 @@
+aiomysql
+colorama
+httpx
+httpx_socks
+motor
+PyYAML
+watchdog
+uvicorn
+fastapi
+python-multipart
+requests
+PyNaCl
+
