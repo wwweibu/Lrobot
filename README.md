@@ -15,7 +15,7 @@
 
 [![版本](https://badgen.net/badge/version/7.0.1/blue)](#)
 [![Python](https://badgen.net/badge/language/Python/blue)](#)
-[![Python 版本](https://badgen.net/badge/python/3.10/ffb3c2)](#)
+[![Python 版本](https://badgen.net/badge/python/3.11/ffb3c2)](#)
 [![Docker](https://badgen.net/badge/platform/Docker/2496ed)](#)
 
 **鸣谢:**   
@@ -32,10 +32,10 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 
 #### 目录
 - [相关项目](#相关项目)
-- [快速开始](#快速开始)  *部署项目请跳转*
+- [快速开始](#快速开始)  &nbsp;&nbsp;*部署项目请跳转*
 - [项目结构](#项目结构)
-- [功能介绍](#功能介绍)  *不写代码看这个*
-- [相关技术](#相关技术)  *了解细节看这个*
+- [功能介绍](#功能介绍)  &nbsp;&nbsp;*不写代码看这个*
+- [相关技术](#相关技术)  &nbsp;&nbsp;*了解细节看这个*
 - [更新日志](#更新日志)
 - [常见问题](#常见问题)
 - [许可证](#许可证)
@@ -47,6 +47,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 1. **[QQ 开放平台](https://q.qq.com/#/)** : 为 QQ 合作伙伴提供多维业务服务与用户管理能力的全新开放平台
 2. **[NapCat](https://napneko.github.io/guide/start-install)** : 基于 TypeScript 构建的 Bot 框架,通过相应的启动器或者框架,主动调用 QQ Node 模块提供给客户端的接口,实现 Bot 的功能
 3. **[微信公众号平台](https://mp.weixin.qq.com/)** : 微信公众平台是一个为个人、企业和组织提供业务服务与用户管理能力的全新服务平台
+4. **[哔哩哔哩-API收集整理](https://socialsisteryi.github.io/bilibili-API-collect/#%F0%9F%8D%B4%E7%9B%AE%E5%BD%95)** : 本项目旨在对 B站 WEB、APP、TV 等客户端中，散落在世界各地的野生 API 进行收集整理，研究使用方法并对其进行说明，运用了黑箱法、控制变量法、代码逆向分析、拆包及反编译法、网络抓包法等研究办法
 
 #### 参考文档
 - **[OneBot](https://github.com/botuniverse/onebot-11)** : OneBot11 标准是从原 CKYU 平台的 CQHTTP 插件接口修改而来的通用聊天机器人应用接口标准，适用于不同 bot 平台 api 之间的无缝迁移
@@ -54,14 +55,13 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 - **[Napcat API 文档](https://napcat.apifox.cn/)** : NapCat 接口文档
 - **[微信公众号官方文档](https://developers.weixin.qq.com/doc/offiaccount/Getting_Started/Overview.html)** : 微信公众平台是运营者通过公众号为微信用户提供资讯和服务的平台，而公众平台开放接口则是提供服务的基础，开发者在公众平台网站中创建公众号、获取接口权限后，可以通过阅读本接口文档来帮助开发
 - **[QQ 小程序文档](https://q.qq.com/wiki/develop/miniprogram/frame/)** : 小程序开发框架的目标是通过尽可能简单、高效的方式让开发者可以在 QQ 中开发具有原生 APP 体验的服务。[开发工具](https://q.qq.com/wiki/tools/devtool/stable.html)
-- **[WeWe Rss](https://github.com/cooderl/wewe-rss)** : 更优雅的微信公众号订阅方式，支持私有化部署、微信公众号RSS生成（基于微信读书）
-- **[哔哩哔哩-API收集整理](https://socialsisteryi.github.io/bilibili-API-collect/#%F0%9F%8D%B4%E7%9B%AE%E5%BD%95)** : 本项目旨在对 B站 WEB、APP、TV 等客户端中，散落在世界各地的野生 API 进行收集整理，研究使用方法并对其进行说明，运用了黑箱法、控制变量法、代码逆向分析、拆包及反编译法、网络抓包法等研究办法
 - **[spacy中基于规则的实体识别](https://blog.xiawei.tech/2021/11/entity-ruler-of-spacy/)** : EntityRuler（实体规则）组件，让你可以基于模式字典添加命名实体，从而可以轻松地将基于规则的命名实体识别和统计命名实体识别结合起来，以使管道更加强大
 - **[基于spaCy的命名实体识别](https://zhuanlan.zhihu.com/p/352121461)** : 基于spaCy的命名实体识别 －－－－以“大屠杀”领域命名实体识别研究为例
 - **[spaCy V3.0 基于规则匹配(3)----基于规则的命名实体识别NER](https://blog.csdn.net/u014607067/article/details/114391484)** : EntityRuler是一个spaCy管道组件，可以通过基于patterns字典添加命名实体，能够方便基于规则和统计方式的命名实体识别方法相结合，从而实现功能更强大的spaCy管道
 - **[CloudDNS](https://www.cloudns.net/index/show/login/)** : CloudDNS 提供免费 DNS、云 DNS、托管 DNS、GeoDNS 和受 DDoS 保护的 DNS 托管，包括网页重定向、邮件转发和循环负载平衡
 
 #### 待参考文档
+- **[WeWe Rss](https://github.com/cooderl/wewe-rss)** : 更优雅的微信公众号订阅方式，支持私有化部署、微信公众号RSS生成（基于微信读书）
 - **[Rasa](https://zhuanlan.zhihu.com/p/88625091)** : Rasa是一套开源机器学习框架，用于构建基于上下文的AI小助手和聊天机器人
 - **[状态机](https://blog.csdn.net/JENREY/article/details/128607990)** : python 实现的有限状态机
 - **[魔曰](https://github.com/SheepChef/Abracadabra)** : 文言文加密法（https://abra.halu.ca/）
@@ -77,41 +77,51 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 1. 项目采用 docker 运行，即项目可以屏蔽环境差异，在任何环境下快速部署
 2. 本项目目的为集成各平台消息服务,实现自定义功能。目前搭载 QQ、Napcat、微信公众平台、B 站、QQ 小程序五个平台的机器人
 3. 以下均用 qqbot(LR232),napcat(LR5921),wechat(WECHAT),bilibili(BILI),qqapp(QQAPP) 代替各平台
-4. 项目下载后请把 storage_copy 文件夹重命名为 storage，根据下文配置相关信息
+
 #### 准备工作
 1. 安装好 docker 环境([参考](storage/record/docker.md))
-2. 需要根据 [secret.yaml](storage/yml/secret.yaml) 文件中的配置提示配置各平台参数，并配置相关服务器和域名  
+2. 需要根据 [secret.yaml](storage/yml/secret.yaml) 文件中的配置提示配置各平台参数，并配置服务器和域名  
 3. 关于各平台的功能简介、注册方法跳转[平台配置教程](storage/record/platform.md)
 4. 在服务器上配置 nginx，将 [nginx.conf](storage/nginx.conf)(参考[服务器配置教程](storage/record/server.md))
 #### 项目运行
-1. 建议浏览一遍平台配置教程和服务器配置教程来了解本项目，项目架构可以参考下方的架构图
-2. 为了最大化利用设备，本项目采用本地运行+服务器+域名的模式，当然其他模式也可以通过调整配置来实现
-3. 本项目模式填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 storage/lrobot.pem 处。如果项目本身在服务器上运行则不用填写后者。如果是正向代理+反向代理的配置请自行参考上方的服务器配置教程
-4. 填写平台相关信息（ID、SECRET）即代表启用该平台服务，留空（注意不是注释掉）则不启用
-5. 下载项目 `git clone https://github.com/wwweibu/lrobot.git` ，进入项目目录 `cd lrobot`
-6. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
-7. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
-8. `docker compose up --bulid -d mysql` `docker compose up --bulid -d mongodb` 启动数据库服务
-9. `docker compose up --bulid lrobot` 启动 lrobot 主服务
-10. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
+1. 下载项目 `git clone https://github.com/wwweibu/lrobot.git`
+2. 建议浏览一遍平台配置教程和服务器配置教程来了解本项目，项目架构可以参考下方的架构图
+3. 为了省钱，本项目采用本地运行+服务器+域名的模式，使用最低配置的服务器，其他模式也可以通过调整配置来实现
+4. 在 secret.yaml 中填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 storage/lrobot.pem 处。如果项目本身在服务器上运行则不用填写后者。如果是正向代理+反向代理的配置请自行参考上方的服务器配置教程
+5. 填写平台相关信息（ID、SECRET）即代表启用该平台服务，留空（注意不是注释掉）则不启用
+6. 编写路径替换函数 secret 替换掉 config.py 里面的 secret，用于保护你的平台路径
+7. 进入项目目录 `cd lrobot`
+8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
+9. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
+10. `docker compose up --bulid -d mysql` `docker compose up --bulid -d mongodb` 启动数据库服务
+11. `docker compose up --bulid lrobot` 启动 lrobot 主服务
+12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 
 #### 项目开发
-1. 项目搭载网页服务，其中 vue 前端可自行开发并打包，页面可在服务器及域名处访问
-2. /command 为项目功能列表，调试时可在页面中加入新功能，设置启用平台以及判断条件等
-3. 可在 logic/event 中添加更多自定义的功能
-4. 功能演示可在[功能介绍](#功能介绍)中查看
-5. 添加新包时，需要重启镜像，将包名加入到 lrobot/requirements.in 中，进入 lrobot 文件夹，输入 `docker run -it --rm -v %cd%:/app -w /app python:3.11 bash -c "python -m pip install --upgrade pip && pip install -r requirements.in && pip freeze > requirements.txt"` 生成新的环境依赖
+###### 功能开发
+1. 在 logic/event 中开发功能
+2. 访问 域名/command（需要在/cmd下登录），在页面中添加功能，设置平台及条件等
+3. 引入新包时，将包名加入到 lrobot/requirements.in 中，进入 lrobot 文件夹，输入 `docker run -it --rm -v %cd%:/app -w /app python:3.11 bash -c "python -m pip install --upgrade pip && pip install -r requirements.in && pip freeze > requirements.txt"` 生成新的环境依赖
+4. 使用 docker compose up --build lrobot 中心构建镜像
+###### 前端开发
+1. 使用 vscode 打开 vue 文件夹
+2. 在 views 里添加页面，在 router/index.js 中添加路径
+3. 使用 `npm run dev` 进行测试，打开 http://localhost:5173/
+4. 调试完成后，使用 `npm run build` 打包项目到 lrobot 中
+###### 小程序开发
+- 待定
 
 ---
 
 ## 项目结构
-![项目架构图](storage/record/img/readme_1.png)
+![项目架构图](storage/record/img/readme_1.png) 
 - 部署完成后，项目结构应该类似于：
 - **command/**                     : 命令行服务(连接服务器)
 - **lrobot/**                      : 主服务
 - **qqapp/**                       : QQ 小程序存放位置，使用[ QQ 小程序开发者工具](https://q.qq.com/wiki/tools/devtool/stable.html)打开
 - **storage/**                     : 数据存储(napcat 数据、mysql 和 mongodb 数据库、系统文件)
 - **vue/**                         : vue 开发文件夹，使用 vscode 打开
+- **.gitignore**                   : git 忽略文件
 - **config.py**                    : 配置脚本
 - **docker-compose.yml**           : docker 配置信息
 - **LICENSE**                      : 项目许可证 
@@ -148,6 +158,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
     - **app.py**                   : 后端启动入口
   - **frontend/**                  : 项目前端
     - **dist/**                    : vue 的打包文件
+- **Dockerfile**                   : lrobot 服务的创建指令
 - **main.py**                      : 程序的主入口
 - **requirements.in**              : lrobot 服务依赖包
 - **requirements.txt**             : lrobot 服务依赖包
@@ -171,7 +182,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 
 ---
 
-## 功能介绍
+## 功能介绍（待整理）
 #### 社团网站
 - 项目用
 #### 平台功能
@@ -201,7 +212,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 
 ---
 
-## 相关技术
+## 相关技术（待整理）
 ### 整体架构
 #### 开发流程
 - 可参考流程图调试出错位置
@@ -744,6 +755,9 @@ serve_task = asyncio.create_task(init_serve())
 - 新增 mysql 和 mongodb 数据库
 - 新增 connect 连接方法
 - 修改 config 路径使不同容器共享日志和配置
+#### [7.0.1] -2025-6-12
+- 尝试合并不同平台消息接收、发送逻辑，失败
+
 </details>
 
 ***

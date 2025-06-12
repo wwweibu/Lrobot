@@ -38,13 +38,12 @@ class MsgPool:
             msg = await cls._queue.get()  # 队列为空时自动挂起，不占用 CPU
             asyncio.create_task(msg_process(msg))
 
-    # TODO 检测是否能处理
     @classmethod
     async def clean_messages(cls):
-        """清理超过 1 天的旧消息（但保留仍被引用的消息）"""
+        """清理超过 2 天的旧消息（但保留仍被引用的消息）"""
         while True:
-            await asyncio.sleep(86400)
-            one_day_ago = time.time() - 86400  # 1 天前的时间戳
+            await asyncio.sleep(86400 * 2)
+            one_day_ago = time.time() - 86400 * 2  # 1 天前的时间戳
 
             to_delete = [
                 num

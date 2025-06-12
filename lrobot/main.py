@@ -4,7 +4,7 @@ import tracemalloc
 from web.backend.app import server_runner,app
 from message.handler.msg_pool import MsgPool
 from config import config, secret, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
-from message.adapter import refresh_tokens, QQAPP_router, LR232_router,  WECHAT_router, LR5921_router
+from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router
 
 
 async def start():
@@ -43,7 +43,8 @@ async def init_WECHAT():
 
 
 async def init_QQAPP():
-    app.include_router(QQAPP_router, prefix=secret("/QQAPP"))
+    #app.include_router(QQAPP_router, prefix=secret("/QQAPP"))
+    pass
 
 
 def set_tasks():

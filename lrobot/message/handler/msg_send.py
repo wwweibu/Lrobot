@@ -10,7 +10,6 @@ from message.adapter import (
     LR5921_get_info,
     LR5921_get_status,
     LR5921_dispatch,
-    bili_dispatch,
     wechat_dispatch,
     LR5921_dispatch_record,
 )
@@ -23,10 +22,10 @@ async def msg_send(msg: Msg):
         f"⌈{msg.robot}⌋{msg.event}:{msg.kind}->{msg.content}",
         extra={"event": "消息发送"},
     )
-    if msg.robot == "BILIBILI":
-        if msg.kind == "私聊发送文本":
-            await bili_dispatch(msg.source, msg.content)
-    elif msg.robot == "LR232":
+    # if msg.robot == "BILIBILI":
+    #     if msg.kind == "私聊发送文本":
+    #         await bili_dispatch(msg.source, msg.content)
+    if msg.robot == "LR232":
         match = re.search(r"发送\*(\d+)", msg.event)
         msg_seq = int(match.group(1)) if match else 1
         if msg.kind in [

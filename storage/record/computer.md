@@ -1,5 +1,5 @@
 Atlas os 配置指南
-1. 确保你有两台电脑，不建议配置你经常使用的电脑，本办法需要一个 U 盘，且电脑必须要两个 USB 口
+1. 确保你有两台电脑，不建议配置常用的电脑，本方法需要一个 U 盘，且电脑必须要两个 USB 口
 2. 访问 [win11 规格要求](https://www.microsoft.com/zh-cn/windows/windows-11-specifications#table1) 确保能使用 win11 
 3. 访问 [Atlas 配置指南页](https://docs.atlasos.net/getting-started/installation/#__tabbed_1_1)，点击 Down load Windows 11 24H2，选择 Chinese Simplified，点击下载
 4. 下载最新版本的 [ventoy](https://github.com/ventoy/Ventoy/releases/)，点击 download now，选择 windows.zip 下载

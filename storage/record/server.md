@@ -2,29 +2,26 @@
 ## 各平台连接方式及需求
 - 其中 napcat 是基于本地的 http 协议推送和调用，B 站是基于浏览器 cookie 的 api 调用，均不涉及 ip/域名配置
 
-|   平台   |      qqbot(本项目)       | qqbot(botpy) |      微信公众号       |        微博        |         QQ小程序         |
-|:------:|:---------------------:|:------------:|:----------------:|:----------------:|:---------------------:|
-|  连接协议  |         https         |  websocket   |       http       |       http       |         https         | 
-| 消息接收方式 |   主动推送到对应 ip(https)   |  websocket   | 主动推送到对应 ip(http) | 主动推送到对应 ip(http) | request 请求(https)(域名) | 
-| 消息发送方式 |    白名单 ip 调用对应 api    |  websocket   |     调用对应 api     |     调用对应 api     |     request 请求返回      |
-|   需求   | 支持 https 的域名，公网 ip 发送 | 公网 ip 接收及发送  |   支持 http 的 ip   |   支持 http 的 ip   |     支持 https 的域名      |
+|   平台   |         qqbot         | qqbot(botpy方式) |      微信公众号       |        微博        |         QQ小程序         |
+|:------:|:---------------------:|:--------------:|:----------------:|:----------------:|:---------------------:|
+|  连接协议  |         https         |   websocket    |       http       |       http       |         https         | 
+| 消息接收方式 |   主动推送到对应 ip(https)   |   websocket    | 主动推送到对应 ip(http) | 主动推送到对应 ip(http) | request 请求(https)(域名) | 
+| 消息发送方式 |    白名单 ip 调用对应 api    |   websocket    |     调用对应 api     |     调用对应 api     |     request 请求返回      |
+|   需求   | 支持 https 的域名，公网 ip 发送 |  公网 ip 接收及发送   |   支持 http 的 ip   |   支持 http 的 ip   |     支持 https 的域名      |
 
 ![需求图](img/server_1.png)
 
-#### 配置一览
-- 配置1: 域名（备案）+服务器，可运行所有服务
-- 配置2: 域名+服务器，不能运行 qqapp
-- 配置3: 服务器，使用botpy，不能运行 qqapp
-- 配置4: 正向代理+反向代理（备案），可运行所有服务
-- 配置5: 正向代理+反向代理（未备案），不能运行 qqapp
-- 其中服务器 = 一台有公网 ip 的电脑
-- 由于正向代理经常存在网络波动问题，且反向代理目前无法备案，故推荐域名+服务器的模式
-- 由于项目实际上在本地电脑上运行，服务器实际只起转发作用，故需要配置 nginx 进行转发
-- 服务器实际上取代了正向代理+反向代理的功能
+#### 配置总结
+- 运行所有服务需要正向代理 + 反向代理 + 域名 + 备案
+- 没有域名无法运行 qqbot 和 qqapp
+- 没有备案域名无法运行 qqapp
+- 考虑到校园网络环境，本项目中正向代理选择服务器+socks 的方法，反向代理选择服务器+nginx 的方法
+- 本项目中服务器 ip 可随时更换（只需要更改域名解析即可）
+- 其他正向及反向代理方法可参考部署说明后的结尾部分
 
 ## 名称解释
 #### ip 与域名
-- ip 包括服务器 ip (纯数字)和域名
+- ip 包括服务器 ip (纯数字)和域名(字母)
 - 域名是通过 DNS 解析成 ip 的
 
 #### 协议
@@ -35,38 +32,55 @@
 
 #### 证书
 - SSL 证书是一种数字证书，用于在客户端和服务器之间建立安全的加密通信通道
-- 多个地方可以提供证书，腾讯提供收费的证书，cloudflare 提供免费的证书
-- 但本项目使用 cloudflare 转发存在问题，故使用 Let's Encrypt 来配置免费的证书
+- 多个地方可以提供证书，腾讯提供收费和免费的证书，cloudflare、Let's Encrypt 提供免费的证书
 
 #### 备案
-- 备案指所有国内的域名在 ICP 管理局进行备案，由于 QQ 小程序在今年年初停止了网址代备案服务，所以所有域名只能在服务器提供商处备案
-- 国内的域名使用需要备案，国外的域名使用不需要备案；国内的服务器无法解析国外的域名（仅针对国内大企业服务器提供商），只能解析国内域名（且需要审核）；国内小厂服务器可解析所有域名（但非常容易跑路）
+- 备案指所有国内的域名必须在 ICP 管理局进行备案，由于 QQ 小程序在今年年初停止了网址代备案服务，所以所有域名只能在服务器提供商处备案
+- 国内的域名使用需要备案，国外的域名使用不需要备案
 
 #### 域名解析
 - 域名必须要有一个域名托管处（DNS 解析跳转的地方）
-- 免费的域名不提供托管服务，可以使用 cloudflare 进行免费托管；服务器+域名提供商提供托管服务
+- 免费的域名不提供托管服务，可以使用 cloudflare 进行免费托管；收费的域名一般是域名提供商提供托管服务
+- 域名托管服务器会根据记录将域名请求转发到你的服务器上
+- 国内的服务器无法解析国外的域名（仅针对国内大企业服务器提供商），只能解析国内域名（且需要审核）；国内小厂服务器可解析所有域名（但非常容易跑路）；国外的服务器可以解析国外及国内的域名
 - A 记录：将域名解析成一个 ipv4 地址；CNAME 记录：将你的域名解析成另一个域名；DS 记录：包含一个哈希值，用于验证 DNS 区域中下级区域的密钥
 - 子记录：域名下的子域记录。*：所有未明确指定的子域名都会被解析到这个 IP 地址；www：www.xxxxxxx 会被解析到这个 IP 地址；域名本身： 仅域名本身会被解析到这个 IP 地址
 
+#### 服务器正向代理
+- 正向代理（一般叫做代理）指的是客户端通过代理服务器访问目标服务器
+- 服务器连接命令中的 `-D 5923` 就是一种采用 socks5 的正向代理，把 5923 端口的请求转发到服务器
+- 为什么不用 socks 而用 socks5？在测试 socks 代理时，使用 `nslookup  http://ifconfig.me`返回服务器 unknown，与网关有关，必须用 sock 强制在服务器上解析地址，--socks5 会报错而 --socks5-hostname不会
+
+#### 服务器反向代理
+- 反向代理指的是服务器在接收到客户端请求后，将请求转发给真实的服务器，并将服务器的响应返回给客户端
+- 服务器连接命令中的 `-R localhost:10000:localhost:5922` 就是将本地的 5922 端口绑定到服务器的 10000 端口
+- 同时配置 nginx 将 10000 端口转发到 80 端口和 443 端口，实现反向代理
+
 ## 价格和配置参考
 - 国内的域名大部分都收费，国外的域名有大型的免费域名提供商；国内的服务器试用期只有 1-3 月，国外的服务器试用期大多为 1 年（但需要 visa 卡），国内小厂服务器极其不稳定
-- 由于备案限制，本项目选择国内的服务器+国内的域名，阿里价格最便宜，新用户[参考](https://t.aliyun.com/U/urbXTG)可获得 79/年的服务器，域名在 169/年左右；腾讯的其次，368/三年的服务器+109/三年的域名（搜索腾讯云优惠）
-- 国外的微软的云服务价格：大致为 22 元/月，一年 264 元。本项目服务器 ip 可随时更换（只需要更改域名解析即可） ![money](img/host_2.png)
-- 为提高算力及节省价钱，本项目采用的是本地电脑 n5095 运行，12GB 运存配置，服务器只需要使用最小的存储即可
-
-- 域名解析到服务器必须通过审核，国外服务器可解析国外域名，
+- 国内域名中，阿里价格最便宜，新用户[参考](https://t.aliyun.com/U/urbXTG)可获得 79/年的服务器，域名在 169/年左右；腾讯的其次，368/三年的服务器+109/三年的域名
+- 国外的微软的云服务价格大致为 22 元/月，一年 264 元。 ![money](img/host_2.png)
 
 ## 服务器配置
+- 由于 qqapp 的备案限制，本项目选择国内的服务器+国内的域名
+
+#### 腾讯云域名+服务器购买
+- 进入[优惠页面](https://cloud.tencent.com/act/pro/lighthouse2021)，选择轻量应用服务器，参考价格368/三年
+- 实名后选择域名，购买域名，参考价格109/三年
+- 选择右上角的备案，进行备案
+
 #### 服务器连接
-- 使用`ssh -i xxx\lrobot.pem username@ip`连接服务器（记得替换密钥文件路径、管理员名称和服务器ip）
-- `Are you sure you want to continue connecting (yes/no/[fingerprint])?`选择yes
+- 使用`ssh -i xxx\lrobot.pem username@ip`连接服务器（记得替换命令中的密钥文件路径、管理员名称和服务器ip）
+- `Are you sure you want to continue connecting (yes/no/[fingerprint])?` 选择yes
 - 如果出现`Connection closed by xxx port 22`检查密钥路径以及是否开启了网络代理服务
-- 在使用代理时，可能会出现以下情况：Invalid user dnsmasq from xxxxxx port 33570，代理会更改你的用户名
-- 在同一电脑向服务器建立两个 ssh 连接时，如果开启 debug，有时会发现卡在 debug1: pledge: network，没找到解决方法，可能是服务器无法处理这两个 ss h连接的问题，使用清理 btmp 文件、禁用DNS解析、重启 systemd-logind 服务三种方法，均未解决
+- 在使用代理时，可能会出现以下情况：Invalid user dnsmasq from xxxxxx port 33570，dnsmasq 是使用代理后被更改的用户名，需要关闭代理
+- 在同一电脑向服务器建立两个 ssh 连接时，如果开启 debug，有时会发现卡在 debug1: pledge: network，没找到解决方法，可能是服务器无法处理两个 ssh 连接的问题，使用清理 btmp 文件、禁用DNS解析、重启 systemd-logind 服务三种方法，均未解决
+
 #### 服务器端口
 - 为满足连接需要，22 端口（ssh 连接）是需要开启的
 - 测试时，最好能开启 80 及 443 端口，以便直接通过服务器 ip 来测试
 - 测试结束后，关闭服务器的 80 及 443 端口，后续都直接通过域名访问
+
 #### nginx 配置/linux
 - 参考[教程](https://www.cnblogs.com/orangebooks/p/12058830.html)或下文的安装命令在服务器上配置 nginx
 - nginx 安装命令参考:
@@ -82,37 +96,14 @@ sudo make
 sudo make install
 ```
 - 启动 nginx 服务 `cd /usr/local/nginx/sbin/` `sudo ./nginx`
+- 将腾讯云下发的证书拷贝到服务器路径 `/etc/nginx/ssl/whumystery.cn_bundle.pem` 和 `/etc/nginx/ssl/whumystery.cn.key` 处
 - 修改 nginx 配置，在本地创建一个 nginx.conf，在本地命令行使用命令`type xxxx\nginx.conf | ssh -i xxx\lrobot.pem username@ip "sudo tee /usr/local/nginx/conf/nginx.conf > /dev/null"`来更改服务器上的 nginx 配置文件（记得替换nginx文件路径、密钥文件路径、管理员名称和服务器ip），随后通过ssh连接服务器，输入`cd /usr/local/nginx/sbin``` ```sudo ./nginx -s reload`来重启nginx服务
-- 如果购买了国内域名，在域名通过 ICP 备案系统后，域名提供商会生成一份域名证书，可以取代下一步的免费证书
-- 配置 Let's Encrypt SSL 证书与自动续期：`sudo pkill nginx` `sudo certbot certonly --nginx -d 域名` `sudo certbot renew --dry-run` `sudo crontab -e`在末尾添加`0 3 * * * certbot renew --quiet --post-hook "systemctl reload nginx"` 使用 ctrl+x 并输入 :qa 退出 `cd /usr/local/nginx/sbin/``` ```sudo ./nginx`
-- nginx 配置文件可在 storage/nginx.conf 中找到，其他 nginx 的相关调试问题可在 README 文档-相关技术-服务器-代理调试 部分中找到
 
 #### nginx 配置/windows
 - **注意 windows 版本，windows在2016 以上才能安装openssh**
 - 访问 https://nginx.org/en/download.html 下载 nginx
 - 打开 nginx/conf/nginx.conf 复制本地文件 nginx.conf
-- 访问 https://www.win-acme.com/ 下载 acme，运行 wacs，输入 n，2，域名，3，n，y，邮箱，成功配置
-- 手动配置密钥生成路径 `wacs.exe --target manual --host 域名 --store pemfiles --pemfilespath "C:\path\to\your\certs"`
-- 需要每隔三个月运行 wacs.exe --renew 进行更新或者手动更新
-
-#### 服务器正向代理
-- 正向代理（一般叫做代理）指的是客户端通过代理服务器访问目标服务器
-- nginx 配置中的 `-D 5923` 就是一种采用 socks5 的正向代理，把 5923 端口的请求转发到服务器
-- 为什么不用 socks 而用 socks5？在测试 socks 代理时，使用 `nslookup  http://ifconfig.me`返回服务器 unknown，与网关有关，必须用 sock 强制在服务器上解析地址，--socks5 会报错而 --socks5-hostname不会
-- 另一种更加常见地实现正向代理的方式是 clash（见下文），通过代理可以让 qq 收到你的 ip 是代理服务器的 ip
-
-###### 相关问题
-- 当使用校园网的时候，通过 ipconfig 获取的 ip *理应* 是你的真实 ip，但把此 ip 加入 qq 的白名单后却无法建立 ws 连接，推测跟连接时的转发机制有关，网关不会将请求直接映射到你的电脑上
-- 当使用 socks5 的时候，将服务器 ip 加入白名单，向 qq 服务器建立 ws 连接，会连接失败，强制识别你的本机 ip（原理未知）
-- 关于上一点，使用了查看 dns 解析、更改 aiohttp.session[方法](../abandoned/aiohttp_test.py)，更换 connector 的方法后，访问 ipconfig 返回的都是服务器的 ip;通过抓包工具（wireshark 和 tcpdump 监听）分析也是经过服务器转发的；请求头在本地打印后是空的，抓包的话需要解密。经过解析，可能需要启动 SNAT 技术来更改 websocket 请求中的源 ip 地址信息，clash 使用了 MASQUERADE（动态snat）来完成。
-- 当使用 clash 的 TUN 模式时，由于是模拟网络层而不是应用层，可以绕开 ws 连接携带 ip 的限制（猜测），把代理服务器加入白名单后即可正确连接 qq
-- 有时候会出现 uvicorn 服务在 0.0.0.0 无法访问的问题，解答可能是本地防火墙或安全组规则可能阻止了 127.0.0.1 的访问权限（尽管此情况较罕见）
-
-#### 服务器反向代理
-- 反向代理指的是服务器在接收到客户端请求后，将请求转发给真实的服务器，并将服务器的响应返回给客户端
-- nginx 配置中的 `-R localhost:10000:localhost:5922` 就是将本地的 5922 端口绑定到服务器的 10000 端口
-- 同时配置 nginx 将 10000 端口转发到 80 端口和 443 端口，实现反向代理
-- 另一种根据反向代理实现转发服务的常见应用是小米球（见下文）
+- 同样复制密钥文件（需要修改 nginx.conf 中密钥文件路径为 windows 上的路径）
 
 #### 调试
 - 当 ssh 测试出现错误时可按照此步骤逐步排除配置错误
@@ -139,7 +130,9 @@ if __name__ == "__main__":
 - 端口被占用：ssh 未正常关闭时发生，显示`Remote: Forwarding listen address "localhost" overridden by server GatewayPorts`，需要使用`sudo ss -lpn | grep :10000`以及`sudo kill -9 {pid}`来杀死进程
 - 关于上一步，已在 command 里面实现自动杀死进程
 
-## 免费域名+服务器申请
+## 其他
+#### 免费域名+服务器申请
+- 如果不使用 qqapp，可以申请国外的免费域名+服务器试用
 - 创建一个域名，以 cloudDNS 为例，进入[官网](https://www.cloudns.net/)，注册帐号并在邮箱激活
 - 返回官网，选择是，跳转到 DNS 区域创建页面，在 DNS 托管中选择创建区域-自由区，创建域名
 - 删除域名网站的域名下所有记录，选择添加新记录
@@ -155,8 +148,10 @@ if __name__ == "__main__":
 - 务必选择对应的域名和服务器，国外的域名对应国外的服务器，国内的域名对应国内的服务器
 - 在 cloudDNS 官网上添加三条 A 记录，类型选择 A，指向到输入服务器公共 ip 地址，主机分别填写 （不填）、*、www （三条 A 记录放在 cloudFlare 上托管也行）
 - 本项目在配置 cloudflare 经常遇到无法转发的错误，所以使用 nginx 的 https 配置以及 Let's Encrypt 证书
+- nginx 配置与上文相同，配置完成后，配置 Let's Encrypt SSL 证书与自动续期：`sudo pkill nginx` `sudo certbot certonly --nginx -d 域名` `sudo certbot renew --dry-run` `sudo crontab -e`在末尾添加`0 3 * * * certbot renew --quiet --post-hook "systemctl reload nginx"` 使用 ctrl+x 并输入 :qa 退出 `cd /usr/local/nginx/sbin/``` ```sudo ./nginx`
+- windows 中配置证书的操作为：访问 https://www.win-acme.com/ 下载 acme，运行 wacs，输入 n，2，域名，3，n，y，邮箱，成功配置，手动配置密钥生成路径 `wacs.exe --target manual --host 域名 --store pemfiles --pemfilespath "C:\path\to\your\certs"`，需要每隔三个月运行 wacs.exe --renew 进行更新或者手动更新
 
-## 其他正反向代理方法
+#### 其他正反向代理方法
 #### clash
 - 如果采用正向代理，下载 clash，自己获取一个机场，项目运行时开启 TUN 模式即可
 - TUN 模式：模拟网络层设备，新建一个 TUN 虚拟网卡实现 DNS 劫持
@@ -171,12 +166,21 @@ rules:
   - DOMAIN-SUFFIX,sgroup.qq.com,xx
   - MATCH,DIRECT
 ```
+
 #### [小米球](https://www.xiaomiqiu.cn/)
 - 小米球使用 ngrok 服务让本地项目支持外网访问，可以自己申请[隧道](https://manager.xiaomiqiu.com/login)
 - 申请好后将地址和密码写入 xiaomiqiu.conf 中，将小米球文件夹放在 lrobot 同级目录中
-- 之后在 main 里面的 tasks 增加一项：run_xiaomiqiu()，如果需要日志格式转化则参考 [service.py](../abandoned/service.py)里的方式
+- 之后在 main 里面的 tasks 增加一项：run_xiaomiqiu()，如果需要日志格式转化则参考 abandoned/service.py 里的方式
+
 #### 其他失败的方法
 - 用 cloudflare 里的 zerotrust 的本地隧道穿透测试失败，能显示访问请求且结果为 NOERROR,tunnel 配置和 DNS 配置都是正常的,可能与网络有关
 - DDNS-GO 可用于不存在网关的网络系统中。对于家庭组网路由，ipv4 和网关的 ipv4 相同，动态 DDNS 解析没有用，本质上还是获取你的固定的 ipv4 上报到类似于 cloudflared 的域名解析平台，访问提交给网关时，无法正确定位到你的电脑上
 - 如果网关不是光猫而是路由器直接连接网线，可以尝试配置路由器分配固定 ip 的方法，即配置路由器某端口固定返回本机。光猫网关不支持分配端口
 - 使用 ipv6 也许是可行的，但 Hurricane Electric 的 6in4 注册不了，可能是网络问题
+
+#### 相关问题
+- 当使用校园网的时候，通过 ipconfig 获取的 ip *理应* 是你的真实 ip，但把此 ip 加入 qq 的白名单后却无法建立 ws 连接，推测跟连接时的转发机制有关，网关不会将请求直接映射到你的电脑上
+- 当使用 socks5 的时候，将服务器 ip 加入白名单，向 qq 服务器建立 ws 连接，会连接失败，强制识别你的本机 ip（原理未知）
+- 关于上一点，使用了查看 dns 解析、更改 aiohttp.session[方法](../abandoned/aiohttp_test.py)，更换 connector 的方法后，访问 ipconfig 返回的都是服务器的 ip;通过抓包工具（wireshark 和 tcpdump 监听）分析也是经过服务器转发的；请求头在本地打印后是空的，抓包的话需要解密。经过解析，可能需要启动 SNAT 技术来更改 websocket 请求中的源 ip 地址信息，clash 使用了 MASQUERADE（动态snat）来完成。
+- 当使用 clash 的 TUN 模式时，由于是模拟网络层而不是应用层，可以绕开 ws 连接携带 ip 的限制（猜测），把代理服务器加入白名单后即可正确连接 qq
+- 有时候会出现 uvicorn 服务在 0.0.0.0 无法访问的问题，解答可能是本地防火墙或安全组规则可能阻止了 127.0.0.1 的访问权限（尽管此情况较罕见）

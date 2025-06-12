@@ -23,6 +23,8 @@ async def msg_process(msg):
 
 
 async def safe_msg_process(msg: Msg):
+    print(msg)
+    return
     qq = await identify_user(msg.source, msg.robot)
     if qq:
         states = await check_status(qq)  # 用户状态
