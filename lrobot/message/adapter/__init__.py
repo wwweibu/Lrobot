@@ -16,3 +16,4 @@ from .lr5921_dispatch import (
 )
 from .acess_token import refresh_tokens
 from .wechat_dispatch import wechat_dispatch
+from .bili_receive import bili_msg_get

@@ -854,94 +854,182 @@
 
 #### 文字消息
 ```
-[
-    {
-        "talker_id": 651326580,
-        "session_type": 1,
-        "at_seqno": 0,
-        "top_ts": 0,
-        "group_name": "",
-        "group_cover": "",
-        "is_follow": 1,
-        "is_dnd": 0,
-        "ack_seqno": 1813999822618625,
-        "ack_ts": 1743824490484330,
-        "session_ts": 1743856497167986,
-        "unread_count": 3,
-        "last_msg": {
-            "sender_uid": 651326580,
-            "receiver_type": 1,
-            "receiver_id": 260237904,
-            "msg_type": 1,
-            "content": '{"content":"喂喂"}',
-            "msg_seqno": 1814632021671938,
-            "timestamp": 1743856496,
-            "at_uids": None,
-            "msg_key": 7489806620250258266,
-            "msg_status": 0,
-            "notify_code": "",
-            "new_face_version": 1,
-            "msg_source": 2,
-        },
-        "group_type": 0,
-        "can_fold": 0,
-        "status": 0,
-        "max_seqno": 1814632021671938,
-        "new_push_msg": 0,
-        "setting": 0,
-        "is_guardian": 0,
-        "is_intercept": 0,
-        "is_trust": 0,
-        "system_msg_type": 0,
-        "live_status": 0,
-        "biz_msg_unread_count": 0,
-        "user_label": None,
-    }
-]
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 1,
+  "content": "{\"content\":\"1122[doge_金箍][妙啊][嗑瓜子][嗑瓜子][微笑][doge_金箍][tv_doge]\"}",
+  "msg_seqno": 1919899656306691,
+  "timestamp": 1750130937,
+  "at_uids": [
+    0
+  ],
+  "msg_key": 7516755138286510330,
+  "msg_status": 0,
+  "notify_code": "",
+  "msg_source": 2
+}
+
 ```
 
 #### 图片消息
 ```
-[{
-    "talker_id": 651326580,
-    "session_type": 1,
-    "at_seqno": 0,
-    "top_ts": 0,
-    "group_name": "",
-    "group_cover": "",
-    "is_follow": 1,
-    "is_dnd": 0,
-    "ack_seqno": 1813999822618625,
-    "ack_ts": 1743824490484330,
-    "session_ts": 1743858076710784,
-    "unread_count": 5,
-    "last_msg": {
-        "sender_uid": 651326580,
-        "receiver_type": 1,
-        "receiver_id": 260237904,
-        "msg_type": 2,
-        "content": '{"height":1280,"imageType":"png","original":0,"size":"129","url":"https://i0.hdslb.com/bfs/im_new/c58b7940da50c04ba1899ee21026380d651326580.jpg","width":2816}',
-        "msg_seqno": 1814658512896015,
-        "timestamp": 1743858076,
-        "at_uids": None,
-        "msg_key": 7489813405847697460,
-        "msg_status": 0,
-        "notify_code": "",
-        "new_face_version": 1,
-        "msg_source": 2,
-    },
-    "group_type": 0,
-    "can_fold": 0,
-    "status": 0,
-    "max_seqno": 1814658512896015,
-    "new_push_msg": 0,
-    "setting": 0,
-    "is_guardian": 0,
-    "is_intercept": 0,
-    "is_trust": 0,
-    "system_msg_type": 0,
-    "live_status": 0,
-    "biz_msg_unread_count": 0,
-    "user_label": None,
-}]
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 2,
+  "content": "{\"height\":2816,\"imageType\":\"png\",\"original\":0,\"size\":\"276\",\"url\":\"https://message.biliimg.com/bfs/im_new/1912e3e3afdc9b2cb6949ce1eca78bc5651326580.jpg\",\"width\":1280}",
+  "msg_seqno": 1921611670503427,
+  "timestamp": 1750232981,
+  "at_uids": [
+    0
+  ],
+  "msg_key": 7517193413995218638,
+  "msg_status": 1,
+  "notify_code": "",
+  "new_face_version": 1,
+  "msg_source": 2
+}
+
 ```
+
+#### 撤回消息
+```
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 5,
+  "content": "7517193413995218638",
+  "msg_seqno": 1921612275245056,
+  "timestamp": 1750233017,
+  "at_uids": [
+    0
+  ],
+  "msg_key": 7517193568812417526,
+  "msg_status": 0,
+  "notify_code": "",
+  "msg_source": 2
+}
+```
+
+#### 自定义表情
+```
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 6,
+  "content": "{\"height\":642,\"imageType\":\"png\",\"original\":0,\"size\":\"138\",\"url\":\"https://i0.hdslb.com/bfs/im_new/1743f68f6498a5c3841af5e4af5e089d651326580.jpg\",\"width\":1024}",
+  "msg_seqno": 1921650543321090,
+  "timestamp": 1750235298,
+  "at_uids": null,
+  "msg_key": 7517203365470304257,
+  "msg_status": 0,
+  "notify_code": "",
+  "new_face_version": 1,
+  "msg_source": 2
+}
+
+```
+
+#### 分享消息
+```
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 7,
+  "content": "{\"author\":\"进击的六六角龙\",\"headline\":\"\",\"id\":114679552679789,\"source\":5,\"thumb\":\"http://i0.hdslb.com/bfs/archive/093
+cbb023459361cecf43ca3df8ac378c64ecd7c.jpg\",\"title\":\"【Python爬虫】一分钟教你用Python暴力破接永久白嫖vip付费电影（附源码）一键操作无需下载，轻 松实现电影自由！！\", \"bvid\":\"BV1JeMCztEkZ\"}",
+  "msg_seqno": 1921651835035652,
+  "timestamp": 1750235375,
+  "at_uids": null,
+  "msg_key": 7517203696743967618,
+  "msg_status": 0,
+  "notify_code": "",
+  "new_face_version": 1,
+  "msg_source": 2
+}
+
+```
+
+#### 系统消息
+```
+{
+  "sender_uid": 12076317,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 10,
+  "content": "{\"title\":\"登录操作通知\",\"text\":\"你的账号在新设备或平台登录成功，如非本人操作，请及时修改密码（密码修改成功，全平台清空登录态 
+）\",\"jump_text\":\"查看详情\",\"jump_uri\":\"\",\"modules\":[{\"title\":\"设备/平台\",\"detail\":\"未知设备\"},{\"title\":\"登录方式\",\"detail\
+":\"密码登录\"},{\"title\":\"参考登录地\",\"detail\":\"中国湖北武汉\"},{\"title\":\"登录时间\",\"detail\":\"2025-04-05 09:04:33\"}],\"jump_text_2\
+":\"\",\"jump_uri_2\":\"\",\"jump_text_3\":\"\",\"jump_uri_3\":\"\",\"notifier\":null,\"jump_uri_config\":{\"all_uri\":\"https://account.bilibili.
+com/h5/account-h5/notice/notice-login?mid=260237904\\u0026buvid=d3f2a50699f6b0e31dabeb5a62326ff0\",\"harmony_uri\":\"https://account.bilibili.com/
+h5/account-h5/notice/notice-login?mid=260237904\\u0026buvid=d3f2a50699f6b0e31dabeb5a62326ff0\",\"text\":\"查看详情\"},\"jump_uri_2_config\":{\"harmony_uri\":\"\",\"text\":\"\"},\"jump_uri_3_config\":{\"harmony_uri\":\"\",\"text\":\"\"},\"biz_content\":null}",
+  "msg_seqno": 1813937041752074,
+  "timestamp": 1743815073,
+  "at_uids": null,
+  "msg_key": 7489628709741107408,
+  "msg_status": 0,
+  "notify_code": "3_13",
+  "new_face_version": 1,
+  "msg_source": 6
+}
+
+```
+
+#### 视频/专栏推送
+
+#### 图片卡片
+```
+{
+  "sender_uid": 233114659,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 13,
+  "content": "{\"pic_url\":\"http://i0.hdslb.com/bfs/location/ead1d047e5837c10575df6a89a16c57b8753af96.png\",\"jump_url\":\"https://game.bilibili.com/blhx/flndsg/\",\"title\":\"大型活动「樊笼内的神光」限时开启！\"}",
+  "msg_seqno": 1760843025743888,
+  "timestamp": 1740650401,
+  "at_uids": null,
+  "msg_key": 7476036546232069704,
+  "msg_status": 0,
+  "notify_code": "",
+  "new_face_version": 1,
+  "msg_source": 5
+}
+
+```
+
+#### 直播分享
+```
+{
+  "sender_uid": 651326580,
+  "receiver_type": 1,
+  "receiver_id": 260237904,
+  "msg_type": 14,
+  "content": "{\"author\":\"墨色长安\",\"cover\":\"https://i1.hdslb.com/bfs/face/e8a0e441be79c66af7a6041576d78b7e1018d332.jpg\",\"desc\":\"主播： 
+墨色长安 https://live.bilibili.com/731109\",\"source\":\"直播\",\"title\":\"深渊速通专场，闲聊解答游戏问题\",\"url\":\"https://live.bilibili.com/7
+31109?broadcast_type=0&is_room_feed=1&live_from=41000&share_medium=android&share_source=bili_message&bbid=XXB9503B0ED16BAD891D0EE4FE95CC3848D8F&ts=1750235783600\"}",
+  "msg_seqno": 1921658730594311,
+  "timestamp": 1750235786,
+  "at_uids": null,
+  "msg_key": 7517205461786379992,
+  "msg_status": 0,
+  "notify_code": "",
+  "new_face_version": 1,
+  "msg_source": 2
+}
+
+
+```
+
+
+#### 被关注自动推送消息/系统提示消息
+
+
+
+## 说明
+由于每次获取消息后设置了已读，所以不会显示及处理撤回消息

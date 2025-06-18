@@ -93,8 +93,8 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 7. 进入项目目录 `cd lrobot`
 8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
 9. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
-10. `docker compose up --bulid -d mysql` `docker compose up --bulid -d mongodb` 启动数据库服务
-11. `docker compose up --bulid lrobot` 启动 lrobot 主服务
+10. `docker compose up --build -d mysql` `docker compose up --build -d mongodb` 启动数据库服务
+11. `docker compose up --build lrobot` 启动 lrobot 主服务
 12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 
 #### 项目开发
@@ -757,7 +757,10 @@ serve_task = asyncio.create_task(init_serve())
 - 修改 config 路径使不同容器共享日志和配置
 #### [7.0.1] -2025-6-12
 - 尝试合并不同平台消息接收、发送逻辑，失败
-
+#### [7.0.2] -2025-6-17
+- 新增定时任务传入参数
+#### [7.0.3] -2025-6-18
+- 新增 b 站消息处理
 </details>
 
 ***

@@ -131,7 +131,8 @@ def monitor_adapter(platform: str):
 
 
 # 定时任务添加
-async def add_scheduler(func, interval=None, at_time=None, count=None):
+async def add_scheduler(func,*args, interval=None, at_time=None, count=None,**kwargs):
+    """异步函数的定时任务"""
     executed = 0
     while True:
         if count is not None and executed >= count:
@@ -146,10 +147,10 @@ async def add_scheduler(func, interval=None, at_time=None, count=None):
             wait_time = (target - now).total_seconds()
             await asyncio.sleep(wait_time)
         try:
-            await func()
+            await func(*args,**kwargs)  # 只能执行异步
         except Exception as e:
             loggers["system"].error(
-                f"定时任务{func.__name__}异常 -> {e}", extra={"event": "运行日志"}
+                f"定时任务{func.__name__}异常 -> {e}", extra={"event": "定时任务"}
             )
             # traceback.print_exc()  # 调试用
         executed += 1
@@ -227,7 +228,7 @@ class AutoConfig:
             except Exception as e:
                 loggers["system"].error(
                     f"yaml 文件 {config_file.name} 格式错误 -> {e}",
-                    extra={"event": "运行日志"},
+                    extra={"event": "配置读取"},
                 )
         set_log()  # 更新日志记录器
 
@@ -243,7 +244,7 @@ class AutoConfigHandler(FileSystemEventHandler):
                 return  # 内容未改变
             loggers["system"].info(
                 f"yaml 文件 {file_path} 更新",
-                extra={"event": "运行日志"},
+                extra={"event": "配置读取"},
             )
             config.load_config()  # 重新加载
 
@@ -268,7 +269,7 @@ def init_mongo(uri: str = "mongodb://mongodb:27017/lrobot_log"):
     global mongo_client, mongo_db
     mongo_client = motor.motor_asyncio.AsyncIOMotorClient(uri)
     mongo_db = mongo_client.get_default_database()
-    print("Mongodb 数据库连接成功")
+    loggers["system"].info("Mongodb 数据库连接成功", extra={"event": "运行日志"})
 
 
 async def log_writer():
@@ -285,7 +286,7 @@ async def log_writer():
         try:
             await mongo_db.system_log.insert_one(document)
         except Exception as e:
-            print(f"日志写入错误 -> {e}")
+            loggers["system"].error(f"Mongodb 日志写入错误 -> {e}", extra={"event": "运行日志"})
 
 
 class ConsoleHandler(logging.Handler):
@@ -297,8 +298,8 @@ class ConsoleHandler(logging.Handler):
     def emit(self, record):
         if self.formatter:
             self.format(record)  # 添加 asctime 属性
-        if record.name.startswith("uvicorn"):
-            record.levelno = logging.DEBUG  # 更改 web 日志等级
+        if record.name.startswith("uvicorn") or record.name == "server":
+            record.levelno = logging.DEBUG  # 更改 web 和 server 日志等级
         log_color = COLORS.get(record.levelno, Fore.RESET)  # 添加日志颜色
         source = f"[{source_dict.get(record.name, record.name)}]"  # 更新 source
         event = getattr(record, "event", "-")  # 获取 event，默认 '-'
@@ -326,7 +327,7 @@ class DatabaseHandler(logging.Handler):
         try:
             log_queue.put_nowait((record.asctime,record.levelname,source_dict.get(record.name, record.name),getattr(record, "event", "-"),message))
         except Exception as e:
-            print("日志入队失败", e)
+            loggers["system"].error(f"Mysql 日志入队失败 -> {e}", extra={"event": "运行日志"})
 
 
 class UvicornFilter(logging.Filter):
@@ -363,7 +364,7 @@ class ServerFilter(logging.Filter):
 
 
 class LR5921Filter(logging.Filter):
-    """LR5921 的日志过滤器"""
+    """LR5921 的日志过滤器，暂时不用"""
 
     def filter(self, record):
         if not record.getMessage():
@@ -404,8 +405,7 @@ def set_log():
     loggers["uvicorn.access"].addFilter(UvicornFilter())
     loggers["uvicorn.error"].addFilter(UvicornFilter())
     loggers["server"].addFilter(ServerFilter())
-    loggers["adapter"].addFilter(LR5921Filter())
-    loggers["system"].debug("更新成功", extra={"event": "配置更新"})
+    loggers["system"].info("配置数据更新", extra={"event": "配置读取"})
 
 
 async def init_mysql():
@@ -421,7 +421,7 @@ async def init_mysql():
         maxsize=20,
         autocommit=False,  # 必须为 False 才能手动控制提交与回滚
     )
-    print("Mysql 数据库连接成功")
+    loggers["system"].info("Mysql 数据库连接成功", extra={"event": "运行日志"})
 
 
 async def query_database(query: str, params: tuple = ()):
@@ -433,7 +433,7 @@ async def query_database(query: str, params: tuple = ()):
                 result = await cur.fetchall()
                 return result
             except Exception as e:
-                print(f"查询语句异常 -> {e} | 查询: {query} | 参数: {params}")
+                loggers["system"].error(f"Mysql 查询语句异常 -> {e} | 查询: {query} | 参数: {params}", extra={"event": "运行日志"})
 
 
 async def update_database(query: str, params: tuple = ()):
@@ -445,7 +445,8 @@ async def update_database(query: str, params: tuple = ()):
                 await conn.commit()
             except Exception as e:
                 await conn.rollback()
-                print(f"更新语句异常 -> {e} | 更新: {query} | 参数: {params}")
+                loggers["system"].error(f"Mysql 更新语句异常 -> {e} | 更新: {query} | 参数: {params}",
+                                        extra={"event": "运行日志"})
 
 
 # 初始化 future 变量管理器
@@ -454,7 +455,7 @@ future = FutureManager()
 for file in (path / "storage/yml").glob("*.yaml"):
     with open(file, "r", encoding="utf-8") as f:
         config.update(yaml.safe_load(f) or {})
-# 初始化 MongoDB 连接
-init_mongo()
 # 初始化日志记录器
 set_log()
+# 初始化 MongoDB 连接
+init_mongo()

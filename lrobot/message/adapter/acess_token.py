@@ -63,7 +63,7 @@ async def refresh_tokens(platform_list):
                     )
                 except Exception as e:
                    adapter_logger.error(
-                        f"⌈{platform}⌋令牌刷新失败: {e}",
+                        f"⌈{platform}⌋令牌刷新失败 -> {e}",
                         extra={"event": "令牌刷新"},
                    )
 

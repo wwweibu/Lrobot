@@ -4,7 +4,7 @@ import tracemalloc
 from web.backend.app import server_runner,app
 from message.handler.msg_pool import MsgPool
 from config import config, secret, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
-from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router
+from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router,bili_msg_get
 
 
 async def start():
@@ -46,6 +46,10 @@ async def init_QQAPP():
     #app.include_router(QQAPP_router, prefix=secret("/QQAPP"))
     pass
 
+async def init_BILI():
+    await bili_msg_get()
+    asyncio.create_task(add_scheduler(bili_msg_get, 20,interval=20))
+
 
 def set_tasks():
     """生成任务列表"""
@@ -61,6 +65,7 @@ def set_tasks():
         "LR5921": ["LR5921_ID"],
         "WECHAT": ["WECHAT_ID", "WECHAT_SECRET"],
         "QQAPP": ["QQAPP_ID", "QQAPP_SECRET"],
+        "BILI": ["BILI_SESSDATA","BILI_JCT"]
     }  # 平台配置参数
 
     platform_list = [
@@ -83,6 +88,7 @@ async def main():
     """代码主入口，运行所有任务"""
     await start()
     tasks = set_tasks()
+    print(tasks)
 
     try:
         results = await asyncio.gather(

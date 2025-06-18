@@ -63,7 +63,7 @@ async def run_command(command: str, logger=None, retries=5):
             ):
                 if retries > 0:
                     if logger:
-                        logger.warning(
+                        logger.error(
                             "检测到连接关闭，正在重新启动...",
                             extra={"event": "运行日志"},
                         )
