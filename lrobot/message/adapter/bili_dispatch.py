@@ -10,7 +10,7 @@ headers = {
 }
 
 async def bili_get_info():
-    """查询账号消息"""
+    """私聊查询账号(信息)"""
     client = connect()
     url = "https://api.bilibili.com/x/member/web/account"
     cookies = {
@@ -19,13 +19,13 @@ async def bili_get_info():
     response = await client.get(url, cookies=cookies, headers=headers)
     if response.status_code == 200:
         adapter_logger.debug(
-            f"[BILI][成功]{response.text}", extra={"event": "消息发送"}
+            f"[BILI]账号信息 -> {response.json()['data']}", extra={"event": "消息发送"}
         )
     else:
         raise Exception(f"账号信息查询失败 -> [{response.status_code}]{response.text}")
 
 async def bili_set_sign(sign:str):
-    """修改账号签名，需要较长时间审核"""
+    """私聊修改(账号)签名，需要较长时间审核"""
     client = connect()
     url = "https://api.bilibili.com/x/member/web/sign/update"
     cookies = {
@@ -38,26 +38,9 @@ async def bili_set_sign(sign:str):
     response = await client.post(url, headers=headers, data=data, cookies=cookies)
     if response.status_code == 200:
         adapter_logger.debug(
-            f"[BILI][成功]修改签名成功{response.text}", extra={"event": "消息发送"}
+            f"[BILI]修改签名 -> {sign}", extra={"event": "消息发送"}
         )
     else:
         raise Exception(f"修改签名失败 -> [{response.status_code}]{response.text}")
 
 
-async def bili_get_msg():
-    client = connect()
-    url = "https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions"
-    cookies = {
-        "SESSDATA": config["BILI_SESSDATA"]
-    }
-    response = client.get(url, headers=headers, cookies=cookies)
-    print(12334)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[BILI][成功]消息列表{response.text}", extra={"event": "消息发送"}
-        )
-    else:
-        adapter_logger.error(
-            f"[BILI][成功]消息列表{response.text}", extra={"event": "消息发送"}
-        )
-        raise Exception(f"修改签名失败 -> [{response.status_code}]{response.text}")

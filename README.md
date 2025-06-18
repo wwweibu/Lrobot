@@ -761,6 +761,7 @@ serve_task = asyncio.create_task(init_serve())
 - 新增定时任务传入参数
 #### [7.0.3] -2025-6-18
 - 新增 b 站消息处理
+- 修改消息格式与日志格式至统一
 </details>
 
 ***

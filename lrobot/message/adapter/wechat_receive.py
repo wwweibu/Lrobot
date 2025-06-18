@@ -25,9 +25,9 @@ def set_callback(signature: str, timestamp: str, nonce: str, echostr: str):
             sha1.update(item.encode("utf-8"))
         hashcode = sha1.hexdigest()
 
-        if hashcode == signature:  # 比对signature与计算出的hashcode
+        if hashcode == signature:  # 比对 signature 与计算出的 hashcode
             adapter_logger.debug(
-                f"⌈WECHAT⌋ 消息回调配置成功", extra={"event": "回调配置"}
+                f"⌈WECHAT⌋回调配置成功", extra={"event": "消息接收"}
             )
             return Response(content=echostr, media_type="text/plain")
         else:
@@ -40,25 +40,24 @@ def set_callback(signature: str, timestamp: str, nonce: str, echostr: str):
 
 
 @router.post("/")
-async def LR232_receive(request: Request):
+async def wechat_receive(request: Request):
     """接收微信发送的 XML 消息"""
     body = await request.body()
     xml_data = body.decode("utf-8")
-    adapter_logger.debug(f"⌈WECHAT⌋ {xml_data}", extra={"event": "消息接收"})
+    adapter_logger.debug(f"⌈WECHAT⌋{xml_data}", extra={"event": "消息接收"})
     seq = await handle_wechat_message(xml_data)
     if not seq:
-        raise Exception(f" 消息去重 | 消息: {xml_data}")
+        raise Exception(f"消息去重 | 消息: {xml_data}")
     try:
         _future = future.get(seq)
-        print(seq)
         response = await asyncio.wait_for(_future, timeout=20)
     except asyncio.TimeoutError:
-        raise Exception(f" 消息超时 | 消息: {xml_data}")
+        raise Exception(f"消息超时 | 消息: {xml_data}")
     return response
 
 
 @monitor_adapter("WECHAT")
-async def handle_wechat_message(data):
+async def wechat_message_deal(data):
     """解析微信消息"""
     root = ET.fromstring(data)
     # TODO 消息类型解析

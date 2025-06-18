@@ -5,9 +5,10 @@ from config import loggers, connect
 from .acess_token import access_tokens
 
 adapter_logger = loggers["adapter"]
+token = access_tokens["LR232"]["token"]
+headers = {"Authorization": f"QQBot {token}"}
 
-
-async def LR232_dispatch(
+async def lr232_dispatch(
     kind, openid, content, event_id=None, msg_id=None, msg_seq=None, files=None
 ):
     """LR232 发送消息"""
@@ -17,8 +18,7 @@ async def LR232_dispatch(
     else:
         url = f"https://api.sgroup.qq.com/v2/groups/{openid}/messages"
         upload_url = f"https://api.sgroup.qq.com/v2/groups/{openid}/files"
-    token = access_tokens["LR232"]["token"]
-    headers = {"Authorization": f"QQBot {token}"}
+
     media = {}
     client = connect(True)
     if files:
@@ -53,7 +53,7 @@ async def LR232_dispatch(
             media = response.json()
         else:
             raise Exception(
-                f"文件上传失败 -> [{response.status_code}]{response.text}"
+                f"文件上传失败 -> 网络返回码[{response.status_code}]{response.text}"
             )
     data = {
         "content": content if content is not None else " ",
@@ -66,26 +66,26 @@ async def LR232_dispatch(
     response = await client.post(url, json=data, headers=headers)
 
     if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR232][成功]{response.text}", extra={"event": "消息发送"}
+        # TODO 待测试，发送图片消息日志
+        adapter_logger.info(
+            f"[LR232]发送 -> {content if content is not None else files[0][0]}", extra={"event": "消息发送"}
         )
     else:
         raise Exception(f"消息发送失败 -> [{response.status_code}]{response.text}")
 
 
-async def LR232_dispatch_withdraw(kind, openid, msg_id):
+async def lr232_withdraw(kind, openid, msg_id):
     """LR232 撤回消息"""
     if kind.startswith("私聊"):
         url = f"https://api.sgroup.qq.com/v2/users/{openid}/messages/{msg_id}"
     else:
         url = f"https://api.sgroup.qq.com/v2/groups/{openid}/messages/{msg_id}"
-    token = access_tokens["LR232"]["token"]
-    headers = {"Authorization": f"QQBot {token}"}
+
     client = connect(True)
     response = await client.delete(url, headers=headers)
     if response.status_code == 200:
         adapter_logger.debug(
-            f"[LR232][成功]{response.text}", extra={"event": "消息发送"}
+            f"[LR232]撤回 -> 消息{msg_id}", extra={"event": "消息发送"}
         )
     else:
         raise Exception(f"消息撤回失败 -> [{response.status_code}]{response.text}")

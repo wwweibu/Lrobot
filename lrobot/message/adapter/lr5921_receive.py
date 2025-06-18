@@ -64,18 +64,18 @@ async def msg_content_join(content):
 
 
 @router.post("/")
-async def LR5921_receive(data: Dict):
+async def lr5921_receive(data: Dict):
     """LR5921 消息接收"""
     adapter_logger.debug(f"⌈LR5921⌋{data}", extra={"event": "消息接收"})
     if data.get("post_type") == "meta_event":
         return {"status": "ok"}
     else:
-        await handle_lr5921_message(data)
+        await lr5921_message_deal(data)
         return {"status": "ok"}
 
 
 @monitor_adapter("LR5921")
-async def handle_lr5921_message(data):
+async def lr5921_message_deal(data):
     post_type = data.get("post_type")
     seq = data.get("message_id", "")
     group = data.get("group_id", "")
@@ -86,7 +86,7 @@ async def handle_lr5921_message(data):
     if post_type == "notice":
         notice_type = data.get("notice_type")
         kind_map = {
-            "friend_add": "私聊添加好友",
+            "friend_add": "私聊添加机器",
             "friend_recall": "私聊撤回消息",
             "group_admin": "群聊增加管理",
             "group_ban": "群聊开启禁言",
@@ -124,7 +124,7 @@ async def handle_lr5921_message(data):
             if sub_type == "input_status":
                 return {"status": "ok"}
             elif sub_type == "poke":
-                kind = "群聊戳戳"
+                kind = "群聊戳戳消息"
                 text = data.get("raw_info")
                 targets = [
                     item["txt"]
@@ -133,7 +133,7 @@ async def handle_lr5921_message(data):
                 ]
                 content = f"{source}{targets[0]}{data.get('target_id')}{targets[1]}"
             elif sub_type == "profile_like":
-                kind = "私聊点赞"
+                kind = "私聊点赞消息"
     elif post_type == "message_sent":
         kind += "发送"
         sender = data.get("sender")
@@ -141,7 +141,7 @@ async def handle_lr5921_message(data):
         nickname = sender.get("nickname", "")
         if nickname == "临时会话":
             kind += "临时"  # 私聊临时发送存在群名
-        return  # 暂时不处理发送消息
+        return  # TODO 暂时不处理发送消息
     elif post_type == "message":
         content, files = await msg_content_join(content)
         if content:

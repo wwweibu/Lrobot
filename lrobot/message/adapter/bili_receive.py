@@ -1,7 +1,7 @@
 import json
 import time
 from message.handler.msg import Msg
-from config import config,loggers,connect
+from config import config,loggers,connect,monitor_adapter
 
 adapter_logger = loggers["adapter"]
 
@@ -25,7 +25,7 @@ async def bili_msg_get(interval=None):
     }  # 增加开始时间
     response = await client.get(url, headers=headers, params=params,cookies=cookies)
     if response.status_code == 200:
-        adapter_logger.debug(f"⌈BILI⌋ {response.json()}", extra={"event": "消息接收"})
+        adapter_logger.debug(f"⌈BILI⌋{response.json()}", extra={"event": "消息接收"})
         msg_list = response.json()["data"]["session_list"]
         if not isinstance(msg_list, list):  # 无消息
             return
@@ -80,13 +80,13 @@ async def bili_msg_read(talker_id):
     }
     response = await client.post(url, headers=headers, data=data, cookies=cookies)
     if response.status_code == 200:
-        print(response.json())
+        return
     else:
         adapter_logger.error(
             f"[BILI]网络异常 -> {response.text}", extra={"event": "消息接收"}
         )
 
-
+@monitor_adapter("BILI")
 async def bili_msg_deal(msg):
     """消息处理，对应私信主体对象"""
     print(msg)
@@ -101,6 +101,10 @@ async def bili_msg_deal(msg):
         file_url = content["url"]
         files.append((file_name,file_url))
         content = ""
+    elif msg['msg_type'] == 5:
+        # TODO 待测试，20秒内发送+撤回
+        kind = "私聊撤回消息"
+        content = f"{msg['sender_uid']}撤回了一条消息{content}"
     elif msg['msg_type'] == 7:
         source_type_map = {
             2: "相簿",

@@ -10,7 +10,7 @@ adapter_logger = loggers["adapter"]
 
 async def wechat_dispatch(id, seq, content):
     """微信发送消息"""
-    content = content.replace("\n", "\u2028")
+    content = content.replace("\n", "\u2028")  # 替换换行符
     response = f"""<xml>
     <ToUserName><![CDATA[{id}]]></ToUserName>
     <FromUserName><![CDATA[{config['WECHAT_SELF']}]]></FromUserName>

@@ -52,7 +52,7 @@ def msg_content_join(content):
 
 
 @router.post("/")
-async def LR232_receive(data: dict):
+async def lr232_receive(data: dict):
     """LR232 接收消息"""
     op = data.get("op")
     if op == 13:  # 回调地址配置
@@ -60,26 +60,26 @@ async def LR232_receive(data: dict):
         plain_token = data.get("plain_token")
         event_ts = data.get("event_ts")
         if not plain_token or not event_ts:
-            raise Exception(f"回调配置错误 | 数据不完整: {data}")
+            raise Exception(f"回调配置错误 -> 数据不完整: {data}")
         signature = generate_signature(config["LR232_SECRET"], event_ts, plain_token)
-        adapter_logger.debug(f"⌈LR232⌋ 消息回调配置成功", extra={"event": "回调配置"})
+        adapter_logger.debug(f"⌈LR232⌋回调配置成功", extra={"event": "消息接收"})
         return {"plain_token": plain_token, "signature": signature}
     elif op == 0:  # qqbot 消息
-        adapter_logger.debug(f"⌈LR232⌋ {data}", extra={"event": "消息接收"})
-        await handle_lr232_message(data)
+        adapter_logger.debug(f"⌈LR232⌋{data}", extra={"event": "消息接收"})
+        await lr232_message_deal(data)
         return {"op": 12}, 200
     else:
         raise Exception(f" 不存在 op 码 | 数据: {data}")
 
 
 @monitor_adapter("LR232")
-async def handle_lr232_message(data):
+async def lr232_message_deal(data):
     """消息处理"""
     now = time.time()
-    event_id = data.get("id")  # 这个是事件id
+    event_id = data.get("id")  # 事件id
     if event_id in _msg_cache and (now - _msg_cache[event_id] < 5):
-        adapter_logger.debug(
-            f"⌈LR232⌋ 跳过 5 秒内重复消息: {data}", extra={"event": "消息去重"}
+        adapter_logger.info(
+            f"⌈LR232⌋跳过 5 秒内重复消息 -> {data}", extra={"event": "消息接收"}
         )
         return {"op": 12}, 200  # 消息去重
     _msg_cache[event_id] = now
@@ -90,15 +90,15 @@ async def handle_lr232_message(data):
         raise Exception(f"参数不完整 | 数据:{data}")
     kind_map = {
         "C2C_MESSAGE_CREATE": "私聊",
-        "C2C_MSG_REJECT": "私聊关闭推送",
+        "FRIEND_ADD": "私聊添加好友",
+        "FRIEND_DEL": "私聊删除好友",
         "C2C_MSG_RECEIVE": "私聊开启推送",
+        "C2C_MSG_REJECT": "私聊关闭推送",
         "GROUP_AT_MESSAGE_CREATE": "群聊",
-        "GROUP_ADD_ROBOT": "群聊添加",
-        "GROUP_DEL_ROBOT": "群聊删除",
-        "GROUP_MSG_REJECT": "群聊关闭推送",
+        "GROUP_ADD_ROBOT": "群聊添加机器",
+        "GROUP_DEL_ROBOT": "群聊删除机器",
         "GROUP_MSG_RECEIVE": "群聊开启推送",
-        "FRIEND_DEL": "好友删除",
-        "FRIEND_ADD": "好友添加",
+        "GROUP_MSG_REJECT": "群聊关闭推送"
     }
     if t not in kind_map:
         raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
@@ -120,7 +120,7 @@ async def handle_lr232_message(data):
             group=group_id,
         )
     else:
-        id = d.get("id")  # 这个是消息id
+        id = d.get("id")  # 消息id
         content = d.get("content")
         author = d.get("author", {})
         user_id = author.get("id")
