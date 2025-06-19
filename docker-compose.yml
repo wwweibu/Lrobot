@@ -63,6 +63,7 @@ services:
       - "5925:3306"
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
+      - ./storage/data/initdb:/docker-entrypoint-initdb.d
 
   #  wewe-rss:
   #    build: ./wewe-rss

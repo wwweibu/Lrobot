@@ -1,5 +1,4 @@
 # fastapi 主逻辑
-import asyncio
 import uvicorn
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.gzip import GZipMiddleware
@@ -19,7 +18,6 @@ app.include_router(database_router, prefix=secret("/cab"))
 app.include_router(file_router, prefix=secret("/cab"))
 app.include_router(login_router, prefix=secret("/cab"))
 app.include_router(metrics_router, prefix=secret("/cab"))
-app.include_router(model_router, prefix=secret("/cab"))
 app.include_router(user_router, prefix=secret("/cab"))
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
@@ -29,8 +27,8 @@ app.add_middleware(GZipMiddleware)
 async def exception_handler(request: Request, exc: Exception):
     """异常捕获"""
     website_logger.error(
-        f"IP:{request.client.host} | 请求路径:{request.url} | {str(exc)}",
-        extra={"event": "函数错误"},
+        f"IP: {request.client.host} | 请求路径: {request.url} -> {str(exc)}",
+        extra={"event": "运行日志"},
     )
     return JSONResponse(status_code=200, content={})
 
@@ -73,7 +71,7 @@ async def vue(full_path: str):
 
 async def server_runner():
     """后端启动"""
-    website_logger.debug("后台服务启动", extra={"event": "运行日志"})
+    website_logger.info("后台服务启动", extra={"event": "运行日志"})
     config = uvicorn.Config(app, host="0.0.0.0", port=5922, log_config=None)
     server = uvicorn.Server(config)
     await server.serve()

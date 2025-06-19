@@ -1,5 +1,6 @@
 /qqapp/
-/storage/data/
+/storage/data/mongodb
+/storage/data/mysql
 /storage/yml/
 /storage/lrobot.pem
 /a.yml

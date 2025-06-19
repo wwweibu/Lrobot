@@ -11,7 +11,7 @@ from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form
 from config import path
 
 router = APIRouter()
-UPLOAD_DIR = path / "storage/file/resource/kb"
+UPLOAD_DIR = path / "storage/file/resource/clouddrive"
 RECYCLE_BIN = path / "storage/file/resource/recycle"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 

@@ -102,7 +102,6 @@ async def bili_msg_deal(msg):
         files.append((file_name,file_url))
         content = ""
     elif msg['msg_type'] == 5:
-        # TODO 待测试，20秒内发送+撤回
         kind = "私聊撤回消息"
         content = f"{msg['sender_uid']}撤回了一条消息{content}"
     elif msg['msg_type'] == 7:

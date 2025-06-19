@@ -17,6 +17,7 @@ async def validate_password(password: str):
 @router.get("/account")
 async def validate_account(account: str):
     """管理员页面登录账号"""
+    # TODO 发送验证码
     if account == config["cab_account"]:
         await asyncio.sleep(10)
         return {"isValid": True}

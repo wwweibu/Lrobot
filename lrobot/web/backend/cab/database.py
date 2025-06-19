@@ -8,28 +8,17 @@ router = APIRouter()
 database_connections: List[WebSocket] = []  # 数据库 ws 连接
 
 
-def serialize_row(row: dict) -> dict:
-    """序列化数据库行，处理 BLOB 字段为 base64 字符串"""
-    new_row = {}
-    for key, value in row.items():
-        if isinstance(value, bytes):  # 处理 BLOB 类型
-            new_row[key] = base64.b64encode(value).decode("ascii")
-        else:
-            new_row[key] = value
-    return new_row
-
-
 @router.get("/database")
 async def get_database():
     """获取数据库"""
-    query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != 'file_kb'"
+    query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
     result = await query_database(query)
     table_names = [row["name"] for row in result]
     all_data = {}
     for table in table_names:
         try:
             rows = await query_database(f"SELECT * FROM {table}")
-            all_data[table] = [serialize_row(row) for row in rows]
+            all_data[table] = rows
         except Exception as e:
             all_data[table] = {"error": str(e)}
     return {"tables": table_names, "data": all_data}

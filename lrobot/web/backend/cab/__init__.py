@@ -4,5 +4,4 @@ from .database import router as database_router
 from .file import router as file_router
 from .login import router as login_router
 from .metircs import router as metrics_router
-from .modelconnect import router as model_router
 from .user import router as user_router
