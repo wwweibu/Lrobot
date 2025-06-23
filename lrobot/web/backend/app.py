@@ -5,7 +5,8 @@ from starlette.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from web.backend.cab import *
-from config import path, loggers,secret
+from secret import secret
+from config import path, loggers
 
 
 website_logger = loggers["website"]

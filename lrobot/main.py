@@ -2,8 +2,9 @@
 import asyncio
 import tracemalloc
 from web.backend.app import server_runner,app
+from secret import secret
 from message.handler.msg_pool import MsgPool
-from config import config, secret, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
+from config import config, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
 from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router,bili_msg_get
 
 

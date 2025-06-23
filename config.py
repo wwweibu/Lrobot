@@ -1,5 +1,5 @@
 # 基本的配置及常量（放在此处避免循环引用）
-# 包含：全局路径、自定义路径加密、代理连接、future 变量、消息处理监控、定时任务、配置信息读写、日志记录器、 数据库写入查询操作
+# 包含：全局路径、代理连接、future 变量、消息处理监控、定时任务、配置信息读写、日志记录器、 数据库写入查询操作
 # 需要使用 mysql 数据库引入 init_mysql；日志写入需要 gather log_writer；配置自动更新需要 gather init_config
 import re
 import sys
@@ -63,27 +63,6 @@ monitor_metrics = defaultdict(
         "total_time": 0.0,
     }
 )
-
-# 自定义路径加密
-def secret(text):
-    key_values = [23, 5, 9, 2, 21]  # "weibu" 对应的数值
-
-    def char_to_num(c):
-        return ord(c) - ord("a") + 1
-
-    def num_to_char(n):
-        return chr((n - 1) % 26 + ord("a"))
-
-    encrypted_text = ""
-    for i, c in enumerate(text.lower()):
-        if c.isalpha():
-            shift = key_values[i % len(key_values)]
-            new_char = num_to_char(char_to_num(c) + shift)
-            encrypted_text += new_char
-        else:
-            encrypted_text += c
-
-    return encrypted_text
 
 
 # 代理/不代理连接

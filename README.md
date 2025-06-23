@@ -80,7 +80,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 
 #### 准备工作
 1. 安装好 docker 环境([参考](storage/record/docker.md))
-2. 需要根据 [secret.yaml](storage/yml/secret.yaml) 文件中的配置提示配置各平台参数，并配置服务器和域名  
+2. 需要将 storage/yml/secret_copy.yaml 重命名为 secret.yaml(不能保留)，根据文件中的配置提示配置各平台参数，并配置服务器和域名  
 3. 关于各平台的功能简介、注册方法跳转[平台配置教程](storage/record/platform.md)
 4. 在服务器上配置 nginx，将 [nginx.conf](storage/nginx.conf)(参考[服务器配置教程](storage/record/server.md))
 #### 项目运行
@@ -96,6 +96,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 10. `docker compose up --build -d mysql` `docker compose up --build -d mongodb` 启动数据库服务
 11. `docker compose up --build lrobot` 启动 lrobot 主服务
 12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
+13. 可以使用 `docker logs xx` 或者 Docker Desktop 查看容器内部日志
 
 #### 项目开发
 进入项目，使用 `git pull origin master`更新
