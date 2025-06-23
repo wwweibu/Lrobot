@@ -66,7 +66,24 @@ monitor_metrics = defaultdict(
 
 # 自定义路径加密
 def secret(text):
-    return text
+    key_values = [23, 5, 9, 2, 21]  # "weibu" 对应的数值
+
+    def char_to_num(c):
+        return ord(c) - ord("a") + 1
+
+    def num_to_char(n):
+        return chr((n - 1) % 26 + ord("a"))
+
+    encrypted_text = ""
+    for i, c in enumerate(text.lower()):
+        if c.isalpha():
+            shift = key_values[i % len(key_values)]
+            new_char = num_to_char(char_to_num(c) + shift)
+            encrypted_text += new_char
+        else:
+            encrypted_text += c
+
+    return encrypted_text
 
 
 # 代理/不代理连接

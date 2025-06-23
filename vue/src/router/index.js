@@ -12,6 +12,7 @@ import Monitor from '../views/Cab/Monitor.vue';
 import Log from '../views/Cab/Log.vue'
 import File from '../views/Cab/File.vue';
 import Preview from '../views/Cab/Preview.vue';
+import Timeline from '../views/Cab/Timeline.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 
 const routes = [
@@ -19,6 +20,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/timeline',
+    name: 'Timeline',
+    component: Timeline
   },
   {
     path: '/cab',

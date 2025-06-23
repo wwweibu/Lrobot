@@ -1,0 +1,72 @@
+logging:
+  version: 1
+  disable_existing_loggers: False
+
+  formatters:
+    console:
+      format: "%(asctime)s|%(levelname)s|%(name)s|%(event)s|%(message)s"
+      datefmt: "%H:%M:%S"
+    database:
+      format: "%(asctime)s|%(levelname)s|%(name)s|%(event)s|%(message)s"
+      datefmt: "%m-%d %H:%M:%S"
+
+  handlers:
+    console:
+      class: config.ConsoleHandler  # 引入 config.py 中的模块
+      level: DEBUG
+      formatter: console
+
+#    file:
+#      class: logging.handlers.RotatingFileHandler
+#      level: DEBUG
+#      formatter: default
+#      filename: app.log
+#      maxBytes: 1048576
+#      backupCount: 3
+#      encoding: utf-8
+
+    database:
+      class: config.DatabaseHandler  # 使用自定义 Handler
+      level: DEBUG
+      formatter: database
+
+  loggers:
+    website:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    adapter:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    message:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    system:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    server:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    uvicorn:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    uvicorn.access:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no
+
+    uvicorn.error:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no

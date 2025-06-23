@@ -1,2 +1,2 @@
 from .data import *
-from .command.forward_all import forward_all
+from .command.forward import forward_all

@@ -1,18 +1,20 @@
 # 后端逻辑
-from typing import List
-from pydantic import BaseModel
 from fastapi import APIRouter, Request
 from fastapi.responses import FileResponse
+from logic import  check_and_update_ip
 from config import path,loggers,update_database,query_database
-#from logic import  check_and_update_ip
+
 
 
 router = APIRouter()
 command_path = path / "storage/config/command.yaml"
 users_path = path / "storage/config/user.yaml"
 website_logger = loggers["website"]
-
-
+from fastapi import Response
+@router.get("/test")
+async def test():
+    """测试端口"""
+    return Response(content="Hello World!", media_type="text/plain")
 @router.get("/static/{file_path:path}")
 async def static_file(file_path: str):
     """静态资源文件"""

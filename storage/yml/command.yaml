@@ -1,0 +1,180 @@
+commands:
+- content:
+  - /测试1
+  func: 测试
+  function: test_WECHAT
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  state: []
+  users:
+  - 微步
+- content:
+  - /帮助
+  func: 帮助
+  function: help_text
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - WECHAT
+  - LR232
+  - LR5921
+  state: []
+  users: []
+- content:
+  - /平台绑定
+  func: 平台绑定
+  function: bind_platform
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users: []
+- content:
+  - /活动添加
+  func: 活动添加
+  function: activity_add
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
+  - /活动查询
+  func: 活动查询
+  function: activity_query
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  - BILI
+  state: []
+  users:
+  - 微步
+- content:
+  - /开启天气订阅
+  func: 开启天气订阅
+  function: weather_sub_open
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
+  - /关闭天气订阅
+  func: 关闭天气订阅
+  function: weather_sub_close
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
+  - /天气测试
+  func: 天气测试
+  function: weather_suggestion_test
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
+  - /开启ai对话
+  func: 开启ai对话
+  function: aichat_open
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users:
+  - 微步
+- content:
+  - /关闭ai对话
+  func: 关闭ai对话
+  function: aichat_close
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state:
+  - ai对话中
+  users:
+  - 微步
+- content:
+  - /保存
+  func: 保存ai对话
+  function: aichat_save_yes
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state:
+  - ai对话保存
+  users:
+  - 微步
+- content:
+  - /不保存
+  func: 删除ai对话
+  function: aichat_save_no
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state:
+  - ai对话保存
+  users:
+  - 微步
+- content: []
+  func: 转发
+  function: forward_all
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - WECHAT
+  - BILI
+  state: []
+  users: []

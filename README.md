@@ -98,6 +98,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 
 #### 项目开发
+进入项目，使用 `git pull origin master`更新
 ###### 功能开发
 1. 在 logic/event 中开发功能
 2. 访问 域名/command（需要在/cmd下登录），在页面中添加功能，设置平台及条件等

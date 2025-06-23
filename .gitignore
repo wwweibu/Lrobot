@@ -1,7 +1,9 @@
 /qqapp/
 /storage/data/mongodb
 /storage/data/mysql
-/storage/yml/
+/storage/yml/secret.yaml
+/storage/yml/model.yaml
+/storage/yml/user.yaml
 /storage/lrobot.pem
 /a.yml
 /storage/file/resource/
