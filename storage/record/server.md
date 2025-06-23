@@ -69,10 +69,10 @@
 - 实名后选择域名，购买域名，参考价格109/三年
 - 选择右上角的备案，进行备案
 - 进入控制台，选择轻量应用型服务器，SSH密钥-创建密钥，绑定实例-同意强制关机-继续，私钥会自动下载
-- 
+- 管理域名-添加域名解析-勾选前两个，第三个输入*，确认
 
 #### 服务器连接
-- 使用`ssh -i xxx\lrobot.pem username@ip`连接服务器（记得替换命令中的密钥文件路径、管理员名称和服务器ip）
+- 使用`ssh -i xxx\lrobot.pem username@ip`连接服务器（记得替换命令中的密钥文件路径、管理员名称和服务器ip）(腾讯管理员名称一般是ubuntu)
 - `Are you sure you want to continue connecting (yes/no/[fingerprint])?` 选择yes
 - 如果出现`Connection closed by xxx port 22`检查密钥路径以及是否开启了网络代理服务
 - 在使用代理时，可能会出现以下情况：Invalid user dnsmasq from xxxxxx port 33570，dnsmasq 是使用代理后被更改的用户名，需要关闭代理
