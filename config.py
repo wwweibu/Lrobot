@@ -214,6 +214,8 @@ class AutoConfig:
         self.config.clear()
         self.config_sources.clear()
         for config_file in self.config_path.glob("*.yaml"):
+            if config_file.name.endswith("_copy.yaml"):
+                continue  # 跳过模板文件
             try:
                 with open(config_file, "r", encoding="utf-8") as f:
                     yaml_data = yaml.safe_load(f) or {}
@@ -234,6 +236,8 @@ class AutoConfigHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if not event.is_directory and event.src_path.endswith(".yaml"):
             file_path = Path(event.src_path)
+            if file_path.name.endswith("_copy.yaml"):
+                return  # 忽略模板文件变动
             time.sleep(0.5)  # 防止修改 yaml 后未更新哈希
             new_hash = get_file_hash(file_path)
             if config.config_hashes.get(file_path) == new_hash:
@@ -449,6 +453,8 @@ async def update_database(query: str, params: tuple = ()):
 future = FutureManager()
 # 初始化 config
 for file in (path / "storage/yml").glob("*.yaml"):
+    if file.name.endswith("_copy.yaml"):
+        continue
     with open(file, "r", encoding="utf-8") as f:
         config.update(yaml.safe_load(f) or {})
 # 初始化日志记录器

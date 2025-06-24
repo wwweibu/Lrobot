@@ -32,3 +32,18 @@ sudo curl -L "https://github.com/docker/compose/releases/download/v2.2.2/docker-
 2. 如果卡在 'verifying packages' 则需要切换网络环境
 3. 选择启用 WSL 2 和 Hyper-V，跳过登录 Docker Hub 账户
 4. 在图形化界面中查看和管理各容器
+
+
+#### docker 传输
+1. 如果网络不好，可使用另一台以运行的镜像 `docker save lrobot-command:latest > command.tar`
+2. docker load < xx/command.tar
+3. 待后续
+
+
+#### docker 配置
+1. `sudo touch daemon.json`
+2. `sudo chmod 777 daemon.json`
+3. `{        "registry-mirrors":["https://docker.mirrors.ustc.edu.cn"]
+ }`
+4. `systemctl daemon-reload`
+5. `systemctl restart docker`

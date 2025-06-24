@@ -65,10 +65,11 @@
 - 由于 qqapp 的备案限制，本项目选择国内的服务器+国内的域名
 
 #### 腾讯云域名+服务器购买
-- 进入[优惠页面](https://cloud.tencent.com/act/pro/lighthouse2021)，选择轻量应用服务器，参考价格368/三年
-- 实名后选择域名，购买域名，参考价格109/三年
+- 进入[优惠页面](https://cloud.tencent.com/act/pro/lighthouse2021)，选择轻量应用服务器，参考价格 368/三年
+- 实名后选择域名，购买域名，参考价格 109/三年
 - 选择右上角的备案，进行备案
-- 进入控制台，选择轻量应用型服务器，SSH密钥-创建密钥，绑定实例-同意强制关机-继续，私钥会自动下载
+- 备案完成后，进入控制台，搜索 SSL 证书，选择申请免费证书，选择自动DNS验证
+- 进入控制台，选择轻量应用型服务器，SSH 密钥-创建密钥，绑定实例-同意强制关机-继续，私钥会自动下载
 - 管理域名-添加域名解析-勾选前两个，第三个输入*，确认
 
 #### 服务器连接
@@ -97,8 +98,8 @@ sudo ./configure --with-http_v2_module --with-http_ssl_module
 sudo make 
 sudo make install
 ```
-- 启动 nginx 服务 `cd /usr/local/nginx/sbin/` `sudo ./nginx`
-- 将腾讯云下发的证书拷贝到服务器路径 `/etc/nginx/ssl/whumystery.cn_bundle.pem` 和 `/etc/nginx/ssl/whumystery.cn.key` 处
+- 启动 nginx 服务 `cd /usr/local/nginx/sbin/` `sudo ./nginx`(此步骤失败参考端口占用)
+- 将腾讯云下发的证书拷贝到服务器路径 `/etc/nginx/ssl/whumystery.cn_bundle.pem` 和 `/etc/nginx/ssl/whumystery.cn.key` 处，参考`ssh -i xx\lrobot.pem username@ip "sudo mkdir -p /etc/nginx/ssl/ && sudo chown username:username /etc/nginx/ssl/` `scp -i xx\lrobot.pem" "xx\whumystery.cn_bundle.pem" username@ip:/etc/nginx/ssl/`
 - 修改 nginx 配置，在本地创建一个 nginx.conf，在本地命令行使用命令`type xxxx\nginx.conf | ssh -i xxx\lrobot.pem username@ip "sudo tee /usr/local/nginx/conf/nginx.conf > /dev/null"`来更改服务器上的 nginx 配置文件（记得替换nginx文件路径、密钥文件路径、管理员名称和服务器ip），随后通过ssh连接服务器，输入`cd /usr/local/nginx/sbin``` ```sudo ./nginx -s reload`来重启nginx服务
 
 #### nginx 配置/windows
@@ -107,6 +108,9 @@ sudo make install
 - 打开 nginx/conf/nginx.conf 复制本地文件 nginx.conf
 - 同样复制密钥文件（需要修改 nginx.conf 中密钥文件路径为 windows 上的路径）
 
+#### 端口占用
+`sudo netstat -tulnp | grep :80`
+`sudo kill -9 1234`(占用进程的id)
 #### 调试
 - 当 ssh 测试出现错误时可按照此步骤逐步排除配置错误
 - 本地运行后端代码（自行配置或者新建pem_test,py，复制）
