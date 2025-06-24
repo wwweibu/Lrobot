@@ -19,7 +19,7 @@ class MsgPool:
         """添加消息到池"""
         cls._pool[msg.num] = (msg, time.time())
         cls._queue.put_nowait(msg)
-        msg_logger.debug(f"⌈{msg.robot}⌋{msg.event}:{msg.kind}->{msg.content}", extra={"event": "消息存储"})
+        msg_logger.debug(f"⌈{msg.robot}⌋{msg.event}: {msg.kind}->{msg.content}", extra={"event": "消息存储"})
 
     @classmethod
     def get(cls, num: str):

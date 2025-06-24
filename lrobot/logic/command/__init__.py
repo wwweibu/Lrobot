@@ -2,8 +2,7 @@ import os
 import sys
 import importlib
 from pathlib import Path
-from threading import Thread
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 from watchdog.events import FileSystemEventHandler
 from config import loggers
 
@@ -41,7 +40,7 @@ def _reload_module(module_name: str):
     for attr in dir(module):
         if not attr.startswith("_"):
             globals()[attr] = getattr(module, attr)
-    loggers["system"].info(f"模块热重载 : {module_name}", extra={"event": "配置读取"})
+    loggers["system"].info(f"模块热重载: {module_name}", extra={"event": "配置读取"})
 
 
 class CommandModuleEventHandler(FileSystemEventHandler):
@@ -56,14 +55,11 @@ class CommandModuleEventHandler(FileSystemEventHandler):
 
 
 def _start_watchdog():
-    observer = Observer()
+    observer = PollingObserver()
     handler = CommandModuleEventHandler()
     observer.schedule(handler, str(command_dir), recursive=False)
     observer.start()
 
-    # 守护线程后台运行（不阻塞主程序）
-    t = Thread(target=observer.join, daemon=True)
-    t.start()
 
 # 初始化模块与监听器
 _load_all_modules()

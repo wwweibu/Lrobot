@@ -24,7 +24,7 @@ async def safe_msg_process(msg: Msg):
     """消息处理"""
     states = await check_status(msg.source)
     if msg.event == "处理":
-        if msg.content.startswith("/"):
+        if getattr(msg, "content", None) and msg.content.startswith("/"):  # 考虑内容为 none
             msg.event = "功能"
         else:
             if "对话" in states:
@@ -32,7 +32,7 @@ async def safe_msg_process(msg: Msg):
             elif "游戏" in states:
                 msg.event = "游戏"
             else:
-                msg.event = "其他"
+                return # 群消息不处理不显示
     msg_logger.info(
         f"⌈{msg.robot}⌋{msg.event}: {msg.kind} -> {msg.content}",
         extra={"event": f"消息处理"},
@@ -71,16 +71,9 @@ async def safe_msg_process(msg: Msg):
                     func = getattr(command, func_name)
                     await func(msg)
                     return
-        # 如果没有匹配的指令，返回格式错误提示，并转发给管理员
-        await forward_all(msg)
-
     elif msg.event.endswith("发送"):
         await msg_send(msg)
     elif msg.event == "对话":
         pass
     elif msg.event == "游戏":
         pass
-    else:
-        raise Exception(f"未知的消息格式 | 消息: {msg}")
-
-

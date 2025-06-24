@@ -49,9 +49,10 @@ async def msg_content_join(content):
         elif msg_type == "node":
             content_join += f"[合并转发节点]"
         elif msg_type == "image":
-            content_join += f"{msg_data.get('summary')}"
+            content_join +=  msg_data.get("summary") or "[文件]"
             files.append((msg_data.get("file"), msg_data.get("url")))
         elif msg_type in ["record", "file", "video"]:
+            content_join += "[文件]"
             files.append((msg_data.get("file"), msg_data.get("url")))
         elif msg_type == "reply":
             content_join += f"[回复{msg_data.get('id')}]"

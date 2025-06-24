@@ -17,15 +17,13 @@ import motor.motor_asyncio
 from colorama import Fore, Style
 from collections import defaultdict
 from logging.config import dictConfig
-from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 from httpx_socks import AsyncProxyTransport
 from watchdog.events import FileSystemEventHandler
 
 
 # 全局路径
 path = Path(__file__).resolve().parent  # python 中为 /lrobot,dokcer 中为 /app
-
-config = {}  # 配置信息
 mongo_client = None  # mongo 连接
 mongo_db = None
 mysql_db_pool: aiomysql.Pool = None  # mysql 连接
@@ -228,7 +226,32 @@ class AutoConfig:
                     f"yaml 文件 {config_file.name} 格式错误 -> {e}",
                     extra={"event": "配置读取"},
                 )
-        set_log()  # 更新日志记录器
+        self.set_log()  # 更新日志记录器
+
+    def reset_log(self):
+        """重置 logging 模块"""
+        logging.shutdown()  # 关闭当前所有日志
+        for name in list(logging.root.manager.loggerDict.keys()):  # 获取所有 Logger 名称
+            logging.getLogger(name).handlers.clear()  # 清空 handlers
+            logging.getLogger(name).filters.clear()  # 清空 filters
+            logging.getLogger(name).setLevel(logging.NOTSET)  # 重置 level
+
+    def set_log(self):
+        """应用日志配置"""
+        global loggers
+        self.reset_log()
+        try:
+            dictConfig(self.config["logging"])  # 载入日志配置
+        except Exception as e:
+            loggers["system"].error(f"日志配置错误 -> {e}", extra={"event": "运行日志"})
+        logger_names = list(self.config["logging"]["loggers"].keys())
+        loggers = {name: logging.getLogger(name) for name in logger_names}
+        # 配置过滤器
+        loggers["uvicorn"].addFilter(UvicornFilter())
+        loggers["uvicorn.access"].addFilter(UvicornFilter())
+        loggers["uvicorn.error"].addFilter(UvicornFilter())
+        loggers["server"].addFilter(ServerFilter())
+        loggers["system"].info("配置数据更新", extra={"event": "配置读取"})
 
 
 class AutoConfigHandler(FileSystemEventHandler):
@@ -251,9 +274,7 @@ class AutoConfigHandler(FileSystemEventHandler):
 
 async def config_watcher():
     """开启配置自动更新"""
-    global config
-    config = AutoConfig(path / "storage/yml")
-    observer = Observer()
+    observer = PollingObserver()
     observer.schedule(AutoConfigHandler(), str(path / "storage/yml"), recursive=False)
     observer.start()
 
@@ -381,31 +402,7 @@ class LR5921Filter(logging.Filter):
         return True
 
 
-def reset_log():
-    """重置 logging 模块"""
-    logging.shutdown()  # 关闭当前所有日志
-    for name in list(logging.root.manager.loggerDict.keys()):  # 获取所有 Logger 名称
-        logging.getLogger(name).handlers.clear()  # 清空 handlers
-        logging.getLogger(name).filters.clear()  # 清空 filters
-        logging.getLogger(name).setLevel(logging.NOTSET)  # 重置 level
 
-
-def set_log():
-    """应用日志配置"""
-    global loggers
-    reset_log()
-    try:
-        dictConfig(config["logging"])  # 载入日志配置
-    except Exception as e:
-        loggers["system"].error(f"日志配置错误 -> {e}", extra={"event": "运行日志"})
-    logger_names = list(config["logging"]["loggers"].keys())
-    loggers = {name: logging.getLogger(name) for name in logger_names}
-    # 配置过滤器
-    loggers["uvicorn"].addFilter(UvicornFilter())
-    loggers["uvicorn.access"].addFilter(UvicornFilter())
-    loggers["uvicorn.error"].addFilter(UvicornFilter())
-    loggers["server"].addFilter(ServerFilter())
-    loggers["system"].info("配置数据更新", extra={"event": "配置读取"})
 
 
 async def init_mysql():
@@ -449,16 +446,9 @@ async def update_database(query: str, params: tuple = ()):
                 loggers["system"].error(f"Mysql 更新语句异常 -> {e} | 更新: {query} | 参数: {params}",
                                         extra={"event": "运行日志"})
 
-
+# 初始化配置信息
+config = AutoConfig(path / "storage/yml")
 # 初始化 future 变量管理器
 future = FutureManager()
-# 初始化 config
-for file in (path / "storage/yml").glob("*.yaml"):
-    if file.name.endswith("_copy.yaml"):
-        continue
-    with open(file, "r", encoding="utf-8") as f:
-        config.update(yaml.safe_load(f) or {})
-# 初始化日志记录器
-set_log()
 # 初始化 MongoDB 连接
 init_mongo()

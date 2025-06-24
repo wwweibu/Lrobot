@@ -16,19 +16,19 @@ async def check_and_update_ip(ip: str):
 
     # 解封
     await update_database(
-        "UPDATE system_ip SET count = -2 WHERE count = -1 AND ? - first_time > ?",
+        "UPDATE system_ip SET count = -2 WHERE count = -1 AND %s - first_time > %s",
         (current_time, BAN_TIME),
     )
 
     # 次数重置
     await update_database(
-        "UPDATE system_ip SET count = 0 WHERE count BETWEEN 1 AND 5 AND ? - first_time > ?",
+        "UPDATE system_ip SET count = 0 WHERE count BETWEEN 1 AND 5 AND %s - first_time > %s",
         (current_time, ERROR_RESET_TIME),
     )
 
     # 查找 IP 记录
     result = await query_database(
-        "SELECT count, first_time FROM system_ip WHERE ip = ? AND count != -2",
+        "SELECT count, first_time FROM system_ip WHERE ip = %s AND count != -2",
         (ip,),
     )
 
@@ -42,12 +42,12 @@ async def check_and_update_ip(ip: str):
         # 累计访问次数
         if 0 <= count < 5:
             await update_database(
-                "UPDATE system_ip SET count = count + 1 WHERE ip = ? AND count = ?",
+                "UPDATE system_ip SET count = count + 1 WHERE ip = %s AND count = %s",
                 (ip, count),
             )
         elif count == 5:
             await update_database(
-                "UPDATE system_ip SET count = -1, first_time = ? WHERE ip = ?",
+                "UPDATE system_ip SET count = -1, first_time = %s WHERE ip = %s",
                 (
                     current_time,
                     ip,
@@ -58,7 +58,7 @@ async def check_and_update_ip(ip: str):
     else:
         # 如果 IP 记录不存在，则插入新记录
         await update_database(
-            "INSERT INTO system_ip (ip, count, first_time) VALUES (?, 1, ?)",
+            "INSERT INTO system_ip (ip, count, first_time) VALUES (%s, 1, %s)",
             (ip, current_time),
         )
 

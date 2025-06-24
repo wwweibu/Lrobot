@@ -45,7 +45,7 @@ async def wechat_receive(request: Request):
     body = await request.body()
     xml_data = body.decode("utf-8")
     adapter_logger.debug(f"⌈WECHAT⌋{xml_data}", extra={"event": "消息接收"})
-    seq = await handle_wechat_message(xml_data)
+    seq = await wechat_message_deal(xml_data)
     if not seq:
         raise Exception(f"消息去重 | 消息: {xml_data}")
     try:
@@ -60,7 +60,7 @@ async def wechat_receive(request: Request):
 async def wechat_message_deal(data):
     """解析微信消息"""
     root = ET.fromstring(data)
-    # TODO 消息类型解析
+    # TODO 消息类型解析(图片、语音、视频)
     msg_type = root.find("MsgType").text
     from_user = root.find("FromUserName").text
     to_user = root.find("ToUserName").text

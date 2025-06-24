@@ -100,7 +100,7 @@ async def bili_msg_deal(msg):
         file_name = f"{msg['msg_key']}.{content['imageType']}"
         file_url = content["url"]
         files.append((file_name,file_url))
-        content = ""
+        content = "[文件]"
     elif msg['msg_type'] == 5:
         kind = "私聊撤回消息"
         content = f"{msg['sender_uid']}撤回了一条消息{content}"

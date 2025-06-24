@@ -11,7 +11,6 @@ services:
       - "3001:3001"
       - "6099:6099"
     container_name: napcat
-    network_mode: bridge
     image: mlikiowa/napcat-docker:latest
     volumes:
       - ./storage/napcat/config/QQ:/app/.config/QQ

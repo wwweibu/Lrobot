@@ -1,5 +1,5 @@
 # 后端逻辑
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request,Response
 from fastapi.responses import FileResponse
 from logic import  check_and_update_ip
 from config import path,loggers,update_database,query_database
@@ -10,7 +10,7 @@ router = APIRouter()
 command_path = path / "storage/config/command.yaml"
 users_path = path / "storage/config/user.yaml"
 website_logger = loggers["website"]
-from fastapi import Response
+
 @router.get("/test")
 async def test():
     """测试端口"""
@@ -42,7 +42,7 @@ async def get_joke(request: Request):
         website_logger.error(f" IP {ip} 被封禁 10 分钟", extra={"event": "超频访问"})
         return {"joke": ""}
     result = await query_database(
-        "SELECT text FROM system_joke ORDER BY RANDOM() LIMIT 1"
+        "SELECT text FROM system_joke ORDER BY RAND() LIMIT 1;"
     )
     joke = result[0]["text"] if result else "No jokes found."
     return {"joke": joke}

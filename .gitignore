@@ -6,6 +6,6 @@
 /storage/yml/user.yaml
 /storage/lrobot.pem
 /a.yml
-/storage/file/resource/
 /.idea
 /secret.py
+!/storage/file/

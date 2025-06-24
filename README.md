@@ -770,6 +770,11 @@ serve_task = asyncio.create_task(init_serve())
 #### [7.1.1] -2025-6-24
 - 修改 config,增加 _copy.yaml模板
 - 新增时间轴和泡泡页面
+- 修改 napcat 网络方式
+- 删除 config 的初始赋值方式并把 set_log 变成类方法以实现 config 的静态引用及写回
+- 修改 Observer 为 PollingObserver，因为容器中无法检测文件变更
+- 修改消息内容，图片在消息内容里显示为"[文件]"以支持部分消息处理
+#### [7.1.2]
 
 </details>
 
