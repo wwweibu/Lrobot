@@ -769,6 +769,8 @@ serve_task = asyncio.create_task(init_serve())
 - 修改身份逻辑，将身份作为状态的一种，不强制绑定 LR5921 为主平台
 #### [7.1.1] -2025-6-24
 - 修改 config,增加 _copy.yaml模板
+- 新增时间轴和泡泡页面
+
 </details>
 
 ***
