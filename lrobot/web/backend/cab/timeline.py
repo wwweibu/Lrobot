@@ -1,65 +1,65 @@
-from datetime import datetime, date
-from fastapi import FastAPI, HTTPException, APIRouter
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi import FastAPI, HTTPException, APIRouter,Request
+from config import update_database,query_database
+
 
 router = APIRouter()
 
-# 临时数据库
-nodes_db = []
-next_id = 1
+# 获取所有节点
+@router.get("/nodes")
+async def get_nodes():
+    query = "SELECT node_id AS id, date, event, tag FROM system_timeline ORDER BY id ASC"
+    rows = await query_database(query)
+    return rows
 
-# 数据模型
-class TimeNode(BaseModel):
-    id: int
-    date: date  # 改为 date 类型
-    event: str
-    tag: Optional[str] = "里程碑"  # 添加 tag 字段
+# 创建新节点
+@router.post("/nodes")
+async def create_node(request: Request):
+    data = await request.json()
+    date_val = data.get("date")
+    event_val = data.get("event")
+    tag_val = data.get("tag", "事件")
 
-class TimeNodeCreate(BaseModel):
-    date: date  # 改为 date 类型
-    event: str
-    tag: Optional[str] = "里程碑"  # 添加 tag 字段
+    if not date_val or not event_val:
+        raise HTTPException(status_code=400, detail="缺少 date 或 event 字段")
 
-@router.get("/nodes", response_model=List[TimeNode])
-def get_nodes():
-    # 确保返回的数据是 TimeNode 格式
-    return [TimeNode(**node) for node in nodes_db]
+    # 获取最大 node_id
+    max_id_query = "SELECT MAX(node_id) as max_id FROM system_timeline"
+    result = await query_database(max_id_query)
+    next_node_id = (result[0]["max_id"] or 0) + 1
 
-@router.post("/nodes", response_model=TimeNode)
-def create_node(node: TimeNodeCreate):
-    global next_id
-    # 创建新节点时使用 date 字段
-    new_node = TimeNode(
-        id=next_id,
-        date=node.date,
-        event=node.event,
-        tag=node.tag
-    )
-    nodes_db.append(new_node.dict())
-    next_id += 1
-    return new_node
+    insert_query = """
+        INSERT INTO system_timeline (node_id, date, event, tag)
+        VALUES (%s, %s, %s, %s)
+    """
+    await update_database(insert_query, (next_node_id, date_val, event_val, tag_val))
 
-@router.put("/nodes/{node_id}", response_model=TimeNode)
-def update_node(node_id: int, node: TimeNodeCreate):
-    for idx, n in enumerate(nodes_db):
-        if n["id"] == node_id:
-            # 更新时使用 date 字段
-            updated_node = TimeNode(
-                id=node_id,
-                date=node.date,
-                event=node.event,
-                tag=node.tag
-            )
-            nodes_db[idx] = updated_node.dict()
-            return updated_node
-    raise HTTPException(status_code=404, detail="Node not found")
+    return {"id": next_node_id, "date": date_val, "event": event_val, "tag": tag_val}
 
-@router.delete("/nodes/{node_id}")
-def delete_node(node_id: int):
-    global nodes_db
-    initial_length = len(nodes_db)
-    nodes_db = [n for n in nodes_db if n["id"] != node_id]
-    if len(nodes_db) == initial_length:
+# 更新节点
+@router.put("/nodes/{node_id}")
+async def update_node(node_id: int, request: Request):
+    data = await request.json()
+    date_val = data.get("date")
+    event_val = data.get("event")
+    tag_val = data.get("tag", "事件")
+
+    if not date_val or not event_val:
+        raise HTTPException(status_code=400, detail="缺少 date 或 event 字段")
+
+    check_query = "SELECT 1 FROM system_timeline WHERE node_id = %s"
+    exist = await query_database(check_query, (node_id,))
+    if not exist:
         raise HTTPException(status_code=404, detail="Node not found")
+
+    update_query = """
+        UPDATE system_timeline SET date = %s, event = %s, tag = %s WHERE node_id = %s
+    """
+    await update_database(update_query, (date_val, event_val, tag_val, node_id))
+    return {"id": node_id, "date": date_val, "event": event_val, "tag": tag_val}
+
+# 删除节点
+@router.delete("/nodes/{node_id}")
+async def delete_node(node_id: int):
+    delete_query = "DELETE FROM system_timeline WHERE node_id = %s"
+    await update_database(delete_query, (node_id,))
     return {"message": "Node deleted"}

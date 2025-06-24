@@ -443,6 +443,7 @@ async def update_database(query: str, params: tuple = ()):
             try:
                 await cur.execute(query, params)
                 await conn.commit()
+                return cur.lastrowid
             except Exception as e:
                 await conn.rollback()
                 loggers["system"].error(f"Mysql 更新语句异常 -> {e} | 更新: {query} | 参数: {params}",

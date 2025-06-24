@@ -13,6 +13,7 @@ import Log from '../views/Cab/Log.vue'
 import File from '../views/Cab/File.vue';
 import Preview from '../views/Cab/Preview.vue';
 import Timeline from '../views/Cab/Timeline.vue';
+import Papaw from '../views/Cab/Papaw.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 
 const routes = [
@@ -22,14 +23,19 @@ const routes = [
     component: Home
   },
   {
-    path: '/timeline',
-    name: 'Timeline',
-    component: Timeline
-  },
-  {
     path: '/cab',
     name: 'Cab',
     component: Cab,
+  },
+  {
+    path: '/cab/papaw',
+    name: 'Papaw',
+    component: Papaw,
+  },
+  {
+    path: '/cab/timeline',
+    name: 'Timeline',
+    component: Timeline
   },
   {
     path: '/cab/command',

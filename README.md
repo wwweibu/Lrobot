@@ -80,7 +80,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 
 #### 准备工作
 1. 安装好 docker 环境([参考](storage/record/docker.md))
-2. 需要将 storage/yml/secret_copy.yaml 重命名为 secret.yaml(不能保留)，根据文件中的配置提示配置各平台参数，并配置服务器和域名  
+2. 需要将 storage/yml/secret_copy.yaml 重命名为 secret.yaml，根据文件中的配置提示配置各平台参数，并配置服务器和域名  
 3. 关于各平台的功能简介、注册方法跳转[平台配置教程](storage/record/platform.md)
 4. 在服务器上配置 nginx，将 [nginx.conf](storage/nginx.conf)(参考[服务器配置教程](storage/record/server.md))
 #### 项目运行
@@ -89,7 +89,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 3. 为了省钱，本项目采用本地运行+服务器+域名的模式，使用最低配置的服务器，其他模式也可以通过调整配置来实现
 4. 在 secret.yaml 中填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 storage/lrobot.pem 处。如果项目本身在服务器上运行则不用填写后者。如果是正向代理+反向代理的配置请自行参考上方的服务器配置教程
 5. 填写平台相关信息（ID、SECRET）即代表启用该平台服务，留空（注意不是注释掉）则不启用
-6. 编写路径替换函数 secret 替换掉 config.py 里面的 secret，用于保护你的平台路径
+6. 编写路径替换函数 secret 替换掉 secret.py 里面的 secret，用于保护你的平台路径
 7. 进入项目目录 `cd lrobot`
 8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
 9. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
@@ -110,6 +110,9 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 2. 在 views 里添加页面，在 router/index.js 中添加路径
 3. 使用 `npm run dev` 进行测试，打开 http://localhost:5173/
 4. 调试完成后，使用 `npm run build` 打包项目到 lrobot 中
+###### 数据库更新
+1. init.sql 文件需要在 mysql 为空时才能生效
+2. 当使用新表时，直接新建，或者删除整个 mysql 文件夹（记得保存数据）后重新启动容器
 ###### 小程序开发
 - 待定
 
@@ -764,6 +767,8 @@ serve_task = asyncio.create_task(init_serve())
 #### [7.1.0] -2025-6-19
 - 修改动态模块导入逻辑
 - 修改身份逻辑，将身份作为状态的一种，不强制绑定 LR5921 为主平台
+#### [7.1.1] -2025-6-24
+- 修改 config,增加 _copy.yaml模板
 </details>
 
 ***

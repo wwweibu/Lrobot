@@ -21,6 +21,7 @@ app.include_router(login_router, prefix=secret("/cab"))
 app.include_router(metrics_router, prefix=secret("/cab"))
 app.include_router(user_router, prefix=secret("/cab"))
 app.include_router(time_router,prefix=secret("/cab"))
+app.include_router(bubble_router,prefix=secret("/cab"))
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
 
