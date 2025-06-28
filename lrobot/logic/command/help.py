@@ -3,7 +3,42 @@ import datetime
 from config import config
 from message.handler.msg import Msg
 #from logic import identify_user
-# TODO 重写
+
+
+async def help_text(msg:Msg):
+    kind = msg.kind[:2]
+    help_content = re.sub(r"/帮助[，,]?\s*", "", msg.content).strip()
+    if help_content == "":
+        content = (
+            "\n《LRobot用户指南》\n"
+            "[使用]\n"
+            "使用范围: QQ、微信公众号、B 站三个平台\n"
+            "LR232:QQ机器人，在群内管理员下方添加\n"
+            "LR5921:QQ机器人，在群管理中添加\n"
+            "武大推协:B站搜索\n"
+            "武大推协:微信搜索公众号\n"
+            "武大推协社团物资租借:搜索小程序\n"
+            "\n"
+            "[功能]\n"
+            "[指令]\n"
+            "格式:以'/xx,xxx'的方式发送指令\n"
+            "私聊:直接发送\n"
+            "群聊:@机器人并发送\n"
+            "指令查询:输入/帮助可查看指令列表，输入/帮助,xxx（指令）可获取详情\n"
+            "指令面板:LR232在私聊和群聊中输入'/'或者点击机器人图标均可唤出指令面板\n"
+            "\n"
+            "[入会]\n"
+            "指令格式:/入会"
+        )
+        Msg(
+            robot=msg.robot,
+            kind=f"{kind}发送文字",
+            event="发送",
+            source=msg.source,
+            seq=msg.seq,
+            content=content,
+            group=msg.group,
+        )
 
 def caesar_encrypt(text, shift):
     encrypted = []
@@ -16,7 +51,8 @@ def caesar_encrypt(text, shift):
     return "".join(encrypted)
 
 
-async def help_text(msg: Msg):
+async def help_text1(msg: Msg):
+    # TODO 待参考
     kind = msg.kind[:2]
     help_content = re.sub(r"/帮助[，,]?\s*", "", msg.content).strip()
     manager_content = []  # 管理员显示内容

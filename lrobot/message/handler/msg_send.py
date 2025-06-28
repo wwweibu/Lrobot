@@ -22,6 +22,7 @@ async def msg_send(msg: Msg):
         f"⌈{msg.robot}⌋{msg.event}:{msg.kind}->{msg.content}",
         extra={"event": "消息发送"},
     )
+    # TODO BILI 中私聊发送图文改为发送两条消息
     # if msg.robot == "BILIBILI":
     #     if msg.kind == "私聊发送文本":
     #         await bili_dispatch(msg.source, msg.content)

@@ -66,6 +66,7 @@ services:
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/initdb:/docker-entrypoint-initdb.d
+      - ./storage/file:/app/storage/file
 
   #  wewe-rss:
   #    build: ./wewe-rss

@@ -11,17 +11,20 @@ const wsInstances = {};
 
 // 创建 WebSocket 的函数
 export function createWebSocket(endpoint) {
-  const key = endpoint; // 用 endpoint 作为唯一键
+  const key = endpoint;
   if (!wsInstances[key]) {
-    // 生成完整的 WebSocket URL
-    const wsUrl = `ws://localhost:5922/hjd/${endpoint}`;
+    // 当前页面协议（http 或 https）
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+
+    const isDev = import.meta.env.DEV;
+    const host = isDev ? 'localhost:5922' : window.location.host;
+
+    // 拼接完整 WebSocket URL，注意保留前缀 /hjd
+    const wsUrl = `${protocol}://${host}/hjd/${endpoint}`;
 
     const ws = new WebSocket(wsUrl);
-    
-    // 添加到实例管理器
     wsInstances[key] = ws;
-    
-    // 错误处理（可选）
+
     ws.addEventListener('error', (error) => {
       console.error(`WebSocket 错误（${endpoint}）:`, error);
     });

@@ -1,6 +1,7 @@
 /qqapp/
 /storage/data/mongodb
 /storage/data/mysql
+/storage/napcat
 /storage/yml/secret.yaml
 /storage/yml/model.yaml
 /storage/yml/user.yaml
@@ -8,4 +9,6 @@
 /a.yml
 /.idea
 /secret.py
-!/storage/file/
+/storage/file/activity
+/storage/file/resource
+/storage/file/users

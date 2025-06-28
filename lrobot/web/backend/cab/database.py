@@ -11,9 +11,10 @@ database_connections: List[WebSocket] = []  # 数据库 ws 连接
 @router.get("/database")
 async def get_database():
     """获取数据库"""
-    query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+    db_name = "lrobot_data"
+    query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{db_name}' AND table_type = 'BASE TABLE'"
     result = await query_database(query)
-    table_names = [row["name"] for row in result]
+    table_names = [row["TABLE_NAME"] for row in result]
     all_data = {}
     for table in table_names:
         try:
@@ -42,7 +43,7 @@ async def renew_database(request: Request):
         value = payload.get("value")
         if column == "id":
             raise Exception("不允许修改主键字段 'id'")
-        query = f"UPDATE {table_name} SET {column} = ? WHERE id = ?"
+        query = f"UPDATE {table_name} SET {column} = %s WHERE id = ?"
         await update_database(query, (value, row_id))
 
     elif action == "add_row":
@@ -51,7 +52,7 @@ async def renew_database(request: Request):
 
     elif action == "delete_row":
         row_id = payload.get("row_id")
-        query = f"DELETE FROM {table_name} WHERE id = ?"
+        query = f"DELETE FROM {table_name} WHERE id = %s"
         await update_database(query, (row_id,))
 
     else:

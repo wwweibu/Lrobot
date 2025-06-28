@@ -1,5 +1,5 @@
 import json
-from config import query_database
+from config import query_database,update_database
 
 
 
@@ -29,11 +29,11 @@ async def check_status(source: str, status: str = None):
 
 
 # TODO 更改下面两个函数
-async def add_status(qq: str, status: str, information: str = ""):
+async def add_status(source: str, status: str, information: str = ""):
     """添加用户状态，如果状态已存在则替换对应的 information，否则追加"""
     # 获取当前用户状态
     result = await query_database(
-        "SELECT status, information FROM user_status WHERE qq = ?", (qq,)
+        "SELECT status, information FROM user_status WHERE source = %s", (source,)
     )
 
     if result:
@@ -55,25 +55,25 @@ async def add_status(qq: str, status: str, information: str = ""):
     # 更新数据库
     await update_database(
         """
-        INSERT INTO user_status (qq, status, information)
-        VALUES (?, ?, ?)
-        ON CONFLICT(qq) DO UPDATE SET status = ?, information = ?
-        """,
+            INSERT INTO user_status (source, status, information)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                status = VALUES(status),
+                information = VALUES(information)
+            """,
         (
-            qq,
-            json.dumps(current_status),
-            json.dumps(current_info),
+            source,
             json.dumps(current_status),
             json.dumps(current_info),
         ),
     )
 
 
-async def delete_status(qq: str, status: str):
+async def delete_status(source: str, status: str):
     """删除状态及其对应的信息"""
     # 获取当前状态
     result = await query_database(
-        "SELECT status, information FROM user_status WHERE qq = ?", (qq,)
+        "SELECT status, information FROM user_status WHERE source = %s", (source,)
     )
 
     if not result:
@@ -91,9 +91,9 @@ async def delete_status(qq: str, status: str):
 
         if current_status:  # 如果还有剩余状态，更新数据库
             await update_database(
-                "UPDATE user_status SET status = ?, information = ? WHERE qq = ?",
-                (json.dumps(current_status), json.dumps(current_info), qq),
+                "UPDATE user_status SET status = %s, information = %s WHERE source = %s",
+                (json.dumps(current_status), json.dumps(current_info), source),
             )
         else:  # 如果没有状态了，删除整个条目
-            await update_database("DELETE FROM user_status WHERE qq = ?", (qq,))
+            await update_database("DELETE FROM user_status WHERE source = %s", (source,))
 

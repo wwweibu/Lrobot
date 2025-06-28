@@ -24,15 +24,15 @@ async def safe_msg_process(msg: Msg):
     """消息处理"""
     states = await check_status(msg.source)
     if msg.event == "处理":
-        if getattr(msg, "content", None) and msg.content.startswith("/"):  # 考虑内容为 none
-            msg.event = "功能"
-        else:
-            if "对话" in states:
-                msg.event = "对话"
-            elif "游戏" in states:
-                msg.event = "游戏"
-            else:
-                return # 群消息不处理不显示
+        #if getattr(msg, "content", None) and msg.content.startswith("/"):  # 考虑内容为 none
+        msg.event = "功能"
+        # else:
+        #     if "对话" in states:
+        #         msg.event = "对话"
+        #     elif "游戏" in states:
+        #         msg.event = "游戏"
+        #     else:
+        #         return # 群消息不处理不显示
     msg_logger.info(
         f"⌈{msg.robot}⌋{msg.event}: {msg.kind} -> {msg.content}",
         extra={"event": f"消息处理"},
@@ -66,7 +66,7 @@ async def safe_msg_process(msg: Msg):
                     await func(msg)
                     return
             else:
-                if msg.content in command["content"]:
+                if msg.content in commands["content"]:
                     func_name = commands["function"]
                     func = getattr(command, func_name)
                     await func(msg)

@@ -424,8 +424,10 @@ async def init_mysql():
 async def query_database(query: str, params: tuple = ()):
     """执行查询语句"""
     async with mysql_db_pool.acquire() as conn:
+        await conn.commit()
         async with conn.cursor(aiomysql.DictCursor) as cur:
             try:
+
                 await cur.execute(query, params)
                 result = await cur.fetchall()
                 return result

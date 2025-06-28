@@ -6,6 +6,7 @@ from secret import secret
 from message.handler.msg_pool import MsgPool
 from config import config, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
 from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router,bili_msg_get
+from logic import remind_send
 
 
 async def start():
@@ -24,6 +25,7 @@ async def stop():
 async def scheduler():
     """定时任务"""
     await asyncio.sleep(5)
+    #asyncio.create_task(add_scheduler(remind_send, interval=20))
     #asyncio.create_task(add_scheduler(check_network, interval=300))  # 检查网络
     #asyncio.create_task(add_scheduler(check_system, interval=60))  # 检查系统
     #asyncio.create_task(add_scheduler(process_kb, interval=20, count=1))  # 更新知识库

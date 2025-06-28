@@ -5,7 +5,7 @@ httpx_socks
 motor
 PyYAML
 watchdog
-uvicorn
+uvicorn[standard]
 fastapi
 python-multipart
 requests

@@ -1,19 +1,32 @@
 commands:
 - content:
-  - /测试1
-  func: 测试
-  function: test_1
+  - /入会
+  func: 入会1
+  function: register_first
   groups: []
-  judge: contains
+  judge: equal
   kind:
   - 私聊文字消息
-  - 群聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
+  - '[文件]'
+  func: 入会2
+  function: register_second
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  - 私聊文件消息
   platforms:
   - LR5921
   - LR232
-  - WECHAT
-  - BILI
-  state: []
+  state:
+  - 待入会
   users:
   - 微步
 - content:
@@ -29,7 +42,8 @@ commands:
   - LR232
   - LR5921
   state: []
-  users: []
+  users:
+  - 微步
 - content: []
   func: 转发
   function: forward_all
@@ -42,3 +56,32 @@ commands:
   - BILI
   state: []
   users: []
+- content:
+  - /测试1
+  func: 测试
+  function: test_1
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  state: []
+  users:
+  - 微步
+- content:
+  - /消息提醒
+  func: 提醒
+  function: remind_deal
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users:
+  - 微步

@@ -28,7 +28,7 @@ const routes = [
     component: Cab,
   },
   {
-    path: '/cab/papaw',
+    path: '/papaw',
     name: 'Papaw',
     component: Papaw,
   },
