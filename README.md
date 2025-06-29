@@ -97,6 +97,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 11. `docker compose up --build lrobot` 启动 lrobot 主服务
 12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 13. 可以使用 `docker logs xx` 或者 Docker Desktop 查看容器内部日志
+14. 若在 pycharm 中开发遇到路径标红的问题，右键 lrobot 子文件夹，将目录标记为-源代码目录
 
 #### 项目开发
 进入项目，使用 `git pull origin master`更新
@@ -367,6 +368,17 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 #### future的全局管理与阻塞机制
 - 关于future无法刷新的问题，由于flask中自带的werkzurg在独立线程中运行，无法通知其他异步线程中的future更新（可以参考[future.py](script/abandoned/future.py)里面的例子，如果注释掉定期刷新的c函数，则a函数不会通知b函数里的future刷新）,下面注释掉的则是另一种写法
 - 代替观察者模式，在A-（等待ws连接发送B）-C用asyncio.future进行等待
+- 使用方法:
+```    
+    try:
+        _future = future.get(seq)
+        response = await asyncio.wait_for(_future, timeout=20)
+    except asyncio.TimeoutError:
+        raise Exception(f"消息超时 | 消息: {xml_data}")
+        
+    future.set(seq, response)
+```
+
 
 
 ### 小程序开发(qqapp)
@@ -786,6 +798,13 @@ serve_task = asyncio.create_task(init_serve())
 - 修改 Mysql 的读写方式，保证读不出错
 - 修改泡泡页面支持两端操作
 - 修改泡泡页面支持同步
+#### [7.1.3] -2025-6-29
+- 新增平台绑定功能
+- 修改模块热重载，支持错误处理
+- 新增 data 部分的动态更新
+- 新增入会功能
+- 新增 cookie 与管理员操作记录
+- 新增网页登录 qq 验证
 </details>
 
 ***

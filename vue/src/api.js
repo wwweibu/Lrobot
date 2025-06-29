@@ -2,7 +2,8 @@ import axios from "axios";
 
 export const http = axios.create({
   baseURL: "/hjd",
-  timeout: 5000
+  timeout: 5000,
+  withCredentials: true
 });
 
 

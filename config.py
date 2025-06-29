@@ -17,13 +17,11 @@ import motor.motor_asyncio
 from colorama import Fore, Style
 from collections import defaultdict
 from logging.config import dictConfig
-from watchdog.observers.polling import PollingObserver
 from httpx_socks import AsyncProxyTransport
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers.polling import PollingObserver
 
-
-# 全局路径
-path = Path(__file__).resolve().parent  # python 中为 /lrobot,dokcer 中为 /app
+path = Path(__file__).resolve().parent  # 全局路径,python 中为 /lrobot,dokcer 中为 /app
 mongo_client = None  # mongo 连接
 mongo_db = None
 mysql_db_pool: aiomysql.Pool = None  # mysql 连接
@@ -51,7 +49,6 @@ source_dict = {
     "uvicorn.access": "website",
     "uvicorn.error": "website",
 }
-
 # 适配器监控指标
 monitor_metrics = defaultdict(
     lambda: {
@@ -165,7 +162,7 @@ def get_file_hash(file):
         return hashlib.md5(f.read()).hexdigest()
 
 
-#配置信息读写
+# 配置信息读写
 class AutoConfig:
     """配置参数读写"""
     def __init__(self, config_path: Path):
@@ -228,7 +225,8 @@ class AutoConfig:
                 )
         self.set_log()  # 更新日志记录器
 
-    def reset_log(self):
+    @staticmethod
+    def reset_log():
         """重置 logging 模块"""
         logging.shutdown()  # 关闭当前所有日志
         for name in list(logging.root.manager.loggerDict.keys()):  # 获取所有 Logger 名称
@@ -239,7 +237,7 @@ class AutoConfig:
     def set_log(self):
         """应用日志配置"""
         global loggers
-        self.reset_log()
+        AutoConfig.reset_log()
         try:
             dictConfig(self.config["logging"])  # 载入日志配置
         except Exception as e:
@@ -402,9 +400,6 @@ class LR5921Filter(logging.Filter):
         return True
 
 
-
-
-
 async def init_mysql():
     """初始化 mysql 连接"""
     global mysql_db_pool
@@ -442,11 +437,15 @@ async def update_database(query: str, params: tuple = ()):
             try:
                 await cur.execute(query, params)
                 await conn.commit()
+                from web.backend.cab.database import broadcast_db_update
+
+                await broadcast_db_update()
                 return cur.lastrowid
             except Exception as e:
                 await conn.rollback()
                 loggers["system"].error(f"Mysql 更新语句异常 -> {e} | 更新: {query} | 参数: {params}",
                                         extra={"event": "运行日志"})
+
 
 # 初始化配置信息
 config = AutoConfig(path / "storage/yml")

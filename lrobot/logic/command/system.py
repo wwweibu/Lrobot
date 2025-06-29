@@ -1,6 +1,6 @@
 from message.handler.msg import Msg
 
-async def remind_deal(msg:Msg):
+async def system_remind(msg:Msg):
     kind = msg.kind[:2]
     # content = "小推提醒你，找小推了解更多协会咨询和玩法"
     # Msg(
@@ -12,3 +12,6 @@ async def remind_deal(msg:Msg):
     #     content=content,
     #     group=msg.group,
     # )
+
+async def system_get_nickname():
+    pass

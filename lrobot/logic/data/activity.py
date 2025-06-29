@@ -1,5 +1,5 @@
 # TODO 更改逻辑
-from .database import update_database, query_database
+from config import update_database, query_database
 
 
 async def add_activity(name, time, duration, location, qq, description):

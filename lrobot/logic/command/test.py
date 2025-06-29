@@ -1,19 +1,14 @@
 import asyncio
 from config import path
 from message.handler.msg import Msg
+from logic import data
 
 async def test_1(msg: Msg):
     # LR232与LR5921 测试，连续回复，发送文件
     kind = msg.kind[:2]
-    Msg(
-        robot=msg.robot,
-        kind=f"{kind}发送文字",
-        event="发送",
-        source=msg.source,
-        seq=msg.seq,
-        content="11112",
-        group=msg.group,
-    )
+    result = await data.user_nickname("663748426")
+    print(f"1{result}")
+
 
 async def test_WECHAT(msg: Msg):
     # 测试微信

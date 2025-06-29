@@ -1,7 +1,6 @@
 # TODO 之后便捷更新数据库物资时使用
 import os
-from config import path
-from .database import query_database, update_database
+from config import path,query_database, update_database
 
 
 async def query_material(table_name):

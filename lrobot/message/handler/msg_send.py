@@ -77,7 +77,7 @@ async def msg_send(msg: Msg):
             info = msg.content.split("|")
             await lr5921_set_info(info[0], info[1], info[2])
         elif msg.kind == "私聊获取信息":
-            await lr5921_get_info(msg.content)
+            await lr5921_get_info(msg.content,msg.seq)
     elif msg.robot == "WECHAT":
         if msg.kind == "私聊发送文字":
             await wechat_dispatch(msg.source, msg.seq, msg.content)

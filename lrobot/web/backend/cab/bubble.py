@@ -1,12 +1,14 @@
 from typing import List
-from fastapi import APIRouter, HTTPException,Request,WebSocket,WebSocketDisconnect
-from config import update_database,query_database
+from fastapi import APIRouter, HTTPException,Request,WebSocket,WebSocketDisconnect,Depends
+from .cookie import get_account_from_cookie
+from config import update_database,query_database,loggers
 
 router = APIRouter()
+website_logger = loggers["website"]
 bubbles_connections: List[WebSocket] = []  # 数据库 ws 连接
 
 @router.post("/bubbles")
-async def upsert_bubble(request: Request):
+async def upsert_bubble(request: Request,account: str = Depends(get_account_from_cookie)):
     data = await request.json()
     bubble_id = data.get('id')
     content = data.get('content')
@@ -20,17 +22,18 @@ async def upsert_bubble(request: Request):
     if bubble_id:  # 修改或移动
         query = "UPDATE system_bubble SET content = %s, x = %s, y = %s, active = %s WHERE id = %s"
         await update_database(query, (content, x, y, active, bubble_id))
-        print(bubbles_connections)
         await broadcast_bubbles_update()
+        website_logger.info(f"[{account}] 修改泡泡({content},{x},{y})", extra={"event": "请求成功"})
         return {"status": "updated"}
     else:  # 创建新泡泡
         query = "INSERT INTO system_bubble (content, x, y, active) VALUES (%s, %s, %s, %s)"
         result = await update_database(query, (content, x, y, active))
         await broadcast_bubbles_update()
+        website_logger.info(f"[{account}] 新建泡泡({content},{x},{y})", extra={"event": "请求成功"})
         return {"status": "inserted", "id": result}
 
 @router.post("/bubbles/delete")
-async def delete_bubble(request: Request):
+async def delete_bubble(request: Request,account: str = Depends(get_account_from_cookie)):
     data = await request.json()
     bubble_id = data.get('id')
     if not bubble_id:
@@ -38,6 +41,7 @@ async def delete_bubble(request: Request):
     query = "DELETE FROM system_bubble WHERE id = %s"
     await update_database(query, (bubble_id,))
     await broadcast_bubbles_update()
+    website_logger.info(f"[{account}] 删除泡泡({bubble_id})", extra={"event": "请求成功"})
     return {"status": "deleted"}
 
 @router.get("/bubbles")

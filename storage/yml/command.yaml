@@ -1,5 +1,32 @@
 commands:
 - content:
+  - /绑定
+  func: 绑定
+  function: bind_platform
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - WECHAT
+  - BILI
+  - QQAPP
+  state: []
+  users: []
+- content:
+  - 请将整条消息复制至 LR5921(QQ) 处
+  func: 绑定确认
+  function: bind_check
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users: []
+- content:
   - /入会
   func: 入会1
   function: register_first
@@ -10,6 +37,9 @@ commands:
   platforms:
   - LR232
   - LR5921
+  - WECHAT
+  - BILI
+  - QQAPP
   state: []
   users:
   - 微步
@@ -20,15 +50,45 @@ commands:
   groups: []
   judge: equal
   kind:
-  - 私聊文字消息
   - 私聊文件消息
   platforms:
   - LR5921
   - LR232
+  - WECHAT
+  - BILI
+  - QQAPP
   state:
   - 待入会
+  - 入会状态1
   users:
   - 微步
+- content:
+  - 姓名
+  - 代号
+  - 性别
+  - 年级
+  - 专业
+  - 学号
+  - 电话
+  - qq
+  - 政治面貌
+  - 籍贯
+  func: 入会3
+  function: register_third
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  - QQAPP
+  state:
+  - 待入会
+  - 入会状态2
+  users: []
 - content:
   - /帮助
   func: 帮助
@@ -44,18 +104,6 @@ commands:
   state: []
   users:
   - 微步
-- content: []
-  func: 转发
-  function: forward_all
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - WECHAT
-  - BILI
-  state: []
-  users: []
 - content:
   - /测试1
   func: 测试
@@ -85,3 +133,15 @@ commands:
   state: []
   users:
   - 微步
+- content: []
+  func: 转发
+  function: forward_all
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - WECHAT
+  - BILI
+  state: []
+  users: []

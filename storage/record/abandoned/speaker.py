@@ -1,4 +1,4 @@
-# TODO,调用LR5921的接口
+# 获取每日发言（积分系统）
 import asyncio
 from config import config
 

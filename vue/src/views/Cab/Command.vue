@@ -304,7 +304,6 @@ const platformOptions = [
   'LR232',
   'LR5921',
   'WECHAT',
-  'WEIBO',
   'BILI',
   'QQAPP'
 ]

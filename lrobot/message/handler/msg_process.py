@@ -3,7 +3,7 @@ import traceback
 from config import config,loggers
 from message.handler.msg import Msg
 from message.handler.msg_send import msg_send
-from logic import check_status,command,forward_all
+from logic import check_status,user_identify,command
 
 msg_logger = loggers["message"]
 
@@ -23,32 +23,31 @@ async def msg_process(msg):
 async def safe_msg_process(msg: Msg):
     """消息处理"""
     states = await check_status(msg.source)
-    if msg.event == "处理":
-        #if getattr(msg, "content", None) and msg.content.startswith("/"):  # 考虑内容为 none
-        msg.event = "功能"
-        # else:
-        #     if "对话" in states:
-        #         msg.event = "对话"
-        #     elif "游戏" in states:
-        #         msg.event = "游戏"
-        #     else:
-        #         return # 群消息不处理不显示
     msg_logger.info(
         f"⌈{msg.robot}⌋{msg.event}: {msg.kind} -> {msg.content}",
         extra={"event": f"消息处理"},
     )
-    if msg.event == "功能":
+    if msg.event == "处理":
         for commands in config["commands"]:
             if msg.robot not in commands["platforms"]:
                 continue
             if msg.kind not in commands["kind"]:
                 continue
-            if msg.group and commands["groups"]:
-                if not any(
-                        msg.group in config["群聊"][group]
-                        for group in commands["groups"]
-                ):
-                    continue
+            if msg.group:
+                if commands["groups"]:
+                    if not any(
+                            msg.group in config["群聊"][group]
+                            for group in commands["groups"]
+                    ):
+                        continue
+            else:
+                identity_list = await user_identify(msg.source,msg.robot)
+                if commands["users"]:
+                    if not any(
+                            identity in identity_list
+                            for identity in commands["users"]
+                    ):
+                        continue
             # 如果系统状态为空，则用户任意状态都可以匹配
             # 如果系统状态不为空，则用户状态必须包含系统状态
             if commands["state"] and not any(
@@ -73,7 +72,3 @@ async def safe_msg_process(msg: Msg):
                     return
     elif msg.event.endswith("发送"):
         await msg_send(msg)
-    elif msg.event == "对话":
-        pass
-    elif msg.event == "游戏":
-        pass

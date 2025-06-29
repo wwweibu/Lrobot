@@ -1,16 +1,17 @@
 # fastapi 主逻辑
 import uvicorn
-from fastapi import FastAPI, Request, Response
 from starlette.middleware.gzip import GZipMiddleware
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from web.backend.cab import *
 from secret import secret
+from web.backend.cab import *
 from config import path, loggers
 
 
 website_logger = loggers["website"]
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+
 
 # 注册 APIRouter
 app.include_router(admin_router, prefix=secret("/cab"))
@@ -18,9 +19,9 @@ app.include_router(command_router, prefix=secret("/cab"))
 app.include_router(database_router, prefix=secret("/cab"))
 app.include_router(file_router, prefix=secret("/cab"))
 app.include_router(login_router, prefix=secret("/cab"))
-app.include_router(metrics_router, prefix=secret("/cab"))
+app.include_router(metrics_router, prefix=secret("/cab"),)
 app.include_router(user_router, prefix=secret("/cab"))
-app.include_router(time_router,prefix=secret("/cab"))
+app.include_router(time_router,prefix=secret("/cab"),)
 app.include_router(bubble_router,prefix=secret("/cab"))
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)

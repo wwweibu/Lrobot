@@ -1,4 +1,13 @@
-from .status import check_status,add_status,delete_status
+import sys
+from pathlib import Path
+from logic.reloader import ModuleManager
+
+manager = ModuleManager(
+    module_dir=Path(__file__).parent,
+    package_base=__name__,  # 即 logic.data
+    inject_target=sys.modules[__name__]
+)
+manager.start()
+
 from .ip import check_and_update_ip
-from .remind import remind_send
-from .file import download_file
+from .user import user_codename

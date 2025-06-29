@@ -1,4 +1,4 @@
-<template>
+<template> 
   <div class="terminal-container">
     <div class="terminal-window">
       <div class="terminal-header">
@@ -6,21 +6,23 @@
         <div class="header-button" style="background: #ff4444;"></div>
         <div class="header-button" style="background: #ffff44;"></div>
       </div>
-      <div class="terminal-content" ref="terminalContent">
+      <div class="terminal-content" ref="terminalContent" @click="focusInputArea">
         <div v-for="line in terminalLines" :key="line" class="terminal-line">{{ line }}</div>
         <div ref="inputLine" class="current-line">
           {{ prompt }}
-          <span ref="inputArea" 
-                contenteditable="plaintext-only" 
-                @input="handleInput" 
-                @keydown="handleKeydown" 
-                @focus="handleFocus" 
-                @blur="handleBlur" 
-                @paste="handlePaste" 
-                @cut="handleCut"
-                @compositionstart="handleCompositionStart"
-                @compositionend="handleCompositionEnd">
-          </span>
+          <span
+            ref="inputArea" 
+            contenteditable="plaintext-only" 
+            @input="handleInput" 
+            @keydown="handleKeydown" 
+            @focus="handleFocus" 
+            @blur="handleBlur" 
+            @paste="handlePaste" 
+            @cut="handleCut"
+            @compositionstart="handleCompositionStart"
+            @compositionend="handleCompositionEnd"
+            class="input-area"
+          ></span>
           <span ref="cursor" class="cursor"></span>
         </div>
       </div>
@@ -30,12 +32,13 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import {http} from '../../api'
+import { http } from '../../api'
 
 const terminalContent = ref(null)
 const inputLine = ref(null)
 const inputArea = ref(null)
 const cursor = ref(null)
+const validatedAccount = ref('')
 
 const terminalLines = ref([
   'LRobot [版本 6.7.1]',
@@ -44,10 +47,7 @@ const terminalLines = ref([
 
 const prompt = ref('C:\\Users\\weibu>')
 const currentInput = ref('')
-const validationStep = ref('password') // password -> account -> success
-
-const validPassword = 'secret123'
-const validAccount = 'user456'
+const validationStep = ref('account')
 const successMessage = '认证通过，系统已解锁'
 
 const isComposing = ref(false)
@@ -70,8 +70,6 @@ const handleKeydown = (e) => {
     currentInput.value = currentInput.value.slice(0, -1)
     updateInputArea()
   }
-
-  // 允许 Ctrl+C / Ctrl+V / Ctrl+A 等默认操作
 }
 
 const handleInput = (e) => {
@@ -90,15 +88,17 @@ const handleCompositionEnd = (e) => {
   updateInputArea()
 }
 
-const handlePaste = (e) => {
+const handlePaste = () => {
   setTimeout(() => {
     currentInput.value = inputArea.value.textContent
+    updateInputArea()
   }, 0)
 }
 
-const handleCut = (e) => {
+const handleCut = () => {
   setTimeout(() => {
     currentInput.value = inputArea.value.textContent
+    updateInputArea()
   }, 0)
 }
 
@@ -113,18 +113,17 @@ const executeCommand = async () => {
   }
 
   switch (validationStep.value) {
-    case 'password':
-      await handlePasswordValidation(command)
-      break
     case 'account':
       await handleAccountValidation(command)
       break
-    case 'success':
+    case 'password':
+      await handlePasswordValidation(command)
       break
   }
 
   currentInput.value = ''
   updateInputArea()
+
   nextTick(() => {
     if (terminalContent.value) {
       terminalContent.value.scrollTop = terminalContent.value.scrollHeight
@@ -132,37 +131,33 @@ const executeCommand = async () => {
   })
 }
 
-const handlePasswordValidation = async (password) => {
-  try {
-    // 向后端请求进行密码验证
-    const response = await http.get('/password', { params:{password: password }})
-    console.log(response)
-    if (response.data.isValid) {
-      validationStep.value = 'account'  // 密码验证成功，继续验证账号
-    }
-  } catch (error) {
-  }
-}
-
 const handleAccountValidation = async (account) => {
   try {
-    // 向后端请求进行账号验证
-    const response = await http.get('/account', { params:{account: account },timeout: 20000})
+    const response = await http.get('/account', { params: { account } })
     if (response.data.isValid) {
-      terminalLines.value.push(successMessage)  // 账号验证通过
-      validationStep.value = 'success'  // 成功
-      document.cookie = `account=${account}; path=/; max-age=31536000` // 设置cookie
-    } else {
-    validationStep.value = 'password'
-  }
-  } catch (error) {
-    validationStep.value = 'password'
-  }
+      validatedAccount.value = account
+      validationStep.value = 'password'
+    }
+  } catch (error) {}
+}
+
+const handlePasswordValidation = async (password) => {
+  try {
+    const response = await http.get('/password', { params: { password } })
+    if (response.data.isValid) {
+      terminalLines.value.push(successMessage)
+      validationStep.value = 'success'
+      console.log("validatedAccount:", validatedAccount)
+      console.log("validatedAccount.value:", validatedAccount.value)
+      document.cookie = `account=${encodeURIComponent(validatedAccount.value)}; path=/; max-age=31536000` //设置 cookie
+    }
+  } catch (error) {}
 }
 
 const updateInputArea = () => {
   const el = inputArea.value
   if (!el) return
+
   el.textContent = currentInput.value
 
   nextTick(() => {
@@ -174,41 +169,50 @@ const setCaretToEnd = () => {
   const el = inputArea.value
   if (!el) return
 
-  const range = document.createRange()
   const sel = window.getSelection()
+  const range = document.createRange()
 
-  if (el.firstChild) {
-    const len = el.firstChild.length
-    range.setStart(el.firstChild, len)
-    range.collapse(true)
-    sel.removeAllRanges()
-    sel.addRange(range)
+  // 添加空文本节点避免 range 报错
+  if (!el.firstChild) {
+    el.appendChild(document.createTextNode(''))
   }
 
+  range.selectNodeContents(el)
+  range.collapse(false)
+
+  sel.removeAllRanges()
+  sel.addRange(range)
   el.focus()
 }
 
 const handleFocus = () => {
-  setCaretToEnd()
+  nextTick(() => setCaretToEnd())
 }
 
 const handleBlur = () => {
-  // 可选：失焦时处理
+  setTimeout(() => {
+    if (document.activeElement !== inputArea.value) {
+      inputArea.value?.focus()
+      setCaretToEnd()
+    }
+  }, 100)
+}
+
+const focusInputArea = () => {
+  inputArea.value?.focus()
+  setCaretToEnd()
 }
 
 onMounted(() => {
   nextTick(() => {
-    if (terminalContent.value) {
-      terminalContent.value.scrollTop = terminalContent.value.scrollHeight
-    }
-    if (inputArea.value) {
-      inputArea.value.focus()
-    }
+    terminalContent.value?.scrollTo(0, terminalContent.value.scrollHeight)
+    inputArea.value?.focus()
+    setCaretToEnd()
   })
 })
 </script>
 
-<style>
+<style scoped>
 .terminal-container {
   position: fixed;
   top: 50%;
@@ -256,12 +260,22 @@ onMounted(() => {
   line-height: 1.5;
   color: #0ff;
   background-color: #000;
+  cursor: text;
 }
 
 .current-line {
   display: flex;
   align-items: center;
-  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.input-area {
+  outline: none;
+  caret-color: #0ff;
+  min-width: 1ch;
+  min-height: 1em;
+  display: inline-block;
 }
 
 .cursor {
@@ -280,7 +294,7 @@ onMounted(() => {
 }
 
 .terminal-line {
-  white-space: pre;
+  white-space: pre-wrap;
   margin: 0;
 }
 

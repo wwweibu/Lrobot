@@ -1,10 +1,12 @@
 import base64
 from typing import List
 from fastapi.responses import JSONResponse
-from fastapi import Request, WebSocket, WebSocketDisconnect, APIRouter
-from config import query_database, update_database
+from fastapi import Request, WebSocket, WebSocketDisconnect, APIRouter,Depends
+from .cookie import get_account_from_cookie
+from config import query_database, update_database,loggers
 
 router = APIRouter()
+website_logger = loggers["website"]
 database_connections: List[WebSocket] = []  # 数据库 ws 连接
 
 
@@ -26,7 +28,7 @@ async def get_database():
 
 
 @router.put("/database")
-async def renew_database(request: Request):
+async def renew_database(request: Request,account: str = Depends(get_account_from_cookie)):
     """更新数据库"""
     payload = await request.json()
     table_name = payload.get("table_name")
@@ -43,17 +45,20 @@ async def renew_database(request: Request):
         value = payload.get("value")
         if column == "id":
             raise Exception("不允许修改主键字段 'id'")
-        query = f"UPDATE {table_name} SET {column} = %s WHERE id = ?"
+        query = f"UPDATE {table_name} SET {column} = %s WHERE id = %s"
         await update_database(query, (value, row_id))
+        website_logger.info(f"[{account}] 更新数据库:{table_name},{value},{row_id},{column}", extra={"event": "请求成功"})
 
     elif action == "add_row":
-        query = f"INSERT INTO {table_name} DEFAULT VALUES"
+        query = f"INSERT INTO {table_name} () VALUES ()"
         await update_database(query)
+        website_logger.info(f"[{account}] 更新数据库:{table_name},新增行", extra={"event": "请求成功"})
 
     elif action == "delete_row":
         row_id = payload.get("row_id")
         query = f"DELETE FROM {table_name} WHERE id = %s"
         await update_database(query, (row_id,))
+        website_logger.info(f"[{account}] 更新数据库:{table_name},删除行", extra={"event": "请求成功"})
 
     else:
         return JSONResponse(status_code=400, content={"error": "Unknown action type"})

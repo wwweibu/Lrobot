@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS user_status (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    source VARCHAR(255) NOT NULL UNIQUE,
+    source VARCHAR(255) UNIQUE,
     status TEXT,
     information TEXT
 );
@@ -13,12 +13,29 @@ CREATE TABLE IF NOT EXISTS system_timeline (
     tag TEXT
 );
 
+CREATE TABLE IF NOT EXISTS user_information (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    qq BIGINT UNIQUE,
+    nickname VARCHAR(50),
+    codename VARCHAR(50),
+    name VARCHAR(50),
+    grade varchar(50),
+    gender ENUM('男', '女') DEFAULT NULL,
+    major VARCHAR(100),
+    student_id VARCHAR(20),
+    phone VARCHAR(20),
+    political_status VARCHAR(50),
+    hometown VARCHAR(100),
+    card_number VARCHAR(20),
+    card_id VARCHAR(30)
+);
+
 CREATE TABLE IF NOT EXISTS system_bubble (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    content TEXT NOT NULL,
-    x FLOAT NOT NULL,
-    y FLOAT NOT NULL,
-    active BOOLEAN NOT NULL DEFAULT FALSE
+    content TEXT,
+    x FLOAT,
+    y FLOAT,
+    active BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE IF NOT EXISTS system_ip(

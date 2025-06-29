@@ -1,12 +1,14 @@
-from fastapi import FastAPI, HTTPException, APIRouter,Request
-from config import update_database,query_database
+from fastapi import FastAPI, HTTPException, APIRouter,Request,Depends
+from .cookie import get_account_from_cookie
+from config import update_database,query_database,loggers
 
-
+website_logger = loggers["website"]
 router = APIRouter()
 
 # 获取所有节点
 @router.get("/nodes")
-async def get_nodes():
+async def get_nodes(account: str = Depends(get_account_from_cookie)):
+    website_logger.info(f"{account} 获取泡泡", extra={"event": "请求成功"})
     query = "SELECT node_id AS id, date, event, tag FROM system_timeline ORDER BY id ASC"
     rows = await query_database(query)
     return rows

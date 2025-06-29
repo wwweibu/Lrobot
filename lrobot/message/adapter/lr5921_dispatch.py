@@ -1,5 +1,5 @@
 # LR5921 发送消息
-from config import config, loggers, connect
+from config import config, loggers, connect,future
 
 base_url = "http://napcat:5921"
 adapter_logger = loggers["adapter"]
@@ -20,7 +20,10 @@ async def lr5921_dispatch(kind, id, content=None, files=None):
         message.append({"type": "text", "data": {"text": content}})
     if files:
         for file in files:
-            message.append({"type": "file", "data": {"file": f"file://{file[1]}"}})
+            if file[0].lower().endswith((".png", ".jpg", ".jpeg")):
+                message.append({"type": "image", "data": {"file": f"file://{file[1]}"}})
+            else:
+                message.append({"type": "file", "data": {"file": f"file://{file[1]}"}})
     data = {
         tag: id,
         "message": message,
@@ -144,7 +147,7 @@ async def lr5921_set_info(nickname, note, sex):
         raise Exception(f"信息设置失败 -> [{response.status_code}]{response.text}")
 
 
-async def lr5921_get_info(id):
+async def lr5921_get_info(id,seq):
     """私聊获取信息"""
     url = f"{base_url}/get_stranger_info"
 
@@ -153,8 +156,6 @@ async def lr5921_get_info(id):
     client = connect()
     response = await client.post(url, json=data, headers=headers)
     if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]获取好友属性 -> {response.text}", extra={"event": "消息发送"}
-        )
+        future.set(seq, response)
     else:
         raise Exception(f"好友属性获取失败 -> [{response.status_code}]{response.text}")
