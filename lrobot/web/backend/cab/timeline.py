@@ -7,15 +7,15 @@ router = APIRouter()
 
 # 获取所有节点
 @router.get("/nodes")
-async def get_nodes(account: str = Depends(get_account_from_cookie)):
-    website_logger.info(f"{account} 获取泡泡", extra={"event": "请求成功"})
+async def get_nodes():
+
     query = "SELECT node_id AS id, date, event, tag FROM system_timeline ORDER BY id ASC"
     rows = await query_database(query)
     return rows
 
 # 创建新节点
 @router.post("/nodes")
-async def create_node(request: Request):
+async def create_node(request: Request,account: str = Depends(get_account_from_cookie)):
     data = await request.json()
     date_val = data.get("date")
     event_val = data.get("event")
@@ -34,12 +34,12 @@ async def create_node(request: Request):
         VALUES (%s, %s, %s, %s)
     """
     await update_database(insert_query, (next_node_id, date_val, event_val, tag_val))
-
+    website_logger.info(f"{account} 创建时间点:{next_node_id},{date_val},{event_val},{tag_val}", extra={"event": "请求成功"})
     return {"id": next_node_id, "date": date_val, "event": event_val, "tag": tag_val}
 
 # 更新节点
 @router.put("/nodes/{node_id}")
-async def update_node(node_id: int, request: Request):
+async def update_node(node_id: int, request: Request,account: str = Depends(get_account_from_cookie)):
     data = await request.json()
     date_val = data.get("date")
     event_val = data.get("event")
@@ -57,11 +57,15 @@ async def update_node(node_id: int, request: Request):
         UPDATE system_timeline SET date = %s, event = %s, tag = %s WHERE node_id = %s
     """
     await update_database(update_query, (date_val, event_val, tag_val, node_id))
+    website_logger.info(f"{account} 更新时间点:{node_id}, {date_val}, {event_val}, {tag_val}",
+                        extra={"event": "请求成功"})
     return {"id": node_id, "date": date_val, "event": event_val, "tag": tag_val}
 
 # 删除节点
 @router.delete("/nodes/{node_id}")
-async def delete_node(node_id: int):
+async def delete_node(node_id: int,account: str = Depends(get_account_from_cookie)):
     delete_query = "DELETE FROM system_timeline WHERE node_id = %s"
     await update_database(delete_query, (node_id,))
+    website_logger.info(f"{account} 删除时间点:{node_id}",
+                       extra={"event": "请求成功"})
     return {"message": "Node deleted"}

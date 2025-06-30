@@ -15,6 +15,7 @@ import Preview from '../views/Cab/Preview.vue';
 import Timeline from '../views/Cab/Timeline.vue';
 import Papaw from '../views/Cab/Papaw.vue';
 import Instruction from '../views/Cab/Instruction.vue';
+import Firefly from '../views/Firefly.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 
 const routes = [
@@ -22,6 +23,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/firefly',
+    name: 'Firefly',
+    component: Firefly
   },
   {
     path: '/cab',

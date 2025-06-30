@@ -1,3 +1,4 @@
+"""网盘相关操作"""
 import os
 import shutil
 import hashlib
@@ -7,28 +8,38 @@ from typing import List
 from pathlib import Path
 from datetime import datetime
 from fastapi.responses import FileResponse
-from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form
-from config import path
+from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form, Depends
+from config import path, loggers
+from .cookie import get_account_from_cookie
 
 router = APIRouter()
 UPLOAD_DIR = path / "storage/file/resource/clouddrive"
 RECYCLE_BIN = path / "storage/file/resource/recycle"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+website_logger = loggers["website"]
 
 
 @router.post("/files")
-async def upload_files(files: List[UploadFile] = File(...)):
+async def upload_files(files: List[UploadFile] = File(...),paths: str = Form(...),account: str = Depends(get_account_from_cookie)):
+    """上传文件"""
     saved_files = []
+    target_dir = UPLOAD_DIR / paths
+    target_dir.mkdir(parents=True, exist_ok=True)
     for file in files:
-        dest = UPLOAD_DIR / file.filename
+        dest = target_dir / file.filename
+        if dest.exists():
+            raise HTTPException(403,f"文件已存在: {file.filename}")
         with dest.open("wb") as f:
             shutil.copyfileobj(file.file, f)
-        saved_files.append(file.filename)
+        saved_files.append(str((Path(paths) / file.filename)))
+        website_logger.info(f"{account} 上传文件:{paths}/{file.filename}",
+                            extra={"event": "请求成功"})
     return {"uploaded": saved_files}
 
 
 @router.delete("/files")
-async def delete_item(request: Request):
+async def delete_item(request: Request,account: str = Depends(get_account_from_cookie)):
+    """删除文件"""
     data = await request.json()
     path = data["path"].lstrip("/\\")
     try:
@@ -53,6 +64,9 @@ async def delete_item(request: Request):
 
         shutil.move(str(target_path), str(recycle_path))
 
+        website_logger.info(f"{account} 删除文件:{str(target_path)}",
+                            extra={"event": "请求成功"})
+
         return {"status": "success", "deleted_path": str(target_path)}
 
     except PermissionError:
@@ -63,8 +77,9 @@ async def delete_item(request: Request):
 
 @router.post("/file_folders")
 async def upload_folders(
-    files: List[UploadFile] = File(...), paths: List[str] = Form(...)
+    files: List[UploadFile] = File(...), paths: List[str] = Form(...),account: str = Depends(get_account_from_cookie)
 ):
+    """上传文件夹"""
     saved_files = []
 
     for file, relative_path in zip(files, paths):
@@ -80,27 +95,32 @@ async def upload_folders(
 
         saved_files.append(str(relative_path))
 
+        website_logger.info(f"{account} 上传文件夹:{str(relative_path)}",
+                            extra={"event": "请求成功"})
+
     return {"uploaded": saved_files}
 
 
 @router.post("/folders")
-async def create_folder(request: Request):
+async def create_folder(request: Request,account: str = Depends(get_account_from_cookie)):
+    """新建文件夹"""
     data = await request.json()
     path = data["path"].lstrip("/\\")
-    print(path)
     full_path = UPLOAD_DIR / path
     full_path = full_path.resolve()
     # 防止路径跳出上传目录
     if not str(full_path).startswith(str(UPLOAD_DIR.resolve())):
         raise HTTPException(status_code=400, detail="Invalid path")
 
-    print(full_path)
     full_path.mkdir(parents=True, exist_ok=True)
+    website_logger.info(f"{account} 新建文件夹:{str(full_path)}",
+                        extra={"event": "请求成功"})
     return {"path": str(full_path)}
 
 
 @router.get("/browse/{path:path}")
 async def browse_directory(path: str = ""):
+    """访问文件夹目录"""
     if path == "none":
         path = ""
     base_path = UPLOAD_DIR / path
@@ -124,6 +144,7 @@ async def browse_directory(path: str = ""):
 
 @router.get("/search")
 async def search_files(path: str, keyword: str):
+    """搜索文件"""
     if path == "none":
         path = ""
     base_path = UPLOAD_DIR / path
@@ -154,20 +175,28 @@ async def search_files(path: str, keyword: str):
 
 
 @router.put("/rename")
-async def rename_item(request: Request):
+async def rename_item(request: Request,account: str = Depends(get_account_from_cookie)):
+    """重命名文件"""
     data = await request.json()
     old_path = data["old_path"]
     new_path = data["new_path"]
     old_item = UPLOAD_DIR / old_path
-    new_item = UPLOAD_DIR / new_path
-    print(old_item)
+    new_item = old_item.with_name(new_path)
     print(new_item)
+    if not old_item.exists():
+        raise HTTPException(status_code=404, detail="原文件不存在")
+    if new_item.exists():
+        raise HTTPException(status_code=409, detail="目标文件已存在")
+    print(new_item)
+    website_logger.info(f"{account} 重命名文件:{old_item} -> {new_item}",
+                        extra={"event": "请求成功"})
     old_item.rename(new_item)
     return {"new_path": str(new_item)}
 
 
 @router.post("/move")
-async def move_item(request: Request):
+async def move_item(request: Request,account: str = Depends(get_account_from_cookie)):
+    """移动文件"""
     data = await request.json()
     src_path = data["src_path"]
     dst_path = data["dst_path"]
@@ -176,12 +205,13 @@ async def move_item(request: Request):
     print(src_item)
     print(dst_item)
     shutil.move(str(src_item), str(dst_item))
+    website_logger.info(f"{account} 移动文件:{str(src_item)} -> {str(dst_item)}",
+                        extra={"event": "请求成功"})
     return {"new_path": str(dst_item)}
 
 
-# 获取唯一文件名（hash 或时间戳）：
 def get_unique_pdf_name(doc_path):
-    # 方式一：根据文件内容生成哈希（不重复且对内容敏感）
+    """获取唯一文件名（根据内容生成哈希)"""
     file_hash = hashlib.md5(doc_path.read_bytes()).hexdigest()[:8]
     base_name = doc_path.stem  # 不含后缀的文件名
     return f"{base_name}_{file_hash}.pdf"
@@ -207,6 +237,8 @@ async def preview_file(body: dict):
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",  # .xls
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # .xlsx
     ]:
         pdf_filename = get_unique_pdf_name(full_path)
         pdf_path = RECYCLE_BIN / pdf_filename

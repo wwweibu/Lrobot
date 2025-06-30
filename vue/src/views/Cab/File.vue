@@ -42,24 +42,34 @@
 
     <!-- 文件列表 -->
     <div class="file-list" @contextmenu.prevent="openBlankContextMenu">
-      <div 
-        v-for="item in sortedItems" 
-        :key="item.path"
-        class="file-item"
-        :draggable="true"
-        @dragstart="handleDragStart(item)"
-        @dragover.prevent="handleDragOver"
-        @drop="handleDrop(item)"
-        @contextmenu.prevent="openContextMenu($event, item)"
-        @click="handleItemClick(item)"
-      >
-        <img :src="getIconForItem(item)" class="icon" />
-        <div class="details">
-          <span>{{ item.name }}</span>
-          <time>{{ formatDate(item.modified) }}</time>
-        </div>
-      </div>
+  <!-- 空状态 -->
+  <div 
+    v-if="sortedItems.length === 0"
+    class="empty-placeholder"
+    @contextmenu.prevent="openBlankContextMenu"
+  >
+    此文件夹为空，右键可上传文件或新建文件夹
+  </div>
+
+  <!-- 有内容时渲染文件项 -->
+  <div 
+    v-for="item in sortedItems" 
+    :key="item.path"
+    class="file-item"
+    :draggable="true"
+    @dragstart="handleDragStart(item)"
+    @dragover.prevent="handleDragOver"
+    @drop="handleDrop(item)"
+    @contextmenu.prevent="openContextMenu($event, item)"
+    @click="handleItemClick(item)"
+  >
+    <img :src="getIconForItem(item)" class="icon" />
+    <div class="details">
+      <span>{{ item.name }}</span>
+      <time>{{ formatDate(item.modified) }}</time>
     </div>
+  </div>
+</div>
 
     <!-- 右键菜单 -->
     <div 
@@ -381,9 +391,11 @@ const handleFileUpload = async (e) => {
 
   try {
     const formData = new FormData()
+    const basePath = currentPath.value === 'none' ? '' : currentPath.value
     for (let i = 0; i < files.length; i++) {
       formData.append('files', files[i])
     }
+    formData.append('paths', basePath)
     await http.post('/files', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -622,5 +634,18 @@ const handleSearch = async () => {
 
 .context-menu div:hover {
   background: #f5f7fa;
+}
+
+.empty-placeholder {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+  border: 2px dashed #dcdfe6;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: context-menu;
 }
 </style>

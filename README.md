@@ -94,7 +94,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
 9. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
 10. `docker compose up --build -d mysql` `docker compose up --build -d mongodb` 启动数据库服务
-11. `docker compose up --build lrobot` 启动 lrobot 主服务
+11. `docker compose up --build lrobot` 启动 lrobot 主服务，由于安装了 libreoffice，需要 5 分钟左右
 12. 可选择在 pycharm 中连接与查看数据源: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data;数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log
 13. 可以使用 `docker logs xx` 或者 Docker Desktop 查看容器内部日志
 14. 若在 pycharm 中开发遇到路径标红的问题，右键 lrobot 子文件夹，将目录标记为-源代码目录
@@ -319,6 +319,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 - 在 query_database 中只是执行了一个查询，但没有提交事务。因此，这个连接上的事务实际上并没有结束（即使查询已经完成）。
 - 当这个连接被释放回连接池，然后被另一个请求（可能是 GET 也可能是其他）再次获取时，这个连接上可能还存在一个未提交的事务（实际上是一个空事务，因为没有写操作，但读事务的状态还在）。
 - 如果这个连接再次被用于 GET 请求，那么在这个连接上执行新的查询，由于 REPEATABLE READ 隔离级别，它可能会继续使用之前建立的快照（即旧数据），而看不到其他连接提交的更新。
+- 所有库都以id为主键，且不许为非空，因为数据库页面的插入行的设定为：给所有的插入空值，mysql允许唯一键为空值
 ###### 数据库(database)
 - 异步队列在调用数据库时会由于读写锁导致延迟
 - 在直接读写（靠锁来自行分配）、分五个库（同步多操作）、建立连接池（减少建立连接时间）、使用批量提交（一次性提交）中，批量提交的方法效率最高且接近极限效率
@@ -805,6 +806,8 @@ serve_task = asyncio.create_task(init_serve())
 - 新增入会功能
 - 新增 cookie 与管理员操作记录
 - 新增网页登录 qq 验证
+#### [7.1.4] -2025-6-30
+- 修改 dockerfile 安装 libreoffice
 </details>
 
 ***
