@@ -99,7 +99,7 @@ sudo make
 sudo make install
 ```
 - 启动 nginx 服务 `cd /usr/local/nginx/sbin/` `sudo ./nginx`(此步骤失败参考端口占用)
-- 将腾讯云下发的证书拷贝到服务器路径 `/etc/nginx/ssl/whumystery.cn_bundle.pem` 和 `/etc/nginx/ssl/whumystery.cn.key` 处，参考`ssh -i xx\lrobot.pem username@ip "sudo mkdir -p /etc/nginx/ssl/ && sudo chown username:username /etc/nginx/ssl/` `scp -i xx\lrobot.pem" "xx\whumystery.cn_bundle.pem" username@ip:/etc/nginx/ssl/`
+- 将腾讯云下发的证书拷贝到服务器路径 `/etc/nginx/ssl/whumystery.cn_bundle.pem` 和 `/etc/nginx/ssl/whumystery.cn.key` 处，参考`ssh -i xx\lrobot.pem username@ip "sudo mkdir -p /etc/nginx/ssl/ && sudo chown username:username /etc/nginx/ssl/` `scp -i xx\lrobot.pem" "xx\whumystery.cn_bundle.pem" username@ip:/etc/nginx/ssl/`，记得*配置自动续费*
 - 修改 nginx 配置，在本地创建一个 nginx.conf，在本地命令行使用命令`type xxxx\nginx.conf | ssh -i xxx\lrobot.pem username@ip "sudo tee /usr/local/nginx/conf/nginx.conf > /dev/null"`来更改服务器上的 nginx 配置文件（记得替换nginx文件路径、密钥文件路径、管理员名称和服务器ip），随后通过ssh连接服务器，输入`cd /usr/local/nginx/sbin``` ```sudo ./nginx -s reload`来重启nginx服务
 
 #### nginx 配置/windows

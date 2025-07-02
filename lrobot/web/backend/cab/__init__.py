@@ -7,3 +7,4 @@ from .metircs import router as metrics_router
 from .user import router as user_router
 from .timeline import router as time_router
 from .bubble import router as bubble_router
+from .panel import router as panel_router

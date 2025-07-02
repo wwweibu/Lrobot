@@ -15,6 +15,7 @@ from .lr5921_dispatch import (
     lr5921_get_status,
     lr5921_dispatch,
     lr5921_dispatch_record,
+    lr5921_get_group,
 )
 from .wechat_dispatch import wechat_dispatch
 

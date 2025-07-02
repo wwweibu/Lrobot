@@ -50,6 +50,22 @@ CREATE TABLE IF NOT EXISTS system_joke(
     text TEXT
 );
 
+CREATE TABLE IF NOT EXISTS system_panel (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name TEXT,
+    description TEXT,
+    url TEXT,
+    tasks TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_test (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    source BIGINT UNIQUE,
+    nickname VARCHAR(255),
+    name VARCHAR(255),
+    password VARCHAR(255)
+);
+
 INSERT INTO system_joke (text) VALUES
 ('华生：“你怎么知道我要喝三分糖？”
 福尔摩斯：“你嘴角有蚂蚁排队，说明糖量不足致死；你手机屏保是‘抗糖宣言’，但手指在‘全糖’选项上有划痕……”

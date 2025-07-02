@@ -33,7 +33,7 @@ async def msg_content_join(content):
                     sorted(emojis.items(), key=lambda x: int(x[0]))
                 )  # 按照 key 排序
                 config["emojis"] = sorted_emojis
-            content_join += f"[{face}]"
+            content_join += f"[表情:{face}]"
         elif msg_type == "rps":
             rps_id = msg_data.get("result")
             rps_mapping = {"1": "布", "2": "剪刀", "3": "石头"}
@@ -43,9 +43,9 @@ async def msg_content_join(content):
             content_join += f"[猜拳:{rps_result}]"
         elif msg_type == "dice":
             dice_id = msg_data.get("result")
-            content_join += f"[掷骰子{dice_id}点]"
+            content_join += f"[掷骰子:{dice_id}点]"
         elif msg_type == "forward":
-            content_join += f"[转发{msg_data.get('id')}]"
+            content_join += f"[转发:{msg_data.get('id')}]"
         elif msg_type == "node":
             content_join += f"[合并转发节点]"
         elif msg_type == "image":
@@ -55,10 +55,10 @@ async def msg_content_join(content):
             content_join += "[文件]"
             files.append((msg_data.get("file"), msg_data.get("url")))
         elif msg_type == "reply":
-            content_join += f"[回复{msg_data.get('id')}]"
+            content_join += f"[回复:{msg_data.get('id')}]"
         elif msg_type == "at":
             qq = msg_data.get("qq")
-            content_join += f"[@{qq}]"
+            content_join += f"[at:{qq}]"
         else:
             raise Exception(f" 无法解析的消息段落 | 消息: {item}")
     return content_join, files
@@ -107,9 +107,11 @@ async def lr5921_message_deal(data):
             if data.get("sub_type") == "lift_ban":
                 kind = "群聊解除禁言"
         elif kind == "群聊减少成员":
+            content = f"{data.get('user_id')}退出了群{data.get('group_id')}"
             if data.get("sub_type") == "kick":
                 kind = "群聊踢出成员"
         elif kind == "群聊申请加入":
+            content = f"{data.get('user_id')}加入了群{data.get('group_id')}"
             if data.get("sub_type") == "invite":
                 kind = "群聊邀请加入"
         elif kind == "群聊撤回消息":

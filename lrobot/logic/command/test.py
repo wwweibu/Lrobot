@@ -6,7 +6,7 @@ from logic import data
 async def test_1(msg: Msg):
     # LR232与LR5921 测试，连续回复，发送文件
     kind = msg.kind[:2]
-    result = await data.user_nickname("663748426")
+    result = await data.judge_user_test_group("66374842")
     print(f"1{result}")
 
 

@@ -3,7 +3,7 @@ import traceback
 from config import config,loggers
 from message.handler.msg import Msg
 from message.handler.msg_send import msg_send
-from logic import check_status,user_identify,command
+from logic import check_status,identify_user,command
 
 msg_logger = loggers["message"]
 
@@ -41,7 +41,7 @@ async def safe_msg_process(msg: Msg):
                     ):
                         continue
             else:
-                identity_list = await user_identify(msg.source,msg.robot)
+                identity_list = await identify_user(msg.source,msg.robot)
                 if commands["users"]:
                     if not any(
                             identity in identity_list

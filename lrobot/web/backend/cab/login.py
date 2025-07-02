@@ -2,7 +2,7 @@ import time
 import random
 from fastapi import APIRouter
 from config import config
-from logic import user_codename
+from logic import change_codename_to_user,get_user_test_group_password
 from message.handler.msg import Msg
 
 router = APIRouter()
@@ -21,7 +21,12 @@ async def validate_password(password: str):
 @router.get("/account")
 async def validate_account(account: str):
     """管理员页面登录账号"""
-    source = await user_codename(account)
+    if account.startswith("花火"):
+        password = await get_user_test_group_password(account)
+        if password:
+            login_list[account] = (password, time.time() + 30)
+            return {"isValid": True, "password": password}
+    source = await change_codename_to_user(account)
     if source:
         for identity, numbers in config["私聊"].items():
             if str(source) in numbers:

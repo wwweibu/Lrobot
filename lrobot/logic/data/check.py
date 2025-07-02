@@ -1,4 +1,4 @@
-# 定时检查
+# TODO 定时检查
 import os
 import time
 import psutil
@@ -10,7 +10,7 @@ from config import loggers,update_database,connect
 system_logger = loggers["system"]
 
 
-async def check_network():
+async def network_check():
     """检查网站能否访问"""
     url = "https://whumystery.cn/test"
     client = connect()
@@ -27,7 +27,7 @@ _last_net = None
 _last_time = None
 
 
-async def check_system():
+async def system_check():
     """统计系统属性"""
     # 上传下载网速 /Mbps
     global _last_net, _last_time

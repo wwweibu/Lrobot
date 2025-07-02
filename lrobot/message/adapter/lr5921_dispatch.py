@@ -1,9 +1,62 @@
 # LR5921 发送消息
+import re
 from config import config, loggers, connect,future
 
 base_url = "http://napcat:5921"
 adapter_logger = loggers["adapter"]
 headers = {"Content-Type": "application/json"}
+
+
+def msg_content_join(content):
+    """将带 [标记] 的 content 转为 message 列表"""
+    message = []
+
+    # 拆分成 [xxx] 和非 [xxx] 的文本段
+    parts = re.split(r"(\[.*?\])", content)
+
+    for part in parts:
+        if not part or part.isspace():
+            continue
+
+        match = re.match(r"\[(.*?)\]", part)
+        if match:
+            inner = match.group(1)
+            if ":" in inner:
+                key, value = inner.split(":", 1)
+                key = key.strip()
+                value = value.strip()
+            else:
+                key, value = inner.strip(), None
+
+            if key == "at" and value:
+                message.append({
+                    "type": "at",
+                    "data": {"qq": value}
+                })
+            elif key == "表情" and value:
+                message.append({
+                    "type": "face",
+                    "data": {"id": value}
+                })
+            elif key == "回复" and value:
+                message.append({
+                    "type": "reply",
+                    "data": {"id": value}
+                })
+            else:
+                # 不支持的标签视为文本
+                message.append({
+                    "type": "text",
+                    "data": {"text": part}
+                })
+        else:
+            # 普通文本
+            message.append({
+                "type": "text",
+                "data": {"text": part}
+            })
+
+    return message
 
 
 async def lr5921_dispatch(kind, id, content=None, files=None):
@@ -17,7 +70,8 @@ async def lr5921_dispatch(kind, id, content=None, files=None):
 
     message = []
     if content:
-        message.append({"type": "text", "data": {"text": content}})
+        message_list = msg_content_join(content)
+        message.extend(message_list)
     if files:
         for file in files:
             if file[0].lower().endswith((".png", ".jpg", ".jpeg")):
@@ -152,6 +206,20 @@ async def lr5921_get_info(id,seq):
     url = f"{base_url}/get_stranger_info"
 
     data = {"user_id": id}
+
+    client = connect()
+    response = await client.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        future.set(seq, response)
+    else:
+        raise Exception(f"好友属性获取失败 -> [{response.status_code}]{response.text}")
+
+
+async def lr5921_get_group(id,seq):
+    """群聊获取信息（成员列表）"""
+    url = f"{base_url}/get_group_member_list"
+
+    data = {"group_id": id}
 
     client = connect()
     response = await client.post(url, json=data, headers=headers)

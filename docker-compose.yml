@@ -54,6 +54,7 @@ services:
       - "5924:27017"
     volumes:
       - ./storage/data/mongodb:/data/db
+      - ./storage/backup:/backup
     environment:
       - TZ=Asia/Shanghai
 
@@ -70,6 +71,7 @@ services:
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/initdb:/docker-entrypoint-initdb.d
+      - ./storage/backup:/backup
 
   #  wewe-rss:
   #    build: ./wewe-rss

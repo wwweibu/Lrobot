@@ -1,18 +1,7 @@
 import re
 from config import config,loggers
 from message.handler.msg import Msg
-from message.adapter import (
-    lr232_dispatch,
-    lr232_withdraw,
-    lr5921_set_info,
-    lr5921_get_share,
-    lr5921_set_status,
-    lr5921_get_info,
-    lr5921_get_status,
-    lr5921_dispatch,
-    lr5921_dispatch_record,
-    wechat_dispatch,
-)
+from message.adapter import *
 
 msg_logger = loggers["message"]
 
@@ -50,17 +39,14 @@ async def msg_send(msg: Msg):
         elif msg.kind in ["私聊撤回消息", "群聊撤回消息"]:
             await lr232_withdraw(msg.kind, msg.source, msg.seq)
     elif msg.robot == "LR5921":
-        if msg.kind in [
-            "私聊发送文字",
-            "群聊发送文字",
-            "私聊发送文件",
-            "群聊发送文件",
-            "私聊发送图文",
-            "群聊发送图文",
-        ]:
+        if msg.kind in ["私聊发送文字","私聊发送文件","私聊发送图文"]:
             await lr5921_dispatch(msg.kind, msg.source, msg.content, msg.files)
-        elif msg.kind in ["私聊发送语音","群聊发送语音"]:
+        elif msg.kind in ["群聊发送文字","群聊发送文件","群聊发送图文"]:
+            await lr5921_dispatch(msg.kind, msg.group, msg.content, msg.files)
+        elif msg.kind == "私聊发送语音":
             await lr5921_dispatch_record(msg.kind, msg.source, msg.files)
+        elif msg.kind == "群聊发送语音":
+            await lr5921_dispatch_record(msg.kind, msg.group, msg.files)
         elif msg.kind == "私聊分享名片":
             await lr5921_get_share(user=msg.source, phone=msg.content)
         elif msg.kind == "群聊分享名片":
@@ -78,6 +64,8 @@ async def msg_send(msg: Msg):
             await lr5921_set_info(info[0], info[1], info[2])
         elif msg.kind == "私聊获取信息":
             await lr5921_get_info(msg.content,msg.seq)
+        elif msg.kind == "群聊获取信息":
+            await lr5921_get_group(msg.content,msg.seq)
     elif msg.robot == "WECHAT":
         if msg.kind == "私聊发送文字":
             await wechat_dispatch(msg.source, msg.seq, msg.content)

@@ -147,8 +147,6 @@ const handlePasswordValidation = async (password) => {
     if (response.data.isValid) {
       terminalLines.value.push(successMessage)
       validationStep.value = 'success'
-      console.log("validatedAccount:", validatedAccount)
-      console.log("validatedAccount.value:", validatedAccount.value)
       document.cookie = `account=${encodeURIComponent(validatedAccount.value)}; path=/; max-age=31536000` //设置 cookie
     }
   } catch (error) {}

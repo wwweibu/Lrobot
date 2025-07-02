@@ -509,6 +509,91 @@
 }
 ```
 
+#### 获取群聊
+```
+[
+  {
+    "group_id": 786159347,
+    "user_id": 3889270613,
+    "nickname": "LR232",
+    "card": "",
+    "sex": "unknown",
+    "age": 0,
+    "area": "",
+    "level": "0",
+    "qq_level": 0,
+    "join_time": 1730366929,
+    "last_sent_time": 1730793002,
+    "title_expire_time": 0,
+    "unfriendly": false,
+    "card_changeable": true,
+    "is_robot": true,
+    "shut_up_timestamp": 0,
+    "role": "member",
+    "title": ""
+  },
+  {
+    "group_id": 786159347,
+    "user_id": 3502644244,
+    "nickname": "LR5922",
+    "card": "",
+    "sex": "unknown",
+    "age": 0,
+    "area": "",
+    "level": "1",
+    "qq_level": 0,
+    "join_time": 1730366829,
+    "last_sent_time": 1730786330,
+    "title_expire_time": 0,
+    "unfriendly": false,
+    "card_changeable": true,
+    "is_robot": false,
+    "shut_up_timestamp": 0,
+    "role": "member",
+    "title": ""
+  },
+  {
+    "group_id": 786159347,
+    "user_id": 1326016706,
+    "nickname": "WHU逻辑推理协会",
+    "card": "",
+    "sex": "unknown",
+    "age": 0,
+    "area": "",
+    "level": "1",
+    "qq_level": 0,
+    "join_time": 1730366829,
+    "last_sent_time": 1730792996,
+    "title_expire_time": 0,
+    "unfriendly": false,
+    "card_changeable": true,
+    "is_robot": false,
+    "shut_up_timestamp": 0,
+    "role": "member",
+    "title": ""
+  },
+  {
+    "group_id": 786159347,
+    "user_id": 663748426,
+    "nickname": "令狐二中",
+    "card": "",
+    "sex": "unknown",
+    "age": 0,
+    "area": "",
+    "level": "1",
+    "qq_level": 0,
+    "join_time": 1730366828,
+    "last_sent_time": 1739608522,
+    "title_expire_time": 0,
+    "unfriendly": false,
+    "card_changeable": true,
+    "is_robot": false,
+    "shut_up_timestamp": 0,
+    "role": "owner",
+    "title": ""
+  }
+]
+```
 ---
 # 其他
 消息中的 raw(由于太长上面不展示) = {

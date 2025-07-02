@@ -108,16 +108,30 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const account = document.cookie
+  const rawCookie = document.cookie
     .split('; ')
-    .find(row => row.startsWith('account='))
-    ?.split('=')[1];
+    .find(row => row.startsWith('account='));
 
-  // 需要登录的页面
-  if (to.path.startsWith('/cab') && !account) {
-    next({ name: 'NotFound' });
+  // 若找不到 cookie 则 rawCookie 为 undefined
+  const account = rawCookie ? decodeURIComponent(rawCookie.split('=')[1]) : null;
+
+  if (to.path.startsWith('/firefly')) {
+    // firefly：只要存在 account 就放行
+    if (account) {
+      next();
+    } else {
+      next({ name: 'NotFound' }); // 无 cookie 拦截
+    }
+  } else if (to.path.startsWith('/cab')) {
+    // cab：需要 account 且不能以“花火”开头
+    if (account && !account.startsWith('花火')) {
+      next();
+    } else {
+      next({ name: 'NotFound' }); // 无效账号拦截
+    }
   } else {
-    next(); // 正常放行
+    // 其他页面不限制
+    next();
   }
 });
 

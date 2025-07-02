@@ -808,6 +808,11 @@ serve_task = asyncio.create_task(init_serve())
 - 新增网页登录 qq 验证
 #### [7.1.4] -2025-6-30
 - 修改 dockerfile 安装 libreoffice
+#### [7.1.5] -2025-7-2
+- 新增测试身份与密码设置逻辑
+- 新增功能展示面板
+- 新增测试员登录逻辑
+- 新增测试员与管理员路由逻辑
 </details>
 
 ***

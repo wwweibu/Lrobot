@@ -36,7 +36,7 @@ async def register_first(msg: Msg):
     content = "已入会"
     files = []
     kind = f"{msg_kind}发送文字"
-    identity = await data.user_identify(msg.source,msg.robot)
+    identity = await data.identify_user(msg.source,msg.robot)
     if "社员" not in identity:
         content = "入会需要提交信息以及缴纳会费，如有活动形式、入会权益等需要了解请发送/帮助\n" \
                   "入会信息需要复制并编辑以下内容（到*结束）：\n" \
@@ -109,7 +109,7 @@ async def register_third(msg: Msg):
             )
             return
         data[key] = match.group(1).strip()
-    nickname = await data.user_nickname(data["qq"])
+    nickname = await data.get_user_nickname(data["qq"])
     await update_database(
         """
         INSERT INTO user_information (

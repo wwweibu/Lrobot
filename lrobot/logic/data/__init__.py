@@ -10,4 +10,6 @@ manager = ModuleManager(
 manager.start()
 
 from .ip import check_and_update_ip
-from .user import user_codename
+from .user import change_codename_to_user,identify_user
+from .status import check_status
+from .user_test import get_user_test_group_password

@@ -1,5 +1,5 @@
 from message.handler.msg import Msg
-async def remind_send():
+async def send_remind():
     Msg(
         robot="LR5921",
         kind="私聊文字消息",

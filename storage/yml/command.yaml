@@ -1,7 +1,7 @@
 commands:
 - content:
   - /绑定
-  func: 绑定
+  func: 绑定_验证
   function: bind_platform
   groups: []
   judge: equal
@@ -16,7 +16,7 @@ commands:
   users: []
 - content:
   - 请将整条消息复制至 LR5921(QQ) 处
-  func: 绑定确认
+  func: 绑定_确认
   function: bind_check
   groups: []
   judge: contains
@@ -27,8 +27,62 @@ commands:
   state: []
   users: []
 - content:
+  - '786159347'
+  func: 测试群_入群
+  function: firefly_in
+  groups: []
+  judge: contains
+  kind:
+  - 群聊申请加入
+  - 群聊邀请加入
+  platforms:
+  - LR5921
+  state: []
+  users: []
+- content:
+  - /设置密码
+  func: 测试群_设置密码
+  function: firefly_set
+  groups:
+  - 公测群
+  judge: contains
+  kind:
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users: []
+- content:
+  - /面板功能
+  func: 面板_功能添加
+  function: panel_add_func
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users:
+  - 微步
+- content:
+  - /面板任务
+  func: 面板_任务添加
+  function: panel_add_task
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  state: []
+  users:
+  - 微步
+- content:
   - /入会
-  func: 入会1
+  func: 入会_1
   function: register_first
   groups: []
   judge: equal
@@ -45,7 +99,7 @@ commands:
   - 微步
 - content:
   - '[文件]'
-  func: 入会2
+  func: 入会_2
   function: register_second
   groups: []
   judge: equal
@@ -73,7 +127,7 @@ commands:
   - qq
   - 政治面貌
   - 籍贯
-  func: 入会3
+  func: 入会_3
   function: register_third
   groups: []
   judge: contains
