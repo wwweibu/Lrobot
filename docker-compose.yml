@@ -11,7 +11,7 @@ services:
       - ./lrobot/web/frontend:/app/web/frontend
       - ./config.py:/app/config.py  # 挂载这个为了共享而不是热更新
       - ./secret.py:/app/secret.py
-      - ./storage/backup:/backup
+      - ./storage/backup:/app/backup
     environment:
       - TZ=Asia/Shanghai
       - PYTHONUNBUFFERED=1
@@ -55,7 +55,7 @@ services:
       - "5924:27017"
     volumes:
       - ./storage/data/mongodb:/data/db
-      - ./storage/backup:/backup
+      - ./storage/backup:/app/backup
     environment:
       - TZ=Asia/Shanghai
 
@@ -72,7 +72,7 @@ services:
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/initdb:/docker-entrypoint-initdb.d
-      - ./storage/backup:/backup
+      - ./storage/backup:/app/backup
 
   #  wewe-rss:
   #    build: ./wewe-rss
