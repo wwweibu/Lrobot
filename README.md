@@ -816,6 +816,7 @@ serve_task = asyncio.create_task(init_serve())
 - 新增数据库备份
 - 修改日志数据库格式
 - 修改 wiki 页面
+- 新增数据库迁移
 </details>
 
 ***
