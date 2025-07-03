@@ -3,6 +3,7 @@ import asyncio
 import tracemalloc
 from web.backend.app import server_runner,app
 from secret import secret
+from logic import backup_mysql,backup_mongo
 from message.handler.msg_pool import MsgPool
 from config import config, future, loggers, init_mysql, add_scheduler, log_writer, config_watcher
 from message.adapter import refresh_tokens, LR232_router,  WECHAT_router, LR5921_router,bili_msg_get
@@ -24,6 +25,8 @@ async def stop():
 async def scheduler():
     """定时任务"""
     await asyncio.sleep(5)
+    asyncio.create_task(add_scheduler(backup_mysql, interval=86400))  # 备份 Mysql
+    asyncio.create_task(add_scheduler(backup_mongo, interval=86400))  # 备份 Mongo
     #asyncio.create_task(add_scheduler(remind_send, interval=20))
     #asyncio.create_task(add_scheduler(check_network, interval=300))  # 检查网络
     #asyncio.create_task(add_scheduler(check_system, interval=60))  # 检查系统

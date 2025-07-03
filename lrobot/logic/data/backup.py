@@ -3,7 +3,6 @@ import asyncio
 import datetime
 import subprocess
 from pathlib import Path
-from datetime import datetime
 
 # ==== 基础配置 ====
 MYSQL_CONTAINER = "mysql"

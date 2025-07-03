@@ -813,6 +813,7 @@ serve_task = asyncio.create_task(init_serve())
 - 新增测试员登录逻辑
 - 新增测试员与管理员路由逻辑
 #### [7.1.6] -2025-7-3
+- 新增数据库备份
 - 修改日志数据库格式
 - 修改 wiki 页面
 </details>
