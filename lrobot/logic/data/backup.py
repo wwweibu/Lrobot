@@ -62,16 +62,16 @@ def restore_mongo_from(local_folder: str):
     subprocess.call(cmd, shell=True)
 
 # 备份测试脚本
-if __name__ == "__main__":
-    asyncio.run(backup_mysql())
-    asyncio.run(backup_mongo())
-
-# 以下为恢复脚本
 
 # if __name__ == "__main__":
-#     # 日期格式备份文件（可根据实际指定）
-#     date_str = datetime.datetime.today().strftime("%Y-%m-%d")
-#     mysql_path = f"/app/backup/mysql_{date_str}.sql"
-#     mongo_path = f"/app/backup/mongo_{date_str}"
-#     restore_mysql_from(mysql_path)
-#     restore_mongo_from(mongo_path)
+#     asyncio.run(backup_mysql())
+#     asyncio.run(backup_mongo())
+
+# 以下为恢复脚本
+if __name__ == "__main__":
+    # 日期格式备份文件（可根据实际指定）
+    date_str = datetime.datetime.today().strftime("%Y-%m-%d")
+    mysql_path = f"/app/backup/mysql_{date_str}.sql"
+    mongo_path = f"/app/backup/mongo_{date_str}"
+    restore_mysql_from(mysql_path)
+    restore_mongo_from(mongo_path)
