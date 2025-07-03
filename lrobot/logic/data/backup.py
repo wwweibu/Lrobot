@@ -18,12 +18,6 @@ MONGO_BACKUP_PATH = "./storage/data/backup"
 # 容器内路径（MongoDB 恢复时的挂载目录）
 MONGO_CONTAINER_PATH = "/data/backup"
 
-# === 配置路径 ===
-# 宿主机路径（你执行脚本的位置）
-BACKUP_BASE = "./storage/data/backup"
-MYSQL_BACKUP_FILE = lambda date: f"{BACKUP_BASE}/mysql_{date}.sql"
-MONGO_BACKUP_DIR  = lambda date: f"{BACKUP_BASE}/mongo_{date}"
-
 async def backup_mysql():
     """备份sql"""
     date = datetime.date.today().isoformat()
@@ -80,7 +74,7 @@ def restore_mongo_from(local_folder: str):
 if __name__ == "__main__":
     # 日期格式备份文件（可根据实际指定）
     date_str = datetime.datetime.today().strftime("%Y-%m-%d")
-    mysql_file = MYSQL_BACKUP_FILE(date_str)
-    mongo_dir = MONGO_BACKUP_DIR(date_str)
-    restore_mysql_from(mysql_file)
-    restore_mongo_from(mongo_dir)
+    mysql_path = f"/app/backup/mysql_{date_str}.sql"
+    mongo_path = f"/app/backup/mongo_{date_str}"
+    restore_mysql_from(mysql_path)
+    restore_mongo_from(mongo_path)
