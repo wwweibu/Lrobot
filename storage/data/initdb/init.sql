@@ -66,6 +66,13 @@ CREATE TABLE IF NOT EXISTS user_test (
     password VARCHAR(255)
 );
 
+CREATE TABLE system_wiki (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255),
+  group_name VARCHAR(255),
+  content TEXT
+);
+
 INSERT INTO system_joke (text) VALUES
 ('华生：“你怎么知道我要喝三分糖？”
 福尔摩斯：“你嘴角有蚂蚁排队，说明糖量不足致死；你手机屏保是‘抗糖宣言’，但手指在‘全糖’选项上有划痕……”

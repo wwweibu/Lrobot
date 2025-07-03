@@ -8,3 +8,5 @@ from .user import router as user_router
 from .timeline import router as time_router
 from .bubble import router as bubble_router
 from .panel import router as panel_router
+from .log import router as log_router
+from .wiki import router as wiki_router

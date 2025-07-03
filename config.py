@@ -291,12 +291,18 @@ def init_mongo(uri: str = "mongodb://mongodb:27017/lrobot_log"):
     loggers["system"].info("Mongodb 数据库连接成功", extra={"event": "运行日志"})
 
 
+def get_mongo_db():
+    if mongo_db is None:
+        raise RuntimeError("MongoDB 尚未初始化，请先调用 init_mongo()")
+    return mongo_db
+
+
 async def log_writer():
     """开启日志写入 MongoDB 数据库"""
     while True:
         time, level, source, event, message = await log_queue.get()
         document = {
-            "time": time,
+            "time": datetime.datetime.now(),
             "level": level,
             "source": source,
             "event": event,

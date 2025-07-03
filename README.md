@@ -2,7 +2,6 @@
 
 <img src="storage/file/firefly/firefly.png" alt="Firefly takes over the world" width="100"/>
 
-> 开发中，过几天再来看看吧
 ---
 
 ## ***LR232*** & ***LR5921***
@@ -813,6 +812,9 @@ serve_task = asyncio.create_task(init_serve())
 - 新增功能展示面板
 - 新增测试员登录逻辑
 - 新增测试员与管理员路由逻辑
+#### [7.1.6] -2025-7-3
+- 修改日志数据库格式
+- 修改 wiki 页面
 </details>
 
 ***
