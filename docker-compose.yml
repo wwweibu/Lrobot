@@ -48,7 +48,7 @@ services:
       - TZ=Asia/Shanghai
 
   mongodb:
-    image: mongo:6.0
+    image: mongo:4.4
     container_name: mongodb
     ports:
       - "5924:27017"
