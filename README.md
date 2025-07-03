@@ -81,7 +81,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 1. 安装好 docker 环境([参考](storage/record/docker.md))
 2. 需要将 storage/yml/secret_copy.yaml 重命名为 secret.yaml，根据文件中的配置提示配置各平台参数，并配置服务器和域名  
 3. 关于各平台的功能简介、注册方法跳转[平台配置教程](storage/record/platform.md)
-4. 在服务器上配置 nginx，将 [nginx.conf](storage/nginx.conf)(参考[服务器配置教程](storage/record/server.md))
+4. 在服务器上配置 nginx，将 [nginx.conf](storage/nginx.conf)(参考[服务器配置教程](storage/record/server.md)) 推送到服务器上
 #### 项目运行
 1. 下载项目 `git clone https://github.com/wwweibu/lrobot.git`
 2. 建议浏览一遍平台配置教程和服务器配置教程来了解本项目，项目架构可以参考下方的架构图
@@ -90,7 +90,7 @@ LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社�
 5. 填写平台相关信息（ID、SECRET）即代表启用该平台服务，留空（注意不是注释掉）则不启用
 6. 编写路径替换函数 secret 替换掉 secret.py 里面的 secret，用于保护你的平台路径
 7. 进入项目目录 `cd lrobot`
-8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）
+8. `docker compose up --build -d napcat` 启动 napcat 服务，扫码登录（linux 需要加 sudo，下同）(如果 docker 里的二维码扫描不了打开 storage/napcat/cache)
 9. `docker compose up --build -d command` 启动服务器连接与转发，`docker exec -it command sh` 进入容器，`ssh -i /app/storage/lrobot.pem username@ip` 连接服务器，输入 yes，随后重启容器
 10. `docker compose up --build -d mysql` `docker compose up --build -d mongodb` 启动数据库服务
 11. `docker compose up --build lrobot` 启动 lrobot 主服务，由于安装了 libreoffice，需要 5 分钟左右

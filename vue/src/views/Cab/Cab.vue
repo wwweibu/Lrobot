@@ -17,7 +17,7 @@
             :class="{ active: currentPage?.id === entry.parent?.id }"
             @click="entry.parent && loadPage(entry.parent.id)"
           >
-            📁 {{ groupName }}
+            {{ groupName }}
           </div>
 
           <!-- 子页面 -->
@@ -45,6 +45,9 @@
           <li @click="$router.push('/cab/log')" class="feature-nav-item">日志</li>
           <li @click="$router.push('/cab/command')" class="feature-nav-item">指令配置</li>
           <li @click="$router.push('/cab/users')" class="feature-nav-item">用户配置</li>
+          <li class="feature-nav-item">
+            <a href="github.com/wwweibu/lrobot" target="_blank" rel="noopener noreferrer">项目仓库</a>
+          </li>
         </ul> 
       </div>
 
@@ -176,7 +179,7 @@ onMounted(async () => {
 }
 
 .search-box {
-  width: 100%;
+  width: 80%;
   padding: 0.4rem 0.6rem;
   margin-bottom: 1rem;
   border: 1px solid #ccc;
