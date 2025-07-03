@@ -10,7 +10,7 @@ COPY command.py .
 
 # 拷贝密钥权限配置文件
 COPY key.sh /app/key.sh
-RUN dos2unix /app/key.sh && chmod +x /app/key.sh
+RUN chmod +x /app/key.sh
 
 # 默认执行
 ENTRYPOINT ["/app/key.sh"]
