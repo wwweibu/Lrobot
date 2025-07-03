@@ -11,6 +11,7 @@ services:
       - ./lrobot/web/frontend:/app/web/frontend
       - ./config.py:/app/config.py  # 挂载这个为了共享而不是热更新
       - ./secret.py:/app/secret.py
+      - ./storage/backup:/backup
     environment:
       - TZ=Asia/Shanghai
       - PYTHONUNBUFFERED=1

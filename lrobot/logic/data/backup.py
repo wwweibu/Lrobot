@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     # 日期格式备份文件（可根据实际指定）
-#     date_str = datetime.today().strftime("%Y-%m-%d")
+#     date_str = datetime.datetime.today().strftime("%Y-%m-%d")
 #     mysql_path = f"/app/backup/mysql_{date_str}.sql"
 #     mongo_path = f"/app/backup/mongo_{date_str}"
 #     restore_mysql_from(mysql_path)
