@@ -18,6 +18,12 @@ MONGO_BACKUP_PATH = "./storage/data/backup"
 # 容器内路径（MongoDB 恢复时的挂载目录）
 MONGO_CONTAINER_PATH = "/data/backup"
 
+# === 配置路径 ===
+# 宿主机路径（你执行脚本的位置）
+BACKUP_BASE = "./storage/data/backup"
+MYSQL_BACKUP_FILE = lambda date: f"{BACKUP_BASE}/mysql_{date}.sql"
+MONGO_BACKUP_DIR  = lambda date: f"{BACKUP_BASE}/mongo_{date}"
+
 async def backup_mysql():
     """备份sql"""
     date = datetime.date.today().isoformat()
@@ -44,10 +50,11 @@ def restore_mysql_from(local_path: str):
     if not os.path.exists(local_path):
         print("[MySQL] 文件不存在")
         return
-    # 注意：这里路径为容器内路径 `/backup/xxx.sql`
-    container_path = local_path.replace("/app/backup", "/backup")
-    cmd = f'docker exec -i mysql mysql -u root lrobot_data < {container_path}'
-    subprocess.call(cmd, shell=True)
+    # 使用 cat + docker exec 管道方式恢复
+    cmd = f"type \"{local_path}\" | docker exec -i mysql mysql -u root lrobot_data" if os.name == "nt" \
+        else f"cat \"{local_path}\" | docker exec -i mysql mysql -u root lrobot_data"
+    ret = subprocess.call(cmd, shell=True)
+    print("[MySQL] 恢复完成" if ret == 0 else "[MySQL] 恢复失败")
 
 # MongoDB 恢复
 def restore_mongo_from(local_folder: str):
@@ -57,9 +64,11 @@ def restore_mongo_from(local_folder: str):
         return
     # 转换为 mongodb 容器内路径
     folder_name = Path(local_folder).name
+    # /data/backup 是 mongodb 容器内挂载目录
     container_path = f"/data/backup/{folder_name}"
-    cmd = f'docker exec -i mongodb mongorestore --drop --dir={container_path}'
-    subprocess.call(cmd, shell=True)
+    cmd = f'docker exec -i mongodb mongorestore --drop --dir="{container_path}"'
+    ret = subprocess.call(cmd, shell=True)
+    print("[MongoDB] 恢复完成" if ret == 0 else "[MongoDB] 恢复失败")
 
 # 备份测试脚本
 
@@ -71,7 +80,7 @@ def restore_mongo_from(local_folder: str):
 if __name__ == "__main__":
     # 日期格式备份文件（可根据实际指定）
     date_str = datetime.datetime.today().strftime("%Y-%m-%d")
-    mysql_path = f"/app/backup/mysql_{date_str}.sql"
-    mongo_path = f"/app/backup/mongo_{date_str}"
-    restore_mysql_from(mysql_path)
-    restore_mongo_from(mongo_path)
+    mysql_file = MYSQL_BACKUP_FILE(date_str)
+    mongo_dir = MONGO_BACKUP_DIR(date_str)
+    restore_mysql_from(mysql_file)
+    restore_mongo_from(mongo_dir)
