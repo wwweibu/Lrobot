@@ -63,7 +63,7 @@
       :total="total"
       :page-size="pageSize"
       @current-change="handlePageChange"
-      style="margin-top: 15px;"
+      style="margin-top: 15px"
     />
   </div>
 </template>
@@ -190,6 +190,8 @@ onMounted(() => {
 <style scoped>
 .log-panel {
   padding: 20px;
+  max-height: 95vh;
+  overflow-y: auto;
 }
 .time-section, .filter-section, .search-section, .preset-buttons {
   display: flex;

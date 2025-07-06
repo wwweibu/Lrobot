@@ -12,7 +12,14 @@
 
     <!-- Video Preview -->
     <template v-else-if="isVideo">
-      <video :src="fileUrl" controls width="100%" />
+      <video
+  :src="fileUrl"
+  controls
+  preload="metadata"
+  playsinline
+  width="100%"
+  style="max-height: 80vh;"
+    />
     </template>
 
     <!-- Audio Preview -->
@@ -56,9 +63,15 @@ const markdownContent = ref('')
 
 onMounted(async () => {
   const path = route.params.path
-  const res = await http.post('/preview', { path }, { responseType: 'blob',timeout: 10000 })
-  console.log(res)
 
+  // 特殊处理视频
+  if (path[0].endsWith('.mp4') || path[0].endsWith('.mov') || path[0].endsWith('.webm')) {
+    fileType.value = 'video/mp4' // 可动态判断
+    fileUrl.value = `/hjd/stream_video?path=${encodeURIComponent(path[0])}`
+    return
+  }
+
+  const res = await http.post('/preview', { path }, { responseType: 'blob', timeout: 10000 })
   fileBlob.value = res.data
   fileType.value = res.headers['content-type']
   fileUrl.value = URL.createObjectURL(fileBlob.value)
@@ -73,12 +86,13 @@ onMounted(async () => {
 
   if (fileType.value === 'text/markdown') {
     const reader = new FileReader()
-  reader.onload = () => {
-    markdownContent.value = marked.parse(reader.result)
-  }
-  reader.readAsText(fileBlob.value)
+    reader.onload = () => {
+      markdownContent.value = marked.parse(reader.result)
+    }
+    reader.readAsText(fileBlob.value)
   }
 })
+
 
 const isPdf = computed(() => fileType.value === 'application/pdf')
 const isText = computed(() => fileType.value.startsWith('text'))

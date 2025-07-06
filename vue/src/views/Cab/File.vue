@@ -115,7 +115,7 @@ import { http } from '@/api.js'
 
 // 排序相关状态
 const sortBy = ref('name')
-const sortOrder = ref('asc')
+const sortOrder = ref('desc')
 
 // 排序后的文件列表
 const sortedItems = computed(() => {
@@ -574,6 +574,9 @@ const handleSearch = async () => {
   gap: 20px;
   position: relative;
   z-index: 1;
+  max-height: 90vh; /* 可根据需要调整高度 */
+  overflow-y: auto;
+  padding-right: 6px; /* 避免滚动条覆盖内容 */
 }
 
 .file-item {
@@ -648,4 +651,27 @@ const handleSearch = async () => {
   background: #f9f9f9;
   cursor: context-menu;
 }
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .sort-container {
+    justify-content: space-between;
+  }
+}
+
 </style>

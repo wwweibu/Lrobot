@@ -532,6 +532,10 @@ const resetForm = () => {
   padding: 20px;
   max-width: 1600px;
   margin: 0 auto;
+
+  /* 添加高度和滚动条 */
+  max-height: calc(100vh - 40px); /* 保证顶部和底部不会溢出 */
+  overflow-y: auto;
 }
 
 .toolbar {

@@ -39,7 +39,7 @@ class Msg:
         self.event = str(event)
         self.source = str(source)
         self.seq = str(seq) if seq else None
-        self.content = str(content).strip() if content else None
+        self.content = str(content) if content else None
         self.files = files if files else []  # 空值 "" 也会变成列表
         self.group = str(group) if group else None
         from message.handler.msg_pool import MsgPool

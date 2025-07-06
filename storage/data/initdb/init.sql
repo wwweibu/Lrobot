@@ -66,11 +66,10 @@ CREATE TABLE IF NOT EXISTS user_test (
     password VARCHAR(255)
 );
 
-CREATE TABLE system_wiki (
+CREATE TABLE IF NOT EXISTS system_wiki (
   id INT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(255),
   group_name VARCHAR(255),
-  content TEXT
 );
 
 INSERT INTO system_joke (text) VALUES

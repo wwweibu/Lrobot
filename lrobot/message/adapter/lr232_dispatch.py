@@ -7,17 +7,17 @@ from .acess_token import access_tokens
 adapter_logger = loggers["adapter"]
 
 async def lr232_dispatch(
-    kind, openid, content, event_id=None, msg_id=None, msg_seq=None, files=None
+    kind, source,group, content, event_id=None, msg_id=None, msg_seq=None, files=None
 ):
     """LR232 发送消息"""
     token = access_tokens["LR232"]["token"]
     headers = {"Authorization": f"QQBot {token}"}
     if kind.startswith("私聊"):
-        url = f"https://api.sgroup.qq.com/v2/users/{openid}/messages"
-        upload_url = f"https://api.sgroup.qq.com/v2/users/{openid}/files"
+        url = f"https://api.sgroup.qq.com/v2/users/{source}/messages"
+        upload_url = f"https://api.sgroup.qq.com/v2/users/{source}/files"
     else:
-        url = f"https://api.sgroup.qq.com/v2/groups/{openid}/messages"
-        upload_url = f"https://api.sgroup.qq.com/v2/groups/{openid}/files"
+        url = f"https://api.sgroup.qq.com/v2/groups/{group}/messages"
+        upload_url = f"https://api.sgroup.qq.com/v2/groups/{group}/files"
 
     media = {}
     client = connect(True)
@@ -74,14 +74,14 @@ async def lr232_dispatch(
         raise Exception(f"消息发送失败 -> [{response.status_code}]{response.text}")
 
 
-async def lr232_withdraw(kind, openid, msg_id):
+async def lr232_withdraw(kind, source, group, msg_id):
     """LR232 撤回消息"""
     token = access_tokens["LR232"]["token"]
     headers = {"Authorization": f"QQBot {token}"}
     if kind.startswith("私聊"):
-        url = f"https://api.sgroup.qq.com/v2/users/{openid}/messages/{msg_id}"
+        url = f"https://api.sgroup.qq.com/v2/users/{source}/messages/{msg_id}"
     else:
-        url = f"https://api.sgroup.qq.com/v2/groups/{openid}/messages/{msg_id}"
+        url = f"https://api.sgroup.qq.com/v2/groups/{group}/messages/{msg_id}"
 
     client = connect(True)
     response = await client.delete(url, headers=headers)

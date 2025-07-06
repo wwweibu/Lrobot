@@ -7,7 +7,7 @@ import subprocess
 from typing import List
 from pathlib import Path
 from datetime import datetime
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse,StreamingResponse
 from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form, Depends
 from config import path, loggers
 from .cookie import get_account_from_cookie
@@ -242,7 +242,6 @@ async def preview_file(body: dict):
     ]:
         pdf_filename = get_unique_pdf_name(full_path)
         pdf_path = RECYCLE_BIN / pdf_filename
-        print(pdf_path)
 
         if not pdf_path.exists():
             subprocess.run(
@@ -265,3 +264,53 @@ async def preview_file(body: dict):
         )
 
     return FileResponse(str(full_path), media_type=mime_type, filename=full_path.name)
+
+
+@router.get("/stream_video")
+async def stream_video(request: Request, path: str):
+    full_path = UPLOAD_DIR / path
+    if not full_path.exists():
+        return {"error": "视频不存在"}
+
+    file_size = os.path.getsize(full_path)
+    range_header = request.headers.get("range")
+
+    start = 0
+    end = file_size - 1
+
+    if range_header:
+        # 支持 Range 请求
+        range_match = range_header.replace("bytes=", "").split("-")
+        try:
+            start = int(range_match[0])
+            if range_match[1]:
+                end = int(range_match[1])
+        except ValueError:
+            pass  # fallback to default
+
+    chunk_size = end - start + 1
+
+    def iterfile():
+        with open(full_path, "rb") as f:
+            f.seek(start)
+            remaining = chunk_size
+            block_size = 1024 * 1024  # 每块1MB，避免一次性读取太多
+            while remaining > 0:
+                read_size = min(block_size, remaining)
+                data = f.read(read_size)
+                if not data:
+                    break
+                yield data
+                remaining -= len(data)
+
+    return StreamingResponse(
+        iterfile(),
+        status_code=206,
+        headers={
+            "Content-Range": f"bytes {start}-{end}/{file_size}",
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(chunk_size),
+            "Content-Type": "video/mp4",  # 可根据后缀动态设置
+            "Cache-Control": "public, max-age=3600",  # 加快浏览器重复加载
+        },
+    )

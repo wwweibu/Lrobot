@@ -36,8 +36,6 @@ async def get_logs(
         # 正则匹配 message 字段
         query["message"] = {"$regex": keyword, "$options": "i"}
 
-    print(query)
-
     skip = (page - 1) * page_size
     total = await mongo_db.system_log.count_documents(query)
     cursor = mongo_db.system_log.find(query).sort("time", -1).skip(skip).limit(page_size)
@@ -45,6 +43,5 @@ async def get_logs(
     async for doc in cursor:
         doc["_id"] = str(doc["_id"])
         results.append(doc)
-    print(results)
 
     return {"data": results, "total": total}

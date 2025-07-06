@@ -8,13 +8,11 @@ import Cab from '../views/Cab/Cab.vue';
 import Command from '../views/Cab/Command.vue';
 import Database from '../views/Cab/Database.vue';
 import Users from '../views/Cab/Users.vue';
-import Monitor from '../views/Cab/Monitor.vue';
 import Log from '../views/Cab/Log.vue'
 import File from '../views/Cab/File.vue';
 import Preview from '../views/Cab/Preview.vue';
 import Timeline from '../views/Cab/Timeline.vue';
 import Papaw from '../views/Cab/Papaw.vue';
-import Instruction from '../views/Cab/Instruction.vue';
 import Firefly from '../views/Firefly.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
 
@@ -33,11 +31,6 @@ const routes = [
     path: '/cab',
     name: 'Cab',
     component: Cab,
-  },
-  {
-    path: '/instruction',
-    name: 'Instruction',
-    component: Instruction,
   },
   {
     path: '/cab/papaw',
@@ -63,11 +56,6 @@ const routes = [
     path: '/cab/users',
     name: 'Users',
     component: Users,
-  },
-  {
-    path: '/cab/monitor',
-    name: 'Monitor',
-    component: Monitor
   },
   {
     path: '/cab/log',

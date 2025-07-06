@@ -134,6 +134,8 @@ async def lr5921_message_deal(data):
                     for item in text
                     if item.get("type") == "nor" and "txt" in item
                 ]
+                while len(targets) < 2:
+                    targets.append("")
                 content = f"{source}{targets[0]}{data.get('target_id')}{targets[1]}"
             elif sub_type == "profile_like":
                 kind = "私聊点赞消息"

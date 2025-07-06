@@ -1,7 +1,7 @@
 # 音频格式转换
 import os
-import av
-import pilk
+#import av
+#import pilk
 
 
 # TODO

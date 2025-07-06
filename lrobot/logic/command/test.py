@@ -4,10 +4,16 @@ from message.handler.msg import Msg
 from logic import data
 
 async def test_1(msg: Msg):
-    # LR232与LR5921 测试，连续回复，发送文件
     kind = msg.kind[:2]
-    result = await data.judge_user_test_group("66374842")
-    print(f"1{result}")
+    Msg(
+        robot=msg.robot,
+        kind=f"群聊转发消息",
+        event="发送",
+        source=msg.source,
+        seq=msg.seq,
+        content="11111",
+        group=msg.group,
+    )
 
 
 async def test_WECHAT(msg: Msg):

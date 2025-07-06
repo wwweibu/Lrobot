@@ -31,7 +31,7 @@ async def validate_account(account: str):
         for identity, numbers in config["私聊"].items():
             if str(source) in numbers:
                 token = f"{random.randint(100000, 999999)}"
-                login_list[source] = (token, time.time() + 20)
+                login_list[source] = (token, time.time() + 30)
                 Msg(
                     robot="LR5921",
                     kind=f"私聊发送文字",

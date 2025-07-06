@@ -1,4 +1,5 @@
 from fastapi import APIRouter,Query, HTTPException
+from logic import get_wiki
 from config import query_database
 
 
@@ -11,46 +12,54 @@ async def get_wiki_index():
     result = await query_database(query)
     return result
 
+
 # 获取单个页面内容
 @router.get("/wiki/page")
 async def get_wiki_page(id: int = Query(...)):
-    query = "SELECT id, title, group_name, content FROM system_wiki WHERE id = %s"
+    query = "SELECT id, title, group_name FROM system_wiki WHERE id = %s"
     result = await query_database(query, (id,))
     if not result:
         raise HTTPException(status_code=404, detail="Page not found")
-    return result[0]
+    title = result[0]['title']
+    content = await get_wiki(title)
+    return { **result[0],"content":content}
 
 
 @router.get("/wiki/search")
 async def search_wiki(q: str = Query(...)):
     # 查找匹配的所有页面（标题或内容）
-    keyword = f"%{q}%"
-    search_sql = """
-        SELECT id, title, group_name, content
-        FROM system_wiki
-        WHERE title LIKE %s OR content LIKE %s
-    """
-    matched = await query_database(search_sql, (keyword, keyword))
+    query = """SELECT id, title, group_name FROM system_wiki"""
+    all_pages = await query_database(query)
 
-    # 获取需要补全的 group_name 列表（需要显示的父页面）
-    group_names = set(p['group_name'] for p in matched if p['group_name'])
+    matched = []
+    group_names = set()
+
+    for page in all_pages:
+        title = page['title']
+        group_name = page['group_name']
+        content = await get_wiki(title)
+        if q in content or q in title:
+            matched.append({
+                **page,
+                "content": content
+            })
+            if group_name:
+                group_names.add(group_name)
+
     parent_pages = []
-
     if group_names:
         placeholders = ','.join(['%s'] * len(group_names))
-        parent_sql = f"""
-            SELECT id, title, group_name, content
-            FROM system_wiki
-            WHERE title IN ({placeholders})
+        parent_query = f"""
+            SELECT id, title, group_name FROM system_wiki WHERE title IN ({placeholders})
         """
-        params = tuple(group_names)
-        parent_pages = await query_database(parent_sql, params)
+        parent_raw = await query_database(parent_query, tuple(group_names))
+        for p in parent_raw:
+            parent_content=await get_wiki(p)
+            parent_pages.append({
+                **p,
+                "content": parent_content
+            })
 
-    # 合并并去重
-    print(1234)
-    print(matched)
-    print(parent_pages)
-    all_pages = {p['id']: p for p in list(matched) + parent_pages}
+    all_combined = {p['id']: p for p in matched + parent_pages}
 
-    print(all_pages)
-    return list(all_pages.values())
+    return list(all_combined.values())

@@ -14,3 +14,4 @@ from .user import change_codename_to_user,identify_user
 from .status import check_status
 from .user_test import get_user_test_group_password
 from .backup import backup_mysql,backup_mongo
+from .wiki import get_wiki

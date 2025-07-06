@@ -14,7 +14,6 @@ async def start():
     loop = asyncio.get_running_loop()
     future.init(loop)  # future 管理器记录主循环
     await init_mysql()
-    tracemalloc.start()  # 启动内存监控
 
 
 async def stop():
@@ -27,12 +26,9 @@ async def scheduler():
     await asyncio.sleep(5)
     asyncio.create_task(add_scheduler(backup_mysql, interval=86400))  # 备份 Mysql
     asyncio.create_task(add_scheduler(backup_mongo, interval=86400))  # 备份 Mongo
-    #asyncio.create_task(add_scheduler(remind_send, interval=20))
+    asyncio.create_task(add_scheduler(MsgPool.clean_messages,86400,interval=86400)) # 消息池清理
     #asyncio.create_task(add_scheduler(check_network, interval=300))  # 检查网络
     #asyncio.create_task(add_scheduler(check_system, interval=60))  # 检查系统
-    #asyncio.create_task(add_scheduler(process_kb, interval=20, count=1))  # 更新知识库
-    #asyncio.create_task(add_scheduler(get_speaker, interval=20))  # 输出监控
-    #asyncio.create_task(add_scheduler(test, interval=10, count=1))  # 测试函数
 
 
 async def init_LR232():
@@ -63,7 +59,7 @@ def set_tasks():
         log_writer(),  # 日志记录器
         scheduler(),  # 定时任务
         MsgPool.process_messages(),  # 消息处理
-        MsgPool.clean_messages(),  # 消息池清理
+
     ]
     platform_config = {
         "LR232": ["LR232_ID", "LR232_SECRET"],

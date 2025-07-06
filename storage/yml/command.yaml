@@ -1,5 +1,150 @@
 commands:
 - content:
+  - /面板功能
+  func: 面板_功能添加
+  function: panel_add_func
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users:
+  - 微部
+- content:
+  - /面板任务
+  func: 面板_任务添加
+  function: panel_add_task
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  state: []
+  users:
+  - 微部
+- content:
+  - /面板编辑
+  func: 面板_任务编辑
+  function: panel_edit_task
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  state: []
+  users:
+  - 微部
+- content:
+  - /wiki获取
+  func: wiki_获取
+  function: wiki_change_get
+  groups:
+  - 内阁
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users: []
+- content:
+  - /wiki修改
+  func: wiki_修改
+  function: wiki_change
+  groups:
+  - 内阁
+  judge: contains
+  kind:
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users: []
+- content:
+  - /帮助
+  func: 帮助
+  function: help_text
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  - 群聊文字消息
+  platforms:
+  - WECHAT
+  - LR232
+  - LR5921
+  - BILI
+  state: []
+  users: []
+- content:
+  - /入会
+  func: 入会_1
+  function: register_first
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state: []
+  users: []
+- content:
+  - '[文件]'
+  func: 入会_2
+  function: register_second
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文件消息
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  state:
+  - 待入会
+  - 入会状态1
+  users: []
+- content:
+  - 姓名
+  - 代号
+  - 性别
+  - 年级
+  - 专业
+  - 学号
+  - 电话
+  - qq
+  - 政治面貌
+  - 籍贯
+  func: 入会_3
+  function: register_third
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - 待入会
+  - 入会状态2
+  users: []
+- content:
   - /绑定
   func: 绑定_验证
   function: bind_platform
@@ -53,112 +198,6 @@ commands:
   state: []
   users: []
 - content:
-  - /面板功能
-  func: 面板_功能添加
-  function: panel_add_func
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR5921
-  - LR232
-  state: []
-  users:
-  - 微步
-- content:
-  - /面板任务
-  func: 面板_任务添加
-  function: panel_add_task
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  state: []
-  users:
-  - 微步
-- content:
-  - /入会
-  func: 入会_1
-  function: register_first
-  groups: []
-  judge: equal
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  - QQAPP
-  state: []
-  users:
-  - 微步
-- content:
-  - '[文件]'
-  func: 入会_2
-  function: register_second
-  groups: []
-  judge: equal
-  kind:
-  - 私聊文件消息
-  platforms:
-  - LR5921
-  - LR232
-  - WECHAT
-  - BILI
-  - QQAPP
-  state:
-  - 待入会
-  - 入会状态1
-  users:
-  - 微步
-- content:
-  - 姓名
-  - 代号
-  - 性别
-  - 年级
-  - 专业
-  - 学号
-  - 电话
-  - qq
-  - 政治面貌
-  - 籍贯
-  func: 入会_3
-  function: register_third
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  - QQAPP
-  state:
-  - 待入会
-  - 入会状态2
-  users: []
-- content:
-  - /帮助
-  func: 帮助
-  function: help_text
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - WECHAT
-  - LR232
-  - LR5921
-  state: []
-  users:
-  - 微步
-- content:
   - /测试1
   func: 测试
   function: test_1
@@ -167,13 +206,13 @@ commands:
   kind:
   - 私聊文字消息
   platforms:
-  - LR5921
-  - LR232
   - WECHAT
   - BILI
+  - LR5921
+  - LR232
   state: []
   users:
-  - 微步
+  - 微部
 - content:
   - /消息提醒
   func: 提醒
@@ -197,5 +236,20 @@ commands:
   platforms:
   - WECHAT
   - BILI
+  state: []
+  users: []
+- content:
+  - '[文件]'
+  func: 撤回_二维码
+  function: withdraw_qrcode
+  groups:
+  - 公测群
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊图文消息
+  - 群聊文字消息
+  platforms:
+  - LR5921
   state: []
   users: []

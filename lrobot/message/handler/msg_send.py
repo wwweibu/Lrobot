@@ -29,6 +29,7 @@ async def msg_send(msg: Msg):
             await lr232_dispatch(
                 msg.kind,
                 msg.source,
+                msg.group,
                 msg.content,
                 msg_id=msg.seq,
                 msg_seq=msg_seq,
@@ -37,7 +38,7 @@ async def msg_send(msg: Msg):
         elif msg.kind in ["私聊发送推送", "群聊发送推送"]:
             await lr232_dispatch(msg.kind, msg.source, msg.content, event_id=msg.seq)
         elif msg.kind in ["私聊撤回消息", "群聊撤回消息"]:
-            await lr232_withdraw(msg.kind, msg.source, msg.seq)
+            await lr232_withdraw(msg.kind, msg.source, msg.group,msg.seq)
     elif msg.robot == "LR5921":
         if msg.kind in ["私聊发送文字","私聊发送文件","私聊发送图文"]:
             await lr5921_dispatch(msg.kind, msg.source, msg.content, msg.files)
@@ -66,6 +67,10 @@ async def msg_send(msg: Msg):
             await lr5921_get_info(msg.content,msg.seq)
         elif msg.kind == "群聊获取信息":
             await lr5921_get_group(msg.content,msg.seq)
+        elif msg.kind in ["私聊撤回消息", "群聊撤回消息"]:
+            await lr5921_withdraw(msg.seq)
+        elif msg.kind in ["群聊转发消息"]:
+            await lr5921_forward()
     elif msg.robot == "WECHAT":
         if msg.kind == "私聊发送文字":
             await wechat_dispatch(msg.source, msg.seq, msg.content)

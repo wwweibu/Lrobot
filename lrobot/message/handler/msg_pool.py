@@ -39,23 +39,18 @@ class MsgPool:
             asyncio.create_task(msg_process(msg))
 
     @classmethod
-    async def clean_messages(cls):
-        """清理超过 2 天的旧消息（但保留仍被引用的消息）"""
-        while True:
-            await asyncio.sleep(86400 * 2)
-            one_day_ago = time.time() - 86400 * 2  # 1 天前的时间戳
+    async def clean_messages(cls,interval):
+        """清理旧消息"""
+        to_delete = [
+            num
+            for num, (_, create_time) in cls._pool.items()
+            if create_time < time.time() - interval
+        ]
 
-            to_delete = [
-                num
-                for num, (_, create_time) in cls._pool.items()
-                if create_time < one_day_ago
-            ]
+        # 删除符合条件的消息
+        for num in to_delete:
+            del cls._pool[num]
 
-            # 删除符合条件的消息
-            for num in to_delete:
-                del cls._pool[num]
-
-            # TODO 待测试清理
-            msg_logger.debug(
-                f"共清理{len(to_delete)}条消息", extra={"event": "消息清理"}
-            )
+        msg_logger.debug(
+            f"共清理{len(to_delete)}条消息", extra={"event": "消息清理"}
+        )

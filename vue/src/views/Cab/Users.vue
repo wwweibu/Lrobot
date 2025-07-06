@@ -317,6 +317,8 @@
     margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
+    max-height: 100vh;
+    overflow-y: auto;
   }
   
   h1 {

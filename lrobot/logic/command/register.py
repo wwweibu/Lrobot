@@ -38,11 +38,12 @@ async def register_first(msg: Msg):
     kind = f"{msg_kind}发送文字"
     identity = await data.identify_user(msg.source,msg.robot)
     if "社员" not in identity:
-        content = "入会需要提交信息以及缴纳会费，如有活动形式、入会权益等需要了解请发送/帮助\n" \
+        content = "入会需要提交信息以及缴纳会费，如有活动形式、入会权益等需要了解请发送'/常见问题'\n" \
                   "入会信息需要复制并编辑以下内容（到*结束）：\n" \
                   "姓名:张三 代号:自己取 性别:男 年级:25/25研/25博 专业:计算机科学与技术 学号:2025 电话:137 qq:123 政治面貌:群众/团员/党员 籍贯:湖北武汉 *\n" \
-                  "同时扫描以下二维码缴纳20会费"
-        files = [("qrcode.png", path / "storage/file/firefly/firefly.png")]
+                  "同时扫描以下二维码缴纳20会费，发送付款截图（单独发送图片）\n"\
+                  "信息与付款截图将发送至管理员审核"
+        files = [("qrcode.png", path / "storage/file/command/money.jpg")]
         kind = f"{msg_kind}发送图文"
         await data.add_status(msg.source, "待入会")
     Msg(

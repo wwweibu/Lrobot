@@ -26,7 +26,7 @@
               class="task-item"
             >
               <div class="task-header">
-                <span class="task-title">{{ task.title }}</span>
+                <span class="task-title" v-html="formatNewline(task.title)"></span>
               </div>
 
               <div class="answers-section">
@@ -196,7 +196,7 @@ const scrollDown = () => {
 .feature-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .feature-description h3 {
   margin: 0 0 8px 0;
@@ -246,6 +246,10 @@ const scrollDown = () => {
 .answer-item p {
   margin: 0;
   flex-grow: 1;
+  font-size: 14px;         /* ✅ 字号更小 */
+  color: #666;             /* ✅ 字体颜色更浅 */
+  font-weight: normal;     /* ✅ 正常字体，不加粗 */
+  line-height: 1.5;
 }
 .delete-btn {
   background: none;
@@ -256,7 +260,7 @@ const scrollDown = () => {
 }
 .add-answer-form textarea {
   width: 100%;
-  height: 60px;
+  height: 20px;
   padding: 8px;
   margin-bottom: 10px;
   border: 1px solid #ddd;

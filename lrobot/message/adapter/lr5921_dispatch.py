@@ -227,3 +227,60 @@ async def lr5921_get_group(id,seq):
         future.set(seq, response)
     else:
         raise Exception(f"好友属性获取失败 -> [{response.status_code}]{response.text}")
+
+
+async def lr5921_withdraw(seq):
+    """撤回消息"""
+    url = f"{base_url}/delete_msg"
+
+    data = {"message_id": seq}
+
+    client = connect()
+    response = await client.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        adapter_logger.debug(
+            f"[LR5921]撤回消息 -> {seq}", extra={"event": "消息发送"}
+        )
+    else:
+        raise Exception(f"消息撤回失败 -> [{response.status_code}]{response.text}")
+
+
+async def lr5921_forward():
+    """TODO 模拟转发"""
+    url = f"{base_url}/send_forward_msg"
+
+    data = {
+    "group_id": 736368697,
+    "messages": [
+        {
+            "type": "node",
+            "data": {
+                "user_id": 925236771,
+                "nickname": "达艳",
+                "content": [
+                    {
+                        "type": "text",
+                        "data": {
+                            "text": "适配 DeepSeek 官方 API 和 Vocu 的 tss"
+                        }
+                    }
+                ],
+            }
+        }
+    ],
+    "news": [
+        {
+            "text": "奇怪"
+        }
+    ],
+    "prompt": "123",
+    "summary": "123",
+    "source": "123"
+}
+
+    client = connect()
+    response = await client.post(url, json=data, headers=headers)
+    if response.status_code == 200:
+        print(response.json())
+    else:
+        raise Exception(f"消息撤回失败 -> [{response.status_code}]{response.text}")

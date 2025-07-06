@@ -12,7 +12,6 @@ from config import path, loggers
 website_logger = loggers["website"]
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
-
 # 注册 APIRouter
 app.include_router(admin_router, prefix=secret("/cab"))
 app.include_router(command_router, prefix=secret("/cab"))

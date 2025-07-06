@@ -137,7 +137,6 @@ async def lr232_message_deal(data):
         if not attachments:  # 纯文字消息
             kind = kind + "文字消息"
         else:
-            file_content = ""
             if not content:  # 纯文件消息
                 kind = kind + "文件消息"
             else:
