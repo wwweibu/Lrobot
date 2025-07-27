@@ -1030,6 +1030,217 @@ h5/account-h5/notice/notice-login?mid=260237904\\u0026buvid=d3f2a50699f6b0e31dab
 #### 被关注自动推送消息/系统提示消息
 
 
+#### 视频信息获取
+```
+{
+  "bvid": "BV1AWq5Y5En1",
+  "code": 0,
+  "message": "0",
+  "ttl": 1,
+  "data": {
+    "bvid": "BV1AWq5Y5En1",
+    "aid": 113610726577243,
+    "videos": 1,
+    "tid": 208,
+    "tid_v2": 2090,
+    "tname": "校园学习",
+    "tname_v2": "人文历史",
+    "copyright": 1,
+    "pic": "http://i1.hdslb.com/bfs/archive/c92adf88c1ce1a629d8fef2b6871f1a39d22a99f.jpg",
+    "title": "理研读书会《麦卡托如是说》",
+    "pubdate": 1733562855,
+    "ctime": 1733562855,
+    "desc": "2024-2025学年理研第一次读书会",
+    "desc_v2": [
+      {
+        "raw_text": "2024-2025学年理研第一次读书会",
+        "type": 1,
+        "biz_id": 0
+      }
+    ],
+    "state": 0,
+    "duration": 4202,
+    "rights": {
+      "bp": 0,
+      "elec": 0,
+      "download": 1,
+      "movie": 0,
+      "pay": 0,
+      "hd5": 0,
+      "no_reprint": 1,
+      "autoplay": 1,
+      "ugc_pay": 0,
+      "is_cooperation": 0,
+      "ugc_pay_preview": 0,
+      "no_background": 0,
+      "clean_mode": 0,
+      "is_stein_gate": 0,
+      "is_360": 0,
+      "no_share": 0,
+      "arc_pay": 0,
+      "free_watch": 0
+    },
+    "owner": {
+      "mid": 651326580,
+      "name": "武大推协",
+      "face": "https://i0.hdslb.com/bfs/face/2b2ed12d18c4ef63aaf23170fe2d0e3a62491ea8.jpg"
+    },
+    "stat": {
+      "aid": 113610726577243,
+      "view": 2682,
+      "danmaku": 2,
+      "reply": 7,
+      "favorite": 97,
+      "coin": 32,
+      "share": 19,
+      "now_rank": 0,
+      "his_rank": 0,
+      "like": 90,
+      "dislike": 0,
+      "evaluation": "",
+      "vt": 0
+    },
+    "argue_info": {
+      "argue_msg": "",
+      "argue_type": 0,
+      "argue_link": ""
+    },
+    "dynamic": "",
+    "cid": 27223786651,
+    "dimension": {
+      "width": 1920,
+      "height": 1080,
+      "rotate": 0
+    },
+    "premiere": null,
+    "teenage_mode": 0,
+    "is_chargeable_season": false,
+    "is_story": false,
+    "is_upower_exclusive": false,
+    "is_upower_play": false,
+    "is_upower_preview": false,
+    "enable_vt": 0,
+    "vt_display": "",
+    "is_upower_exclusive_with_qa": false,
+    "no_cache": false,
+    "pages": [
+      {
+        "cid": 27223786651,
+        "page": 1,
+        "from": "vupload",
+        "part": "理研读书会《麦卡托如是说》",
+        "duration": 4202,
+        "vid": "",
+        "weblink": "",
+        "dimension": {
+          "width": 1920,
+          "height": 1080,
+          "rotate": 0
+        },
+        "first_frame": "http://i2.hdslb.com/bfs/storyff/n241207sa13zs8p6j8j80ciq60ezc9pb_firsti.jpg",
+        "ctime": 1733562855
+      }
+    ],
+    "subtitle": {
+      "allow_submit": false,
+      "list": [
+        {
+          "id": 1639238649021453312,
+          "lan": "ai-zh",
+          "lan_doc": "中文（自动生成）",
+          "is_lock": false,
+          "subtitle_url": "",
+          "type": 1,
+          "id_str": "1639238649021453312",
+          "ai_type": 0,
+          "ai_status": 2,
+          "author": {
+            "mid": 0,
+            "name": "",
+            "sex": "",
+            "face": "",
+            "sign": "",
+            "rank": 0,
+            "birthday": 0,
+            "is_fake_account": 0,
+            "is_deleted": 0,
+            "in_reg_audit": 0,
+            "is_senior_member": 0,
+            "name_render": null
+          }
+        }
+      ]
+    },
+    "is_season_display": false,
+    "user_garb": {
+      "url_image_ani_cut": ""
+    },
+    "honor_reply": {},
+    "like_icon": "",
+    "need_jump_bv": false,
+    "disable_show_up_info": false,
+    "is_story_play": 1,
+    "is_view_self": false
+  }
+}
+```
+
 
 ## 说明
 由于每次获取消息后设置了已读，所以不会显示及处理撤回消息
+
+#### 回复消息
+
+#### 关注列表
+```
+{
+  "list": [
+    {
+      "mid": 260237904,
+      "attribute": 6,
+      "mtime": 1753176150,
+      "tag": null,
+      "special": 0,
+      "contract_info": {},
+      "uname": "xuden",
+      "face": "https://i0.hdslb.com/bfs/face/member/noface.jpg",
+      "sign": "测试",
+      "face_nft": 0,
+      "official_verify": {
+        "type": -1,
+        "desc": ""
+      },
+      "vip": {
+        "vipType": 0,
+        "vipDueDate": 0,
+        "dueRemark": "",
+        "accessStatus": 0,
+        "vipStatus": 0,
+        "vipStatusWarn": "",
+        "themeType": 0,
+        "label": {
+          "path": "",
+          "text": "",
+          "label_theme": "",
+          "text_color": "",
+          "bg_style": 0,
+          "bg_color": "",
+          "border_color": ""
+        },
+        "avatar_subscript": 0,
+        "nickname_color": "",
+        "avatar_subscript_url": ""
+      },
+      "name_render": {},
+      "nft_icon": "",
+      "rec_reason": "",
+      "track_id": "",
+      "follow_time": ""
+    },
+  ],
+  "offset": "1739423305:393903105",
+  "re_version": 0,
+  "total": 551
+}
+```
+

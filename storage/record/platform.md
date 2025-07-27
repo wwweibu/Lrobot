@@ -1,19 +1,20 @@
 ## 平台选择
-- 高校社团没有企业执照、企业资质，只能申请个人类型的开放平台账号，并且在认证时由于其团体属性存在认证失败的情况
+- 高校社团没有企业执照、企业资质，只能申请个人类型的开放平台账号
 - 以下是各平台参考
 
 #### 项目使用的平台
 
-|  需求  |                QQ（官方）                 | QQ（napcat）  |       微信公众号        |        b站         |     QQ小程序     |
-|:----:|:-------------------------------------:|:-----------:|:------------------:|:-----------------:|:-------------:|
-| 注册方式 |              QQ 邮箱（1号1个）              |    QQ 号     |   微信公众号注册（个体工商户）   |       B 站账号       | QQ 邮箱（1号1个） |
-| 使用方式 | https(webhook) |   napcat    |   http(webhook)    |      B 站 api      |   https(域名)   | 
-|  功能  |       被动回复消息（60分钟），功能面板，频道消息管理        | 发送消息、群管理等功能 | 被动回复消息（即时），创建草稿，发表 | 查询视频、回复私信、直播及发布相关 |     JS小程序     |
+|  需求  |         QQ（开放平台）         | QQ（napcat）  |       微信公众号        |        B 站        |  QQ 小程序   |
+|:----:|:------------------------:|:-----------:|:------------------:|:-----------------:|:---------:|
+| 注册方式 |          QQ 邮箱           |    QQ 号     |      微信公众号注册       |       B 站账号       |   QQ 邮箱   |
+| 使用方式 |      https(webhook)      |   napcat    |   http(webhook)    |    B 站网页端 api     | https(域名) | 
+|  功能  | 被动回复消息（60分钟），功能面板，频道消息管理 | 发送消息、群管理等功能 | 被动回复消息（即时），创建草稿，发表 | 查询视频、回复私信、直播及发布相关 |   JS小程序   |
 
+- QQ 官方 bot 与小程序均在 QQ 开放平台注册，1 个 QQ 邮箱只能注册一个账号
 - 本项目暂不考虑 qqbot 的频道相关功能
 - qqbot 存在 官方 python 脚本(botpy)，使用 websocket 方法，但已停止支持
 - qqbot 达到日活跃用户 2000 可以解锁被动发送 markdown 消息（特殊消息的一种，语法类似 markdown）
-- 微信公众号分为订阅号（面向个人）和服务号（面向企业），认证指的是经过认证后在账号首页展示个人信息，[参考](https://kf.qq.com/faq/1910307JVbAj191030rquYn2.html)，个人账号可以申请个人认证，企业账号可以申请企业认证，但企业属性较强却没有营业执照只能申请订阅号的社团无法申请成功个人认证
+- 微信公众号分为订阅号（面向个人）和服务号（面向企业），个人以个体工商户资质注册。认证指的是经过认证后在账号首页展示个人信息([参考](https://kf.qq.com/faq/1910307JVbAj191030rquYn2.html))，个人账号可以申请个人认证，企业账号可以申请企业认证，但企业属性较强却没有营业执照只能申请订阅号的社团无法申请成功个人认证
 - 微信公众号认证后可以主动向用户发送消息、进行文章推送、配置自定义菜单等
 - 发表指的是在公众号主页发表文章，推送指的是在公众号主页发表文章并主动推送至用户消息列表，服务号每日拥有4次发表权限，订阅号只有1次
 
@@ -22,10 +23,10 @@
 |:-----:|:-------:|:--------------------:|:---:|:---:|:------------------:|:--------------:|:-----:|:-----:|:------:|:--:|:----:|:--:|:--:|:----:|
 | 不使用原因 | 申请长期不成功 | 需要认证，且功能与微信公众号平台基本重合 | 可开发 | 可开发 | api已停止申请，已申请的可继续使用 | api已废弃，申请邮箱已注销 | 需商家认证 | 需企业认证 | 无私信api | 无  |  无   | 无  | 无  |  无   |
 
-- 微博的申请注册过了一个月仍在审核中（[微博粉丝服务平台](https://open.weibo.com/apps)），且无有效反馈通道，故暂不考虑微博相关功能，相关代码在 abandoned/weibo.py 中
+- 微博的申请注册过了一个月仍在审核中（[微博粉丝服务平台](https://open.weibo.com/apps)），且无有效反馈通道（邮箱与对应微博号均无法解决问题），故暂不考虑微博相关功能，相关代码在 abandoned/weibo.py 中
 - 微博配置流程[参考](https://open.weibo.com/wiki/%E6%96%B0%E6%89%8B%E6%8E%A5%E5%85%A5%E6%8C%87%E5%8D%97)，申请开发者账号，创建粉丝服务类应用，填写相关资料，选择管理中心-粉丝服务-高级功能，配置 URL 和 APPKEY
 - [微信对话开放平台](https://chatbot.weixin.qq.com/login)需要认证过的微信公众号，相比微信公众号平台在文章编辑、推送方面的功能缺失，整体偏向于微信商家与客服
-- 但微信对话开放平台可以设置对话流、调用自身 [AI 接口](https://developers.weixin.qq.com/doc/aispeech/platform/INTRODUCTION.html)总结文档等，同时支持消息 48 小时内回复，也许可以更好地接入本项目
+- 微信对话开放平台可以设置对话流、调用自身 [AI 接口](https://developers.weixin.qq.com/doc/aispeech/platform/INTRODUCTION.html)总结文档等，同时支持消息 48 小时内回复，也许可以更好地接入本项目
 - 同时微信对话开放平台可接入客服（微信号），从公众号-用户的消息传递变成了用户-公众号-用户，使用得当可以实现类似微信机器人的效果
 - 钉钉和飞书都可以在企业内部创建机器人，且 api 丰富，审核简单，由于社团并没有相关需求，故未进行尝试；如果申请了资深开发者认证，可以发布飞书上的小程序
 - 豆瓣 [api](https://www.doubanapi.com/user.html) 已停止申请，几个可以使用的公开 apikey 无法获取用户的日记或者绑定用户账号、无法回复私信和更新资讯等
@@ -34,7 +35,7 @@
 
 #### 各平台需求
 - 域名（同时支持 https）: qqbot，qqapp
-- 公网 ip：wechat，微博，微信对话开放平台，钉钉，飞书
+- 公网 ip：微信，微博，微信对话开放平台，钉钉，飞书
 - 本地：napcat，b 站
 
 #### 平台配置指南
@@ -47,14 +48,14 @@
 5. 在开发-开发管理中记录 AppID 和 AppSecret 至 secret.yaml，在开发-回调配置中填写域名/路径并确定配置（配置时运行本项目），勾选所有的单聊及群事件
 
 #### botpy(已停用)
-- 官方 SDK [botpy](https://github.com/tencent-connect/botpy?tab=readme-ov-file)可以直接使用，采用的是 websocket 连接方式
+- 官方 SDK [botpy](https://github.com/tencent-connect/botpy?tab=readme-ov-file) 可以直接使用，采用的是 websocket 连接方式
 - 如果需要使用，需要修改两个函数： post_c2c_file 和 post_group_file，修改方式参考 abandoned/botpy.py 最上面两个函数，修改后可上传本地文件（修改前只能上传网上的url文件）
 - 另外，可能需要加上一个 serve_forever，否则在异步环境中使用 botpy 且使用了其他 ws 连接的时候，会由于某些 ws 先关闭，导致停止程序时 botpy 会报错（botpy 里面自己创建了一个循环且没有使用 loop = asyncio.get_event_loop()导致）
 - 在 botpy 包的 logging 文件中，会产生覆盖整个 root 日志的设置，所以必须在 main 里面最先导入 logging 模块，然后使用 botpy 同名日志模块去覆盖它的日志
 
 #### napcat([参考](https://napneko.github.io/guide/boot/Shell))
 1. 目前采用 docker 方法一键配置，使用 docker 则跳过 2-4 步
-2. 前往 [release 界面](https://github.com/NapNeko/NapCatQQ/releases)下载包，解压并重命名为 NapCat.Shell，放在项目同级目录下（与 lrobot 同一目录）
+2. 前往 [release 界面](https://github.com/NapNeko/NapCatQQ/releases)下载包，解压
 3. 建议先在电脑上安装 QQNT 并保存你的账号，如果未添加你的 qq 号，请在日志中找到生成的二维码并扫描
 4. 直接启动可以在 napcat.quick.bat 添加 qq 号后直接运行，.\versions\*\resources\app\napcat\config\webui.json 中可以修改端口
 5. 记录 LR5921_ID 到 secret.yaml
@@ -64,13 +65,13 @@
 9. ~~存在特殊时期，建议用小号作为机器人~~
 
 #### 微信公众号([参考](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html))
-1. 登录微信公众号后，前往设置与开发-开发接口管理，记录 AppID，启用 AppSecret 并记录（管理员扫码）
-2. 下方的服务器配置填写你的服务器/域名，运行本项目，进行验证
-3. 微信公众号自定义菜单在开启服务器配置后无法使用，***配置需参考[这个](https://blog.csdn.net/weixin_53287520/article/details/135350394)***
+1. 登录微信公众号后，前往设置与开发-开发接口管理，记录 AppID，启用 AppSecret 并记录（管理员扫码），将服务器 ip 加入白名单
+2. 下方的服务器配置填写你的服务器/域名，记录服务器配置-令牌（Token）至 WECHAT_TOKEN，运行本项目，进行验证， 
+3. 设置与开发-账号设置-注册信息-原始 ID 填写至 WECHAT_SELF
+4. 微信公众号自定义菜单在开启服务器配置后无法使用，***配置需参考[这个](https://blog.csdn.net/weixin_53287520/article/details/135350394)***
 
-#### B站([参考](https://nemo2011.github.io/bilibili-api/#/README))
-1. 使用 `pip install bilibili-api-python` 安装
-2. 登录 b 站页面（建议使用不常登录那个浏览器），使用 F12，进入 Application，选择 storage 下面的 cookies-www.bilibili.com，复制 bili_jct 和 SESSDATA 到 secret 中
+#### B站
+1. 登录 b 站页面（建议使用不常登录那个浏览器防止刷新 cookie），使用 F12，进入 Application，选择 storage 下面的 cookies-www.bilibili.com，复制 bili_jct 和 SESSDATA 到 secret 中
 
 #### QQ 小程序([参考](https://q.qq.com/wiki/#_4-%E5%BC%80%E5%8F%91qq%E5%B0%8F%E7%A8%8B%E5%BA%8F))
 1. 填写小程序名称、简介，上传图片，设置类目标签，提交备案。下载[开发工具](https://q.qq.com/wiki/tools/devtool/stable.html)
@@ -81,6 +82,7 @@
 2. 微信小程序包含 NFC 等多种功能
 
 #### 平台验证
+> 以下为各平台消息收发的方法介绍
 ###### LR232
 - 回调验证：QQ 机器人开放平台采用 HTTP 接口来接收事件，开发者通过管理端设置回调地址，并选定监听的事件类型，开放平台会将事件通过回调的方式推送给机器人。回调地址采用 Ed25519 签名算法进行验证，使用开发者平台提供的 Bot Secret 进行种子扩展生成 32 字节的公钥，将回调消息中的 event_ts 和 plain_token 组合成签名体 msg，根据公钥、签名体调用 Ed25519 算法进行[验证](https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/interface-framework/sign.html)
 - API 调用：QQ 机器人服务端开放接口使用 https 方式进行调用。用户需要先使用 AppID 和 AppSecret 调用 api 获取生命周期为 7200 秒的 access_token，再通过在 header 中引入 access_token 进行调用权限验证的方式调用其他 api。

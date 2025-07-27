@@ -7,7 +7,7 @@ import Cmd from '../views/Cab/Cmd.vue';
 import Cab from '../views/Cab/Cab.vue';
 import Command from '../views/Cab/Command.vue';
 import Database from '../views/Cab/Database.vue';
-import Users from '../views/Cab/Users.vue';
+import User from '../views/Cab/User.vue';
 import Log from '../views/Cab/Log.vue'
 import File from '../views/Cab/File.vue';
 import Preview from '../views/Cab/Preview.vue';
@@ -53,9 +53,9 @@ const routes = [
     component: Database,
   },
   {
-    path: '/cab/users',
-    name: 'Users',
-    component: Users,
+    path: '/cab/user',
+    name: 'User',
+    component: User,
   },
   {
     path: '/cab/log',

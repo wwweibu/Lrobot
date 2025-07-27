@@ -1,286 +1,249 @@
-# LR5921 发送消息
-import re
-from config import config, loggers, connect,future
+"""LR5921 调用 API"""
+
+from config import config, loggers, connect, future
 
 base_url = "http://napcat:5921"
 adapter_logger = loggers["adapter"]
 headers = {"Content-Type": "application/json"}
 
 
-def msg_content_join(content):
-    """将带 [标记] 的 content 转为 message 列表"""
-    message = []
-
-    # 拆分成 [xxx] 和非 [xxx] 的文本段
-    parts = re.split(r"(\[.*?\])", content)
-
-    for part in parts:
-        if not part or part.isspace():
-            continue
-
-        match = re.match(r"\[(.*?)\]", part)
-        if match:
-            inner = match.group(1)
-            if ":" in inner:
-                key, value = inner.split(":", 1)
-                key = key.strip()
-                value = value.strip()
-            else:
-                key, value = inner.strip(), None
-
-            if key == "at" and value:
-                message.append({
-                    "type": "at",
-                    "data": {"qq": value}
-                })
-            elif key == "表情" and value:
-                message.append({
-                    "type": "face",
-                    "data": {"id": value}
-                })
-            elif key == "回复" and value:
-                message.append({
-                    "type": "reply",
-                    "data": {"id": value}
-                })
-            else:
-                # 不支持的标签视为文本
-                message.append({
-                    "type": "text",
-                    "data": {"text": part}
-                })
-        else:
-            # 普通文本
-            message.append({
-                "type": "text",
-                "data": {"text": part}
-            })
-
-    return message
-
-
-async def lr5921_dispatch(kind, id, content=None, files=None):
-    """发送消息"""
-    if kind.startswith("私聊"):
-        url = f"{base_url}/send_private_msg"
-        tag = "user_id"
-    else:
-        url = f"{base_url}/send_group_msg"
-        tag = "group_id"
-
-    message = []
-    if content:
-        message_list = msg_content_join(content)
-        message.extend(message_list)
-    if files:
-        for file in files:
-            if file[0].lower().endswith((".png", ".jpg", ".jpeg")):
-                message.append({"type": "image", "data": {"file": f"file://{file[1]}"}})
-            else:
-                message.append({"type": "file", "data": {"file": f"file://{file[1]}"}})
-    data = {
-        tag: id,
-        "message": message,
-    }
-
+async def request_deal(url, data, tag):
+    """请求统一处理"""
+    timeout = 15.0
+    if ".mp4" in str(data):
+        timeout = 60.0
     client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        # TODO 待测试日志
-        adapter_logger.debug(
-            f"[LR5921]发送 -> {content if content is not None else files[0][0]}", extra={"event": "消息发送"}
+    try:
+        response = await client.post(url, json=data, headers=headers, timeout=timeout)
+    except Exception as e:
+        raise Exception(f"{tag} 请求异常 ->  e: {e} | data: {data}")
+
+    if response.status_code != 200:
+        raise Exception(
+            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data}"
         )
-    else:
-        raise Exception(f"消息发送失败 -> [{response.status_code}]{response.text}")
+
+    json_resp = response.json()
+    if json_resp.get("status") != "ok":
+        raise Exception(f"{tag} 请求失败 -> {json_resp} | data: {data}")
+
+    adapter_logger.info(
+        f"[LR5921] {tag} 成功 -> {data}",
+        extra={"event": "消息发送"},
+    )
+    return json_resp
 
 
-async def lr5921_dispatch_record(kind, id, files):
-    """发送语音消息"""
-    if kind.startswith("私聊"):
-        url = f"{base_url}/send_private_msg"
-        tag = "user_id"
-    else:
-        url = f"{base_url}/send_group_msg"
-        tag = "group_id"
+async def lr5921_sign_in(group):
+    """群聊签到"""
+    url = f"{base_url}/send_group_sign"
+    data = {"group_id": group}
 
-    message = []
-    for file in files:
-        message.append({"type": "record", "data": {"file": f"file://{file[1]}"}})
+    await request_deal(url, data, "群聊签到")
+
+
+async def lr5921_poke(user, group=None):
+    """戳戳"""
+    url = f"{base_url}/send_poke"
     data = {
-        tag: id,
-        "message": message,
+        "user_id": config["private"]["LR5921"][0],
+        **({"group_id": group} if group else {}),
+        "target_id": user,
     }
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]发送语音 -> {files[0][0]}", extra={"event": "消息发送"}
-        )
-    else:
-        raise Exception(f"消息发送失败 -> [{response.status_code}]{response.text}")
+    await request_deal(url, data, f"{'群聊' if group else '私聊'}戳戳")
 
 
-async def lr5921_get_share(group=None, user=None, phone=None):
-    """TODO 分享名片"""
+async def lr5921_share(num, user=None, group=None):
+    """分享"""
     url = f"{base_url}/ArkSharePeer"
+    data = {
+        **({"user_id": user} if user else {}),
+        **({"group_id": group} if group else {}),
+    }
+    data = await request_deal(url, data, f"{'群聊' if group else '私聊'}分享")
+    data = data.get("data", "")
 
-    if group:
-        data = {"group_id": group}
-    else:
-        data = {"user_id": user, "phoneNumber": phone}
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]分享二维码 -> {user if user else group}", extra={"event": "消息发送"}
-        )
-    else:
-        raise Exception(f"二维码分享失败 -> [{response.status_code}]{response.text}")
+    if data:
+        err_code = data.get("errCode")
+        if err_code != 0:
+            raise Exception(
+                f"{'群聊' if group else '私聊'}分享失败 -> {data.get('errMsg', '无错误信息')}"
+            )
+        if user:
+            future.set(num, data.get("arkMsg"))
+        else:
+            future.set(num, data.get("arkJson"))
 
 
-async def lr5921_set_status(status, ext_status, battery_status):
-    """私聊设置状态"""
+async def lr5921_status_set(status, ext_status, battery_status, id, word):
+    """私聊状态设置，输入'状态|电量'或'自定义|电量|表情|文字"""
     url = f"{base_url}/set_online_status"
-
     data = {
         "status": status,
         "ext_status": ext_status,
         "battery_status": battery_status,
     }
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]设置状态 -> {status} | {ext_status} | {battery_status}", extra={"event": "消息发送"}
-        )
-    else:
-        raise Exception(f"状态设置失败 -> [{response.status_code}]{response.text}")
+    if id:
+        url = f"{base_url}/set_diy_online_status"
+        data = {"face_id": id, "face_type": 1, "wording": word}
+    await request_deal(url, data, "私聊状态设置")
 
 
-async def lr5921_get_status(id):
-    """私聊获取状态"""
-    # TODO 解析结果
+async def lr5921_echo(seq, emoji):
+    """群聊回应"""
+    url = f"{base_url}/set_msg_emoji_like"
+    emoji_id = next((k for k, v in config["emojis"].items() if v == emoji), None)
+    if emoji_id:
+        data = {"message_id": seq, "emoji_id": emoji_id, "set": True}
+        await request_deal(url, data, "群聊回应")
+
+
+async def lr5921_signature(sign):
+    """私聊签名"""
+    url = f"{base_url}/set_self_longnick"
+    data = {"longNick": sign}
+    await request_deal(url, data, "私聊签名")
+
+
+async def lr5921_msg_get(num, seq):
+    """私聊消息获取"""
+    url = f"{base_url}/get_msg"
+    data = {"message_id": seq}
+    data = await request_deal(url, data, "私聊获取消息")
+    future.set(num, data.get("data").get("message", ""))
+
+
+async def lr5921_favor(content, brief):
+    """私聊收藏"""
+    url = f"{base_url}/create_collection"
+    data = {"rawData": content, "brief": brief}
+    await request_deal(url, data, "私聊收藏")
+
+
+async def lr5921_status_get(num, user):
+    """私聊状态获取"""
     url = f"{base_url}/nc_get_user_status"
-
-    data = {"user_id": id}
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]获取属性 -> {response.text}", extra={"event": "消息发送"}
-        )
-        data = response.json().get("data", {})
-        status = data.get("status")
-        ext_status = data.get("ext_status")
-        status_map = config["online_status"]
-        state = "未知状态"
-        for name, key in status_map.items():
-            if key == f"{status}|{ext_status}":
-                state = name
-        print(f"状态为{state}")
+    data = {"user_id": user}
+    data = await request_deal(url, data, "私聊状态获取")
+    status = None
+    target_status = str(data.get("data").get("status"))
+    target_ext_status = str(data.get("data").get("ext_status"))
+    for name, code in config["online_status"].items():
+        status_code, ext_code = code.split("|")
+        if status_code == target_status and ext_code == target_ext_status:
+            status = name
+    if status:
+        future.set(num, status)
     else:
-        raise Exception(f"属性获取失败 -> [{response.status_code}]{response.text}")
+        raise Exception(f"未知状态 | 用户: {user} | 数据: {data.get('data')}")
 
 
-async def lr5921_set_info(nickname, note, sex):
-    """私聊设置信息"""
-    url = f"{base_url}/set_qq_profile"
-    data = {"nickname": nickname, "personal_note": note, "sex": sex}
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]设置信息 -> {nickname} | {note} | {sex}", extra={"event": "消息发送"}
-        )
+async def lr5921_dispatch(
+        content,
+        kind=None,
+        user=None,
+        group=None,
+        num=None,
+        msg_id=None,
+        msg_seq=None,
+):
+    """消息发送"""
+    if kind.startswith("私聊"):
+        if content[0].get("type") == "forward":
+            url = f"{base_url}/forward_friend_single_msg"
+            tag1 = "message_id"
+            content = content[0].get("data").get("id")
+        elif content[0].get("type") == "node":
+            url = f"{base_url}/send_forward_msg"
+            tag1 = "messages"
+            content = content[0].get("data").get("content")
+        else:
+            url = f"{base_url}/send_private_msg"
+            tag1 = "message"
+        tag2 = "user_id"
+        id = user
     else:
-        raise Exception(f"信息设置失败 -> [{response.status_code}]{response.text}")
+        if content[0].get("type") == "forward":
+            url = f"{base_url}/forward_friend_single_msg"
+            tag1 = "message_id"
+            content = content[0].get("data").get("id")
+        elif content[0].get("type") == "node":
+            url = f"{base_url}/send_forward_msg"
+            tag1 = "messages"
+            content = content[0].get("data").get("content")
+        else:
+            url = f"{base_url}/send_group_msg"
+            tag1 = "message"
+        tag2 = "group_id"
+        id = group
+
+    data = {
+        tag2: id,
+        tag1: content,
+    }
+
+    await request_deal(url, data, "消息发送")
 
 
-async def lr5921_get_info(id,seq):
-    """私聊获取信息"""
-    url = f"{base_url}/get_stranger_info"
-
-    data = {"user_id": id}
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        future.set(seq, response)
-    else:
-        raise Exception(f"好友属性获取失败 -> [{response.status_code}]{response.text}")
-
-
-async def lr5921_get_group(id,seq):
-    """群聊获取信息（成员列表）"""
-    url = f"{base_url}/get_group_member_list"
-
-    data = {"group_id": id}
-
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        future.set(seq, response)
-    else:
-        raise Exception(f"好友属性获取失败 -> [{response.status_code}]{response.text}")
-
-
-async def lr5921_withdraw(seq):
+async def lr5921_withdraw(seq, user=None, kind=None):
     """撤回消息"""
     url = f"{base_url}/delete_msg"
 
     data = {"message_id": seq}
 
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        adapter_logger.debug(
-            f"[LR5921]撤回消息 -> {seq}", extra={"event": "消息发送"}
-        )
+    await request_deal(url, data, f"撤回")
+
+
+async def lr5921_essence(id, content=None):
+    """群聊精华"""
+    if content == "添加":
+        url = f"{base_url}/set_essence_msg"
     else:
-        raise Exception(f"消息撤回失败 -> [{response.status_code}]{response.text}")
+        url = f"{base_url}/delete_essence_msg"
+
+    data = {"message_id": id}
+
+    data = await request_deal(url, data, "测试消息")
+    word = data.get("data", "").get("result", "").get("wording")
+    if word:
+        raise Exception(f"设精失败 -> {data}")
 
 
-async def lr5921_forward():
-    """TODO 模拟转发"""
-    url = f"{base_url}/send_forward_msg"
+async def lr5921_title(user, group, title):
+    """群聊头衔"""
+    url = f"{base_url}/set_group_special_title"
+
+    data = {"group_id": group, "user_id": user, "special_title": title}
+
+    await request_deal(url, data, "群聊头衔")
+
+
+async def lr5921_list(num, group):
+    """群聊列表"""
+    url = f"{base_url}/get_group_member_list"
+
+    data = {"group_id": group}
+    data = await request_deal(url, data, "测试消息")
+    user_list = [
+        {"user_id": u["user_id"], "nickname": u["nickname"]} for u in data.get("data")
+    ]
+    future.set(num, user_list)
+
+
+async def lr5921_card(num, type, title, desc, picUrl, jumpUrl):
+    """卡片"""
+    url = f"{base_url}/get_mini_app_ark"
 
     data = {
-    "group_id": 736368697,
-    "messages": [
-        {
-            "type": "node",
-            "data": {
-                "user_id": 925236771,
-                "nickname": "达艳",
-                "content": [
-                    {
-                        "type": "text",
-                        "data": {
-                            "text": "适配 DeepSeek 官方 API 和 Vocu 的 tss"
-                        }
-                    }
-                ],
-            }
-        }
-    ],
-    "news": [
-        {
-            "text": "奇怪"
-        }
-    ],
-    "prompt": "123",
-    "summary": "123",
-    "source": "123"
-}
+        "type": type,
+        "title": title,
+        "desc": desc,
+        "picUrl": picUrl,
+        "jumpUrl": jumpUrl,
+    }
 
-    client = connect()
-    response = await client.post(url, json=data, headers=headers)
-    if response.status_code == 200:
-        print(response.json())
-    else:
-        raise Exception(f"消息撤回失败 -> [{response.status_code}]{response.text}")
+    data = await request_deal(url, data, "测试消息")
+    future.set(num, data.get("data").get("data"))
+
+# TODO 群文件上传下载整理相关
+# TODO 获取昵称

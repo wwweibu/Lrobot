@@ -1,0 +1,12 @@
+# 注意，这里的注释都会被重写掉
+
+msg_pool: { }  # 消息池
+access_tokens: # 令牌存储
+  WECHAT:
+    token: ""
+    expires_at: 0
+  LR232:
+    token: ""
+    expires_at: 0
+
+bind_list: { }  # 绑定验证码列表

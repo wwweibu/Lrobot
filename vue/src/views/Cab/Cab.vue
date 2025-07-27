@@ -95,7 +95,7 @@ const navItems = [
   { text: '数据库', route: '/cab/database' },
   { text: '日志', route: '/cab/log' },
   { text: '指令配置', route: '/cab/command' },
-  { text: '用户配置', route: '/cab/users' }
+  { text: '用户配置', route: '/cab/user' }
 ]
 
 function toggleSidebar() {

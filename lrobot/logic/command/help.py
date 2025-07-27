@@ -1,9 +1,13 @@
+"""帮助与转发"""
+
 import re
 import datetime
+
 from message.handler.msg import Msg
 
 
 def caesar_encrypt(text, shift):
+    """凯撒加密"""
     encrypted = []
     for char in text:
         if char.isalpha():  # 只对字母进行加密
@@ -14,7 +18,8 @@ def caesar_encrypt(text, shift):
     return "".join(encrypted)
 
 
-async def help_text(msg:Msg):
+async def help_show(msg: Msg):
+    """帮助说明"""
     kind = msg.kind[:2]
     help_content = re.sub(r"/帮助[，,]?\s*", "", msg.content).strip()
     content = ""
@@ -56,14 +61,40 @@ async def help_text(msg:Msg):
             "输入'/留言'\n\n"
             f"Here is the zeroth {bonus_scene}"
         )
+    else:
+        return
     Msg(
-        robot=msg.robot,
+        platform=msg.platform,
         kind=f"{kind}发送文字",
         event="发送",
-        source=msg.source,
+        user=msg.user,
         seq=msg.seq,
         content=content,
         group=msg.group,
     )
 
 
+async def help_unknown(msg: Msg):
+    """兜底指令"""
+    kind = msg.kind[:2]
+    if msg.content.startswith("/"):
+        Msg(
+            platform=msg.platform,
+            kind=f"{kind}发送文字",
+            event="发送",
+            user=msg.user,
+            seq=msg.seq,
+            content="无效的指令，请使用 /帮助",
+            group=msg.group,
+        )
+    elif msg.platform in ["BILI", "WECHAT"]:
+        # TODO 不一定是文字
+        Msg(
+            platform="LR5921",
+            kind="私聊发送文字",
+            event="发送",
+            user="663748426",
+            seq=msg.seq,
+            content="来自" + msg.user + "的消息" + msg.content,
+            group=msg.group,
+        )

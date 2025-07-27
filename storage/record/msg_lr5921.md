@@ -250,7 +250,6 @@
 
 ## request 事件
 
-
 ## notice 事件
 #### 好友添加 
 ```
@@ -391,6 +390,20 @@
 }
 ```
 
+#### 群名修改
+```
+{
+  "time": 1751895871,
+  "self_id": 3502644244,
+  "post_type": "notice",
+  "group_id": 736368697,
+  "user_id": 663748426,
+  "notice_type": "notify",
+  "sub_type": "group_name",
+  "name_new": "LRobot 内测"
+}
+```
+
 #### 群聊表情点赞 
 ```
 {
@@ -415,6 +428,19 @@
     "notice_type": "essence",
     "message_id": 1793170822,
     "sender_id": 663748426,
+    "operator_id": 663748426,
+    "sub_type": "add",
+}
+
+{
+    "time": 1752373344,
+    "self_id": 3502644244,
+    "post_type": "notice",
+    "group_id": 710731384,
+    "user_id": 0,
+    "notice_type": "essence",
+    "message_id": 890210867,
+    "sender_id": 0,
     "operator_id": 663748426,
     "sub_type": "add",
 }
@@ -466,7 +492,7 @@
 }
 ```
 
-#### 点赞 
+#### 回应
 ```
 {
     "time": 1742291836,
@@ -479,6 +505,21 @@
     "times": 1,
 }
 ```
+
+#### 设置头衔
+```
+{
+  "time": 1751896382,
+  "self_id": 3502644244,
+  "post_type": "notice",
+  "group_id": 736368697,
+  "user_id": 644244,
+  "notice_type": "notify",
+  "sub_type": "title",
+  "title": "lr5921"
+}
+```
+
 
 ## 其他
 - QQ 电话消息：无
@@ -711,3 +752,8 @@
         "sourceType": 1,
         "id": 684841211,
     },
+
+---
+
+- 修改群名片没有收到消息
+- 取消设精收不到下下哦

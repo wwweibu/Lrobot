@@ -137,7 +137,7 @@ scrape_configs:
 - 在仪表盘中根据 windows-exporter 配置上下行网速；设置 loki 查询面板，根据 level 和 robot 筛选；使用 web 组件与 5923 端口通信，实现指标的展示与反馈
 
 ## 日志格式
-- 以下为自启动与代码启动的日志对比，日志格式转化可以在[service.py](../abandoned/service.py)中找到
+- 以下为自启动与代码启动的日志对比，日志格式转化可以在[service.py](./abandoned/service.py)中找到
 #### napcat
 - 自启动 ![自启动](img/service_1.png)
 - 代码启动 ![代码启动](img/service_2.png)![代码启动](img/service_3.png)
@@ -189,6 +189,3 @@ scrape_configs:
 - 自启动 ![自启动](img/service_17.png)
 - 代码启动 ![代码启动](img/service_18.png)
 - 单独启动 promtail，不启动 loki 时会一直尝试往loki发送消息
-
-#### bilibili api
-- 未格式化 ![未格式化](img/service_19.png)

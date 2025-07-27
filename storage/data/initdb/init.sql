@@ -1,35 +1,3 @@
-CREATE TABLE IF NOT EXISTS user_status (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    source VARCHAR(255) UNIQUE,
-    status TEXT,
-    information TEXT
-);
-
-CREATE TABLE IF NOT EXISTS system_timeline (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    node_id INTEGER,
-    date DATE,
-    event TEXT,
-    tag TEXT
-);
-
-CREATE TABLE IF NOT EXISTS user_information (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    qq BIGINT UNIQUE,
-    nickname VARCHAR(50),
-    codename VARCHAR(50),
-    name VARCHAR(50),
-    grade varchar(50),
-    gender ENUM('男', '女') DEFAULT NULL,
-    major VARCHAR(100),
-    student_id VARCHAR(20),
-    phone VARCHAR(20),
-    political_status VARCHAR(50),
-    hometown VARCHAR(100),
-    card_number VARCHAR(20),
-    card_id VARCHAR(30)
-);
-
 CREATE TABLE IF NOT EXISTS system_bubble (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT,
@@ -58,18 +26,57 @@ CREATE TABLE IF NOT EXISTS system_panel (
     tasks TEXT
 );
 
-CREATE TABLE IF NOT EXISTS user_test (
+CREATE TABLE IF NOT EXISTS system_timeline (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    source BIGINT UNIQUE,
-    nickname VARCHAR(255),
-    name VARCHAR(255),
-    password VARCHAR(255)
+    node_id INTEGER,
+    date DATE,
+    event TEXT,
+    tag TEXT
 );
 
 CREATE TABLE IF NOT EXISTS system_wiki (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  title VARCHAR(255),
-  group_name VARCHAR(255),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    group_name VARCHAR(255),
+);
+
+CREATE TABLE IF NOT EXISTS user_information (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    qq BIGINT UNIQUE,
+    nickname VARCHAR(50),
+    codename VARCHAR(50),
+    name VARCHAR(50),
+    grade varchar(50),
+    gender ENUM('男', '女') DEFAULT NULL,
+    major VARCHAR(100),
+    student_id VARCHAR(20),
+    phone VARCHAR(20),
+    political_status VARCHAR(50),
+    hometown VARCHAR(100),
+    card_number VARCHAR(20),
+    card_id VARCHAR(30)
+);
+
+CREATE TABLE IF NOT EXISTS user_media (
+    id INT AUTO_INCREMENT PRIMARY KEY ,
+    filepath VARCHAR(255) UNIQUE,
+    media_id VARCHAR(255),
+    uploaded_at DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS user_status (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user VARCHAR(255) UNIQUE,
+    status TEXT,
+    information TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_test (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user BIGINT UNIQUE,
+    nickname VARCHAR(255),
+    name VARCHAR(255),
+    password VARCHAR(255)
 );
 
 INSERT INTO system_joke (text) VALUES

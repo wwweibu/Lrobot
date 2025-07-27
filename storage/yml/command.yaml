@@ -42,6 +42,36 @@ commands:
   users:
   - 微部
 - content:
+  - /测试1
+  - '[at:any] '
+  func: 测试
+  function: test_1
+  groups:
+  - 内测群
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  platforms:
+  - BILI
+  - WECHAT
+  - LR5921
+  - LR232
+  state: []
+  users: []
+- content: []
+  func: 欢迎
+  function: welcome_all
+  groups: []
+  judge: contains
+  kind:
+  - 私聊添加
+  platforms:
+  - LR232
+  - WECHAT
+  state: []
+  users: []
+- content:
   - /wiki获取
   func: wiki_获取
   function: wiki_change_get
@@ -151,7 +181,7 @@ commands:
   groups: []
   judge: equal
   kind:
-  - 私聊文字消息
+  - 私聊接收
   platforms:
   - LR232
   - WECHAT
@@ -197,22 +227,6 @@ commands:
   - LR5921
   state: []
   users: []
-- content:
-  - /测试1
-  func: 测试
-  function: test_1
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - WECHAT
-  - BILI
-  - LR5921
-  - LR232
-  state: []
-  users:
-  - 微部
 - content:
   - /消息提醒
   func: 提醒

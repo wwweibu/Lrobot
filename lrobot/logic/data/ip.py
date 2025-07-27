@@ -1,12 +1,14 @@
-# ip 封禁处理
+"""ip 封禁处理"""
+
 from time import time
-from config import update_database, query_database
+
+from config import database_update, database_query
 
 BAN_TIME = 600  # 封禁时间
 ERROR_RESET_TIME = 10  # 访问间隔 5 次 / x 秒
 
 
-async def check_and_update_ip(ip: str):
+async def ip_check(ip):
     """
     检查 IP 是否已被封禁，并更新数据库状态。
     """
@@ -15,19 +17,19 @@ async def check_and_update_ip(ip: str):
     current_time = int(time())
 
     # 解封
-    await update_database(
+    await database_update(
         "UPDATE system_ip SET count = -2 WHERE count = -1 AND %s - first_time > %s",
         (current_time, BAN_TIME),
     )
 
     # 次数重置
-    await update_database(
+    await database_update(
         "UPDATE system_ip SET count = 0 WHERE count BETWEEN 1 AND 5 AND %s - first_time > %s",
         (current_time, ERROR_RESET_TIME),
     )
 
     # 查找 IP 记录
-    result = await query_database(
+    result = await database_query(
         "SELECT count, first_time FROM system_ip WHERE ip = %s AND count != -2",
         (ip,),
     )
@@ -41,12 +43,13 @@ async def check_and_update_ip(ip: str):
 
         # 累计访问次数
         if 0 <= count < 5:
-            await update_database(
+            await database_update(
                 "UPDATE system_ip SET count = count + 1 WHERE ip = %s AND count = %s",
                 (ip, count),
             )
+
         elif count == 5:
-            await update_database(
+            await database_update(
                 "UPDATE system_ip SET count = -1, first_time = %s WHERE ip = %s",
                 (
                     current_time,
@@ -57,7 +60,7 @@ async def check_and_update_ip(ip: str):
 
     else:
         # 如果 IP 记录不存在，则插入新记录
-        await update_database(
+        await database_update(
             "INSERT INTO system_ip (ip, count, first_time) VALUES (%s, 1, %s)",
             (ip, current_time),
         )

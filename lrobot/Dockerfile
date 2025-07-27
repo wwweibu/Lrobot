@@ -25,10 +25,10 @@ RUN apt install -y wget gnupg \
 
 # 仅拷贝主控文件
 COPY main.py .
-# 除 adapter 外的 msg 模块
-COPY ./message/handler ./message/handler
+# msg 模块
+COPY ./message ./message
 # web 模块的 FastAPI 部分
 COPY ./web/backend ./web/backend
 
-# logic, adapter, storage 会通过挂载方式加载
+# logic, storage 会通过挂载方式加载
 CMD ["python", "main.py"]

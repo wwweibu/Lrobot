@@ -1,15 +1,9 @@
-# 刷新各平台令牌
+"""令牌刷新"""
+
 import time
 import asyncio
-from config import config,loggers,connect
 
-
-adapter_logger = loggers["adapter"]
-
-access_tokens = {
-    "WECHAT": {"token": "", "expires_at": 0},
-    "LR232": {"token": "", "expires_at": 0},
-}  # 各平台令牌
+from config import config, loggers, connect
 
 TOKEN_API = {
     "WECHAT": "https://api.weixin.qq.com/cgi-bin/stable_token",
@@ -27,6 +21,10 @@ AUTH_PARAMS = {
         "clientSecret": config["LR232_SECRET"],
     },
 }
+
+adapter_logger = loggers["adapter"]
+
+access_tokens = config.load("access_tokens")
 
 
 async def refresh_tokens(platform_list):
@@ -51,20 +49,16 @@ async def refresh_tokens(platform_list):
                     access_tokens[platform]["token"] = token_data.get(
                         "access_token", ""
                     )
-                    expires_in = int(
-                        token_data.get("expires_in", 10800)
-                    )  # 默认3小时
-                    access_tokens[platform]["expires_at"] = (
-                        current_time + expires_in
-                    )
+                    expires_in = int(token_data.get("expires_in", 10800))
+                    access_tokens[platform]["expires_at"] = current_time + expires_in
                     adapter_logger.debug(
-                        f"⌈{platform}⌋令牌有效期{expires_in}",
+                        f"⌈{platform}⌋ 令牌有效期 {expires_in}",
                         extra={"event": "令牌刷新"},
                     )
                 except Exception as e:
-                   adapter_logger.error(
-                        f"⌈{platform}⌋令牌刷新失败 -> {e}",
+                    adapter_logger.error(
+                        f"⌈{platform}⌋ 令牌刷新失败 -> {e}",
                         extra={"event": "令牌刷新"},
-                   )
+                    )
 
         await asyncio.sleep(60)  # 每分钟检查一次

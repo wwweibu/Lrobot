@@ -1,4 +1,5 @@
 """网盘相关操作"""
+
 import os
 import shutil
 import hashlib
@@ -7,10 +8,10 @@ import subprocess
 from typing import List
 from pathlib import Path
 from datetime import datetime
-from fastapi.responses import FileResponse,StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form, Depends
 from config import path, loggers
-from .cookie import get_account_from_cookie
+from .cookie import cookie_account_get
 
 router = APIRouter()
 UPLOAD_DIR = path / "storage/file/resource/clouddrive"
@@ -20,7 +21,11 @@ website_logger = loggers["website"]
 
 
 @router.post("/files")
-async def upload_files(files: List[UploadFile] = File(...),paths: str = Form(...),account: str = Depends(get_account_from_cookie)):
+async def files_upload(
+    files: List[UploadFile] = File(...),
+    paths: str = Form(...),
+    account: str = Depends(cookie_account_get),
+):
     """上传文件"""
     saved_files = []
     target_dir = UPLOAD_DIR / paths
@@ -28,17 +33,18 @@ async def upload_files(files: List[UploadFile] = File(...),paths: str = Form(...
     for file in files:
         dest = target_dir / file.filename
         if dest.exists():
-            raise HTTPException(403,f"文件已存在: {file.filename}")
+            raise HTTPException(403, f"文件已存在: {file.filename}")
         with dest.open("wb") as f:
             shutil.copyfileobj(file.file, f)
         saved_files.append(str((Path(paths) / file.filename)))
-        website_logger.info(f"{account} 上传文件:{paths}/{file.filename}",
-                            extra={"event": "请求成功"})
+        website_logger.info(
+            f"{account} 上传文件: {paths}/{file.filename}", extra={"event": "管理操作"}
+        )
     return {"uploaded": saved_files}
 
 
 @router.delete("/files")
-async def delete_item(request: Request,account: str = Depends(get_account_from_cookie)):
+async def files_delete(request: Request, account: str = Depends(cookie_account_get)):
     """删除文件"""
     data = await request.json()
     path = data["path"].lstrip("/\\")
@@ -64,8 +70,9 @@ async def delete_item(request: Request,account: str = Depends(get_account_from_c
 
         shutil.move(str(target_path), str(recycle_path))
 
-        website_logger.info(f"{account} 删除文件:{str(target_path)}",
-                            extra={"event": "请求成功"})
+        website_logger.info(
+            f"{account} 删除文件: {str(target_path)}", extra={"event": "管理操作"}
+        )
 
         return {"status": "success", "deleted_path": str(target_path)}
 
@@ -76,8 +83,10 @@ async def delete_item(request: Request,account: str = Depends(get_account_from_c
 
 
 @router.post("/file_folders")
-async def upload_folders(
-    files: List[UploadFile] = File(...), paths: List[str] = Form(...),account: str = Depends(get_account_from_cookie)
+async def file_folders_upload(
+    files: List[UploadFile] = File(...),
+    paths: List[str] = Form(...),
+    account: str = Depends(cookie_account_get),
 ):
     """上传文件夹"""
     saved_files = []
@@ -95,14 +104,17 @@ async def upload_folders(
 
         saved_files.append(str(relative_path))
 
-        website_logger.info(f"{account} 上传文件夹:{str(relative_path)}",
-                            extra={"event": "请求成功"})
+        website_logger.info(
+            f"{account} 上传文件夹: {str(relative_path)}", extra={"event": "管理操作"}
+        )
 
     return {"uploaded": saved_files}
 
 
 @router.post("/folders")
-async def create_folder(request: Request,account: str = Depends(get_account_from_cookie)):
+async def file_folders_create(
+    request: Request, account: str = Depends(cookie_account_get)
+):
     """新建文件夹"""
     data = await request.json()
     path = data["path"].lstrip("/\\")
@@ -113,13 +125,14 @@ async def create_folder(request: Request,account: str = Depends(get_account_from
         raise HTTPException(status_code=400, detail="Invalid path")
 
     full_path.mkdir(parents=True, exist_ok=True)
-    website_logger.info(f"{account} 新建文件夹:{str(full_path)}",
-                        extra={"event": "请求成功"})
+    website_logger.info(
+        f"{account} 新建文件夹:{str(full_path)}", extra={"event": "管理操作"}
+    )
     return {"path": str(full_path)}
 
 
 @router.get("/browse/{path:path}")
-async def browse_directory(path: str = ""):
+async def files_get(path: str = ""):
     """访问文件夹目录"""
     if path == "none":
         path = ""
@@ -143,7 +156,7 @@ async def browse_directory(path: str = ""):
 
 
 @router.get("/search")
-async def search_files(path: str, keyword: str):
+async def files_search(path: str, keyword: str):
     """搜索文件"""
     if path == "none":
         path = ""
@@ -175,38 +188,40 @@ async def search_files(path: str, keyword: str):
 
 
 @router.put("/rename")
-async def rename_item(request: Request,account: str = Depends(get_account_from_cookie)):
+async def files_rename(request: Request, account: str = Depends(cookie_account_get)):
     """重命名文件"""
     data = await request.json()
     old_path = data["old_path"]
     new_path = data["new_path"]
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
-    print(new_item)
+
     if not old_item.exists():
         raise HTTPException(status_code=404, detail="原文件不存在")
     if new_item.exists():
         raise HTTPException(status_code=409, detail="目标文件已存在")
-    print(new_item)
-    website_logger.info(f"{account} 重命名文件:{old_item} -> {new_item}",
-                        extra={"event": "请求成功"})
+
+    website_logger.info(
+        f"{account} 重命名文件: {old_item} -> {new_item}", extra={"event": "管理操作"}
+    )
     old_item.rename(new_item)
     return {"new_path": str(new_item)}
 
 
 @router.post("/move")
-async def move_item(request: Request,account: str = Depends(get_account_from_cookie)):
+async def files_move(request: Request, account: str = Depends(cookie_account_get)):
     """移动文件"""
     data = await request.json()
     src_path = data["src_path"]
     dst_path = data["dst_path"]
     src_item = UPLOAD_DIR / src_path
     dst_item = UPLOAD_DIR / dst_path
-    print(src_item)
-    print(dst_item)
+
     shutil.move(str(src_item), str(dst_item))
-    website_logger.info(f"{account} 移动文件:{str(src_item)} -> {str(dst_item)}",
-                        extra={"event": "请求成功"})
+    website_logger.info(
+        f"{account} 移动文件: {str(src_item)} -> {str(dst_item)}",
+        extra={"event": "管理操作"},
+    )
     return {"new_path": str(dst_item)}
 
 
@@ -218,7 +233,8 @@ def get_unique_pdf_name(doc_path):
 
 
 @router.post("/preview")
-async def preview_file(body: dict):
+async def files_preview(body: dict):
+    """文件预览"""
     file_path = body["path"][0]
     full_path = UPLOAD_DIR / file_path
     if not full_path.exists():
@@ -267,7 +283,8 @@ async def preview_file(body: dict):
 
 
 @router.get("/stream_video")
-async def stream_video(request: Request, path: str):
+async def files_stream_preview(request: Request, path: str):
+    """视频流式预览"""
     full_path = UPLOAD_DIR / path
     if not full_path.exists():
         return {"error": "视频不存在"}
@@ -291,6 +308,7 @@ async def stream_video(request: Request, path: str):
     chunk_size = end - start + 1
 
     def iterfile():
+        """文件分块"""
         with open(full_path, "rb") as f:
             f.seek(start)
             remaining = chunk_size

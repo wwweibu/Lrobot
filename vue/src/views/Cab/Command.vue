@@ -362,25 +362,21 @@ const judgeMap = {
   contains: '包含匹配'
 }
 
-const messageTypeStyle = (type: string) => {
-  const styleMap: Record<string, string> = {
-    '私聊文字消息': 'success',
-    '群聊文字消息': 'warning',
-    '系统消息': 'danger'
-  }
-  return styleMap[type] || 'info'
-}
+const tagColorTypes = ['success', 'warning', 'danger', 'info', 'primary']
 
 const platformTagType = (platform: string) => {
   const styleMap: Record<string, string> = {
     'WECHAT': 'success',
-    'WEIBO': 'warning',
     'BILI': 'danger',
-    'LR232': '',
-    'LR5921': '',
+    'LR232': 'warning',
+    'LR5921': 'primary',
     'QQAPP': 'info'
   }
   return styleMap[platform] || 'info'
+}
+
+const messageTypeStyle = (type: string): string => {
+  return messageTypeStyleMap.value[type] || 'info'
 }
 
 // 在原有代码后添加拖拽逻辑
@@ -411,6 +407,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (sortable) sortable.destroy()
 })
+
+const messageTypeStyleMap = ref<Record<string, string>>({})
+
 // 加载初始数据
 const loadInitialData = async () => {
   try {
@@ -423,6 +422,13 @@ const loadInitialData = async () => {
     states.value = Array.isArray(response.data?.states) ? response.data.states : []
     userOptions.value = Array.isArray(response.data?.users) ? response.data.users : []
     groupOptions.value = Array.isArray(response.data?.groups) ? response.data.groups : []
+
+    // 自动分配颜色
+    const map: Record<string, string> = {}
+    response.data.events?.forEach((event: string, index: number) => {
+      map[event] = tagColorTypes[index % tagColorTypes.length]  // 循环分配颜色
+    })
+    messageTypeStyleMap.value = map
     
   } catch (error) {
     ElMessage.error('数据加载失败: ' + error.message)

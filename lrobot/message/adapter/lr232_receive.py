@@ -1,16 +1,17 @@
-# LR232 接收消息
+"""LR232 接收消息"""
+
 import re
 import time
 import nacl.signing
 import nacl.encoding
 from fastapi import APIRouter
+
 from message.handler.msg import Msg
 from config import config, monitor_adapter, loggers
 
-
+_msg_cache = {}
 router = APIRouter()
 adapter_logger = loggers["adapter"]
-_msg_cache = {}
 
 
 def generate_signature(bot_secret, event_ts, plain_token):
@@ -26,31 +27,6 @@ def generate_signature(bot_secret, event_ts, plain_token):
     return signature
 
 
-def msg_content_join(content):
-    """转换内容中的表情包"""
-    pattern = r'<faceType=(\d+),\s*faceId="(.*?)",\s*ext="(.*?)">'
-
-    # 替换函数
-    def replace_face(match):
-        face_type = match.group(1)
-        face_id = match.group(2)
-        ext = match.group(3)
-
-        if face_type in ["1", "3"]:
-            face_id = int(face_id)  # 转换为整数
-            emoji_name = config["emojis"][face_id]
-            if not emoji_name:
-                emoji_name = "未知表情"
-            return f"[{emoji_name}]"
-        elif face_type == "4":
-            return f"[动画表情{ext}]"
-        else:
-            return match.group(0)  # 保留原始内容
-
-    # 替换所有匹配项
-    return re.sub(pattern, replace_face, content)
-
-
 @router.post("/")
 async def lr232_receive(data: dict):
     """LR232 接收消息"""
@@ -62,26 +38,26 @@ async def lr232_receive(data: dict):
         if not plain_token or not event_ts:
             raise Exception(f"回调配置错误 -> 数据不完整: {data}")
         signature = generate_signature(config["LR232_SECRET"], event_ts, plain_token)
-        adapter_logger.debug(f"⌈LR232⌋回调配置成功", extra={"event": "消息接收"})
+        adapter_logger.debug(f"⌈LR232⌋ 回调配置成功", extra={"event": "消息接收"})
         return {"plain_token": plain_token, "signature": signature}
     elif op == 0:  # qqbot 消息
-        adapter_logger.debug(f"⌈LR232⌋{data}", extra={"event": "消息接收"})
-        await lr232_message_deal(data)
+        adapter_logger.debug(f"⌈LR232⌋ {data}", extra={"event": "消息接收"})
+        await lr232_msg_deal(data)
         return {"op": 12}, 200
     else:
         raise Exception(f" 不存在 op 码 | 数据: {data}")
 
 
 @monitor_adapter("LR232")
-async def lr232_message_deal(data):
+async def lr232_msg_deal(data):
     """消息处理"""
     now = time.time()
     event_id = data.get("id")  # 事件id
     if event_id in _msg_cache and (now - _msg_cache[event_id] < 5):
         adapter_logger.info(
-            f"⌈LR232⌋跳过 5 秒内重复消息 -> {data}", extra={"event": "消息接收"}
+            f"⌈LR232⌋ 跳过 5 秒内重复消息 -> {data}", extra={"event": "消息接收"}
         )
-        return {"op": 12}, 200  # 消息去重
+        return  # 消息去重
     _msg_cache[event_id] = now
 
     t = data.get("t")
@@ -89,21 +65,19 @@ async def lr232_message_deal(data):
     if not event_id or not t or not d:
         raise Exception(f"参数不完整 | 数据:{data}")
     kind_map = {
-        "C2C_MESSAGE_CREATE": "私聊",
-        "FRIEND_ADD": "私聊添加好友",
-        "FRIEND_DEL": "私聊删除好友",
-        "C2C_MSG_RECEIVE": "私聊开启推送",
-        "C2C_MSG_REJECT": "私聊关闭推送",
-        "GROUP_AT_MESSAGE_CREATE": "群聊",
-        "GROUP_ADD_ROBOT": "群聊添加机器",
-        "GROUP_DEL_ROBOT": "群聊删除机器",
-        "GROUP_MSG_RECEIVE": "群聊开启推送",
-        "GROUP_MSG_REJECT": "群聊关闭推送"
+        "C2C_MESSAGE_CREATE": "私聊接收",
+        "FRIEND_ADD": "私聊添加",
+        "FRIEND_DEL": "私聊删除",
+        "GROUP_AT_MESSAGE_CREATE": "群聊接收",
+        "GROUP_ADD_ROBOT": "群聊添加",
+        "GROUP_DEL_ROBOT": "群聊删除",
     }
     if t not in kind_map:
         raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
     kind = kind_map.get(t, "未知消息类型")
-    if kind not in ["私聊", "群聊"]:
+    if kind.endswith("删除"):
+        return  # 不处理
+    if kind not in ["私聊接收", "群聊接收"]:
         if kind.startswith("私聊"):
             user_id = d.get("openid")
             group_id = None
@@ -111,49 +85,102 @@ async def lr232_message_deal(data):
             user_id = d.get("op_member_openid")
             group_id = d.get("group_openid")
         Msg(
-            robot="LR232",
+            platform="LR232",
             kind=kind,
             event="处理",
-            source=user_id,
             seq=event_id,
-            content="",
+            user=user_id,
             group=group_id,
         )
     else:
         id = d.get("id")  # 消息id
-        content = d.get("content")
+        raw_content = d.get("content")
         author = d.get("author", {})
         user_id = author.get("id")
         group_id = d.get("group_id")
         attachments = d.get("attachments", {})
-        files = []
-        if kind.startswith("私聊"):
-            event = "处理"
-        else:
-            if config["EXAM_MODE"] == 1:
-                event = "处理"
+        pattern = re.compile(r'<faceType=(\d+),\s*faceId="(.*?)",\s*ext="(.*?)">')
+        content = []
+        last_index = 0
+
+        for match in pattern.finditer(raw_content):
+            start, end = match.span()
+            face_type, face_id, ext = match.groups()
+
+            if start > last_index:
+                text_part = raw_content[last_index:start]
+                if text_part:
+                    content.append({
+                        "type": "text",
+                        "data": {"text": text_part}
+                    })
+            if face_type in ["1", "3"]:
+                content.append({
+                    "type": "face",
+                    "data": {
+                        "id": face_id,
+                        "type": face_type,
+                        "ext": ext
+                    }
+                })
+            elif face_type == "4":
+                content.append({
+                    "type": "image",
+                    "data": {
+                        "summary": "[动画表情]",
+                        "file": ext
+                    }
+                })
             else:
-                event = "匹配"  # 群聊中 @ 消息需要匹配
-        if not attachments:  # 纯文字消息
-            kind = kind + "文字消息"
-        else:
-            if not content:  # 纯文件消息
-                kind = kind + "文件消息"
-            else:
-                kind = kind + "图文消息"
+                content.append({
+                    "type": "text",
+                    "data": {"text": match.group(0)}
+                })
+            last_index = end
+
+        if last_index < len(raw_content):
+            text_part = raw_content[last_index:]
+            if text_part:
+                content.append({
+                    "type": "text",
+                    "data": {"text": text_part}
+                })
+        if attachments:
             for attachment in attachments:
-                file_name = attachment.get("filename")
-                file_url = attachment.get("url")
-                if file_name and file_url:
-                    files.append((file_name, file_url))
-                    content+= "[文件]"
+                url = attachment.get("url")
+                filename = attachment.get("filename")
+                size = attachment.get("size")
+                width = attachment.get("width", 0)
+                height = attachment.get("height", 0)
+                content_type = attachment.get("content_type", "")
+
+                if content_type in ("image/jpeg", "image/png", "image/gif"):
+                    type = "image"
+                elif content_type == "video/mp4":
+                    type = "video"
+                elif content_type == "voice":
+                    type = "record"
+                else:
+                    type = "file"
+
+                segment = {
+                    "type": type,
+                    "data": {
+                        "file": filename,
+                        "url": url,
+                        "file_size": size,
+                        "width": width,
+                        "height": height,
+                    }
+                }
+                content.append(segment)
+
         Msg(
-            robot="LR232",
+            platform="LR232",
             kind=kind,
-            event=event,
-            source=user_id,
+            event="处理",
+            user=user_id,
             seq=id,
-            content=msg_content_join(content),
-            files=files,
+            content=content,
             group=group_id,
         )

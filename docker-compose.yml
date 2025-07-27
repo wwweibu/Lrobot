@@ -5,16 +5,15 @@ services:
     ports:
       - "5922:5922"
     volumes:
-      - ./lrobot/logic:/app/logic
-      - ./lrobot/message/adapter:/app/message/adapter
-      - ./storage:/app/storage
-      - ./lrobot/web/frontend:/app/web/frontend
+      - ./lrobot/logic:/app/logic  # data 及 command 模块热更新
+      - ./storage:/app/storage  # 存储数据
+      - ./lrobot/web/frontend:/app/web/frontend  # vue 的打包文件热更新
       - ./config.py:/app/config.py  # 挂载这个为了共享而不是热更新
       - ./secret.py:/app/secret.py
     environment:
       - TZ=Asia/Shanghai
       - PYTHONUNBUFFERED=1
-    depends_on: # 先启动这个
+    depends_on: # 先启动
       - mongodb
       - mysql
 
@@ -32,20 +31,23 @@ services:
     container_name: napcat
     image: mlikiowa/napcat-docker:latest
     volumes:
-      - ./storage/napcat/config/QQ:/app/.config/QQ
-      - ./storage/napcat/config:/app/napcat/config
-      - ./storage/napcat/cache:/app/napcat/cache
-      - ./storage/file:/app/storage/file
+      - ./storage/napcat:/app/napcat
+      - ./storage/napcat/config/QQ:/app/napcat/config/QQ
+      - ./storage/file:/app/storage/file  # 发送文件
 
   command:
     build: ./command
     container_name: command
+    restart: always
     volumes:
       - ./config.py:/app/config.py
       - ./storage/yml:/app/storage/yml  # 配置信息
       - ./storage/lrobot.pem:/app/storage/lrobot.pem  # 密钥
     environment:
       - TZ=Asia/Shanghai
+    depends_on:
+      - mongodb
+      - mysql
 
   mongodb:
     image: mongo:4.4
@@ -72,10 +74,3 @@ services:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/initdb:/docker-entrypoint-initdb.d
       - ./storage/backup:/app/backup
-
-  #  wewe-rss:
-  #    build: ./wewe-rss
-  #    container_name: wewe-rss
-  #    restart: always
-  #    ports:
-  #      - "8010:8010"

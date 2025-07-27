@@ -1,16 +1,20 @@
+"""功能展板"""
+
 import json
 from fastapi import APIRouter, Request, Depends
-from .cookie import get_account_from_cookie
-from config import loggers,update_database,query_database
+from .cookie import cookie_account_get
+from config import loggers, database_update, database_query
 
 
 router = APIRouter()
 website_logger = loggers["website"]
 
+
 @router.get("/firefly")
-async def get_firefly():
+async def firefly_get():
+    """获取展板信息"""
     query = "SELECT id, name, description, url, tasks FROM system_panel"
-    rows = await query_database(query)
+    rows = await database_query(query)
     result = []
     for row in rows:
         id = row["id"]
@@ -18,17 +22,21 @@ async def get_firefly():
         description = row["description"]
         url = row["url"]
         tasks = json.loads(row["tasks"])
-        result.append({
-            "id": id,
-            "name": name,
-            "description": description,
-            "imageUrl": url,
-            "tasks": tasks
-        })
+        result.append(
+            {
+                "id": id,
+                "name": name,
+                "description": description,
+                "imageUrl": url,
+                "tasks": tasks,
+            }
+        )
     return result
 
+
 @router.post("/firefly")
-async def update_firefly(request: Request,account: str = Depends(get_account_from_cookie)):
+async def firefly_update(request: Request, account: str = Depends(cookie_account_get)):
+    """上传展板评论"""
     data = await request.json()
 
     feature_id = data.get("id")
@@ -40,8 +48,7 @@ async def update_firefly(request: Request,account: str = Depends(get_account_fro
     # 转换为 JSON 字符串以存入数据库
     tasks_json = json.dumps(tasks, ensure_ascii=False)
     query = "UPDATE system_panel SET tasks = %s WHERE id = %s"
-    await update_database(query, (tasks_json, feature_id))
-    website_logger.info(f"{account} 上传答案:{tasks}",
-                        extra={"event": "请求成功"})
+    await database_update(query, (tasks_json, feature_id))
+    website_logger.info(f"[{account}] 上传评论: {tasks}", extra={"event": "管理操作"})
 
     return {"message": "更新成功"}

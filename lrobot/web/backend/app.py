@@ -1,10 +1,11 @@
-# fastapi 主逻辑
+"""fastapi 主逻辑"""
+
 import uvicorn
-from starlette.middleware.gzip import GZipMiddleware
+import traceback
 from fastapi import FastAPI, Request, Response
+from starlette.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from secret import secret
 from web.backend.cab import *
 from config import path, loggers
 
@@ -13,18 +14,17 @@ website_logger = loggers["website"]
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 # 注册 APIRouter
-app.include_router(admin_router, prefix=secret("/cab"))
-app.include_router(command_router, prefix=secret("/cab"))
-app.include_router(database_router, prefix=secret("/cab"))
-app.include_router(file_router, prefix=secret("/cab"))
-app.include_router(login_router, prefix=secret("/cab"))
-app.include_router(metrics_router, prefix=secret("/cab"),)
-app.include_router(user_router, prefix=secret("/cab"))
-app.include_router(time_router,prefix=secret("/cab"),)
-app.include_router(bubble_router,prefix=secret("/cab"))
-app.include_router(panel_router,prefix=secret("/cab"))
-app.include_router(log_router,prefix=secret("/cab"))
-app.include_router(wiki_router,prefix=secret("/cab"))
+app.include_router(admin_router, prefix="/hjd")
+app.include_router(command_router, prefix="/hjd")
+app.include_router(database_router, prefix="/hjd")
+app.include_router(file_router, prefix="/hjd")
+app.include_router(login_router, prefix="/hjd")
+app.include_router(user_router, prefix="/hjd")
+app.include_router(time_router, prefix="/hjd")
+app.include_router(bubble_router, prefix="/hjd")
+app.include_router(panel_router, prefix="/hjd")
+app.include_router(log_router, prefix="/hjd")
+app.include_router(wiki_router, prefix="/hjd")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
 
@@ -36,6 +36,7 @@ async def exception_handler(request: Request, exc: Exception):
         f"IP: {request.client.host} | 请求路径: {request.url} -> {str(exc)}",
         extra={"event": "运行日志"},
     )
+    loggers["system"].error(traceback.format_exc(), extra={"event": "错误堆栈"})
     return JSONResponse(status_code=200, content={})
 
 

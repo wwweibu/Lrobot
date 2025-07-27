@@ -1,15 +1,19 @@
-# 模块重载
-import importlib
+"""模块重载"""
+
 import os
 import sys
+import importlib
 from pathlib import Path
-from watchdog.observers.polling import PollingObserver
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers.polling import PollingObserver
+
 from config import loggers
 
 
 class ModuleManager(FileSystemEventHandler):
-    def __init__(self, module_dir: Path, package_base: str, inject_target=None, ignore_files=None):
+    def __init__(
+            self, module_dir: Path, package_base: str, inject_target=None, ignore_files=None
+    ):
         """
         :param module_dir: 模块所在目录 Path
         :param package_base: 包名（如 "logic.command"）
@@ -33,17 +37,24 @@ class ModuleManager(FileSystemEventHandler):
         try:
             module = importlib.import_module(module_name)
             self._inject_to_namespace(module)
-            loggers["system"].info(f"模块加载成功: {module_name}", extra={"event": "模块加载"})
+            loggers["system"].info(f"{module_name}", extra={"event": "模块加载"})
         except Exception as e:
-            loggers["system"].error(f"模块加载失败: {module_name} | 错误: {e}", extra={"event": "模块加载"})
+            loggers["system"].error(
+                f"失败: {module_name} -> {e}", extra={"event": "模块加载"}
+            )
 
     def _reload_module(self, module_name: str):
         try:
             module = importlib.reload(sys.modules[module_name])
             self._inject_to_namespace(module)
-            loggers["system"].info(f"模块热重载: {module_name}", extra={"event": "模块热重载"})
+            loggers["system"].info(
+                f"模块热重载: {module_name}", extra={"event": "模块加载"}
+            )
         except Exception as e:
-            loggers["system"].error(f"模块热重载失败: {module_name} | 错误: {e}", extra={"event": "模块热重载"})
+            loggers["system"].error(
+                f"模块热重载失败: {module_name} -> {e}",
+                extra={"event": "模块加载"},
+            )
 
     def _inject_to_namespace(self, module):
         for attr in dir(module):
@@ -64,6 +75,7 @@ class ModuleManager(FileSystemEventHandler):
             self._load_module(stem)
 
     def start(self):
+        """开启监听"""
         observer = PollingObserver()
         observer.schedule(self, str(self.module_dir), recursive=False)
         observer.start()
