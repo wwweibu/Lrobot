@@ -14,8 +14,8 @@ from config import path, loggers
 from .cookie import cookie_account_get
 
 router = APIRouter()
-UPLOAD_DIR = path / "storage/file/resource/clouddrive"
-RECYCLE_BIN = path / "storage/file/resource/recycle"
+UPLOAD_DIR = path / "storage/file/clouddrive"
+RECYCLE_BIN = path / "storage/file/recycle"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 website_logger = loggers["website"]
 

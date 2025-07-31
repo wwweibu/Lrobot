@@ -6,7 +6,9 @@
 /storage/data/mysql
 /storage/data/napcat
 
+/storage/file/clouddrive
 /storage/file/command
+/storage/file/recycle
 /storage/file/resource
 /storage/file/user
 /storage/file/wiki
