@@ -23,8 +23,9 @@
 ---
 
 **本项目仅作为学习研究使用，切勿用于非法用途**
-[项目文档](https://wwweibu.github.io/Lrobot/)
 
+---
+[项目文档](https://wwweibu.github.io/Lrobot/)
 ---
 
 ## 写在前面
@@ -112,11 +113,11 @@
 - 部分内容遵循 Creative Commons Attribution-NonCommercial 4.0 国际许可协议（禁止商业用途）；
 - 项目依赖的 NapCat 服务采用其自定义有限再发布许可。
 
-详细许可证请参见项目根目录 LICENSE 文件。
+详细许可证请参见项目根目录 [LICENSE](LICENSE) 文件
 
 --
 
-## ……
+## 急急急
 
 - [x] **QQ 机器人审核通过**
 - [x] **信管局审核网址通过**
