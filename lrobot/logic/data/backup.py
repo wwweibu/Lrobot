@@ -5,7 +5,7 @@ import datetime
 
 from config import path
 
-backup_dir = path / "storage/backup"
+backup_dir = path / "storage/data/backup"
 backup_dir.mkdir(parents=True, exist_ok=True)
 
 async def backup_mysql():

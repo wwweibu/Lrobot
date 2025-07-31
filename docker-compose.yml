@@ -31,8 +31,8 @@ services:
     container_name: napcat
     image: mlikiowa/napcat-docker:latest
     volumes:
-      - ./storage/napcat:/app/napcat
-      - ./storage/napcat/config/QQ:/app/napcat/config/QQ
+      - ./storage/data/napcat:/app/napcat
+      - ./storage/data/napcat/config/QQ:/app/napcat/config/QQ
       - ./storage/file:/app/storage/file  # 发送文件
 
   command:
@@ -56,7 +56,7 @@ services:
       - "5924:27017"
     volumes:
       - ./storage/data/mongodb:/data/db
-      - ./storage/backup:/app/backup
+      - ./storage/data/backup:/app/backup
     environment:
       - TZ=Asia/Shanghai
 
@@ -73,4 +73,4 @@ services:
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/initdb:/docker-entrypoint-initdb.d
-      - ./storage/backup:/app/backup
+      - ./storage/data/backup:/app/backup
