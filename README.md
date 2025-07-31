@@ -8,8 +8,8 @@
 
 <div style="display: flex; justify-content: flex-start; align-items: flex-start;">
     <img src="storage/file/firefly/L.png" alt="LR232" width="100">
-    <img src="storage/file/firefly/R.gif" alt="Image 2" width="100">
-    <img src="storage/file/firefly/app1.jpg" alt="Image 3" width="100">
+    <img src="storage/file/firefly/R.gif" alt="LR5921" width="100">
+    <img src="storage/file/firefly/app1.jpg" alt="QQAPP" width="100">
 </div>
 
 [![版本](https://badgen.net/badge/version/7.2.1/ffb3c2)](#)
@@ -23,27 +23,16 @@
 ---
 
 **本项目仅作为学习研究使用，切勿用于非法用途**
-
+本回答由 AI 生成，内容仅供参考，请仔细甄别
 ---
 
 ## 项目简介
-
+- 项目大抵就是
 - LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社团管理。项目围绕各消息平台构建消息处理和管理系统，涵盖QQ、微信、B
   站、QQ 小程序、网页五个平台的界面和指令功能
 - 依据快速开始中的步骤选择需要的平台部署项目，筛选并修改需要的指令，设计对应的页面，开发新的功能
 - 项目有各步骤详细的说明及教学，虽然涉及到账号申请、部署、添加数据等内容比较麻烦，但完成后可以发挥想象，设计更多更有趣的功能；同时给有一定经验的开发者做一个参考
 - 项目将持续更新……
-
-#### 目录
-- [相关项目](#相关项目)
-- [快速开始](#快速开始)  &nbsp;&nbsp;*部署项目请跳转*
-- [项目结构](#项目结构)
-- [功能介绍](#功能介绍)  &nbsp;&nbsp;*不写代码看这个*
-- [相关技术](#相关技术)  &nbsp;&nbsp;*了解细节看这个*
-- [更新日志](#更新日志)
-- [常见问题](#常见问题)
-- [许可证](#许可证)
-- [……]()
 
 ---
 
@@ -111,7 +100,6 @@
 12. 可以使用 `docker logs xx` 或者 Docker Desktop 查看容器内部日志
 
 #### 项目开发
-
 - 进入项目，使用 `git pull origin master`更新
 - 可使用 pycharm 开发
 - 在 pycharm 中连接与查看数据源（需启动数据库容器）: 数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择
