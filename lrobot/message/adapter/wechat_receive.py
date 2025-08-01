@@ -1,5 +1,6 @@
 """微信公众号消息接收"""
 
+import re
 import time
 import random
 import asyncio
@@ -63,7 +64,6 @@ async def wechat_receive(request: Request):
         return ""
     return response
 
-
 @monitor_adapter("WECHAT")
 async def wechat_msg_deal(data):
     """解析微信消息"""
@@ -91,7 +91,47 @@ async def wechat_msg_deal(data):
         _msg_cache[msg_id] = now
         kind = "私聊接收"
         if msg_type == "text":
-            content = root.find("Content").text
+            raw_content = root.find("Content").text
+            emoji_map = config["wechat_emojis"]
+            escaped_keys = [re.escape(k) for k in emoji_map.keys()]
+            pattern = re.compile('|'.join(escaped_keys))
+
+            content = []
+            last_index = 0
+
+            # 表情匹配，支持 [xxx] 和 /:xxx 两种形式
+            for match in pattern.finditer(raw_content):
+                start, end = match.span()
+                emoji_raw = match.group()
+
+                # 前面的纯文本部分
+                if start > last_index:
+                    text_part = raw_content[last_index:start]
+                    if text_part.strip():
+                        content.append({
+                            "type": "text",
+                            "data": {"text": text_part}
+                        })
+
+                code = match.group(0)
+                content.append({
+                    "type": "image",
+                    "data": {
+                        "summary": f"[{emoji_map[code]}]",
+                        "raw": code
+                    }
+                })
+                last_index = end
+
+            # 最后一段纯文本
+            if last_index < len(raw_content):
+                text_part = raw_content[last_index:]
+                if text_part.strip():
+                    content.append({
+                        "type": "text",
+                        "data": {"text": text_part}
+                    })
+
         elif msg_type == "image":
             content = [
                 {

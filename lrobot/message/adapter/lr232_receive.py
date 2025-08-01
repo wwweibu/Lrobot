@@ -115,14 +115,19 @@ async def lr232_msg_deal(data):
                         "data": {"text": text_part}
                     })
             if face_type in ["1", "3"]:
-                content.append({
-                    "type": "face",
-                    "data": {
-                        "id": face_id,
-                        "type": face_type,
-                        "ext": ext
-                    }
-                })
+                if face_id == "358":
+                    content.append({"type": "dice", "data": {"result": ''}})
+                elif face_id == "359":
+                    content.append({"type": "rps", "data": {"result": ''}})
+                else:
+                    content.append({
+                        "type": "face",
+                        "data": {
+                            "id": face_id,
+                            "type": face_type,
+                            "ext": ext
+                        }
+                    })
             elif face_type == "4":
                 content.append({
                     "type": "image",

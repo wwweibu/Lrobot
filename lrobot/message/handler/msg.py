@@ -133,19 +133,21 @@ class Msg:
                 rps_result = rps_map.get(rps_id, "未知结果")
                 content_join += f"[猜拳:{rps_result}]"
             elif msg_type == "dice":
-                dice_id = msg_data.get("result", "未知结果")
-                content_join += f"[骰子:{dice_id}]"
+                dice_id = msg_data.get("result")
+                dice_result = dice_id if dice_id in {"1", "2", "3", "4", "5", "6"} else "未知结果"
+                content_join += f"[骰子:{dice_result}]"
             elif msg_type == "reply":
-                content_join += f"[回复:{msg_data.get('id', '')}]"
+                reply_content = msg_data.get("content", [])
+                content_join += f"[回复:[{Msg.content_join(reply_content)}]]"
             elif msg_type == "forward":
                 forward_content = msg_data.get("content", [])
                 inner_text = ""
                 for node in forward_content:
                     inner_msg_list = node.get("message", [])
                     inner_text += Msg.content_join(inner_msg_list)
-                content_join += f"[转发:{inner_text}]"
+                    inner_text += "|"
+                content_join += f"[转发:[{inner_text}]]"
             elif msg_type == "poke":
-                # TODO 解析戳戳
                 content_join += "[戳戳:戳一戳]"
             elif msg_type == "mface":
                 content_join += f"[动画表情:{msg_data.get('summary', '未知的动画表情')}]"
@@ -186,6 +188,9 @@ class Msg:
         parsed = cls._content_token_match(content)
         last_index = 0
 
+        if not parsed or all(p[1] is None for p in parsed):  # 纯文字消息
+            return [{"type": "text", "data": {"text": content}}]
+
         for prefix, value, start, end in parsed:  # value 一定为字符串
 
             # 添加之前的纯文本部分
@@ -219,7 +224,6 @@ class Msg:
             elif prefix == "转发":
                 segments.append({"type": "forward", "data": {"id": value}})
             elif prefix == "戳戳":
-                # TODO 解析戳戳
                 segments.append({"type": "poke", "data": {"type": "1", "id": "1"}})
             elif prefix == "动画表情":
                 if "|" in value:  # 发送格式: summary|key|emoji_id|emoji_package_id(LR5921)
@@ -316,6 +320,8 @@ class Msg:
     @classmethod
     def content_pattern_contains(cls, content, pattern):
         """判断消息字段是否包含指令字段"""
+        if not content:
+            return False
         pattern = Msg.content_disjoin(pattern)
         pattern_len = len(pattern)
         content_len = len(content)
@@ -357,7 +363,6 @@ class Msg:
             return pattern_data.get("id") in (content_data.get("id"), "any")
 
         elif content["type"] == "poke":
-            # TODO 与上面一起 poke 解析
             return True
 
         elif content["type"] == "image":
@@ -380,6 +385,8 @@ class Msg:
     @staticmethod
     def content_pattern_equal(content, pattern):
         """判断两个消息段是否相等"""
+        if not content:
+            return False
         pattern = Msg.content_disjoin(pattern)
         if len(content) != len(pattern):
             return False

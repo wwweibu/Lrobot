@@ -72,19 +72,22 @@
 7. 进入项目目录`cd Lrobot`（注意里面还有一个 lrobot 文件夹，进入的是外面的）
 8. `docker compose up --build -d napcat` 启动 napcat 服务（linux 需要加 sudo，下同）
   - 扫码登录(如果 docker 里的二维码扫描不了打开 storage/napcat/cache 或访问[网址](http://127.0.0.1:6099/webui?token=napcat))
-  - 访问 http://127.0.0.1:6099/webui?token=napcat 进行配置
+  - 访问 http://127.0.0.1:6099/webui?token=napcat 进行配置，网络配置-新建
   - 配置 HTTP 服务器，`启用-开启Debug-port:5921`
   - 配置 HTTP 客户端，`启用-开启 Debug-URL：http://lrobot:5922/LR5921/` （LR5921 如果配置了 secret 记得改成加密后的路径）-上报自身消息
   - 并在其他配置-登录配置里填写当前 QQ 以便快速登录
-9. `docker compose up --build -d command` 启动服务器连接与转发
+9. 启动数据库服务
+  - `docker compose up --build -d mysql`
+  - `docker compose up --build -d mongodb` 
+10. 启动服务器连接与转发
+  - `docker compose up --build -d command` 
   - `docker exec -it command sh`进入容器
   - `chmod 600 /app/storage/lrobot.pem`
   - `ssh -i /app/storage/lrobot.pem username@ip` 连接服务器
   - 输入 yes，随后重启容器
-10. 启动数据库服务
-  - `docker compose up --build -d mysql`
-  - `docker compose up --build -d mongodb` 
-11. `docker compose up --build lrobot` 启动 lrobot 主服务，由于安装了 libreoffice，需要 5 分钟左右
+11. 启动 lrobot 主服务
+  - `docker compose up --build lrobot` 
+  - 由于安装了 libreoffice，需要 5 分钟左右
 12. 可以使用 `docker logs xx` 或者 Docker Desktop 查看容器内部日志
 
 ---
@@ -100,7 +103,7 @@
 #### Q:可以参与开发吗？
 #### A:由于是个人项目，有什么其他功能想法或者优雅的代码书写方式都建议直接教我。当然，欢迎 PR
 #### Q:为什么要开发这个项目？
-#### A:由于协会传统萌发了开发机器人的想法，之后先后找到了 MYQQ、qqbot 和 LLOnebot、Napcat。官方 QQ 机器人框架限制过多，审核过程繁琐且一个月只能发四条主动消息，消息回复只能有五条，无法获取到消息发送者的 QQ （*就离谱*），获取群成员等群聊相关 API 还在等开发；个人 Napcat 启动器的缺点是发送消息太多可能被屏蔽，且不能输入''/''快速调出指令并 @ 机器人，每次查询指令比较繁琐。然后没有官方机器人 dau 达到500后的被动 markdown 功能，所以可以各取所长，以官方 QQ 机器人为主， NapCat 为辅搭建一个LRobot系统。首先是统一二者API，使用自定义的消息类以及自定义的消息发送逻辑实现。接着是逻辑处理，官方 QQ 机器人负责主要指令调用与回复，NapCat 负责信息查询（成员发言时间获取），群聊转私聊，发送额外消息。两个机器人通过群消息二合一来“激活”用户，同时通过数据库记录“状态”实现单用户多消息、多用户多消息的互通。之后又有了开发更多平台的机器人的想法，于是就有了目前的项目。
+#### A:由于协会传统萌发了开发机器人的想法，之后先后找到了 MYQQ、qqbot 和 LLOnebot、Napcat。官方 QQ 机器人框架限制过多，审核过程繁琐且一个月只能发四条主动消息，消息回复只能有五条，无法获取到消息发送者的 QQ （*就离谱*），获取群成员等群聊相关 API 还在等开发；个人 Napcat 启动器的缺点是发送消息太多可能被屏蔽，且不能输入''/''快速调出指令并 @ 机器人，每次查询指令比较繁琐。然后没有官方机器人 dau 达到 500 后的被动 markdown 功能，所以可以各取所长，以官方 QQ 机器人为主， NapCat 为辅搭建一个LRobot系统。首先是统一二者API，使用自定义的消息类以及自定义的消息发送逻辑实现。接着是逻辑处理，官方 QQ 机器人负责主要指令调用与回复，NapCat 负责信息查询（成员发言时间获取），群聊转私聊，发送额外消息。两个机器人通过群消息二合一来“激活”用户，同时通过数据库记录“状态”实现单用户多消息、多用户多消息的互通。之后又有了开发更多平台的机器人的想法，于是就有了目前的项目
 
 ---
 

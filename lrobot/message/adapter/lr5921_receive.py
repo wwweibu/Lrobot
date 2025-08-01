@@ -60,6 +60,23 @@ async def lr5921_msg_deal(data):
                         content[0]["data"]["data"] = json.loads(content[0]["data"]["data"])
                     except json.JSONDecodeError:
                         pass
+            elif content[0].get("type", "") == "reply":
+                reply_id = content[0]["data"].get("id")
+                if reply_id:
+                    msg = Msg(
+                        platform="LR5921",
+                        kind="私聊消息获取",
+                        user=0,
+                        event="发送",
+                        seq=reply_id,
+                    )
+                    try:
+                        _future = future.get(msg.num)
+                        response = await asyncio.wait_for(_future, timeout=20)
+                        content[0]["data"].pop("id", None)  # 删除 id
+                        content[0]["data"]["content"] = response  # 添加 content
+                    except asyncio.TimeoutError:
+                        content[0]["data"]["content"] = None
             kind += "接收"
     elif post_type == "notice":
         notice_type = data.get("notice_type")

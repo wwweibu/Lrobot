@@ -171,12 +171,12 @@ async def wechat_dispatch(
                     <Url><![CDATA[{url}]]></Url>
                     </item></Articles>\n"""
     base += "</xml>"
-    #     base = f"""<xml>
-    #   <ToUserName><![CDATA[orHObs--jF-OZjwOu0NLmd6MIox8]]></ToUserName>
-    #   <FromUserName><![CDATA[gh_a0180524f340]]></FromUserName>
-    #   <CreateTime>1753166758</CreateTime>
-    #   <MsgType><![CDATA[text]]></MsgType>
-    #   <Content><![CDATA[你
-    #   好]]></Content>
-    # </xml>"""
+    base = f"""<xml>
+      <ToUserName><![CDATA[orHObs--jF-OZjwOu0NLmd6MIox8]]></ToUserName>
+      <FromUserName><![CDATA[gh_a0180524f340]]></FromUserName>
+      <CreateTime>1753166758</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType>
+      <Content><![CDATA[你
+      好]]></Content>
+    </xml>"""
     future.set(seq, base)

@@ -25,8 +25,8 @@ services:
       - NAPCAT_UID=1000
       - NAPCAT_GID=1000
     ports:
-      - "3000:3000"
-      - "3001:3001"
+      - "3001:3000"
+      - "3002:3001"
       - "6099:6099"
     container_name: napcat
     image: mlikiowa/napcat-docker:latest
@@ -52,6 +52,7 @@ services:
   mongodb:
     image: mongo:4.4
     container_name: mongodb
+    restart: always
     ports:
       - "5924:27017"
     volumes:
@@ -63,6 +64,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    restart: always
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: lrobot_data
