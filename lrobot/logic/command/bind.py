@@ -1,6 +1,7 @@
 """绑定平台"""
 
 import time
+import hashlib
 
 from logic import data
 from config import config
@@ -16,7 +17,8 @@ async def platform_bind(msg: Msg):
     if info:
         content = f"当前平台已绑定 QQ: {info}"
     else:
-        timestamp = msg.seq + int(time.time() * 1000)
+        seq_hash = hashlib.md5(msg.seq.encode()).hexdigest()[:6]
+        timestamp = f"{seq_hash}{int(time.time() * 1000)}"
         content = f"请将整条消息复制至 LR5921(QQ) 处 {timestamp},五分钟有效"
         bind_list[msg.user] = (timestamp, time.time() + 300, msg.platform)
     Msg(
@@ -30,7 +32,7 @@ async def platform_bind(msg: Msg):
     )
 
 
-async def bind_check(msg: Msg):
+async def qq_bind(msg: Msg):
     """平台绑定确认"""
     content = "绑定失败，请确认完整复制了验证消息且在有效期内"
     kind = msg.kind[:2]

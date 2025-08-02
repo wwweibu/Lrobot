@@ -112,7 +112,7 @@ async def lr232_msg_deal(data):
                 if text_part:
                     content.append({
                         "type": "text",
-                        "data": {"text": text_part}
+                        "data": {"text": text_part.strip()}  # 去除 @ 后面跟着的空格
                     })
             if face_type in ["1", "3"]:
                 if face_id == "358":
@@ -148,7 +148,7 @@ async def lr232_msg_deal(data):
             if text_part:
                 content.append({
                     "type": "text",
-                    "data": {"text": text_part}
+                    "data": {"text": text_part.strip()}
                 })
         if attachments:
             for attachment in attachments:

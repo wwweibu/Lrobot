@@ -130,7 +130,7 @@ class AutoConfig:
                 data = yaml.safe_load(f) or {}
             data[key] = value
             with open(file_path, "w", encoding="utf-8") as f:
-                yaml.safe_dump(data, f, allow_unicode=True)
+                yaml.safe_dump(data, f, allow_unicode=True,sort_keys=False)
             self._config[key] = value  # 同步更新内存中的值
             self._config_hashes[file_path] = file_hash_get(file_path)  # 更新哈希值
         except Exception as e:

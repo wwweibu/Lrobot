@@ -4,6 +4,7 @@ import mimetypes
 from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
+from logic import image_compress, video_compress, record_compress
 from config import (
     config,
     future,
@@ -50,10 +51,10 @@ async def request_deal(url, data, tag, file=None):
     return response
 
 
-async def wechat_file_upload(filepath, type=None, url=None):
+async def wechat_file_upload(file_path, type=None, url=None):
     """文件上传"""
     query = "SELECT media_id, uploaded_at FROM user_media WHERE filepath = %s"
-    result = await database_query(query, (filepath,))
+    result = await database_query(query, (file_path,))
     if result:
         uploaded_at = result[0]["uploaded_at"]
         expire_time = uploaded_at + timedelta(days=3)
@@ -62,11 +63,18 @@ async def wechat_file_upload(filepath, type=None, url=None):
 
     url = f"{base_url}/media/upload"
     params = {"type": type}
-    mime_type, _ = mimetypes.guess_type(filepath)
+    file_stream = ""
+    if type == "image":
+        file_stream = image_compress(file_path)
+    elif type == "voice":
+        file_stream = record_compress(file_path, duration_limit_sec=60)
+    elif type == "video":
+        file_stream = await video_compress(file_path, target_size_mb=10)
+    mime_type, _ = mimetypes.guess_type(file_path)
     files = {
         "media": (
-            filepath,
-            open(filepath, "rb"),
+            file_path,
+            file_stream,  # open(file_path, "rb"),
             mime_type,
         )
     }
@@ -79,11 +87,13 @@ async def wechat_file_upload(filepath, type=None, url=None):
     if media_id:
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         query = """
-               INSERT INTO user_media (filepath, media_id, uploaded_at)
-               VALUES (%s, %s, %s)
-               ON DUPLICATE KEY UPDATE media_id = VALUES(media_id), uploaded_at = VALUES(uploaded_at)
-           """
-        await database_update(query, (filepath, media_id, now_str))
+            INSERT INTO user_media (filepath, media_id, uploaded_at)
+            VALUES (%s, %s, %s) AS new
+            ON DUPLICATE KEY UPDATE 
+                media_id = new.media_id,
+                uploaded_at = new.uploaded_at
+        """
+        await database_update(query, (file_path, media_id, now_str))
     return media_id
 
 
@@ -114,20 +124,20 @@ async def wechat_dispatch(
     <CreateTime>{seq[:-2]}</CreateTime>"""
 
     if msg_type == "text":
-        content = data.get("text", "").replace("\n", "\u2028")  # 替换换行符
+        content = data.get("text", "").replace("\n", "。")  # 替换换行符 "\u2028"
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Content><![CDATA[{content}]]></Content>\n"""
 
     elif msg_type == "image":
         file = data.get("file", "")
-        media_id = await wechat_file_upload(msg_type, file)
+        media_id = await wechat_file_upload(file, msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
 
     elif msg_type == "record":
         msg_type = "voice"
         file = data.get("file", "")
-        media_id = await wechat_file_upload(msg_type, file)
+        media_id = await wechat_file_upload(file, msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Voice><MediaId><![CDATA[{media_id}]]></MediaId></Voice>\n"""
 
@@ -135,7 +145,7 @@ async def wechat_dispatch(
         file = data.get("file", "")
         title = data.get("title", "")
         desc = data.get("description", "")
-        media_id = await wechat_file_upload(msg_type, file)
+        media_id = await wechat_file_upload(file, msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Video><MediaId><![CDATA[{media_id}]]></MediaId>
         <Title><![CDATA[{title}]]></Title>
@@ -171,12 +181,4 @@ async def wechat_dispatch(
                     <Url><![CDATA[{url}]]></Url>
                     </item></Articles>\n"""
     base += "</xml>"
-    base = f"""<xml>
-      <ToUserName><![CDATA[orHObs--jF-OZjwOu0NLmd6MIox8]]></ToUserName>
-      <FromUserName><![CDATA[gh_a0180524f340]]></FromUserName>
-      <CreateTime>1753166758</CreateTime>
-      <MsgType><![CDATA[text]]></MsgType>
-      <Content><![CDATA[你
-      好]]></Content>
-    </xml>"""
     future.set(seq, base)

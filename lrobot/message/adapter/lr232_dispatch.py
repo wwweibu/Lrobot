@@ -5,6 +5,7 @@ import base64
 
 from .acess_token import access_tokens
 from config import loggers, connect, future
+from logic import record_convert, video_compress
 
 adapter_logger = loggers["adapter"]
 
@@ -16,7 +17,7 @@ async def request_deal(url, data, tag):
     client = connect(True)
     try:
         response = await client.post(
-            url, json=data, headers=headers, timeout=10.0
+            url, json=data, headers=headers, timeout=60.0
         )
     except Exception as e:
         raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data}")
@@ -55,7 +56,7 @@ async def lr232_dispatch(
     content_parts = []
     file_parts = []
     for item in content:
-        if item["type"] in ["image", "record", "video"]:
+        if item["type"] in ["image", "record", "video", "file"]:
             if "file" in item["data"]:
                 file_parts.append(item["data"]["file"])
         elif item["type"] == "text":
@@ -76,7 +77,6 @@ async def lr232_dispatch(
         seq.append(response.get("id"))
     for file in file_parts:
         media = await lr232_file_upload(file, url=upload_url)
-        # TODO 解析出 media
         data = {
             "msg_type": 7,
             tag: msg_id,
@@ -86,30 +86,36 @@ async def lr232_dispatch(
         msg_seq += 1
 
         response = await request_deal(url, data, "私聊发送")
-        print(response)
         seq.append(response.get("id"))
     future.set(num, seq)
 
 
-async def lr232_file_upload(filepath, type=None, url=None):
+async def lr232_file_upload(file_path, type=None, url=None):
     """文件上传"""
-    with open(filepath, "rb") as f:
-        file_data = base64.b64encode(f.read()).decode(
-            "utf-8"
-        )  # 读取本地文件并编码为 base64
-    file_name = os.path.basename(filepath)
+    file_name = os.path.basename(file_path)
     if (
             file_name.endswith(".png")
             or file_name.endswith(".png")
             or file_name.endswith(".jpeg")
+            or file_name.endswith(".gif")
     ):
         file_type = 1
     elif file_name.endswith(".mp4"):
         file_type = 2
     elif file_name.endswith(".silk"):
         file_type = 3
+    elif file_name.endswith(".mp3"):
+        file_type = 3
+        file_path = record_convert(file_path)
     else:
         raise Exception(f"文件上传失败 -> 文件类型不支持 | 文件名 :{file_name}")
+    with open(file_path, "rb") as f:
+        file_data = base64.b64encode(f.read()).decode(
+            "utf-8"
+        )  # 读取本地文件并编码为 base64
+    if file_type == 2:
+        # 上限 10 Mb，虽然文档里没写
+        file_data = await video_compress(file_path, target_size_mb=10, return_type=1)
     data = {
         "file_type": file_type,
         "srv_send_msg": False,

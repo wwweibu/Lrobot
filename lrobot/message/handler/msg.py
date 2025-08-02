@@ -1,6 +1,5 @@
 """消息类"""
 
-import json
 import time
 
 from config import config
@@ -138,15 +137,21 @@ class Msg:
                 content_join += f"[骰子:{dice_result}]"
             elif msg_type == "reply":
                 reply_content = msg_data.get("content", [])
-                content_join += f"[回复:[{Msg.content_join(reply_content)}]]"
+                if reply_content:
+                    content_join += f"[回复:[{Msg.content_join(reply_content)}]]"
+                else:
+                    content_join += f"[回复:[{msg_data.get('id')}]"
             elif msg_type == "forward":
                 forward_content = msg_data.get("content", [])
-                inner_text = ""
-                for node in forward_content:
-                    inner_msg_list = node.get("message", [])
-                    inner_text += Msg.content_join(inner_msg_list)
-                    inner_text += "|"
-                content_join += f"[转发:[{inner_text}]]"
+                if forward_content:
+                    inner_text = ""
+                    for node in forward_content:
+                        inner_msg_list = node.get("message", [])
+                        inner_text += Msg.content_join(inner_msg_list)
+                        inner_text += "|"
+                    content_join += f"[转发:[{inner_text}]]"
+                else:
+                    content_join += f"[转发:[{msg_data.get('id')}]]"
             elif msg_type == "poke":
                 content_join += "[戳戳:戳一戳]"
             elif msg_type == "mface":
@@ -205,7 +210,7 @@ class Msg:
                     {
                         "type": "face",
                         "data": {
-                            "id": k for k, v in config["emojis"].items() if v == value
+                            "id": next((k for k, v in config["emojis"].items() if v == value), None)
                         },
                     }
                 )
@@ -226,15 +231,18 @@ class Msg:
             elif prefix == "戳戳":
                 segments.append({"type": "poke", "data": {"type": "1", "id": "1"}})
             elif prefix == "动画表情":
-                if "|" in value:  # 发送格式: summary|key|emoji_id|emoji_package_id(LR5921)
-                    summary, key, emoji_id, emoji_package_id = value.split("|")
-                    segments.append({"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
-                                                               "emoji_package_id": emoji_package_id}})
+                if "|" in value:  # 发送格式: summary|name(LR5921)
+                    summary, name = value.split("|")
+                    if name in config["shop_emojis"]:
+                        raw = config["shop_emojis"][name]
+                        key, emoji_id, emoji_package_id = raw.split("|")
+                        segments.append({"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
+                                                                   "emoji_package_id": emoji_package_id}})
                 else:  # 判断格式: summary;发送格式: summary(BILI)
                     segments.append({"type": "image", "data": {"summary": value}})
             elif prefix == "图片":
-                if "|" in value:  # 发送格式: file|summary(LR5921)
-                    file, summary = value.split("|")
+                if "|" in value:  # 发送格式: summary|file(LR5921)
+                    summary, file = value.split("|")
                     segments.append(
                         {"type": "image", "data": {"file": file, "summary": summary}}
                     )

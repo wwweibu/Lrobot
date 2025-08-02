@@ -157,6 +157,9 @@ async def lr5921_dispatch(
             url = f"{base_url}/send_forward_msg"
             tag1 = "messages"
             content = content[0].get("data").get("content")
+        elif content[0].get("type") == "poke":
+            url = f"{base_url}/send_poke"
+            tag1 = "111"
         else:
             url = f"{base_url}/send_private_msg"
             tag1 = "message"
@@ -171,6 +174,10 @@ async def lr5921_dispatch(
             url = f"{base_url}/send_forward_msg"
             tag1 = "messages"
             content = content[0].get("data").get("content")
+        elif content[0].get("type") == "poke":
+            url = f"{base_url}/send_poke"
+            tag1 = "user_id"
+            content = user
         else:
             url = f"{base_url}/send_group_msg"
             tag1 = "message"

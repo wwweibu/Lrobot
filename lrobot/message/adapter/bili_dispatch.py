@@ -71,7 +71,7 @@ async def bili_dispatch(
                 image_parts.append(item["data"]["file"])
             elif "summary" in item["data"]:
                 summary = item["data"]["summary"]
-                content_parts.append(f"[{summary}]")
+                content_parts.append(summary)
         elif item["type"] == "text":
             text = item["data"].get("text", "")
             content_parts.append(text)

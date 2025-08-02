@@ -9,22 +9,14 @@ from logic import data
 async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
-    # msg = Msg(
-    #     platform=msg.platform,
-    #     kind=f"私聊发送",
-    #     event="发送",
-    #     user=msg.user,
-    #     content=Msg.content_disjoin(f"[动画表情:tv_doge]12346[动画表情:123]"),
-    #     seq=msg.seq,
-    # )
-
     msg = Msg(
         platform=msg.platform,
-        kind=f"私聊发送",
+        kind=f"{kind}发送",
         event="发送",
-        user=msg.user,
-        content=702,
+        content=f"[视频:{path}/storage/file/firefly/test.mp4]",
         seq=msg.seq,
+        user=msg.user,
+        group=msg.group
     )
 
     # try:

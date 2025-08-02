@@ -92,12 +92,15 @@ async def lr5921_msg_deal(data):
             "group_msg_emoji_like": "群聊回应",
             "essence": "群聊设精",
             "notify": "消息提醒",
+            "group_card": "群名片更改"
         }
         kind = kind_map.get(notice_type, "未知消息类型")
         if kind.endswith("撤回"):
             operator = data.get("operator_id") if data.get("operator_id") else user
             content = Msg.content_disjoin(f"{operator} 撤回了 {user} 的消息 - ")
             from message.handler.msg_pool import MsgPool
+            if not seq:
+                seq = data.get("message_id")  # 群聊撤回
 
             withdraw_msg = MsgPool.seq_get(str(seq))
             if withdraw_msg:  # 接收过原消息才能显示撤回

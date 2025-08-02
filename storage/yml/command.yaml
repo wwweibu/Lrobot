@@ -41,24 +41,25 @@ commands:
   state: []
   users:
   - 微部
-- content:
-  - /测试1
-  - '[at:any] '
-  func: 测试
+- func: 测试
   function: test_1
-  groups:
-  - 内测群
-  judge: contains
+  content:
+  - /测试1
+  - '[表情:打call]'
+  judge: equal
   kind:
   - 私聊接收
   - 群聊接收
+  state: []
   platforms:
   - BILI
   - WECHAT
   - LR5921
   - LR232
-  state: []
-  users: []
+  users:
+  - 微部
+  groups:
+  - 内测群
 - content: []
   func: 欢迎
   function: welcome_all
@@ -174,33 +175,33 @@ commands:
   - 待入会
   - 入会状态2
   users: []
-- content:
+- func: 绑定_验证
+  function: platform_bind
+  content:
   - /绑定
-  func: 绑定_验证
-  function: bind_platform
-  groups: []
   judge: equal
   kind:
   - 私聊接收
+  state: []
   platforms:
   - LR232
   - WECHAT
   - BILI
   - QQAPP
-  state: []
   users: []
-- content:
-  - 请将整条消息复制至 LR5921(QQ) 处
-  func: 绑定_确认
-  function: bind_check
   groups: []
+- func: 绑定_确认
+  function: qq_bind
+  content:
+  - 请将整条消息复制至 LR5921(QQ) 处
   judge: contains
   kind:
-  - 私聊文字消息
+  - 私聊接收
+  state: []
   platforms:
   - LR5921
-  state: []
   users: []
+  groups: []
 - content:
   - '786159347'
   func: 测试群_入群
@@ -266,4 +267,306 @@ commands:
   platforms:
   - LR5921
   state: []
+  users: []
+- content:
+  - 航海日记提示
+  func: 航海日记_提示
+  function: diary_prompt
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_1
+  - diary_2
+  - diary_3
+  - diary_4
+  - diary_5
+  - diary_6
+  - diary_7
+  - diary_8
+  - diary_9
+  - diary_10
+  - diary_11
+  - diary_12
+  - diary_13
+  - diary_14
+  - diary_15
+  - diary_16
+  users: []
+- content:
+  - 小推的航海日记
+  func: 航海日记_1
+  function: diary_1
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state: []
+  users: []
+- content:
+  - logic
+  func: 航海日记_2
+  function: diary_2
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_1
+  users: []
+- content:
+  - ilikelogic
+  func: 航海日记_3
+  function: diary_3
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_2
+  users: []
+- content:
+  - 推协
+  func: 航海日记_4
+  function: diary_4
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_3
+  users: []
+- content:
+  - love
+  func: 航海日记_5
+  function: diary_5
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_4
+  users: []
+- content:
+  - dolphin
+  func: 航海日记_6
+  function: diary_6
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_5
+  users: []
+- content:
+  - 9527
+  func: 航海日记_7
+  function: diary_7
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_6
+  users: []
+- content:
+  - 082510
+  func: 航海日记_8
+  function: diary_8
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_7
+  users: []
+- content:
+  - unlock
+  func: 航海日记_9
+  function: diary_9
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_8
+  users: []
+- content:
+  - reversethree
+  func: 航海日记_10
+  function: diary_10
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_9
+  users: []
+- content:
+  - run
+  func: 航海日记_11
+  function: diary_11
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_10
+  users: []
+- content:
+  - <=>
+  func: 航海日记_12
+  function: diary_12
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_11
+  users: []
+- content:
+  - jump
+  func: 航海日记_13
+  function: diary_13
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_12
+  users: []
+- content:
+  - 1001
+  func: 航海日记_14
+  function: diary_14
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_13
+  users: []
+- content:
+  - 致爱丽丝
+  func: 航海日记_15
+  function: diary_15
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_14
+  users: []
+- content:
+  - forest
+  func: 航海日记_16
+  function: diary_16
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_15
+  users: []
+- content:
+  - youdied
+  func: 航海日记_17
+  function: diary_17
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - diary_16
   users: []

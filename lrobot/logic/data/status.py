@@ -51,8 +51,70 @@ async def status_check(user=None, status=None):
 async def status_add(user, status, information="无信息"):
     """添加用户状态，自动同步到各平台"""
     user = str(user)
-    if status in ["qq", "LR232", "WECHAT", "BILI", "QQAPP"]:
+    if status == "qq":
         await status_edit(user, status, information)
+        return
+    elif status in ["LR232", "WECHAT", "BILI", "QQAPP"]:
+        await status_edit(user, status, information)
+
+        def extract_base_and_merged(result):
+            """分离绑定状态与其他状态"""
+            base_status, base_info, merged_status, merged_info = [], [], [], []
+            if result:
+                s_list = json.loads(result[0]["status"]) or []
+                i_list = json.loads(result[0]["information"]) or []
+                for s, i in zip(s_list, i_list):
+                    if s in ["qq", "LR232", "WECHAT", "BILI", "QQAPP"]:
+                        base_status.append(s)
+                        base_info.append(i)
+                    else:
+                        merged_status.append(s)
+                        merged_info.append(i)
+            return base_status, base_info, merged_status, merged_info
+
+        # 此处进行平台绑定状态合并
+        qq_result = await database_query(
+            "SELECT status, information FROM user_status WHERE user = %s", (user,)
+        )
+        platform_result = await database_query(
+            "SELECT status, information FROM user_status WHERE user = %s", (str(information),)
+        )
+        qq_status, qq_info, status_1, info_1 = extract_base_and_merged(qq_result)
+        platform_status, platform_info, status_2, info_2 = extract_base_and_merged(platform_result)
+
+        for s, i in zip(status_2, info_2):
+            if s not in status_1:
+                status_1.append(s)
+                info_1.append(i)
+
+        write_data = [
+            (user, qq_status, qq_info),
+            (str(information), platform_status, platform_info),
+        ]
+
+        for idx, platform in enumerate(qq_status):
+            # 同步已绑定平台状态
+            write_data.append((qq_info[idx], platform_status, platform_info))
+
+        for u, base_status, base_info in write_data:
+            final_status = base_status + status_1
+            final_info = base_info + info_1
+
+            await database_update(
+                """
+                INSERT INTO user_status (user, status, information)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                    status = VALUES(status),
+                    information = VALUES(information)
+                """,
+                (
+                    u,
+                    json.dumps(final_status),
+                    json.dumps(final_info),
+                ),
+            )
+
         return
 
     qq = await status_check(user, "qq")
@@ -136,12 +198,12 @@ async def status_edit(user, status, information=None):
     if current_status:
         await database_update(
             """
-                INSERT INTO user_status (user, status, information)
-                VALUES (%s, %s, %s) AS new_val
-                ON DUPLICATE KEY UPDATE
-                    status = new_val.status,
-                    information = new_val.information
-                """,
+            INSERT INTO user_status (user, status, information)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+                status = VALUES(status),
+                information = VALUES(information)
+            """,
             (
                 user,
                 json.dumps(current_status),

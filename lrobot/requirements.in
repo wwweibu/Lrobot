@@ -11,3 +11,7 @@ python-multipart
 requests
 PyNaCl
 jionlp
+av
+pilk
+ffmpeg-python
+Pillow
