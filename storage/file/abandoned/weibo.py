@@ -1,4 +1,4 @@
-# 微博粉丝服务平台消息接收/发送
+"""微博粉丝服务平台消息接收/发送"""
 import json
 import time
 import hashlib

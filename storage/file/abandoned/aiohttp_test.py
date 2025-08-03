@@ -1,4 +1,4 @@
-# 测试正向代理代码，使用需要安装 flask
+"""测试正向代理代码，使用需要安装 flask"""
 import os
 import asyncio
 import aiohttp

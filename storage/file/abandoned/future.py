@@ -1,4 +1,4 @@
-# 关于 future 的一项测试，上半部分是不能成功唤醒等待协程的代码，下半部分是可以唤醒的代码，使用需安装 flask
+"""关于 future 的一项测试，上半部分是不能成功唤醒等待协程的代码，下半部分是可以唤醒的代码，使用需安装 flask"""
 # import asyncio
 # from flask import Flask
 #

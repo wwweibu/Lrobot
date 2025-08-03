@@ -1,4 +1,4 @@
-# 微信开放平台测试代码
+"""微信开放平台测试代码"""
 import hashlib
 import time
 import requests

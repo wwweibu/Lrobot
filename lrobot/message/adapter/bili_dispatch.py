@@ -5,9 +5,7 @@ import json
 import time
 import mimetypes
 
-from message.handler.msg import Msg
 from config import config, loggers, connect, future
-from logic import status_add, status_delete, status_check
 
 adapter_logger = loggers["adapter"]
 
@@ -136,30 +134,6 @@ async def bili_file_upload(filepath, type=None, url=None):
     response = await request_deal(url, "post", params, "私聊文件上传", files)
     data = response["data"]
     return [data["image_url"], data["image_height"], data["image_width"]]
-
-
-async def bili_fan_get():
-    """私聊粉丝获取  # TODO 改为创建添加消息，集中处理添加"""
-    url = "https://api.bilibili.com/x/relation/fans"
-
-    params = {
-        "vmid": config["BILI_UID"],
-    }
-    response = await request_deal(url, "get", params, "私聊测试")
-    fan_list = response["data"]["list"]
-    fan_users = await status_check(status="fan")
-    old_fan = fan_users[0] if fan_users else None
-    old_fan_index = None
-    if old_fan:
-        for idx, item in enumerate(fan_list):
-            if str(item["mid"]) == str(old_fan):
-                old_fan_index = idx
-                break
-        for i in range(old_fan_index):
-            await bili_dispatch(Msg.content_disjoin("感谢关注！"), user=fan_list[i]["mid"])
-        await status_delete(old_fan, "fan")
-    new_fan = fan_list[0]["mid"]
-    await status_add(new_fan, "fan")
 
 
 async def bili_test(num):

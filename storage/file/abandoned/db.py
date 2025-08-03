@@ -1,4 +1,4 @@
-# 数据库连接池及测试
+"""数据库连接池及测试"""
 import re
 import asyncio
 import aiosqlite

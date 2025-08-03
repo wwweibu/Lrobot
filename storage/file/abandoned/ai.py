@@ -1,4 +1,4 @@
-# ai 相关逻辑
+"""ai 相关逻辑"""
 # 使用ai时需要更改数据库展示页面，处理blob类型数据，需要修改 get_database函数中：all_data[table] = [serialize_row(row) for row in rows]
 def serialize_row(row: dict) -> dict:
     """序列化数据库行，处理 BLOB 字段为 base64 字符串"""

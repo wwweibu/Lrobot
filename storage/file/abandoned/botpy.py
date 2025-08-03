@@ -1,4 +1,4 @@
-# botpy 旧逻辑，使用需安装 botpy
+"""botpy 旧逻辑，使用需安装 botpy"""
 # 把这两个函数在botpy/api.py的最下面，修改后可上传本地文件
 async def post_group_file(
     self,

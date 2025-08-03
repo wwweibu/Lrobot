@@ -41,7 +41,7 @@ class MsgPool:
     def seq_get(cls, seq):
         """根据序号获取消息"""
         for msg_data in msg_pool.values():
-            if msg_data["seq"] == seq:
+            if msg_data.get("seq") == seq:
                 return msg_data
         return None
 

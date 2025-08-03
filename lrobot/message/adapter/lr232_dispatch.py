@@ -26,7 +26,10 @@ async def request_deal(url, data, tag):
             f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data}"
         )
     json_resp = response.json()
-    print(json_resp)
+    adapter_logger.info(
+        f"[LR232] {tag} 成功 -> {json_resp}",
+        extra={"event": "消息发送"},
+    )
     return json_resp
 
 
@@ -46,7 +49,7 @@ async def lr232_dispatch(
     else:
         url = f"https://api.sgroup.qq.com/v2/groups/{group}/messages"
         upload_url = f"https://api.sgroup.qq.com/v2/groups/{group}/files"
-    if kind.endswith("添加"):
+    if kind.endswith("添加发送"):
         tag = "event_id"
     else:
         tag = "msg_id"
@@ -73,7 +76,6 @@ async def lr232_dispatch(
         }
         msg_seq += 1
         response = await request_deal(url, data, "私聊发送")
-        print(response)
         seq.append(response.get("id"))
     for file in file_parts:
         media = await lr232_file_upload(file, url=upload_url)

@@ -81,63 +81,64 @@ async def lr5921_msg_deal(data):
     elif post_type == "notice":
         notice_type = data.get("notice_type")
         kind_map = {
+            "group_upload": "群聊文件",
             "friend_add": "私聊添加",
+            "group_increase": "群聊添加",
+            "group_decrease": "群聊删除",
             "friend_recall": "私聊撤回",
+            "group_recall": "群聊撤回",
             "group_admin": "群聊管理",
             "group_ban": "群聊禁言",
-            "group_decrease": "群聊减少",
-            "group_increase": "群聊增加",
-            "group_recall": "群聊撤回",
-            "group_upload": "群聊文件",
             "group_msg_emoji_like": "群聊回应",
             "essence": "群聊设精",
+
             "notify": "消息提醒",
             "group_card": "群名片更改"
         }
         kind = kind_map.get(notice_type, "未知消息类型")
-        if kind.endswith("撤回"):
+        if kind == "群聊文件":
+            return  # 会在群聊消息中处理(两边一样)
+        elif kind == "群聊添加":
+            if data.get("sub_type") == "invite":
+                content = f"{data.get('operator_id')} 邀请 {user} 加入群 {data.get('group_id')}"
+            else:
+                content = f"{data.get('operator_id')} 同意 {user} 加入群 {data.get('group_id')}"
+            return
+        elif kind.endswith("删除"):
+            if data.get("sub_type").startswith("kick"):  # kick or kick_me
+                content = f"{data.get('operator_id')} 将 {data.get('user_id')} 踢出群 {data.get('group_id')}"
+            else:
+                content = f"{data.get('user_id')} 退出群 {data.get('group_id')}"
+            return
+        elif kind.endswith("撤回"):
             operator = data.get("operator_id") if data.get("operator_id") else user
-            content = Msg.content_disjoin(f"{operator} 撤回了 {user} 的消息 - ")
+            content = Msg.content_disjoin(f"{operator} 撤回了 {user} 的消息")
             from message.handler.msg_pool import MsgPool
-            if not seq:
-                seq = data.get("message_id")  # 群聊撤回
-
             withdraw_msg = MsgPool.seq_get(str(seq))
             if withdraw_msg:  # 接收过原消息才能显示撤回
-                content += withdraw_msg.content
+                content += withdraw_msg.get("content")  # 返回的是 list
         elif kind.endswith("管理"):
             if data.get("sub_type") == "set":
                 content = f"{data.get('group_id')} 增加管理 {data.get('user_id')}"
             else:
                 content = f"{data.get('group_id')} 减少管理 {data.get('user_id')}"
+            return
         elif kind.endswith("禁言"):
             content = "开启" if data.get("sub_type") == "lift_ban" else "关闭"
-        elif kind.endswith("减少"):
-            if data.get("sub_type") == "kick":
-                content = f"{data.get('operator_id')} 将 {data.get('user_id')} 踢出群 {data.get('group_id')}"
-            else:
-                content = f"{data.get('user_id')} 退出群 {data.get('group_id')}"
-        elif kind.endswith("增加"):
-            if data.get("sub_type") == "invite":
-                content = f"{data.get('operator_id')} 邀请 {user} 加入群 {data.get('group_id')}"
-            else:
-                content = f"{data.get('operator_id')} 同意 {user} 加入群 {data.get('group_id')}"
-        elif kind == "群聊文件":
-            return  # 会在群聊消息中处理(两边一样)
+            return
         elif kind.endswith("回应"):
-            # count 字段都为一
-            for item in data.get("likes", []):
-                emoji_id = item.get("emoji_id")
-                face = config["emojis"].get(int(emoji_id), "未知表情")
-                content += f"[表情:{face}]"
+            # count 字段都为一,不会累加且列表只有一项
+            like_list = data.get("likes", [])
+            emoji_id = like_list[0].get("emoji_id")
+            content = [{"type": "face", "data": {"id": emoji_id}}]
         elif kind.endswith("设精"):
             sender_id = data.get("sender_id")
-            if str(sender_id) == "0":
+            if str(sender_id) == "0":  # 自己设置自己
                 sender_id = "3502644244"
             content = f"{data.get('operator_id')} 给 {sender_id} 的消息设置了精华"
         elif kind == "消息提醒":
             sub_type = data.get("sub_type")
-            if sub_type == "input_status":
+            if sub_type == "input_status":  # 输入状态
                 return
             elif sub_type == "poke":
                 if group:
@@ -156,10 +157,12 @@ async def lr5921_msg_deal(data):
             elif sub_type == "title":
                 kind = "群聊头衔"
                 content = f"{user} 被设置头衔为 {data.get('title')}"
+                return
             elif sub_type == "profile_like":
                 kind = "私聊点赞"
                 source = data.get("operator_id")
                 content = f"{data.get('operator_nick')} 给你点赞了"
+                return
             elif sub_type == "group_name":  # 群名称修改
                 return
     else:

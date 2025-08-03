@@ -13,16 +13,16 @@ async def test_1(msg: Msg):
         platform=msg.platform,
         kind=f"{kind}发送",
         event="发送",
-        content=f"[视频:{path}/storage/file/firefly/test.mp4]",
+        content=f"12[图片:{path}/storage/file/firefly/R.gif]",
         seq=msg.seq,
         user=msg.user,
         group=msg.group
     )
 
-    # try:
-    #     _future = future.get(msg.num)
-    #     response = await asyncio.wait_for(_future, timeout=20)
-    #     print(response)
+    try:
+        _future = future.get(msg.num)
+        response = await asyncio.wait_for(_future, timeout=20)
+        print(response)
     #     await asyncio.sleep(5)
     #     Msg(
     #         platform=msg.platform,
@@ -32,8 +32,8 @@ async def test_1(msg: Msg):
     #         seq=response[0]
     #     )
     #
-    # except asyncio.TimeoutError:
-    #     print("111111111")
+    except asyncio.TimeoutError:
+        print("111111111")
 
 
 # 以下为测试成功但没有使用的功能

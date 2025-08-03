@@ -3,6 +3,7 @@
 import re
 
 from message.adapter import *
+from message.handler.msg import Msg
 
 msg_logger = loggers["message"]
 

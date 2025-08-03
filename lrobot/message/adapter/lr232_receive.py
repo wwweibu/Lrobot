@@ -75,24 +75,16 @@ async def lr232_msg_deal(data):
     if t not in kind_map:
         raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
     kind = kind_map.get(t, "未知消息类型")
-    if kind.endswith("删除"):
-        return  # 不处理
-    if kind not in ["私聊接收", "群聊接收"]:
-        if kind.startswith("私聊"):
-            user_id = d.get("openid")
-            group_id = None
-        else:
-            user_id = d.get("op_member_openid")
-            group_id = d.get("group_openid")
+    if kind == "私聊添加":  # 其他三种不处理
+        user_id = d.get("openid")
         Msg(
             platform="LR232",
             kind=kind,
             event="处理",
             seq=event_id,
             user=user_id,
-            group=group_id,
         )
-    else:
+    elif kind.endswith("接收"):
         id = d.get("id")  # 消息id
         raw_content = d.get("content")
         author = d.get("author", {})
