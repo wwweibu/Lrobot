@@ -2,7 +2,7 @@
 
 from .acess_token import refresh_tokens
 from .bili_dispatch import *
-from .bili_receive import bili_receive, bili_fan_get
+from .bili_receive import bili_receive, bili_fan_get, bili_msg_get
 from .lr232_dispatch import *
 from .lr232_receive import router as LR232_router
 from .lr5921_dispatch import *

@@ -46,6 +46,10 @@ commands:
   content:
   - /测试1
   - '[表情:打call]'
+  - '[文件:any]'
+  - '[语音:any]'
+  - '[视频:any]'
+  - '[图片:any]'
   judge: equal
   kind:
   - 私聊接收

@@ -5,10 +5,16 @@ import base64
 
 from .acess_token import access_tokens
 from config import loggers, connect, future
-from logic import record_convert, video_compress
+from logic import record_convert, video_compress, image_compress, record_compress
 
 adapter_logger = loggers["adapter"]
 
+
+def data_format(data):
+    """转换数据中文件源码"""
+    if "file_data" in data:
+        length = len(data["file_data"])
+        data["file_data"] = f"<base64 length={length}>"
 
 async def request_deal(url, data, tag):
     """请求统一处理"""
@@ -16,18 +22,23 @@ async def request_deal(url, data, tag):
     headers = {"Authorization": f"QQBot {token}"}
     client = connect(True)
     try:
-        response = await client.post(
-            url, json=data, headers=headers, timeout=60.0
-        )
+        if tag.endswith("撤回"):
+            response = await client.delete(
+                url, headers=headers, timeout=60.0
+            )
+        else:
+            response = await client.post(
+                url, json=data, headers=headers, timeout=60.0
+            )
     except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data}")
+        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data_format(data)}")
     if response.status_code != 200:
         raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data}"
+            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data_format(data)}"
         )
     json_resp = response.json()
     adapter_logger.info(
-        f"[LR232] {tag} 成功 -> {json_resp}",
+        f"[LR232] {tag} 成功 -> {data_format(data)} | {json_resp}",
         extra={"event": "消息发送"},
     )
     return json_resp
@@ -39,10 +50,10 @@ async def lr232_dispatch(
         user=None,
         group=None,
         num=None,
-        msg_id=None,
-        msg_seq=None,
+        seq=None,
+        order=None
 ):
-    """LR232 消息发送/私聊 or 群聊添加"""
+    """LR232 消息发送/消息添加发送"""
     if kind.startswith("私聊"):
         url = f"https://api.sgroup.qq.com/v2/users/{user}/messages"
         upload_url = f"https://api.sgroup.qq.com/v2/users/{user}/files"
@@ -53,8 +64,8 @@ async def lr232_dispatch(
         tag = "event_id"
     else:
         tag = "msg_id"
-    if not msg_seq:
-        msg_seq = 1
+    if not order:
+        order = 1
 
     content_parts = []
     file_parts = []
@@ -66,35 +77,35 @@ async def lr232_dispatch(
             text = item["data"].get("text", "")
             content_parts.append(text)
     final_content = "".join(content_parts)
-    seq = []
+    seq_list = []
     if final_content:
         data = {
             "content": final_content,
             "msg_type": 0,
-            tag: msg_id,
-            "msg_seq": msg_seq
+            tag: seq,
+            "msg_seq": order
         }
-        msg_seq += 1
+        order += 1
         response = await request_deal(url, data, "私聊发送")
-        seq.append(response.get("id"))
+        seq_list.append(response.get("id"))
     for file in file_parts:
         media = await lr232_file_upload(file, url=upload_url)
         data = {
             "msg_type": 7,
-            tag: msg_id,
-            "msg_seq": msg_seq,
+            tag: seq,
+            "msg_seq": order,
             "media": media
         }
-        msg_seq += 1
+        order += 1
 
         response = await request_deal(url, data, "私聊发送")
-        seq.append(response.get("id"))
-    future.set(num, seq)
+        seq_list.append(response.get("id"))
+    future.set(num, seq_list)
 
 
-async def lr232_file_upload(file_path, type=None, url=None):
+async def lr232_file_upload(file, type=None, url=None):
     """文件上传"""
-    file_name = os.path.basename(file_path)
+    file_name = os.path.basename(file)
     if (
             file_name.endswith(".png")
             or file_name.endswith(".png")
@@ -102,22 +113,23 @@ async def lr232_file_upload(file_path, type=None, url=None):
             or file_name.endswith(".gif")
     ):
         file_type = 1
+        file_data = await image_compress(file, target_size_mb=20, return_type=1)
     elif file_name.endswith(".mp4"):
         file_type = 2
+        # 上限 10 Mb，虽然文档里没写
+        file_data = await video_compress(file, target_size_mb=9.99, return_type=1)
     elif file_name.endswith(".silk"):
         file_type = 3
+        with open(file, "rb") as f:
+            file_data = base64.b64encode(f.read()).decode("utf-8")
     elif file_name.endswith(".mp3"):
         file_type = 3
-        file_path = record_convert(file_path)
+        file_path = await record_convert(file)
+        with open(file_path, "rb") as f:
+            file_data = base64.b64encode(f.read()).decode("utf-8")
     else:
         raise Exception(f"文件上传失败 -> 文件类型不支持 | 文件名 :{file_name}")
-    with open(file_path, "rb") as f:
-        file_data = base64.b64encode(f.read()).decode(
-            "utf-8"
-        )  # 读取本地文件并编码为 base64
-    if file_type == 2:
-        # 上限 10 Mb，虽然文档里没写
-        file_data = await video_compress(file_path, target_size_mb=10, return_type=1)
+
     data = {
         "file_type": file_type,
         "srv_send_msg": False,
@@ -127,7 +139,7 @@ async def lr232_file_upload(file_path, type=None, url=None):
     return response
 
 
-async def lr232_withdraw(seq, user, kind):
+async def lr232_withdraw(seq, user=None, kind=None):
     """LR232 撤回消息"""
     if kind.startswith("私聊"):
         url = f"https://api.sgroup.qq.com/v2/users/{user}/messages/{seq}"

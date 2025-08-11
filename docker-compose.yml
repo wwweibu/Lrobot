@@ -8,41 +8,40 @@ services:
       - ./lrobot/logic:/app/logic  # data 及 command 模块热更新
       - ./storage:/app/storage  # 存储数据
       - ./lrobot/web/frontend:/app/web/frontend  # vue 的打包文件热更新
-      - ./config.py:/app/config.py  # 挂载这个为了共享而不是热更新
-      - ./secret.py:/app/secret.py
+      - ./config.py:/app/config.py  # 挂载这个为了共享函数而不是热更新
+      - ./secret.py:/app/secret.py  # 同上
     environment:
-      - TZ=Asia/Shanghai
-      - PYTHONUNBUFFERED=1
+      - TZ=Asia/Shanghai  # 时区-上海
+      - PYTHONUNBUFFERED=1  # 不使用缓冲
     depends_on: # 先启动
       - mongodb
       - mysql
 
   napcat:
-    environment:
-      # 时区-上海
-      - TZ=Asia/Shanghai
-      # 需要执行 id -u 和 id -g 获取这两个值
-      - NAPCAT_UID=1000
-      - NAPCAT_GID=1000
+    image: mlikiowa/napcat-docker:latest
+    container_name: napcat
     ports:
       - "3001:3000"
       - "3002:3001"
       - "6099:6099"
-    container_name: napcat
-    image: mlikiowa/napcat-docker:latest
     volumes:
       - ./storage/data/napcat:/app/napcat
-      - ./storage/data/napcat/config/QQ:/app/napcat/config/QQ
+      - ./storage/data/napcat/config/QQ:/app/napcat/config/QQ  # 必须挂载此项以创建 QQ 文件夹
       - ./storage/file:/app/storage/file  # 发送文件
+    environment:
+      - TZ=Asia/Shanghai
+      # linux 中需要执行 id -u 和 id -g 获取这两个值
+      - NAPCAT_UID=1000
+      - NAPCAT_GID=1000
 
   command:
     build: ./command
     container_name: command
-    restart: always
     volumes:
       - ./config.py:/app/config.py
       - ./storage/yml:/app/storage/yml  # 配置信息
       - ./storage/lrobot.pem:/app/storage/lrobot.pem  # 密钥
+    restart: always # 自动重启
     environment:
       - TZ=Asia/Shanghai
     depends_on:
@@ -52,27 +51,27 @@ services:
   mongodb:
     image: mongo:4.4
     container_name: mongodb
-    restart: always
     ports:
       - "5924:27017"
     volumes:
-      - ./storage/data/mongodb:/data/db
-      - ./storage/data/backup:/app/backup
+      - ./storage/data/mongodb:/data/db  # 数据存储
+      - ./storage/data/backup:/app/backup # 备份
+    restart: always
     environment:
       - TZ=Asia/Shanghai
 
   mysql:
     image: mysql:8.0
     container_name: mysql
-    restart: always
-    environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: lrobot_data
-      MYSQL_USER: weibu
-      TZ: Asia/Shanghai
     ports:
       - "5925:3306"
     volumes:
+      - ./storage/data/initdb:/docker-entrypoint-initdb.d  # 初始化
       - ./storage/data/mysql:/var/lib/mysql
-      - ./storage/data/initdb:/docker-entrypoint-initdb.d
       - ./storage/data/backup:/app/backup
+    restart: always
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD="yes"
+      - MYSQL_DATABASE=lrobot_data
+      - MYSQL_USER=weibu
+      - TZ=Asia/Shanghai

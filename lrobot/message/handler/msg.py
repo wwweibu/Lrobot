@@ -1,5 +1,6 @@
 """消息类"""
 
+import json
 import time
 
 from config import config
@@ -13,7 +14,7 @@ class Msg:
         "platform",  # 平台
         "event",  # 触发事件
         "kind",  # 种类
-        "seq",  # 平台原 ID
+        "seq",  # 消息原始 ID
         "content",  # 内容
         "user",  # 用户
         "group",  # 群
@@ -40,12 +41,8 @@ class Msg:
 
     def __repr__(self):
         """修改 print 方法"""
-        attributes = {
-            slot: getattr(self, slot)
-            for slot in self.__slots__
-            if hasattr(self, slot) and getattr(self, slot) is not None
-        }
-        return str(attributes)
+        attributes = {k: getattr(self, k) for k in self.__slots__ if getattr(self, k) is not None}
+        return json.dumps(attributes, ensure_ascii=False)
 
     @classmethod
     def _generate_num(cls):
@@ -61,386 +58,239 @@ class Msg:
         # 生成 num，格式为 "时间戳+计数器"
         return current_timestamp + cls._counter
 
-    @classmethod
-    def _content_token_match(cls, content):
-        """解析 content 字符串中的消息段 [prefix:value]，支持 value 中嵌套 [] 的情况。"""
-        result = []
-        i = 0
-        while i < len(content):
-            if content[i] == "[":
-                start = i
-                i += 1
-                colon_index = -1
-                depth = 1
-                while i < len(content):
-                    if content[i] == "[":
-                        depth += 1
-                    elif content[i] == "]":
-                        depth -= 1
-                        if depth == 0:
-                            break
-                    elif content[i] == ":" and depth == 1 and colon_index == -1:
-                        colon_index = i
-                    i += 1
-                if depth != 0:
-                    raise ValueError(f"未闭合的消息段落: {content[start:i + 1]}")
-                if colon_index != -1:
-                    prefix = content[start + 1: colon_index]
-                    value = content[colon_index + 1: i]
-                else:
-                    prefix = content[start + 1: i]  # 不带冒号的 [] 段
-                    value = None
-                result.append((prefix, value, start, i + 1))
-                i += 1
-            else:
-                i += 1
-        return result
+    @staticmethod
+    def _face_join(face_id, face_text=None):
+        """表情添加"""
+        face = config["emojis"].get(face_id)
+        if not face:
+            if not face_text:
+                raise Exception(f"无法解析的表情 ID: {face_id}")
+            face = face_text.strip("[]").lstrip("/")
+            # 将新表情添加至 emojis
+            emojis = config["emojis"]
+            emojis[face_id] = face
+            sorted_emojis = dict(
+                sorted(emojis.items(), key=lambda x: int(x[0]))
+            )  # 按照 key 以数字顺序排序(不加 int:1,10,2)
+            config["emojis"] = sorted_emojis
+        return face
 
     @classmethod
     def content_join(cls, content):
         """消息字段打印"""
         if not content:
-            return
-        content_join = ""
-        for item in content:
-            msg_type = item.get("type")
-            msg_data = item.get("data", "")
-            if msg_type == "text":
-                content_join += msg_data.get("text", "")
-            elif msg_type == "face":
-                face_id = msg_data.get("id")
-                face = config["emojis"].get(face_id)
-                if not face:
-                    face_text = msg_data.get("raw", {}).get("faceText")
-                    if face_text is None:
-                        raise Exception(f"无法解析的表情 | 表情: {item}")
-                    face = face_text.strip("[]").lstrip("/")
-                    # 将新表情添加至 emojis
-                    emojis = config["emojis"]
-                    emojis[face_id] = face
-                    sorted_emojis = dict(
-                        sorted(emojis.items(), key=lambda x: int(x[0]))
-                    )  # 按照 key 以数字顺序排序(不加 int:1,10,2)
-                    config["emojis"] = sorted_emojis
-                content_join += f"[表情:{face}]"
-            elif msg_type == "at":
-                qq = msg_data.get("qq")
-                content_join += f"[at:{qq}]"
-            elif msg_type == "rps":
-                rps_id = msg_data.get("result")
-                rps_map = {"1": "布", "2": "剪刀", "3": "石头"}
-                rps_result = rps_map.get(rps_id, "未知结果")
-                content_join += f"[猜拳:{rps_result}]"
-            elif msg_type == "dice":
-                dice_id = msg_data.get("result")
-                dice_result = dice_id if dice_id in {"1", "2", "3", "4", "5", "6"} else "未知结果"
-                content_join += f"[骰子:{dice_result}]"
-            elif msg_type == "reply":
-                reply_content = msg_data.get("content", [])
-                if reply_content:
-                    content_join += f"[回复:[{Msg.content_join(reply_content)}]]"
-                else:
-                    content_join += f"[回复:[{msg_data.get('id')}]"
-            elif msg_type == "forward":
-                forward_content = msg_data.get("content", [])
-                if forward_content:
-                    inner_text = ""
-                    for node in forward_content:
-                        inner_msg_list = node.get("message", [])
-                        inner_text += Msg.content_join(inner_msg_list)
-                        inner_text += "|"
-                    content_join += f"[转发:[{inner_text}]]"
-                else:
-                    content_join += f"[转发:[{msg_data.get('id')}]]"
-            elif msg_type == "poke":
-                content_join += "[戳戳:戳一戳]"
-            elif msg_type == "mface":
-                content_join += f"[动画表情:{msg_data.get('summary', '未知的动画表情')}]"
-            elif msg_type == "image":
-                summary = msg_data.get("summary", "")
-                if summary:
-                    content_join += f"[动画表情:{summary}]"
-                else:
-                    content_join += f"[图片:{msg_data.get('file', '未知的图片')}]"
-            elif msg_type == "record":
-                content_join += f"[语音:{msg_data.get('file', '未知的语音')}]"
-            elif msg_type == "video":
-                content_join += f"[视频:{msg_data.get('file', '未知的视频')}]"
-            elif msg_type == "file":
-                name = msg_data.get('name', '')
-                if name:
-                    content_join += f"[文件:{name}]"
-                else:
-                    content_join += f"[文件:{msg_data.get('file', '未知的文件')}]"
-            elif msg_type == "json":
-                data_str = msg_data.get('data', '')
-                content_join += f"[卡片:{data_str.get('prompt', '未知的卡片')}]"
-            elif msg_type == "node":
-                forward_content = msg_data.get("content", [])
-                inner_text = Msg.content_join(forward_content)
-                content_join += f"[节点:{inner_text}]"
-            else:
-                raise Exception(f" 无法解析的消息段落 | 消息: {item}")
-        return content_join
+            return ""
+        handlers = {
+            "text": lambda d: d.get("text", ""),
+            "face": lambda d: f"[表情:{cls._face_join(d.get('id'), d.get('raw', {}).get('faceText'))}]",
+            "at": lambda d: f"[at:{d.get('qq')}]",
+            "rps": lambda d: f"[猜拳:{ {'1': '布', '2': '剪刀', '3': '石头'}.get(str(d.get('result')), '未知结果')}]",
+            "dice": lambda
+                d: f"[骰子:{str(d.get('result')) if str(d.get('result')) in {'1', '2', '3', '4', '5', '6'} else '未知结果'}]",
+            "reply": lambda d: f"[回复:{cls.content_join(d.get('content', []))}]" if d.get(
+                "content") else f"[回复:{d.get('id')}]",
+            "forward": lambda
+                d: f"[转发:{'|'.join(cls.content_join(n.get('message', [])) for n in d.get('content', []))}]" if d.get(
+                "content") else f"[转发:{d.get('id')}]",
+            "poke": lambda _: "[戳戳:戳一戳]",
+            "mface": lambda d: f"[动画表情:{d.get('summary', '未知的动画表情')}]",
+            "image": lambda d: f"[动画表情:{d['summary']}]" if d.get(
+                "summary") else f"[图片:{d.get('file', '未知的图片')}]",
+            "record": lambda d: f"[语音:{d.get('file', '未知的语音')}]",
+            "video": lambda d: f"[视频:{d.get('file', '未知的视频')}]",
+            "file": lambda d: f"[文件:{d.get('name') or d.get('file', '未知的文件')}]",
+            "json": lambda d: f"[卡片:{d.get('data', {}).get('prompt', '未知的卡片')}]",
+            "node": lambda d: f"[节点:{cls.content_join(d.get('content', []))}]"
+        }
+        return "".join(
+            handlers.get(seg["type"], lambda _: f"[未知类型:{seg['type']}]")(seg.get("data", {})) for seg in content)
+
+    @classmethod
+    def _content_token_match(cls, content):
+        """解析 content 字符串中的消息段 [prefix:value]，支持 value 中嵌套 [] 的情况。"""
+        out, i, n = [], 0, len(content)
+        while i < n:
+            if content[i] != '[':
+                # 收集纯文本直到 '['
+                j = i
+                while j < n and content[j] != '[':
+                    j += 1
+                out.append(("文本", content[i:j]))
+                i = j
+                continue
+
+            # 现在 text[i] == '['
+            depth = 1
+            colon = None
+            j = i + 1
+            while j < n and depth:
+                if content[j] == '[':
+                    depth += 1
+                elif content[j] == ']':
+                    depth -= 1
+                elif content[j] == ':' and depth == 1 and colon is None:
+                    colon = j
+                j += 1
+            if depth:  # 未闭合
+                out.append(("文本", content[i:]))  # 把剩余当纯文本
+                break
+
+            prefix = content[i + 1: colon] if colon else "文本"
+            value = content[colon + 1: j - 1] if colon else content[i + 1: j - 1]
+            out.append((prefix, value))
+            i = j
+        return out
+
+    @staticmethod
+    def _face_disjoin(value):
+        """表情转换"""
+        summary, name = value.split("|")
+        if name in config["shop_emojis"]:
+            raw = config["shop_emojis"][name]
+            key, emoji_id, emoji_package_id = raw.split("|")
+            return {"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
+                                              "emoji_package_id": emoji_package_id}}
 
     @classmethod
     def content_disjoin(cls, content):
         """将字符串内容解析为消息字段"""
         if isinstance(content, list):
             return content
-        content = str(content)
-        segments = []
-        parsed = cls._content_token_match(content)
-        last_index = 0
-
-        if not parsed or all(p[1] is None for p in parsed):  # 纯文字消息
-            return [{"type": "text", "data": {"text": content}}]
-
-        for prefix, value, start, end in parsed:  # value 一定为字符串
-
-            # 添加之前的纯文本部分
-            if start > last_index:
-                plain_text = content[last_index:start]
-                segments.append({"type": "text", "data": {"text": plain_text}})
-            last_index = end
-
-            # 根据匹配的结构添加消息段
-            if prefix == "表情":
-                segments.append(
-                    {
+        handlers = {
+            "文本": lambda v: {"type": "text", "data": {"text": v}},
+            "表情": lambda v: {
                         "type": "face",
                         "data": {
-                            "id": next((k for k, v in config["emojis"].items() if v == value), None)
+                            "id": next((j for j, k in config["emojis"].items() if k == v), None)
                         },
-                    }
-                )
-            elif prefix == "at":
-                segments.append({"type": "at", "data": {"qq": value}})
-            elif prefix == "猜拳":
-                rps_reverse = {"布": "1", "剪刀": "2", "石头": "3"}
-                segments.append(
-                    {"type": "rps", "data": {"result": rps_reverse.get(value, "any")}}
-                )
-            elif prefix == "骰子":
-                dice_value = value if value in {"1", "2", "3", "4", "5", "6"} else "any"
-                segments.append({"type": "dice", "data": {"result": dice_value}})
-            elif prefix == "回复":
-                segments.append({"type": "reply", "data": {"id": value}})
-            elif prefix == "转发":
-                segments.append({"type": "forward", "data": {"id": value}})
-            elif prefix == "戳戳":
-                segments.append({"type": "poke", "data": {"type": "1", "id": "1"}})
-            elif prefix == "动画表情":
-                if "|" in value:  # 发送格式: summary|name(LR5921)
-                    summary, name = value.split("|")
-                    if name in config["shop_emojis"]:
-                        raw = config["shop_emojis"][name]
-                        key, emoji_id, emoji_package_id = raw.split("|")
-                        segments.append({"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
-                                                                   "emoji_package_id": emoji_package_id}})
-                else:  # 判断格式: summary;发送格式: summary(BILI)
-                    segments.append({"type": "image", "data": {"summary": value}})
-            elif prefix == "图片":
-                if "|" in value:  # 发送格式: summary|file(LR5921)
-                    summary, file = value.split("|")
-                    segments.append(
-                        {"type": "image", "data": {"file": file, "summary": summary}}
-                    )
-                else:  # 判断格式: file;发送格式: file(BILI)
-                    segments.append({"type": "image", "data": {"file": value}})
-            elif prefix == "语音":
-                segments.append({"type": "record", "data": {"file": value}})
-            elif prefix == "视频":
-                if "|" in value:  # 发送格式: file|title|description(WECHAT)
-                    file, title, description = value.split("|")
-                    segments.append(
-                        {"type": "video", "data": {"file": file, "title": title, "description": description}})
-                else:
-                    segments.append({"type": "video", "data": {"file": value}})
-            elif prefix == "文件":
-                if "|" in value:  # 发送格式: file|name(LR5921)
-                    file, name = value.split("|")
-                    segments.append(
-                        {"type": "file", "data": {"file": file, "name": name}}
-                    )
-                else:  # 判断格式: file;发送格式: file(LR5921)
-                    segments.append({"type": "file", "data": {"file": value}})
-            elif prefix == "卡片":
-                if "|" in value:
-                    value_list = value.split("|")
-                    if value_list[0] == "微信-音乐":
-                        # 发送格式: 微信-音乐|title|description|url
-                        prompt, title, description, url = value.split("|")
-                        segments.append(
-                            {
-                                "type": "json",
-                                "data":
-                                    {
-                                        "data":
-                                            {
-                                                "prompt": prompt,
-                                                "title": title,
-                                                "description": description,
-                                                "url": url
-                                            }}})
-                    elif value_list[0] == "微信-图文":
-                        # 发送格式: 微信-图文|title|description|picurl|url
-                        prompt, title, description, picurl, url = value.split("|")
-                        segments.append(
-                            {
-                                "type": "json",
-                                "data": {
-                                    "data": {
-                                        "prompt": prompt,
-                                        "title": title,
-                                        "description": description,
-                                        "picurl": picurl,
-                                        "url": url,
-                                    }
-                                },
-                            }
-                        )
-                else:
-                    # 判断格式: prompt;发送格式: data(LR5921)
-                    segments.append({"type": "json", "data": {"data": value}})
-            elif prefix == "转发":  # 发送格式: id
-                segments.append({"type": "forward", "data": {"id": value}})
-            elif prefix == "节点":  # 发送格式: user_id|nickname|[消息列表段]
-                user_id, nickname, content = value.split("|", 2)
-                node_data = {
-                    "type": "node",
-                    "data": {
-                        "user_id": user_id,
-                        "nickname": nickname,
-                        "content": Msg.content_disjoin(content)
-                    }
-                }
-                segments.append(node_data)
+            },
+            "at": lambda v: {"type": "at", "data": {"qq": v}},
+            "猜拳": lambda v: {"type": "rps", "data": {"result": {"布": "1", "剪刀": "2", "石头": "3"}.get(v, "any")}},
+            "骰子": lambda v: {"type": "dice", "data": {"result": v if v in "123456" else "any"}},
+            "回复": lambda v: {"type": "reply", "data": {"id": v}},
+            "戳戳": lambda _: {"type": "poke", "data": {"type": "1", "id": "1"}},
+            "动画表情": lambda v: (
+                cls._face_disjoin(v) if "|" in v
+                else {"type": "image", "data": {"summary": v}}
+            ),
+
+            "图片": lambda v: {"type": "image",
+                               "data": {"file": v.split("|")[0], "summary": v.split("|")[1]} if "|" in v
+                               else {"file": v}},
+            "语音": lambda v: {"type": "record", "data": {"file": v}},
+            "视频": lambda v: {
+                "type": "video",
+                "data": dict(zip(("file", "title", "description"), v.split("|"))) if "|" in v
+                else {"file": v}},
+            "文件": lambda v: {"type": "file", "data": dict(zip(("file", "name"), v.split("|"))) if "|" in v
+            else {"file": v}
+                               },
+            "卡片": lambda v: {
+                "type": "json",
+                "data": {
+                    "data":
+                        dict(zip(("prompt", "title", "description", "url"), v.split("|"))) if v.startswith("微信-音乐")
+                        else dict(
+                            zip(("prompt", "title", "description", "picurl", "url"), v.split("|"))) if v.startswith(
+                            "微信-图文")
+                        else {"prompt": v}
+                },
+            },
+            "转发": lambda v: {"type": "forward", "data": {"id": v}},
+            "节点": lambda v: {
+                "type": "node",
+                "data": {"user_id": v.split("|")[0], "nickname": v.split("|")[1],
+                         "content": Msg.content_disjoin(v.split("|", 2)[2])}
+            },
+        }
+
+        return [handlers.get(p, lambda _: {"type": "text", "data": {"text": f"{p}:{v}"}})(v) for p, v in
+                cls._content_token_match(str(content))]
+
+    PATTERN_FIELDS = {
+        'text': ('text',),
+        'at': ('qq',),
+        'rps': ('result',),
+        'dice': ('result',),
+        'face': ('id',),
+        'reply': ('id',),
+        'poke': (),  # poke 无条件匹配
+        'record': ('file',),
+        'video': ('file',),
+        'file': ('file',),
+        'json': ('prompt',),
+    }
+
+    @staticmethod
+    def _seg_match(content_seg, pattern_seg, strict=False):
+        """
+        单段匹配/相等核心逻辑
+        strict=True 表示“相等”模式，不支持子串；False 表示“包含”模式，支持子串
+        """
+        content_type = content_seg['type']
+
+        # 不支持/不匹配的段直接 False
+        if content_type != pattern_seg['type']:
+            return False
+        elif content_type in {'node', 'forward'}:
+            return False
+        elif content_type == 'poke':
+            return True
+
+        content_data = content_seg.get('data', {})
+        pattern_data = pattern_seg.get('data', {})
+
+        # image 单独处理
+        if content_type == 'image':
+            content_match = content_data.get('summary')
+            pattern_match = pattern_data.get('summary')
+
+            if not content_match or not pattern_match:
+                content_match = content_data.get('file')
+                pattern_match = pattern_data.get('file')
+            return pattern_match in ('any', content_match)
+
+        # 取出该类型需要比较的字段
+        fields = Msg.PATTERN_FIELDS.get(content_type, ())
+        for k in fields:
+            content_val = content_data.get(k)
+            pattern_val = pattern_data.get(k)
+
+            # 通配
+            if pattern_val == 'any':
+                continue
+
+            # 严格相等 / 子串包含
+            if strict:
+                if pattern_val != content_val:
+                    return False
             else:
-                raise Exception(f"未知消息段类型 -> {prefix} : {value}")
-
-        # 末尾如果还有文本
-        if last_index < len(content):
-            segments.append({"type": "text", "data": {"text": content[last_index:]}})
-
-        return segments
+                # text 支持子串，其余按相等处理；text 支持空格代表 any
+                if content_type == 'text':
+                    if str(pattern_val) not in str(content_val) and str(pattern_val) != " ":
+                        return False
+                else:
+                    if pattern_val != content_val:
+                        return False
+        return True
 
     @classmethod
     def content_pattern_contains(cls, content, pattern):
         """判断消息字段是否包含指令字段"""
-        if not content:
+        if not content or not pattern:
             return False
-        pattern = Msg.content_disjoin(pattern)
-        pattern_len = len(pattern)
-        content_len = len(content)
-
-        for i in range(content_len - pattern_len + 1):
-            # 比较 pattern 消息列表是否与 content[i: i+ len] 消息列表完全相同
-            match = True
-            for j in range(pattern_len):
-                pattern_seg = pattern[j]
-                content_seg = content[i + j]
-                if not Msg.content_match(content_seg, pattern_seg):
-                    match = False
-                    break
-            if match:
-                return True
-        return False
+        pattern = cls.content_disjoin(pattern)
+        return any(
+            all(cls._seg_match(c, p) for c, p in zip(content[i:], pattern))
+            for i in range(len(content) - len(pattern) + 1)
+        )
 
     @classmethod
-    def content_match(cls, content, pattern):
-        """判断消息列表中某项是否包含某项"""
-        if content["type"] != pattern["type"]:
-            return False
-
-        content_data = content.get("data", {})
-        pattern_data = pattern.get("data", {})
-
-        if content["type"] == "text":
-            if pattern_data.get("text") == " ":
-                return True
-            return pattern_data.get("text", "") in content_data.get("text", "")
-
-        elif content["type"] == "at":
-            return pattern_data.get("qq") in (content_data.get("qq"), "any")
-
-        elif content["type"] in ["rps", "dice"]:
-            return pattern_data.get("result") in (content_data.get("result"), "any")
-
-        elif content["type"] in ["face", "reply"]:
-            return pattern_data.get("id") in (content_data.get("id"), "any")
-
-        elif content["type"] == "poke":
-            return True
-
-        elif content["type"] == "image":
-            pattern_result = pattern_data.get("summary")
-            if pattern_result:  # 动画表情
-                return pattern_result in (content_data.get("summary"), "any")
-            else:
-                if not content_data.get("summary"):
-                    return pattern_data.get("file") in (content_data.get("file"), "any")
-
-        elif content["type"] in ["record", "video", "file"]:
-            return pattern_data.get("file") in (content_data.get("file"), "any")
-
-        elif content["type"] == "json":  # 匹配字段是 data:prompt，消息字段是 data:{prompt:prompt}
-            return pattern_data.get("data") in (content_data.get("prompt"), "any")
-
-        # 指令匹配中不出现"节点""转发"
-        return False
-
-    @staticmethod
-    def content_pattern_equal(content, pattern):
+    def content_pattern_equal(cls, content, pattern):
         """判断两个消息段是否相等"""
-        if not content:
+        if not content or not pattern:
             return False
-        pattern = Msg.content_disjoin(pattern)
-        if len(content) != len(pattern):
-            return False
-
-        for content_seg, pattern_seg in zip(content, pattern):
-            if content_seg["type"] != pattern_seg["type"]:
-                return False
-
-            content_data = content_seg.get("data", {})
-            pattern_data = pattern_seg.get("data", {})
-
-            if content_seg["type"] == "text":
-                if pattern_data.get("text", "") != content_data.get("text", ""):
-                    return False
-
-            elif content_seg["type"] == "at":
-                if pattern_data.get("qq") not in ("any", content_data.get("qq")):
-                    return False
-
-            elif content_seg["type"] in ["rps", "dice"]:
-                if pattern_data.get("result") not in ("any", content_data.get("result")):
-                    return False
-
-            elif content_seg["type"] in ["face", "reply"]:
-                if pattern_data.get("id") not in ("any", content_data.get("id")):
-                    return False
-
-            elif content_seg["type"] == "image":
-                pattern_result = pattern_data.get("summary")
-                if pattern_result:  # 动画表情
-                    if pattern_result not in ("any", content_data.get("summary")):
-                        return False
-                else:
-                    if pattern_data.get("file") not in ("any", content_data.get("file")):
-                        return False
-
-            elif content_seg["type"] in ["record", "video", "file"]:
-                if pattern_data.get("file") not in ("any", content_data.get("file")):
-                    return False
-
-            elif content_seg["type"] == "json":
-                if pattern_data.get("data") not in ("any", content_data.get("prompt")):
-                    return False
-
-            elif content_seg["type"] in ["node", "forward"]:
-                return False  # 不能接收节点字段，不匹配转发字段
-
-            # TODO poke
-        return True
+        pattern = cls.content_disjoin(pattern)
+        return len(content) == len(pattern) and all(
+            cls._seg_match(c, p, strict=True) for c, p in zip(content, pattern)
+        )

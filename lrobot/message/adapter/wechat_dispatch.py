@@ -1,25 +1,22 @@
 """微信公众号调用 API"""
 
+import os
 import mimetypes
 from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
-from logic import image_compress, video_compress, record_compress
+from logic import image_compress, video_compress, record_compress, file_name_overwrite
 from config import (
     config,
     future,
     loggers,
     connect,
-    path,
     database_query,
     database_update,
 )
 
 base_url = "https://api.weixin.qq.com/cgi-bin"
 adapter_logger = loggers["adapter"]
-save_dir = path / "storage/file/user/wechat"
-save_dir.mkdir(parents=True, exist_ok=True)
-
 
 async def request_deal(url, data, tag, file=None):
     """请求统一处理"""
@@ -28,7 +25,7 @@ async def request_deal(url, data, tag, file=None):
     try:
         response = await client.post(url, params=data, files=file, timeout=20)
     except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  e: {e} | data: {data}")
+        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data}")
 
     if response.status_code != 200:
         raise Exception(
@@ -41,79 +38,18 @@ async def request_deal(url, data, tag, file=None):
         if "errcode" in json_resp:
             errmsg = json_resp.get("errmsg", "未知错误")
             raise Exception(
-                f"{tag} 请求失败 -> errcode: {json_resp['errcode']} | errmsg: {errmsg} | data: {data} | {file if file else ''}"
+                f"{tag} 请求失败 -> errcode: {json_resp['errcode']} | errmsg: {errmsg} | data: {data}"
             )
 
     adapter_logger.info(
-        f"[WECHAT] {tag} 成功 -> {data}",
+        f"[WECHAT] {tag} 成功 -> {data} | {response}",
         extra={"event": "消息发送"},
     )
     return response
 
 
-async def wechat_file_upload(file_path, type=None, url=None):
-    """文件上传"""
-    query = "SELECT media_id, uploaded_at FROM user_media WHERE filepath = %s"
-    result = await database_query(query, (file_path,))
-    if result:
-        uploaded_at = result[0]["uploaded_at"]
-        expire_time = uploaded_at + timedelta(days=3)
-        if datetime.now() < expire_time:
-            return result[0]["media_id"]
-
-    url = f"{base_url}/media/upload"
-    params = {"type": type}
-    file_stream = ""
-    if type == "image":
-        file_stream = image_compress(file_path)
-    elif type == "voice":
-        file_stream = record_compress(file_path, duration_limit_sec=60)
-    elif type == "video":
-        file_stream = await video_compress(file_path, target_size_mb=10)
-    mime_type, _ = mimetypes.guess_type(file_path)
-    files = {
-        "media": (
-            file_path,
-            file_stream,  # open(file_path, "rb"),
-            mime_type,
-        )
-    }
-    response = await request_deal(url, params, "文件上传", files)
-    media_id = (
-        response.json().get("thumb_media_id")
-        if type == "thumb"
-        else response.json().get("media_id")
-    )
-    if media_id:
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        query = """
-            INSERT INTO user_media (filepath, media_id, uploaded_at)
-            VALUES (%s, %s, %s) AS new
-            ON DUPLICATE KEY UPDATE 
-                media_id = new.media_id,
-                uploaded_at = new.uploaded_at
-        """
-        await database_update(query, (file_path, media_id, now_str))
-    return media_id
-
-
-async def wechat_file_download(media_id):
-    """文件下载"""
-    # TODO 改为用户路径
-    url = f"{base_url}/media/get"
-    params = {"media_id": media_id}
-    response = await request_deal(url, params, "文件下载")
-    content_type = response.headers.get("content-type", "")
-    if content_type == "audio/amr":
-        with open(f"{save_dir}/{media_id}.amr", "wb") as f:
-            f.write(response.content)
-    elif content_type == "video/mpeg4":
-        with open(f"{save_dir}/{media_id}.mp4", "wb") as f:
-            f.write(response.content)
-
-
 async def wechat_dispatch(
-        content, kind=None, user=None, group=None, num=None, order=None, seq=None
+        content, kind=None, user=None, group=None, num=None, seq=None, order=None
 ):
     """消息发送"""
     msg_type = content[0].get("type")
@@ -124,20 +60,20 @@ async def wechat_dispatch(
     <CreateTime>{seq[:-2]}</CreateTime>"""
 
     if msg_type == "text":
-        content = data.get("text", "").replace("\n", "。")  # 替换换行符 "\u2028"
+        content = data.get("text", "").replace("\n", "。")  # 替换换行符  "\u2028"
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Content><![CDATA[{content}]]></Content>\n"""
 
     elif msg_type == "image":
         file = data.get("file", "")
-        media_id = await wechat_file_upload(file, msg_type)
+        media_id = await wechat_file_upload(file, type=msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
 
     elif msg_type == "record":
         msg_type = "voice"
         file = data.get("file", "")
-        media_id = await wechat_file_upload(file, msg_type)
+        media_id = await wechat_file_upload(file, type=msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Voice><MediaId><![CDATA[{media_id}]]></MediaId></Voice>\n"""
 
@@ -145,7 +81,7 @@ async def wechat_dispatch(
         file = data.get("file", "")
         title = data.get("title", "")
         desc = data.get("description", "")
-        media_id = await wechat_file_upload(file, msg_type)
+        media_id = await wechat_file_upload(file, type=msg_type)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Video><MediaId><![CDATA[{media_id}]]></MediaId>
         <Title><![CDATA[{title}]]></Title>
@@ -182,3 +118,66 @@ async def wechat_dispatch(
                     </item></Articles>\n"""
     base += "</xml>"
     future.set(seq, base)
+
+
+async def wechat_file_upload(file, type=None, url=None):
+    """文件上传"""
+    query = "SELECT media_id, uploaded_at FROM user_media WHERE filepath = %s"
+    result = await database_query(query, (file,))
+    if result:
+        uploaded_at = result[0]["uploaded_at"]
+        expire_time = uploaded_at + timedelta(days=3)
+        if datetime.now() < expire_time:
+            return result[0]["media_id"]
+
+    url = f"{base_url}/media/upload"
+    params = {"type": type}
+    file_stream = ""
+    if type == "image":
+        file_stream = await image_compress(file)
+    elif type == "voice":
+        file_stream = await record_compress(file, duration_limit_sec=60)
+    elif type == "video":
+        file_stream = await video_compress(file)
+    elif type == "thumb":
+        file_stream = await image_compress(file, target_size_mb=64 / 1024)
+    mime_type, _ = mimetypes.guess_type(file)
+    files = {
+        "media": (
+            file,
+            file_stream,
+            mime_type,
+        )
+    }
+    response = await request_deal(url, params, "文件上传", files)
+    media_id = (
+        response.json().get("thumb_media_id")
+        if type == "thumb"
+        else response.json().get("media_id")
+    )
+    if media_id:
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        query = """
+            INSERT INTO user_media (filepath, media_id, uploaded_at)
+            VALUES (%s, %s, %s) AS new
+            ON DUPLICATE KEY UPDATE 
+                media_id = new.media_id,
+                uploaded_at = new.uploaded_at
+        """
+        await database_update(query, (file, media_id, now_str))
+    return media_id
+
+
+async def wechat_file_download(file, path):
+    """文件下载"""
+    url = f"{base_url}/media/get"
+    params = {"media_id": file}
+    response = await request_deal(url, params, "文件下载")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    path = file_name_overwrite(path)
+    with open(path, "wb") as f:
+        f.write(response.content)
+    loggers["message"].info(
+        f"⌈文件处理⌋: 文件下载 -> 下载成功 {path}",
+        extra={"event": "消息处理"},
+    )

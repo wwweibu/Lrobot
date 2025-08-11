@@ -1,5 +1,5 @@
 """B 站消息获取"""
-
+import asyncio
 import re
 import json
 import time
@@ -11,6 +11,14 @@ from logic import status_add, status_delete, status_check
 
 adapter_logger = loggers["adapter"]
 
+
+def sort_messages(msg_list):
+    """重新排序消息列表"""
+    non_withdraw_msgs = [msg for msg in msg_list if msg["msg_type"] != 5]
+    withdraw_msgs = [msg for msg in msg_list if msg["msg_type"] == 5]
+    non_withdraw_msgs.reverse()
+    # 将非撤回消息放在前面，撤回消息放在后面
+    return non_withdraw_msgs + withdraw_msgs
 
 async def bili_receive(interval=None):
     """私聊接收"""
@@ -29,14 +37,17 @@ async def bili_receive(interval=None):
         return
     for msg in msg_list:
         if msg["unread_count"] == 0:
-            pass
-        elif msg["unread_count"] == 1:
-            await bili_msg_read(msg["talker_id"])
-            await bili_msg_deal(msg["last_msg"])
-        else:
-            await bili_msg_read(msg["talker_id"])
+            if interval:
+                await _bili_msg_read(msg["talker_id"])
+                msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
+                for msg_get in sort_messages(msg_get_list):
+                    await bili_msg_deal(msg_get)
+            else:
+                pass
+        else:  # 不直接处理消息，因为可能为两条消息，撤回了一条
+            await _bili_msg_read(msg["talker_id"])
             msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
-            for msg_get in msg_get_list:
+            for msg_get in sort_messages(msg_get_list):
                 await bili_msg_deal(msg_get)
 
 
@@ -53,7 +64,7 @@ async def bili_msg_get(seq, num=None, user=None):
     return response["data"]["messages"]
 
 
-async def bili_msg_read(user):
+async def _bili_msg_read(user):
     """私聊已读"""
     url = "https://api.vc.bilibili.com/session_svr/v1/session_svr/update_ack"
     params = {
@@ -102,10 +113,11 @@ async def bili_msg_deal(msg):
 
     elif msg["msg_type"] == 5:
         kind = "私聊撤回"
-        content = Msg.content_disjoin(
-            f"{msg['sender_uid']} 撤回了 {msg['sender_uid']} 的消息 - "
-        )
-        content += Msg.content_disjoin(content)
+        raw_content = Msg.content_disjoin(f"{msg['sender_uid']} 撤回了 {msg['sender_uid']} 的消息 - ")
+        from message.handler.msg_pool import MsgPool
+        withdraw_msg = MsgPool.seq_get(str(content))
+        if withdraw_msg:  # 如果不存在，则为消息序号
+            content = raw_content + withdraw_msg.get("content")
 
     elif msg["msg_type"] == 7:
         source_type_map = {

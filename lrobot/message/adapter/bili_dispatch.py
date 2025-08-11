@@ -4,12 +4,28 @@ import os
 import json
 import time
 import mimetypes
+from hashlib import md5
+from urllib.parse import urlencode
 
-from config import config, loggers, connect, future
+from logic import image_compress
+from config import config, loggers, connect, future, path
 
 adapter_logger = loggers["adapter"]
 
-
+live_headers = {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+    "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "origin": "https://link.bilibili.com",
+    "referer": "https://link.bilibili.com/p/center/index",
+    "sec-ch-ua": '"Microsoft Edge";v="137", "Not=A?Brand";v="8", "Chromium";v="137"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0",
+}
 async def request_deal(url, method, params, tag, files=None, headers=None):
     """请求统一处理"""
     if not headers:
@@ -49,15 +65,8 @@ async def request_deal(url, method, params, tag, files=None, headers=None):
     return json_resp
 
 
-async def bili_signature(sign):
-    """私聊签名，需要较长时间审核"""
-    url = "https://api.bilibili.com/x/member/web/sign/update"
-    params = {"user_sign": sign, "csrf": config["BILI_JCT"]}
-    await request_deal(url, "post", params, "私聊签名")
-
-
 async def bili_dispatch(
-        content, kind=None, user=None, group=None, num=None, order=None, seq=None
+        content, kind=None, user=None, group=None, num=None, seq=None, order=None
 ):
     """私聊发送，返回消息序号列表"""
     url = "https://api.vc.bilibili.com/web_im/v1/web_im/send_msg"
@@ -103,6 +112,22 @@ async def bili_dispatch(
     future.set(num, seq)
 
 
+async def bili_file_upload(file, type=None, url=None):
+    """文件上传"""
+    mime_type, _ = mimetypes.guess_type(file)
+    url = "https://api.bilibili.com/x/dynamic/feed/draw/upload_bfs"
+    params = {"category": "daily",
+              "csrf": config["BILI_JCT"],
+              "biz": "im"}
+    file_data = await image_compress(file, 20)
+    files = {
+        "file_up": (os.path.basename(file), file_data, mime_type)
+    }
+    response = await request_deal(url, "post", params, "私聊文件上传", files)
+    data = response["data"]
+    return [data["image_url"], data["image_height"], data["image_width"]]
+
+
 async def bili_withdraw(seq, user=None, kind=None):
     """私聊撤回"""
     url = "https://api.vc.bilibili.com/web_im/v1/web_im/send_msg"
@@ -120,54 +145,15 @@ async def bili_withdraw(seq, user=None, kind=None):
     await request_deal(url, "post", params, "私聊撤回")
 
 
-async def bili_file_upload(filepath, type=None, url=None):
-    """文件上传"""
-    mime_type, _ = mimetypes.guess_type(filepath)
-    url = "https://api.bilibili.com/x/dynamic/feed/draw/upload_bfs"
-    params = {"category": "daily",
-              "csrf": config["BILI_JCT"],
-              "biz": "im"}
-    files = {
-        "file_up": (os.path.basename(filepath), open(filepath, "rb"), mime_type)
-    }
-
-    response = await request_deal(url, "post", params, "私聊文件上传", files)
-    data = response["data"]
-    return [data["image_url"], data["image_height"], data["image_width"]]
-
-
-async def bili_test(num):
-    """私聊测试"""
-    url = "https://api.live.bilibili.com/room/v1/Room/startLive"
-    headers = {
-        "accept": "application/json, text/plain, */*",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
-        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "origin": "https://link.bilibili.com",
-        "referer": "https://link.bilibili.com/p/center/index",
-        "sec-ch-ua": '"Microsoft Edge";v="137", "Not=A?Brand";v="8", "Chromium";v="137"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Windows"',
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "same-site",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0",
-    }
-
-    params = {
-        "room_id": config["BILI_LIVE_ID"],
-        "area_v2": 702,
-        "platform": "pc_link",
-        "csrf": config["BILI_JCT"],
-        "csrf_token": config["BILI_JCT"],
-        "type": 2
-    }
-    params = sign_data(params)
-    response = await request_deal(url, "post", params, "私聊测试", headers)
-    print(response)
+async def bili_signature(sign):
+    """私聊签名，需要较长时间审核"""
+    url = "https://api.bilibili.com/x/member/web/sign/update"
+    params = {"user_sign": sign, "csrf": config["BILI_JCT"]}
+    await request_deal(url, "post", params, "私聊签名")
 
 
 def sign_data(data):
+    """数据加密"""
     data.update(
         {
             "access_key": "",
@@ -180,8 +166,6 @@ def sign_data(data):
     # 按照 key 重排参数
     signed_data = dict(sorted(data.items()))
     # 签名
-    from hashlib import md5
-    from urllib.parse import urlencode
     sign = md5(
         (urlencode(signed_data, encoding="utf-8") + "af125a0d5279fd576c1b4418a3e8276d").encode(
             encoding="utf-8"
@@ -191,4 +175,63 @@ def sign_data(data):
     signed_data.update({"sign": sign})
     return signed_data
 
-# TODO 直播间信息更改
+
+async def bili_live_start(num):
+    """私聊直播开启"""
+    url = "https://api.live.bilibili.com/room/v1/Room/startLive"
+
+    params = {
+        "room_id": config["BILI_LIVE_ID"],
+        "area_v2": 702,
+        "platform": "pc_link",
+        "csrf": config["BILI_JCT"],
+        "csrf_token": config["BILI_JCT"],
+        "type": 2
+    }
+    params = sign_data(params)
+    response = await request_deal(url, "post", params, "私聊直播开启", live_headers)
+    addr = response.get("data", {}).get("rtmp", {}).get("addr")
+    code = response.get("data", {}).get("rtmp", {}).get("code")
+    future.set(num, [addr, code])
+
+
+async def bili_live_title(title, file=None):
+    """私聊直播标题"""
+    url = "https://api.live.bilibili.com/xlive/app-blink/v1/preLive/UpdatePreLiveInfo"
+    file_url = []
+    if file:
+        file_url = await bili_file_upload(file)
+    params = {
+        "csrf": config["BILI_JCT"],
+        "csrf_token": config["BILI_JCT"],
+        "platform": "web",
+        "mobi_app": "web",
+        "build": "1",
+        "cover": file_url[0] if file else None,
+        "title": title
+    }
+    await request_deal(url, "post", params, "私聊直播标题", live_headers)
+
+
+async def bili_live_notice(notice):
+    """私聊直播公告"""
+    url = "https://api.live.bilibili.com/xlive/app-blink/v1/index/updateRoomNews"
+    params = {
+        "room_id": config["BILI_LIVE_ID"],
+        "uid": config["BILI_UID"],
+        "content": notice,
+        "csrf": config["BILI_JCT"],
+        "csrf_token": config["BILI_JCT"],
+    }
+    await request_deal(url, "post", params, "私聊直播公告", live_headers)
+
+
+async def bili_live_stop():
+    """私聊直播停止"""
+    url = "https://api.live.bilibili.com/room/v1/Room/stopLive"
+    params = {
+        "platform": "pc_link",
+        "room_id": config["BILI_LIVE_ID"],
+        "csrf": config["BILI_JCT"],
+    }
+    await request_deal(url, "post", params, "私聊直播关闭", live_headers)

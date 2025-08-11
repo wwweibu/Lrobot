@@ -27,8 +27,16 @@
 ---
 
 [项目文档](https://wwweibu.github.io/Lrobot/)
+## 项目优点
+- 多平台接入：一套代码同时支持 QQ 官方机器人、Napcat、微信、B 站、QQ 小程序、网页
+- 统一消息标准：自动封装并转换不同平台消息格式，简化多端开发难度
+- 模块化架构：功能按需加载，支持动态热更新与快速扩展
+- 开箱即用的教程：从零到部署，初学者也能跟着完成
+- 开放接口：便于二次开发与功能自定义
 
 ---
+
+
 
 ## 写在前面
 - 本项目其实就是一个消息处理器，将各平台的各种标准统一处理。整体没有什么复杂度
@@ -40,12 +48,14 @@
 - 代码大佬也可以根据此教程以及代码中的注释，从详细的架构说明、功能描述、页面前后端中选择自己需要的部分引用
 
 ## 项目简介
-- LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社团管理。项目围绕各消息平台构建消息处理和管理系统，涵盖 QQ、微信、B 站、QQ 小程序、网页五个平台的界面和指令功能
+- **LRobot 是一款基于 Python 开发的辅助聊天工具，主要服务于社团管理。项目围绕各消息平台构建消息处理和管理系统，涵盖 QQ、微信、B 站、QQ 小程序、网页五个平台的界面和指令功能**
 - 以下均用 **LR232(qqbot)**,**LR5921(Napcat)**,**WECHAT(wechat)**,**BILI(bilibili)**,**QQAPP(qqapp)** 代替各平台
 - 项目有各步骤详细的说明及教学，虽然涉及到账号申请、部署、添加数据等内容比较**麻烦**，但完成后可以发挥想象，设计更多更有趣的功能；同时给有一定经验的开发者做一个参考
 - 项目将持续更新……
 - ~*可以猜猜为什么叫这个名*~
 - 项目文档地址 https://wwweibu.github.io/Lrobot
+- 项目架构
+![架构](./storage/file/firefly/project.png)
 
 ---
 
@@ -62,9 +72,8 @@
 1. 下载项目 `git clone https://github.com/wwweibu/Lrobot.git`
 2. 进入项目目录`cd Lrobot`（注意里面还有一个 lrobot 文件夹，进入的是外面的）
 3. `docker compose up --build -d napcat` 启动 napcat 服务（linux 需要加 sudo，下同）
-  - 扫码登录(如果 docker 里的二维码扫描不了打开 storage/napcat/cache 或访问[网址](http://127.0.0.1:6099/webui?token=napcat))
-  - 访问 http://127.0.0.1:6099/webui?token=napcat 进行配置
-  - 配置 HTTP 服务器，`启用-开启Debug-port:5921`
+  - 访问[网址](http://127.0.0.1:6099/webui?token=napcat)进行登录或者扫码登录(位置:storage/napcat/cache)
+  - 在网址中配置 HTTP 服务器，`启用-开启Debug-port:5921`
   - 配置 HTTP 客户端，`启用-开启 Debug-URL：http://lrobot:5922/LR5921/` （LR5921 如果配置了 secret 记得改成加密后的路径）-上报自身消息
   - 并在其他配置-登录配置里填写当前 QQ 以便快速登录
 4. 启动数据库服务
@@ -80,6 +89,7 @@
 ---
 
 ## 功能展示
+
 [功能](https://wwweibu.github.io/Lrobot/docs/项目总览/项目功能)
 
 ---

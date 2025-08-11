@@ -17,6 +17,7 @@ router = APIRouter()
 UPLOAD_DIR = path / "storage/file/clouddrive"
 RECYCLE_BIN = path / "storage/file/recycle"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+RECYCLE_BIN.mkdir(parents=True, exist_ok=True)
 website_logger = loggers["website"]
 
 

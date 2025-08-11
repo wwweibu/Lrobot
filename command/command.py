@@ -1,6 +1,5 @@
 """运行命令行指令"""
 import sys
-import time
 import asyncio
 import subprocess
 
@@ -23,9 +22,11 @@ async def ssh_clean():
 
 async def ssh_run():
     """运行 ssh 连接"""
-    time.sleep(3)  # 等待清理完成
+    await asyncio.sleep(3)  # 等待清理完成
     ssh_command = f"ssh -i {pem_path} -C -v -N -D 0.0.0.0:5923 -R 10000:lrobot:5922 {username}@{ip}"
-    await command_run(ssh_command, loggers["server"])
+    ok = await command_run(ssh_command, loggers["server"])
+    if not ok:
+        raise RuntimeError("ssh_run 失败")
 
 
 async def napcat_run():
@@ -64,21 +65,23 @@ async def command_run(command, logger=None):
                         "检测到连接关闭，正在重新启动...",
                         extra={"event": "运行日志"},
                     )
-                    sys.exit(1)
+                    return False
     finally:
         # 退出时处理剩余输出
         remaining_output, _ = await process.communicate()
-        if remaining_output:
+        if remaining_output and logger:
             for line in remaining_output.decode().split("\n"):
-                output = line.strip()
-                if logger:
-                    logger.info(output, extra={"event": "运行日志"})
+                logger.info(line.strip(), extra={"event": "运行日志"})
+    return True
 
 
 async def main():
     """主函数"""
-    await asyncio.gather(log_writer(), ssh_clean(), ssh_run())
-
+    try:
+        await asyncio.gather(log_writer(), ssh_clean(), ssh_run())
+    except Exception as e:
+        loggers["system"].error(f"运行失败: {e}", extra={"event": "运行日志"})
+        sys.exit(1)
 
 if __name__ == "__main__":
     asyncio.run(main())

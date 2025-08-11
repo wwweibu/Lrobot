@@ -2,9 +2,9 @@
 
 import asyncio
 import datetime
+from pathlib import Path
 
-from config import path
-
+path = Path("/app")
 backup_dir = path / "storage/data/backup"
 backup_dir.mkdir(parents=True, exist_ok=True)
 

@@ -10,28 +10,18 @@ async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
     msg = Msg(
-        platform=msg.platform,
-        kind=f"{kind}发送",
+        platform="LR5921",
+        kind=f"群聊头衔",
         event="发送",
-        content=f"12[图片:{path}/storage/file/firefly/R.gif]",
-        seq=msg.seq,
+        content="我不会再等了~~",
         user=msg.user,
-        group=msg.group
+        group="786159347"
     )
 
     try:
         _future = future.get(msg.num)
         response = await asyncio.wait_for(_future, timeout=20)
         print(response)
-    #     await asyncio.sleep(5)
-    #     Msg(
-    #         platform=msg.platform,
-    #         kind=f"私聊撤回",
-    #         event="发送",
-    #         user=msg.user,
-    #         seq=response[0]
-    #     )
-    #
     except asyncio.TimeoutError:
         print("111111111")
 

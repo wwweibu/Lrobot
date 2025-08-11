@@ -116,7 +116,7 @@ async def lr5921_msg_deal(data):
             from message.handler.msg_pool import MsgPool
             withdraw_msg = MsgPool.seq_get(str(seq))
             if withdraw_msg:  # 接收过原消息才能显示撤回
-                content += withdraw_msg.get("content")  # 返回的是 list
+                content += withdraw_msg.get("content") or []  # 返回的是 list;撤回自己消息时会是 None（仅有撤回事件）
         elif kind.endswith("管理"):
             if data.get("sub_type") == "set":
                 content = f"{data.get('group_id')} 增加管理 {data.get('user_id')}"

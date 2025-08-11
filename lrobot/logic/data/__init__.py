@@ -19,4 +19,4 @@ from .firefly import firefly_password_get
 from .backup import backup_mysql, backup_mongo
 from .user import user_codename_change, user_identify
 from .status import status_check, status_add, status_delete
-from .file import record_convert, image_compress, record_compress, video_compress
+from .file import record_convert, image_compress, record_compress, video_compress, file_download, file_name_overwrite

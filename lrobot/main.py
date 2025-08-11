@@ -79,7 +79,7 @@ async def BILI_init():
             f"定时任务 bili_receive 异常 -> {e}", extra={"event": "定时任务"}
         )
     asyncio.create_task(scheduler_add(bili_receive, 20, interval=20))  # 推荐刷新间隔 20
-    asyncio.create_task(scheduler_add(bili_fan_get, interval=60))  # 每分钟检测粉丝
+    asyncio.create_task(scheduler_add(bili_fan_get, interval=300))  # 检测粉丝
 
 
 def tasks_set():

@@ -207,6 +207,23 @@ class AutoConfig:
 
     def load(self, key):
         """数据载入"""
+        if key not in self._config:
+            loggers["system"].error(
+                f"键 {key} 不存在，自动创建并设置为空字典",
+                extra={"event": "配置读取"},
+            )
+            storage_path = self._config_path / "storage.yaml"
+            with open(storage_path, "r", encoding="utf-8") as f:
+                storage_data = yaml.safe_load(f) or {}
+            if key == "access_tokens":
+                storage_data[key] = {"WECHAT": {"token": "", "expires_at": 0},
+                                     "LR232": {"token": "", "expires_at": 0}}
+            else:
+                storage_data[key] = {}
+
+            with open(storage_path, "w", encoding="utf-8") as f:
+                yaml.safe_dump(storage_data, f, allow_unicode=True, sort_keys=False)
+        self.config_load()
         value = self._config.get(key)
         self._storage[key] = value  # 注册引用
         return value
@@ -214,6 +231,7 @@ class AutoConfig:
     def save(self):
         """数据保存"""
         for key, ref in self._storage.items():
+            print(f"[SAVE] 写入配置项: {key}")
             self[key] = ref
 
 
