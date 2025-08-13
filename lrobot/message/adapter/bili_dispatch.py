@@ -8,11 +8,14 @@ from hashlib import md5
 from urllib.parse import urlencode
 
 from logic import image_compress
-from config import config, loggers, connect, future, path
+from config import config, loggers, connect, future
 
-adapter_logger = loggers["adapter"]
-
-live_headers = {
+DEFAULT_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    "Referer": "https://www.bilibili.com/",
+    "Origin": "https://www.bilibili.com",
+}
+LIVE_HEADERS = {  # 直播用
     "accept": "application/json, text/plain, */*",
     "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
     "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -26,14 +29,13 @@ live_headers = {
     "sec-fetch-site": "same-site",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0",
 }
+
+adapter_logger = loggers["adapter"]
+
+
 async def request_deal(url, method, params, tag, files=None, headers=None):
     """请求统一处理"""
-    if not headers:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-            "Referer": "https://www.bilibili.com/",
-            "Origin": "https://www.bilibili.com",
-        }
+    headers = headers or DEFAULT_HEADERS
     cookies = {"SESSDATA": config["BILI_SESSDATA"]}
     client = connect()
     try:
@@ -77,12 +79,9 @@ async def bili_dispatch(
             if "file" in item["data"]:
                 image_parts.append(item["data"]["file"])
             elif "summary" in item["data"]:
-                summary = item["data"]["summary"]
-                content_parts.append(summary)
+                content_parts.append(item["data"]["summary"])
         elif item["type"] == "text":
-            text = item["data"].get("text", "")
-            content_parts.append(text)
-    final_content = "".join(content_parts)
+            content_parts.append(item["data"].get("text", ""))
     base_params = {
         "msg[sender_uid]": config["BILI_UID"],
         "msg[receiver_id]": user,
@@ -93,15 +92,15 @@ async def bili_dispatch(
         "csrf": config["BILI_JCT"],
     }
     seq = []
-    if final_content:
+    if content_parts:  # 文本合并发送
         params = base_params.copy()
         params["msg[msg_type]"] = 1
         params["msg[new_face_version]"] = 1
-        params["msg[content]"] = json.dumps({"content": final_content})
+        params["msg[content]"] = json.dumps({"content": "".join(content_parts)})
         response = await request_deal(url, "post", params, "私聊发送")
         seq.append(response.get("data", {}).get("msg_key"))
 
-    for file in image_parts:
+    for file in image_parts:  # 逐一发送图片
         params = base_params.copy()
         params["msg[msg_type]"] = 2
         file_data = await bili_file_upload(file)
@@ -119,7 +118,7 @@ async def bili_file_upload(file, type=None, url=None):
     params = {"category": "daily",
               "csrf": config["BILI_JCT"],
               "biz": "im"}
-    file_data = await image_compress(file, 20)
+    file_data = await image_compress(file, 30)
     files = {
         "file_up": (os.path.basename(file), file_data, mime_type)
     }
@@ -182,35 +181,33 @@ async def bili_live_start(num):
 
     params = {
         "room_id": config["BILI_LIVE_ID"],
-        "area_v2": 702,
+        "area_v2": 702,  # 历史·人文·综合
         "platform": "pc_link",
         "csrf": config["BILI_JCT"],
         "csrf_token": config["BILI_JCT"],
         "type": 2
     }
     params = sign_data(params)
-    response = await request_deal(url, "post", params, "私聊直播开启", live_headers)
+    response = await request_deal(url, "post", params, "私聊直播开启", headers=LIVE_HEADERS)
     addr = response.get("data", {}).get("rtmp", {}).get("addr")
     code = response.get("data", {}).get("rtmp", {}).get("code")
-    future.set(num, [addr, code])
+    future.set(num, [addr, code])  # 推流地址，推流码
 
 
 async def bili_live_title(title, file=None):
     """私聊直播标题"""
     url = "https://api.live.bilibili.com/xlive/app-blink/v1/preLive/UpdatePreLiveInfo"
-    file_url = []
-    if file:
-        file_url = await bili_file_upload(file)
+    cover = (await bili_file_upload(file))[0] if file else None
     params = {
         "csrf": config["BILI_JCT"],
         "csrf_token": config["BILI_JCT"],
         "platform": "web",
         "mobi_app": "web",
         "build": "1",
-        "cover": file_url[0] if file else None,
+        "cover": cover,
         "title": title
     }
-    await request_deal(url, "post", params, "私聊直播标题", live_headers)
+    await request_deal(url, "post", params, "私聊直播标题", headers=LIVE_HEADERS)
 
 
 async def bili_live_notice(notice):
@@ -223,7 +220,7 @@ async def bili_live_notice(notice):
         "csrf": config["BILI_JCT"],
         "csrf_token": config["BILI_JCT"],
     }
-    await request_deal(url, "post", params, "私聊直播公告", live_headers)
+    await request_deal(url, "post", params, "私聊直播公告", headers=LIVE_HEADERS)
 
 
 async def bili_live_stop():
@@ -234,4 +231,4 @@ async def bili_live_stop():
         "room_id": config["BILI_LIVE_ID"],
         "csrf": config["BILI_JCT"],
     }
-    await request_deal(url, "post", params, "私聊直播关闭", live_headers)
+    await request_deal(url, "post", params, "私聊直播关闭", headers=LIVE_HEADERS)

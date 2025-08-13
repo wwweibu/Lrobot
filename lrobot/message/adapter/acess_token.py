@@ -3,14 +3,14 @@
 import time
 import asyncio
 
-from config import config, loggers, connect
+from config import config, loggers, connect, scheduler_add, storage
 
-TOKEN_API = {
+TOKEN_API = {  # 请求地址
     "WECHAT": "https://api.weixin.qq.com/cgi-bin/stable_token",
     "LR232": "https://bots.qq.com/app/getAppAccessToken",
 }
 
-AUTH_PARAMS = {
+AUTH_PARAMS = {  # 请求参数
     "WECHAT": {
         "grant_type": "client_credential",
         "appid": config["WECHAT_ID"],
@@ -24,41 +24,64 @@ AUTH_PARAMS = {
 
 adapter_logger = loggers["adapter"]
 
-access_tokens = config.load("access_tokens")
+access_tokens = storage.setdefault("access_tokens",
+                                   {"WECHAT": {"token": "", "expires_at": 0}, "LR232": {"token": "", "expires_at": 0}})
+print(111)
+print(access_tokens)
+
+
+async def update_tokens(platform_list):
+    """检查并刷新即将过期的令牌"""
+    client = connect(True)
+    current_time = time.time()
+
+    async def update_token(platform):
+        """刷新单平台"""
+        try:
+            response = await client.post(
+                TOKEN_API[platform],
+                json=AUTH_PARAMS[platform],
+                timeout=10,
+            )
+            token_data = response.json()
+
+            # 校验响应
+            if "access_token" not in token_data:
+                adapter_logger.error(
+                    f"⌈{platform}⌋ 令牌刷新失败 -> 无 access_token，响应: {token_data}",
+                    extra={"event": "令牌刷新"},
+                )
+                return
+
+            expires_in = int(token_data.get("expires_in", 10800))  # 默认 3h
+            access_tokens[platform] = {
+                "token": token_data["access_token"],
+                "expires_at": current_time + expires_in
+            }
+
+            adapter_logger.debug(
+                f"⌈{platform}⌋ 令牌有效期 {expires_in}",
+                extra={"event": "令牌刷新"},
+            )
+
+        except Exception as e:
+            adapter_logger.exception(
+                f"⌈{platform}⌋ 令牌刷新失败 -> {e}",
+                extra={"event": "令牌刷新"},
+            )
+
+    # 提前 60 秒刷新
+    platforms_to_refresh = [
+        p for p in platform_list
+        if p in access_tokens and current_time >= access_tokens[p]["expires_at"] - 60
+    ]
+
+    if platforms_to_refresh:
+        for p in platforms_to_refresh:
+            await update_token(p)
 
 
 async def refresh_tokens(platform_list):
     """刷新各平台令牌"""
-    while True:
-        current_time = time.time()
-        platforms_to_refresh = [
-            p for p in platform_list if p in access_tokens
-        ]  # 仅刷新配置参数的平台
-        client = connect(True)
-        for platform in platforms_to_refresh:
-            data = access_tokens.get(platform)
-
-            if current_time >= data["expires_at"] + 60:
-                try:
-                    response = await client.post(
-                        TOKEN_API[platform],
-                        json=AUTH_PARAMS[platform],
-                        timeout=10,
-                    )
-                    token_data = response.json()
-                    access_tokens[platform]["token"] = token_data.get(
-                        "access_token", ""
-                    )
-                    expires_in = int(token_data.get("expires_in", 10800))
-                    access_tokens[platform]["expires_at"] = current_time + expires_in
-                    adapter_logger.debug(
-                        f"⌈{platform}⌋ 令牌有效期 {expires_in}",
-                        extra={"event": "令牌刷新"},
-                    )
-                except Exception as e:
-                    adapter_logger.error(
-                        f"⌈{platform}⌋ 令牌刷新失败 -> {e}",
-                        extra={"event": "令牌刷新"},
-                    )
-
-        await asyncio.sleep(60)  # 每分钟检查一次
+    await update_tokens(platform_list)
+    asyncio.create_task(scheduler_add(update_tokens, platform_list, interval=60))

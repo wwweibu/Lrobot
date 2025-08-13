@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.8.1">
 <title data-rh="true">消息发送测试 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/4项目测试/2消息发送测试"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="消息发送测试 | Lrobot"><meta data-rh="true" name="description" content="各平台消息发送测试"><meta data-rh="true" property="og:description" content="各平台消息发送测试"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/4项目测试/2消息发送测试"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/4项目测试/2消息发送测试" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/4项目测试/2消息发送测试" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/4项目测试/2消息发送测试" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"项目测试","item":"https://wwweibu.github.io/Lrobot/en/docs/category/项目测试"},{"@type":"ListItem","position":2,"name":"消息发送测试","item":"https://wwweibu.github.io/Lrobot/en/docs/4项目测试/2消息发送测试"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.128759fc.css">
-<script src="/Lrobot/en/assets/js/runtime~main.5da01ac7.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.48c39a4e.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.906a8926.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.c57ceceb.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs>
@@ -20,9 +20,9 @@
 <div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">async def test_1(msg: Msg):</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    &quot;&quot;&quot;测试函数&quot;&quot;&quot;</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    kind = msg.kind[:2]</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    msg = Msg(</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        platform=msg.platform,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        kind=f&quot;{kind}发送&quot;,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        event=&quot;发送&quot;,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        content=f&quot;❤️&quot;,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        seq=msg.seq,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        user=msg.user,</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        group=msg.group</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    )</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    try:</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        _future = future.get(msg.num)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        response = await asyncio.wait_for(_future, timeout=20)</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">        print(response)</span><br></span></code></pre></div></div>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="测试项目">测试项目<a href="#测试项目" class="hash-link" aria-label="Direct link to 测试项目" title="Direct link to 测试项目">​</a></h4>
 <ul>
-<li>1 <a href="#1">发送</a> LR5921/LR232/BILI/WECHAT</li>
+<li>1 <a href="#1">发送</a> LR5921/LR232/WECHAT/BILI</li>
 <li>2 <a href="#2">消息获取</a> LR5921/BILI</li>
-<li>3 <a href="#3">文件上传</a> LR232/BILI/WECHAT</li>
+<li>3 <a href="#3">文件上传</a> LR232/WECHAT/BILI</li>
 <li>4 <a href="#4">文件下载</a> LR5921/WECHAT</li>
 <li>5 <a href="#5">撤回</a> LR5921/LR232/BILI</li>
 <li>6 <a href="#6">签名</a> LR5921/BILI</li>
@@ -33,15 +33,24 @@
 <li>11 <a href="#11">签到</a> LR5921</li>
 <li>12 <a href="#12">回应</a> LR5921</li>
 <li>13 <a href="#13">精华</a> LR5921</li>
+<li>14 <a href="#14">头衔</a> LR5921</li>
+<li>15 <a href="#15">其他</a></li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="测试结果">测试结果<a href="#测试结果" class="hash-link" aria-label="Direct link to 测试结果" title="Direct link to 测试结果">​</a></h2>
 <ul>
 <li>1<!-- -->
 <ul>
 <li>LR5921 可以正常返回 seq</li>
+<li>LR5921 发送临时消息时，若别人主动开启临时会话即可发送，否则不可发送</li>
 <li>LR232 可以分离文件及图片，可以正常返回 seq_list</li>
-<li>BILI 可以分离文件及图片，可以正常返回 seq_list</li>
+<li>LR232 使用添加发送时，回复接收到的事件序号<!-- -->
+<ul>
+<li>群聊/好友添加能根据事件 id 回复消息，但 1 天内只能回复 1 次</li>
+<li>群聊/好友删除不能回复消息</li>
+</ul>
+</li>
 <li>WECHAT 无 seq，且只能发送消息段中最前面的消息（[0]）</li>
+<li>BILI 可以分离文件及图片，可以正常返回 seq_list</li>
 </ul>
 </li>
 <li>2<!-- -->
@@ -62,11 +71,6 @@
 <li>上传视频时，大于 10MB 会报 readerror 错误；大于 9.99 MB 会报错误：文件大小超过限制（10MB 正好报错，就<strong>离谱</strong>）</li>
 </ul>
 </li>
-<li>BILI 文件只能上传图片<!-- -->
-<ul>
-<li>大于 20MB 会报 readtimeout 错误</li>
-</ul>
-</li>
 <li>WEHCTA 文件有效期 3d<!-- -->
 <ul>
 <li>大小超了会报 content size out of limit rid/invalid media size hin 错误</li>
@@ -74,6 +78,11 @@
 <li>语音限制 2MB，60s</li>
 <li>视频限制 10MB</li>
 <li>缩略图限制 64KB</li>
+</ul>
+</li>
+<li>BILI 文件只能上传图片<!-- -->
+<ul>
+<li>大于 20MB 会报 readtimeout 错误</li>
 </ul>
 </li>
 </ul>
@@ -127,11 +136,24 @@
 <li>13<!-- -->
 <ul>
 <li>只有群主和管理员才能设置精华</li>
+<li>精华:有时是管理员但无法设置精华</li>
 </ul>
 </li>
 <li>14<!-- -->
 <ul>
 <li>可以设置超出六个字的头衔，且显示设置完整头衔的消息，但用户头衔只能显示六个字</li>
+</ul>
+</li>
+<li>15<!-- -->
+<ul>
+<li>LR5921<!-- -->
+<ul>
+<li>英译中: /translate_en2zh 测试失败</li>
+<li>获取点赞列表: /get_profile_like 测试失败</li>
+<li>获取群聊表情回应列表: 测试失败</li>
+<li>发送音乐卡片: 测试失败，id 不知道</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -141,19 +163,19 @@
 <li>kind: 私聊发送</li>
 <li>content: 123[图片<!-- -->:path<!-- -->/file/firefly/firework.png]</li>
 <li>platform: LR5921</li>
-<li>response = 680048664</li>
+<li>response = <code>680048664</code></li>
 </ul></div></div></details>
 <details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>LR232</summary><div><div class="collapsibleContent_i85q"><ul>
 <li>kind: 私聊发送</li>
 <li>content: 123[图片<!-- -->:path<!-- -->/file/firefly/firework.png]</li>
 <li>platform: LR232</li>
-<li>response = [&#x27;ROBOT1.0_-vh8GQMXamm82CP8NyBAyE0q-ECmupwy5MqkKfufkKrdZHx9OjzvJ0XwR3QxK6u8T5nA0QNLdJ8hRsT2lBWfDw!!&#x27;, &#x27;ROBOT1.0_-vh8GQMXamm82CP8NyBAyD4-k1cBM4BzdXhCSOqtw6pfkXluMBe5wiIGDvNZP3EET5nA0QNLdJ8hRsT2lBWfDw!!&#x27;]</li>
+<li>response = <code>[&#x27;ROBOT1.0_-vh8GQMXamm82CP8NyBAyE0q-ECmupwy5MqkKfufkKrdZHx9OjzvJ0XwR3QxK6u8T5nA0QNLdJ8hRsT2lBWfDw!!&#x27;, &#x27;ROBOT1.0_-vh8GQMXamm82CP8NyBAyD4-k1cBM4BzdXhCSOqtw6pfkXluMBe5wiIGDvNZP3EET5nA0QNLdJ8hRsT2lBWfDw!!&#x27;]</code></li>
 </ul></div></div></details>
 <details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>BILI</summary><div><div class="collapsibleContent_i85q"><ul>
 <li>kind: 私聊发送</li>
 <li>content: 123[图片<!-- -->:path<!-- -->/file/firefly/firework.png]</li>
 <li>platform: BILI</li>
-<li>response = [7535452591728913757, 7535452609221143811]</li>
+<li>response = <code>[7535452591728913757, 7535452609221143811]</code></li>
 </ul></div></div></details>
 <details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>WECHAT</summary><div><div class="collapsibleContent_i85q"><ul>
 <li>kind: 私聊发送</li>
@@ -327,6 +349,10 @@
 <li>group: 736368697</li>
 <li>content: 我不会再等了~~</li>
 <li>response: 无</li>
-</ul></div></div></details></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/4项目测试/1消息接收测试"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">消息接收测试</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/4项目测试/3消息字段接收测试"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">消息字段接收测试</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#测试内容" class="table-of-contents__link toc-highlight">测试内容</a></li><li><a href="#测试结果" class="table-of-contents__link toc-highlight">测试结果</a></li><li><a href="#1" class="table-of-contents__link toc-highlight">1</a></li><li><a href="#2" class="table-of-contents__link toc-highlight">2</a></li><li><a href="#3" class="table-of-contents__link toc-highlight">3</a></li><li><a href="#4" class="table-of-contents__link toc-highlight">4</a></li><li><a href="#5" class="table-of-contents__link toc-highlight">5</a></li><li><a href="#6" class="table-of-contents__link toc-highlight">6</a></li><li><a href="#7" class="table-of-contents__link toc-highlight">7</a></li><li><a href="#8" class="table-of-contents__link toc-highlight">8</a></li><li><a href="#9" class="table-of-contents__link toc-highlight">9</a></li><li><a href="#10" class="table-of-contents__link toc-highlight">10</a></li><li><a href="#11" class="table-of-contents__link toc-highlight">11</a></li><li><a href="#12" class="table-of-contents__link toc-highlight">12</a></li><li><a href="#13" class="table-of-contents__link toc-highlight">13</a></li><li><a href="#14" class="table-of-contents__link toc-highlight">14</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+</ul></div></div></details>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="15">15<a href="#15" class="hash-link" aria-label="Direct link to 15" title="Direct link to 15">​</a></h2>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="处理结果-14">处理结果<a href="#处理结果-14" class="hash-link" aria-label="Direct link to 处理结果" title="Direct link to 处理结果">​</a></h4>
+<details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>LR5921 点赞他人</summary><div><div class="collapsibleContent_i85q"><p>不需要</p></div></div></details>
+<details class="details_lb9f alert alert--info details_b_Ee" data-collapsed="true"><summary>LR5921 获取收藏表情</summary><div><div class="collapsibleContent_i85q"><p>不需要</p></div></div></details></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/4项目测试/1消息接收测试"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">消息接收测试</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/4项目测试/3消息字段接收测试"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">消息字段接收测试</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#测试内容" class="table-of-contents__link toc-highlight">测试内容</a></li><li><a href="#测试结果" class="table-of-contents__link toc-highlight">测试结果</a></li><li><a href="#1" class="table-of-contents__link toc-highlight">1</a></li><li><a href="#2" class="table-of-contents__link toc-highlight">2</a></li><li><a href="#3" class="table-of-contents__link toc-highlight">3</a></li><li><a href="#4" class="table-of-contents__link toc-highlight">4</a></li><li><a href="#5" class="table-of-contents__link toc-highlight">5</a></li><li><a href="#6" class="table-of-contents__link toc-highlight">6</a></li><li><a href="#7" class="table-of-contents__link toc-highlight">7</a></li><li><a href="#8" class="table-of-contents__link toc-highlight">8</a></li><li><a href="#9" class="table-of-contents__link toc-highlight">9</a></li><li><a href="#10" class="table-of-contents__link toc-highlight">10</a></li><li><a href="#11" class="table-of-contents__link toc-highlight">11</a></li><li><a href="#12" class="table-of-contents__link toc-highlight">12</a></li><li><a href="#13" class="table-of-contents__link toc-highlight">13</a></li><li><a href="#14" class="table-of-contents__link toc-highlight">14</a></li><li><a href="#15" class="table-of-contents__link toc-highlight">15</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
 </body>
 </html>

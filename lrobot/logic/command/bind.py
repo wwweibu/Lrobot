@@ -4,10 +4,10 @@ import time
 import hashlib
 
 from logic import data
-from config import config
+from config import storage
 from message.handler.msg import Msg
 
-bind_list = config.load("bind_list")
+bind_list = storage.setdefault("bind_list", {})
 
 
 async def platform_bind(msg: Msg):

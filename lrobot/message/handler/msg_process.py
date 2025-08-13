@@ -15,8 +15,9 @@ async def msg_process(msg):
     try:
         await safe_msg_process(msg)
     except Exception as e:
+        content_str = Msg.content_join(msg.content) or msg.kind
         msg_logger.error(
-            f"⌈{msg.num}⌋出错: '{Msg.content_join(msg.content) if Msg.content_join(msg.content) else msg.kind}' -> {e}",
+            f"⌈{msg.num}⌋出错: '{content_str}' -> {e}",
             extra={"event": "消息处理"},
         )
         loggers["system"].error(traceback.format_exc(), extra={"event": "错误堆栈"})
@@ -24,55 +25,49 @@ async def msg_process(msg):
 
 async def safe_msg_process(msg: Msg):
     """消息处理"""
-    print(msg)  # TODO 调试用
+    print(msg)  # 调试用
+
+    content_str = Msg.content_join(msg.content) or msg.kind
 
     if msg.event == "处理":
         msg_logger.info(
-            f"⌈{msg.platform}⌋: {msg.kind} -> {Msg.content_join(msg.content) if Msg.content_join(msg.content) else msg.kind}",
+            f"⌈{msg.platform}⌋: {msg.kind} -> {content_str}",
             extra={"event": "消息处理"},
         )
         for commands in config["commands"]:
-            if msg.platform not in commands["platforms"]:
-                continue
-            if msg.kind not in commands["kind"]:
+            # 平台和消息类型
+            if msg.platform not in commands["platforms"] or msg.kind not in commands["kind"]:
                 continue
             if msg.group:  # 群需要在 groups 列表里
-                if commands["groups"]:
-                    if not any(
-                            msg.group in config["public"][group]
-                            for group in commands["groups"]
-                    ):
-                        continue
+                if commands["groups"] and not any(msg.group in config["public"][group] for group in commands["groups"]):
+                    continue
             else:  # 个人需要身份在 users 列表里
-                identity_list = await user_identify(msg.user, msg.platform)
                 if commands["users"]:
+                    identity_list = await user_identify(msg.user, msg.platform)
                     if not any(
                             identity in identity_list for identity in commands["users"]
                     ):
                         continue
             # 如果待匹配状态为空，则用户任意状态都可以匹配
             # 如果待匹配状态不为空，则用户状态必须包含系统状态
-            states = await status_check(msg.user if msg.user else "system")
-            if commands["state"] and not any(
-                    state in states for state in commands["state"]
-            ):
-                continue
+            if commands["state"]:
+                states = await status_check(msg.user if msg.user else "system")
+                if not any(state in states for state in commands["state"]):
+                    continue
 
             # 包含时，待匹配内容为空，匹配所有内容
-            if commands["judge"] == "contains":
-                if not commands["content"] or any(
-                        Msg.content_pattern_contains(msg.content, val)
-                        for val in commands["content"]
-                ):
-                    func = getattr(command, commands["function"])
-                    await func(msg)
-                    return
-            else:
-                for val in commands["content"]:
-                    if Msg.content_pattern_equal(msg.content, val):
-                        func = getattr(command, commands["function"])
-                        await func(msg)
-                        return
+            judge = commands["judge"]
+            contents = commands["content"]
+            matched = (
+                (not contents or any(Msg.content_pattern_contains(msg.content, v) for v in contents))
+                if judge == "contains"
+                else any(Msg.content_pattern_equal(msg.content, v) for v in contents)
+            )
+            if not matched:
+                continue
+            func = getattr(command, commands["function"])
+            await func(msg)
+            return
 
     elif msg.event.startswith("发送"):
         await msg_send(msg)

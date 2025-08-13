@@ -9,11 +9,12 @@ from logic import data
 async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
+    print(1111)
     msg = Msg(
-        platform="LR5921",
-        kind=f"群聊头衔",
+        platform=msg.platform,
+        kind=f"{kind}发送",
         event="发送",
-        content="我不会再等了~~",
+        content=f"[图片:{path}/storage/file/firefly/10MB.png]",
         user=msg.user,
         group="786159347"
     )

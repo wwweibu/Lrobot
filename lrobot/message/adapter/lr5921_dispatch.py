@@ -1,5 +1,7 @@
 """LR5921 调用 API"""
 
+import json
+
 from logic import file_download
 from config import config, loggers, connect, future
 
@@ -82,7 +84,15 @@ async def lr5921_msg_get(seq, num=None, user=None):
     url = f"{base_url}/get_msg"
     data = {"message_id": seq}
     data = await request_deal(url, data, "消息获取")
-    future.set(num, data.get("data").get("message", ""))
+    message_list = data.get("data").get("message", "")
+    for message in message_list:
+        if message.get("type", "") == "json":
+            if isinstance(message["data"]["data"], str):
+                try:
+                    message["data"]["data"] = json.loads(message["data"]["data"])
+                except json.JSONDecodeError:
+                    pass
+    future.set(num, message_list)
 
 
 async def lr5921_file_download(file, path):

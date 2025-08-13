@@ -3,7 +3,7 @@
 import json
 import time
 
-from config import config
+from config import config, loggers
 
 
 class Msg:
@@ -61,18 +61,22 @@ class Msg:
     @staticmethod
     def _face_join(face_id, face_text=None):
         """表情添加"""
-        face = config["emojis"].get(face_id)
+        emojis = config["emojis"]
+        face = emojis.get(face_id)
         if not face:
             if not face_text:
-                raise Exception(f"无法解析的表情 ID: {face_id}")
-            face = face_text.strip("[]").lstrip("/")
-            # 将新表情添加至 emojis
-            emojis = config["emojis"]
-            emojis[face_id] = face
-            sorted_emojis = dict(
-                sorted(emojis.items(), key=lambda x: int(x[0]))
-            )  # 按照 key 以数字顺序排序(不加 int:1,10,2)
-            config["emojis"] = sorted_emojis
+                loggers["message"].error(
+                    f"消息解析出错 : 无法解析的表情 ID -> {face_id}",
+                    extra={"event": "消息处理"},
+                )
+                face = "未知表情"
+            else:  # 将新表情添加至 emojis
+                face = face_text.strip("[]").lstrip("/")
+                emojis[face_id] = face
+                sorted_emojis = dict(
+                    sorted(emojis.items(), key=lambda x: int(x[0]))
+                )  # 按照 key 以数字顺序排序(不加 int:1,10,2)
+                config["emojis"] = sorted_emojis
         return face
 
     @classmethod
@@ -86,7 +90,7 @@ class Msg:
             "at": lambda d: f"[at:{d.get('qq')}]",
             "rps": lambda d: f"[猜拳:{ {'1': '布', '2': '剪刀', '3': '石头'}.get(str(d.get('result')), '未知结果')}]",
             "dice": lambda
-                d: f"[骰子:{str(d.get('result')) if str(d.get('result')) in {'1', '2', '3', '4', '5', '6'} else '未知结果'}]",
+                d: f"[骰子:{str(d.get('result')) if str(d.get('result')) in '123456' else '未知结果'}]",
             "reply": lambda d: f"[回复:{cls.content_join(d.get('content', []))}]" if d.get(
                 "content") else f"[回复:{d.get('id')}]",
             "forward": lambda
@@ -111,11 +115,10 @@ class Msg:
         out, i, n = [], 0, len(content)
         while i < n:
             if content[i] != '[':
-                # 收集纯文本直到 '['
-                j = i
-                while j < n and content[j] != '[':
-                    j += 1
-                out.append(("文本", content[i:j]))
+                j = content.find('[', i)  # 从位置 i 开始查找 '['
+                if j == -1:
+                    j = n
+                out.append(('文本', content[i:j]))
                 i = j
                 continue
 
@@ -208,17 +211,16 @@ class Msg:
                 cls._content_token_match(str(content))]
 
     PATTERN_FIELDS = {
-        'text': ('text',),
-        'at': ('qq',),
-        'rps': ('result',),
-        'dice': ('result',),
-        'face': ('id',),
-        'reply': ('id',),
-        'poke': (),  # poke 无条件匹配
-        'record': ('file',),
-        'video': ('file',),
-        'file': ('file',),
-        'json': ('prompt',),
+        'text': 'text',
+        'at': 'qq',
+        'rps': 'result',
+        'dice': 'result',
+        'face': 'id',
+        'reply': 'id',
+        'record': 'file',
+        'video': 'file',
+        'file': 'file',
+        'json': 'prompt',
     }
 
     @staticmethod
@@ -232,7 +234,7 @@ class Msg:
         # 不支持/不匹配的段直接 False
         if content_type != pattern_seg['type']:
             return False
-        elif content_type in {'node', 'forward'}:
+        elif content_type in {'node', 'forward', 'mface'}:
             return False
         elif content_type == 'poke':
             return True
@@ -251,28 +253,25 @@ class Msg:
             return pattern_match in ('any', content_match)
 
         # 取出该类型需要比较的字段
-        fields = Msg.PATTERN_FIELDS.get(content_type, ())
-        for k in fields:
-            content_val = content_data.get(k)
-            pattern_val = pattern_data.get(k)
+        field = Msg.PATTERN_FIELDS.get(content_type)
+        if field:
+            content_val = content_data.get(field)
+            pattern_val = pattern_data.get(field)
 
             # 通配
             if pattern_val == 'any':
-                continue
+                return True
 
             # 严格相等 / 子串包含
             if strict:
-                if pattern_val != content_val:
-                    return False
+                return pattern_val == content_val
             else:
                 # text 支持子串，其余按相等处理；text 支持空格代表 any
                 if content_type == 'text':
-                    if str(pattern_val) not in str(content_val) and str(pattern_val) != " ":
-                        return False
+                    return str(pattern_val) == " " or str(content_val) in str(pattern_val)
                 else:
-                    if pattern_val != content_val:
-                        return False
-        return True
+                    return pattern_val == content_val
+        return False  # 未知 content_type
 
     @classmethod
     def content_pattern_contains(cls, content, pattern):

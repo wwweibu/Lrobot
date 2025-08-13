@@ -3,18 +3,19 @@
 import signal
 import asyncio
 
+from config import config
 from secret import secret
 from logic import backup_mysql, backup_mongo
 from message.handler.msg_pool import MsgPool
 from web.backend.app import server_runner, app
 from config import (
-    config,
     future,
     loggers,
     mysql_init,
     scheduler_add,
     log_writer,
     config_watcher,
+    storage
 )
 from message.adapter import (
     refresh_tokens,
@@ -35,7 +36,7 @@ async def start():
 
 def stop():
     """清理函数，必须同步"""
-    config.save()
+    config.save(storage)
 
 
 async def scheduler():
@@ -78,7 +79,7 @@ async def BILI_init():
         loggers["system"].error(
             f"定时任务 bili_receive 异常 -> {e}", extra={"event": "定时任务"}
         )
-    asyncio.create_task(scheduler_add(bili_receive, 20, interval=20))  # 推荐刷新间隔 20
+    asyncio.create_task(scheduler_add(bili_receive, 60, interval=60))  # 推荐刷新间隔 20
     asyncio.create_task(scheduler_add(bili_fan_get, interval=300))  # 检测粉丝
 
 

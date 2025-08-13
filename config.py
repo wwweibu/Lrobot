@@ -161,7 +161,7 @@ class AutoConfig:
         self._config.clear()
         self._config_sources.clear()
         for config_file in self._config_path.glob("*.yaml"):
-            if config_file.name.endswith("_copy.yaml"):
+            if config_file.name.endswith("_copy.yaml") or config_file.name == "storage.yaml":
                 continue  # 跳过模板文件
             try:
                 with open(config_file, "r", encoding="utf-8") as f:
@@ -171,10 +171,7 @@ class AutoConfig:
                         self._config_sources[key] = config_file  # 记录来源文件
                     self._config_hashes[config_file] = file_hash_get(config_file)
             except Exception as e:
-                loggers["system"].error(
-                    f"yaml 文件 {config_file.name} 格式错误 -> {e}",
-                    extra={"event": "配置读取"},
-                )
+                print(f"yaml 文件 {config_file.name} 格式错误 -> {e}")
         self.log_set()  # 更新日志记录器
 
     @staticmethod
@@ -205,34 +202,25 @@ class AutoConfig:
         loggers["server"].addFilter(ServerFilter())
         loggers["system"].info("配置数据更新", extra={"event": "配置读取"})
 
-    def load(self, key):
+    def load(self):
         """数据载入"""
-        if key not in self._config:
-            loggers["system"].error(
-                f"键 {key} 不存在，自动创建并设置为空字典",
-                extra={"event": "配置读取"},
-            )
-            storage_path = self._config_path / "storage.yaml"
-            with open(storage_path, "r", encoding="utf-8") as f:
-                storage_data = yaml.safe_load(f) or {}
-            if key == "access_tokens":
-                storage_data[key] = {"WECHAT": {"token": "", "expires_at": 0},
-                                     "LR232": {"token": "", "expires_at": 0}}
-            else:
-                storage_data[key] = {}
+        try:
+            with open(self._config_path / "storage.yaml", "r", encoding="utf-8") as f:
+                return yaml.safe_load(f) or {}
+        except FileNotFoundError:
+            return {}
 
-            with open(storage_path, "w", encoding="utf-8") as f:
-                yaml.safe_dump(storage_data, f, allow_unicode=True, sort_keys=False)
-        self.config_load()
-        value = self._config.get(key)
-        self._storage[key] = value  # 注册引用
-        return value
-
-    def save(self):
+    def save(self, data):
         """数据保存"""
-        for key, ref in self._storage.items():
-            print(f"[SAVE] 写入配置项: {key}")
-            self[key] = ref
+        save_path = self._config_path / "storage.yaml"
+        tmp = save_path.with_suffix(".tmp")
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
+            tmp.replace(save_path)
+        except Exception:
+            tmp.unlink(missing_ok=True)
+            raise
 
 
 class AutoConfigHandler(FileSystemEventHandler):
@@ -536,3 +524,5 @@ config = AutoConfig(path / "storage/yml")
 future = FutureManager()
 # 初始化 MongoDB 连接
 mongo_init()
+# 加载存储
+storage = config.load()

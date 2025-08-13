@@ -91,7 +91,6 @@ async def lr5921_msg_deal(data):
             "group_ban": "群聊禁言",
             "group_msg_emoji_like": "群聊回应",
             "essence": "群聊设精",
-
             "notify": "消息提醒",
             "group_card": "群名片更改"
         }

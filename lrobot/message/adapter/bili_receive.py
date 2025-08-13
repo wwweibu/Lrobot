@@ -1,5 +1,4 @@
 """B 站消息获取"""
-import asyncio
 import re
 import json
 import time
@@ -14,41 +13,33 @@ adapter_logger = loggers["adapter"]
 
 def sort_messages(msg_list):
     """重新排序消息列表"""
-    non_withdraw_msgs = [msg for msg in msg_list if msg["msg_type"] != 5]
-    withdraw_msgs = [msg for msg in msg_list if msg["msg_type"] == 5]
-    non_withdraw_msgs.reverse()
+    non_withdraw, withdraw = [], []
+    for m in reversed(msg_list):
+        (withdraw if m["msg_type"] == 5 else non_withdraw).append(m)
     # 将非撤回消息放在前面，撤回消息放在后面
-    return non_withdraw_msgs + withdraw_msgs
+    return non_withdraw + withdraw
 
 async def bili_receive(interval=None):
     """私聊接收"""
     url = "https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions"
-    params = {
-        **(
-            {"begin_ts": int((time.time() - interval) * 1_000_000)}
-            if interval is not None
-            else {}
-        ),
-    }  # 指定开始时间
+    params = {}
+    if interval:
+        params["begin_ts"] = int((time.time() - interval) * 1_000_000)
     response = await request_deal(url, "get", params, "私聊接收")
 
-    msg_list = response["data"]["session_list"]
+    msg_list = response.get("data", {}).get("session_list", [])
     if not isinstance(msg_list, list):  # 无消息
         return
     for msg in msg_list:
-        if msg["unread_count"] == 0:
-            if interval:
-                await _bili_msg_read(msg["talker_id"])
-                msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
-                for msg_get in sort_messages(msg_get_list):
-                    await bili_msg_deal(msg_get)
-            else:
-                pass
-        else:  # 不直接处理消息，因为可能为两条消息，撤回了一条
-            await _bili_msg_read(msg["talker_id"])
-            msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
-            for msg_get in sort_messages(msg_get_list):
-                await bili_msg_deal(msg_get)
+        if msg["unread_count"] == 0 and not interval:
+            continue
+        # 不直接提取消息，因为撤回消息不算数量（unread_count）
+        await _bili_msg_read(msg["talker_id"])
+        if not msg.get("ack_seqno"):
+            continue
+        msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
+        for msg_get in sort_messages(msg_get_list):
+            await bili_msg_deal(msg_get)
 
 
 async def bili_msg_get(seq, num=None, user=None):
@@ -61,7 +52,7 @@ async def bili_msg_get(seq, num=None, user=None):
         "begin_seqno": seq,  # 指定开始序号
     }
     response = await request_deal(url, "get", params, "私聊消息获取")
-    return response["data"]["messages"]
+    return response.get("data", {}).get("messages", [])
 
 
 async def _bili_msg_read(user):
@@ -81,27 +72,22 @@ async def bili_msg_deal(msg):
     """消息处理，对应私信主体对象"""
     content = json.loads(msg["content"])
     kind = "私聊接收"
-    if msg["msg_type"] == 1:
+    mtype = msg.get("msg_type")
+    if mtype == 1:
         content = content["content"]
         parts = re.split(r"(\[[^\[\]]+])", content)
-        result = []
-        for part in parts:
-            if not part:
-                continue
-            if re.fullmatch(r"\[[^\[\]]+]", part):
-                result.append({"type": "image", "data": {"summary": part}})
-            else:
-                result.append({"type": "text", "data": {"text": part}})
-        content = result
+        content = [
+            {"type": "image", "data": {"summary": part}} if re.fullmatch(r"\[[^\[\]]+]", part)
+            else {"type": "text", "data": {"text": part}}
+            for part in parts if part
+        ]
 
-    elif msg["msg_type"] == 2 or msg["msg_type"] == 6:
-
-        file = f"{msg['msg_key']}.{content['imageType']}"
+    elif mtype in (2, 6):
         content = [
             {
                 "type": "image",
                 "data": {
-                    "file": file,
+                    "file": f"{msg['msg_key']}.{content['imageType']}",
                     "url": content["url"],
                     "original": content["original"],
                     "size": content["size"],
@@ -111,7 +97,7 @@ async def bili_msg_deal(msg):
             }
         ]
 
-    elif msg["msg_type"] == 5:
+    elif mtype == 5:
         kind = "私聊撤回"
         raw_content = Msg.content_disjoin(f"{msg['sender_uid']} 撤回了 {msg['sender_uid']} 的消息 - ")
         from message.handler.msg_pool import MsgPool
@@ -119,7 +105,7 @@ async def bili_msg_deal(msg):
         if withdraw_msg:  # 如果不存在，则为消息序号
             content = raw_content + withdraw_msg.get("content")
 
-    elif msg["msg_type"] == 7:
+    elif mtype == 7:
         source_type_map = {
             2: "相簿",
             3: "纯文字",
@@ -138,7 +124,7 @@ async def bili_msg_deal(msg):
         new_content = {"prompt": content_value, "type": type, **content}
         content = [{"type": "json", "data": {"data": new_content}}]
 
-    elif msg["msg_type"] == 10:
+    elif mtype == 10:
         content_value = content.pop("text", "")
         new_content = {"prompt": content_value, "type": "系统通知", **content}
         content = [{"type": "json", "data": {"data": new_content}}]
@@ -177,7 +163,7 @@ async def bili_fan_get():
     response = await request_deal(url, "get", params, "私聊粉丝获取")
     fan_list = response["data"]["list"]
     fan_users = await status_check(status="fan")
-    old_fan = fan_users[0] if fan_users else None
+    old_fan = fan_users[0] if fan_users else None  # 上次最新粉丝
     old_fan_index = None
     if old_fan:
         for idx, item in enumerate(fan_list):
