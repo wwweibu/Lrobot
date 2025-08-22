@@ -26,8 +26,6 @@ adapter_logger = loggers["adapter"]
 
 access_tokens = storage.setdefault("access_tokens",
                                    {"WECHAT": {"token": "", "expires_at": 0}, "LR232": {"token": "", "expires_at": 0}})
-print(111)
-print(access_tokens)
 
 
 async def update_tokens(platform_list):

@@ -2,10 +2,11 @@
 
 import os
 import base64
+from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
-from config import loggers, connect, future
-from logic import record_convert, video_compress, image_compress, record_compress
+from logic import record_convert, video_compress, image_compress
+from config import loggers, connect, future, database_query, database_update
 
 adapter_logger = loggers["adapter"]
 
@@ -13,14 +14,14 @@ adapter_logger = loggers["adapter"]
 def data_format(data):
     """转换数据中文件源码"""
     if "file_data" in data:
-        length = len(data["file_data"])
-        data["file_data"] = f"<base64 length={length}>"
+        return {**data, "file_data": f"<base64 length={len(data['file_data'])}>"}
+    return data
 
 async def request_deal(url, data, tag):
     """请求统一处理"""
-    token = access_tokens["LR232"]["token"]
-    headers = {"Authorization": f"QQBot {token}"}
+    headers = {"Authorization": f"QQBot {access_tokens['LR232']['token']}"}
     client = connect(True)
+    format_data = data_format(data)  # 避免文件数据爆日志
     try:
         if tag.endswith("撤回"):
             response = await client.delete(
@@ -31,14 +32,14 @@ async def request_deal(url, data, tag):
                 url, json=data, headers=headers, timeout=60.0
             )
     except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data_format(data)}")
+        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {format_data}")
     if response.status_code != 200:
         raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data_format(data)}"
+            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {format_data}"
         )
     json_resp = response.json()
     adapter_logger.info(
-        f"[LR232] {tag} 成功 -> {data_format(data)} | {json_resp}",
+        f"[LR232] {tag} 成功 -> {format_data} | {json_resp}",
         extra={"event": "消息发送"},
     )
     return json_resp
@@ -51,7 +52,7 @@ async def lr232_dispatch(
         group=None,
         num=None,
         seq=None,
-        order=None
+        order=1
 ):
     """LR232 消息发送/消息添加发送"""
     if kind.startswith("私聊"):
@@ -60,27 +61,16 @@ async def lr232_dispatch(
     else:
         url = f"https://api.sgroup.qq.com/v2/groups/{group}/messages"
         upload_url = f"https://api.sgroup.qq.com/v2/groups/{group}/files"
-    if kind.endswith("添加发送"):
-        tag = "event_id"
-    else:
-        tag = "msg_id"
-    if not order:
-        order = 1
+    tag = "event_id" if kind.endswith("添加发送") else "msg_id"
 
-    content_parts = []
-    file_parts = []
-    for item in content:
-        if item["type"] in ["image", "record", "video", "file"]:
-            if "file" in item["data"]:
-                file_parts.append(item["data"]["file"])
-        elif item["type"] == "text":
-            text = item["data"].get("text", "")
-            content_parts.append(text)
-    final_content = "".join(content_parts)
+    text_parts = [i["data"].get("text", "") for i in content if i["type"] == "text"]
+    file_parts = [i["data"]["file"] for i in content if
+                  i["type"] in ["image", "record", "video", "file"] and "file" in i["data"]]
+
     seq_list = []
-    if final_content:
+    if text_parts:
         data = {
-            "content": final_content,
+            "content": "".join(text_parts),
             "msg_type": 0,
             tag: seq,
             "msg_seq": order
@@ -97,7 +87,6 @@ async def lr232_dispatch(
             "media": media
         }
         order += 1
-
         response = await request_deal(url, data, "私聊发送")
         seq_list.append(response.get("id"))
     future.set(num, seq_list)
@@ -105,13 +94,14 @@ async def lr232_dispatch(
 
 async def lr232_file_upload(file, type=None, url=None):
     """文件上传"""
+    query = "SELECT media_json, qq FROM user_media WHERE filepath = %s"
+    result = await database_query(query, (file,))
+    if result:
+        js, t = result[0]["media_json"], result[0]["qq"]
+        if js and t and datetime.now() < t + timedelta(hours=1):
+            return js
     file_name = os.path.basename(file)
-    if (
-            file_name.endswith(".png")
-            or file_name.endswith(".png")
-            or file_name.endswith(".jpeg")
-            or file_name.endswith(".gif")
-    ):
+    if file_name.endswith((".png", ".jpeg", ".gif")):
         file_type = 1
         file_data = await image_compress(file, target_size_mb=20, return_type=1)
     elif file_name.endswith(".mp4"):
@@ -120,13 +110,11 @@ async def lr232_file_upload(file, type=None, url=None):
         file_data = await video_compress(file, target_size_mb=9.99, return_type=1)
     elif file_name.endswith(".silk"):
         file_type = 3
-        with open(file, "rb") as f:
-            file_data = base64.b64encode(f.read()).decode("utf-8")
+        file_data = base64.b64encode(open(file, "rb").read()).decode("utf-8")
     elif file_name.endswith(".mp3"):
         file_type = 3
         file_path = await record_convert(file)
-        with open(file_path, "rb") as f:
-            file_data = base64.b64encode(f.read()).decode("utf-8")
+        file_data = base64.b64encode(open(file_path, "rb").read()).decode("utf-8")
     else:
         raise Exception(f"文件上传失败 -> 文件类型不支持 | 文件名 :{file_name}")
 
@@ -136,6 +124,14 @@ async def lr232_file_upload(file, type=None, url=None):
         "file_data": file_data,
     }
     response = await request_deal(url, data, "文件上传")
+    query = """
+                   INSERT INTO user_media (filepath, media_json)
+                   VALUES (%s, %s)
+                   ON DUPLICATE KEY UPDATE 
+                       media_json = VALUES(media_json),
+                       qq = CURRENT_TIMESTAMP
+               """
+    await database_update(query, (file, response))
     return response
 
 

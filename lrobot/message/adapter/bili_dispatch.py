@@ -1,4 +1,4 @@
-"""B 站 API 调用"""
+"""BILI API 调用"""
 
 import os
 import json
@@ -8,7 +8,7 @@ from hashlib import md5
 from urllib.parse import urlencode
 
 from logic import image_compress
-from config import config, loggers, connect, future
+from config import config, loggers, connect, future, database_query, database_update
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -45,7 +45,7 @@ async def request_deal(url, method, params, tag, files=None, headers=None):
             )
         else:
             response = await client.post(
-                url, headers=headers, data=params, files=files, cookies=cookies
+                url, headers=headers, data=params, files=files, cookies=cookies, timeout=60 if files else 20
             )
 
     except Exception as e:
@@ -113,6 +113,12 @@ async def bili_dispatch(
 
 async def bili_file_upload(file, type=None, url=None):
     """文件上传"""
+    query = "SELECT media_url FROM user_media WHERE filepath = %s"
+    result = await database_query(query, (file,))
+    if result and result[0]["media_url"]:
+        data = result[0]["media_url"]
+        return [data["url"], data["h"], data["w"]]
+
     mime_type, _ = mimetypes.guess_type(file)
     url = "https://api.bilibili.com/x/dynamic/feed/draw/upload_bfs"
     params = {"category": "daily",
@@ -124,7 +130,15 @@ async def bili_file_upload(file, type=None, url=None):
     }
     response = await request_deal(url, "post", params, "私聊文件上传", files)
     data = response["data"]
-    return [data["image_url"], data["image_height"], data["image_width"]]
+    url, h, w = data["image_url"], data["image_height"], data["image_width"]
+    query = """
+                       INSERT INTO user_media (filepath, media_url)
+                       VALUES (%s, JSON_OBJECT('url', %s, 'h', %s, 'w', %s))
+                       ON DUPLICATE KEY UPDATE 
+                           media_url = VALUES(media_url)
+                   """
+    await database_update(query, (file, url, h, w))
+    return [url, h, w]
 
 
 async def bili_withdraw(seq, user=None, kind=None):

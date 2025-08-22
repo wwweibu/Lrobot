@@ -15,12 +15,30 @@ import Timeline from '../views/Cab/Timeline.vue';
 import Papaw from '../views/Cab/Papaw.vue';
 import Firefly from '../views/Firefly.vue';
 import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs';
+import Test from '../views/Test/Test.vue';
+import Test1 from '../views/Test/Test1.vue'
+import Test2 from '../views/Test/Test2.vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/test2',
+    name: 'Test',
+    component: Test
+  },
+  {
+    path: '/test3',
+    name: 'Test1',
+    component: Test1
+  },
+  {
+    path: '/test4',
+    name: 'Test2',
+    component: Test2
   },
   {
     path: '/firefly',

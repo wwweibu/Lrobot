@@ -1,4 +1,4 @@
-"""微信公众号调用 API"""
+"""WECHAT API 调用"""
 
 import os
 import mimetypes
@@ -15,15 +15,16 @@ from config import (
     database_update,
 )
 
-base_url = "https://api.weixin.qq.com/cgi-bin"
+base_url = "https://api.weixin.qq.com/cgi-bin/"
 adapter_logger = loggers["adapter"]
 
-async def request_deal(url, data, tag, file=None):
+
+async def request_deal(url, data, tag, files=None):
     """请求统一处理"""
-    data.update({"access_token": access_tokens["WECHAT"]["token"]})
+    data["access_token"] = access_tokens["WECHAT"]["token"]
     client = connect(True)
     try:
-        response = await client.post(url, params=data, files=file, timeout=20)
+        response = await client.post(f"{base_url}{url}", params=data, files=files, timeout=60 if files else 15)
     except Exception as e:
         raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data}")
 
@@ -57,7 +58,7 @@ async def wechat_dispatch(
     base = f"""<xml>
     <ToUserName><![CDATA[{user}]]></ToUserName>
     <FromUserName><![CDATA[{config['WECHAT_SELF']}]]></FromUserName>
-    <CreateTime>{seq[:-2]}</CreateTime>"""
+    <CreateTime>{seq[:-2] if kind.endswith("添加发送") else seq}</CreateTime>"""
 
     if msg_type == "text":
         content = data.get("text", "").replace("\n", "。")  # 替换换行符  "\u2028"
@@ -90,8 +91,9 @@ async def wechat_dispatch(
 
     elif msg_type == "json":
         data = data.get("data")
+        prompt = data.get("prompt")
         # TODO,1:将这个改为本地文件挂载；2：测试如果文件被移动（url无效）微信消息能否正常读取/播放
-        if data.get("prompt") == "微信-音乐":
+        if prompt == "微信-音乐":
             msg_type = "music"
             title = data.get("title")
             description = data.get("description")
@@ -102,7 +104,7 @@ async def wechat_dispatch(
             <MusicUrl><![CDATA[{url}]]></MusicUrl>
             <HQMusicUrl><![CDATA[{url}]]></HQMusicUrl>
             </Music>\n"""
-        elif data.get("prompt") == "微信-图文":
+        elif prompt == "微信-图文":
             msg_type = "news"
             title = data.get("title")
             description = data.get("description")
@@ -122,15 +124,14 @@ async def wechat_dispatch(
 
 async def wechat_file_upload(file, type=None, url=None):
     """文件上传"""
-    query = "SELECT media_id, uploaded_at FROM user_media WHERE filepath = %s"
+    query = "SELECT media_id, wechat FROM user_media WHERE filepath = %s"
     result = await database_query(query, (file,))
     if result:
-        uploaded_at = result[0]["uploaded_at"]
-        expire_time = uploaded_at + timedelta(days=3)
-        if datetime.now() < expire_time:
-            return result[0]["media_id"]
+        media_id, t = result[0]["uploaded_at"], result[0]["wechat"]
+        if media_id and t and datetime.now() < t + timedelta(days=3):
+            return media_id
 
-    url = f"{base_url}/media/upload"
+    url = "media/upload"
     params = {"type": type}
     file_stream = ""
     if type == "image":
@@ -155,22 +156,22 @@ async def wechat_file_upload(file, type=None, url=None):
         if type == "thumb"
         else response.json().get("media_id")
     )
-    if media_id:
-        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        query = """
-            INSERT INTO user_media (filepath, media_id, uploaded_at)
-            VALUES (%s, %s, %s) AS new
-            ON DUPLICATE KEY UPDATE 
-                media_id = new.media_id,
-                uploaded_at = new.uploaded_at
-        """
-        await database_update(query, (file, media_id, now_str))
+    if not media_id:
+        raise Exception("wechat upload failed")
+    query = """
+                INSERT INTO user_media (filepath, media_id)
+                VALUES (%s, %s)
+                ON DUPLICATE KEY UPDATE 
+                    media_id = VALUES(media_id),
+                    wechat = CURRENT_TIMESTAMP
+            """
+    await database_update(query, (file, media_id))
     return media_id
 
 
 async def wechat_file_download(file, path):
     """文件下载"""
-    url = f"{base_url}/media/get"
+    url = "media/get"
     params = {"media_id": file}
     response = await request_deal(url, params, "文件下载")
     os.makedirs(os.path.dirname(path), exist_ok=True)

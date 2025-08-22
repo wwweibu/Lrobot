@@ -1,10 +1,10 @@
-"""微信公众号消息接收"""
+"""WECHAT 消息接收"""
 
 import re
-import time
 import random
 import asyncio
 import hashlib
+from cachetools import TTLCache
 import xml.etree.ElementTree as ET
 from fastapi import APIRouter, Request, Response
 
@@ -14,7 +14,7 @@ from config import config, loggers, monitor_adapter, future
 
 router = APIRouter()
 adapter_logger = loggers["adapter"]
-_msg_cache = {}
+cache_20s = TTLCache(maxsize=100_000, ttl=20)
 
 
 @router.get("/")
@@ -22,10 +22,9 @@ def set_callback(signature, timestamp, nonce, echostr):
     """回调地址验证"""
     try:
         token = config["WECHAT_TOKEN"]
-        list = [token, timestamp, nonce]
-        list.sort()
+        items = sorted([token, timestamp, nonce])
         sha1 = hashlib.sha1()  # 计算SHA1哈希值
-        for item in list:
+        for item in items:
             sha1.update(item.encode("utf-8"))
         hashcode = sha1.hexdigest()
 
@@ -56,13 +55,12 @@ async def wechat_receive(request: Request):
     try:
         _future = future.get(seq)
         response = await asyncio.wait_for(_future, timeout=15)
-        print(response)  # TODO
+        return response
     except asyncio.TimeoutError:
         adapter_logger.error(
             f"⌈WECHAT⌋ 消息超时 -> 消息: {xml_data}", extra={"event": "消息接收"}
         )
         return ""
-    return response
 
 @monitor_adapter("WECHAT")
 async def wechat_msg_deal(data):
@@ -70,8 +68,8 @@ async def wechat_msg_deal(data):
     root = ET.fromstring(data)
     msg_type = root.find("MsgType").text
     from_user = root.find("FromUserName").text
-    # 防止一秒内多条消息
-    seq = f"{root.find('CreateTime').text}{random.randint(0, 99)}"
+    create_time = root.find('CreateTime').text
+    seq = f"{create_time}{random.randint(0, 99)}"  # 防止一秒内多条消息
     if msg_type == "event":
         event = root.find("Event").text
         if event == "subscribe":
@@ -84,11 +82,11 @@ async def wechat_msg_deal(data):
         else:
             return ""
     else:
-        msg_id = root.find("CreateTime").text
-        now = time.time()
-        if msg_id in _msg_cache and (now - _msg_cache[msg_id] < 20):
-            return
-        _msg_cache[msg_id] = now
+        seq = root.find('MsgId').text
+        if not seq or seq in cache_20s:
+            return ""
+        cache_20s[seq] = True
+
         kind = "私聊接收"
         if msg_type == "text":
             raw_content = root.find("Content").text
@@ -106,8 +104,8 @@ async def wechat_msg_deal(data):
 
                 # 前面的纯文本部分
                 if start > last_index:
-                    text_part = raw_content[last_index:start]
-                    if text_part.strip():
+                    text_part = raw_content[last_index:start].strip()
+                    if text_part:
                         content.append({
                             "type": "text",
                             "data": {"text": text_part}
@@ -125,8 +123,8 @@ async def wechat_msg_deal(data):
 
             # 最后一段纯文本
             if last_index < len(raw_content):
-                text_part = raw_content[last_index:]
-                if text_part.strip():
+                text_part = raw_content[last_index:].strip()
+                if text_part:
                     content.append({
                         "type": "text",
                         "data": {"text": text_part}

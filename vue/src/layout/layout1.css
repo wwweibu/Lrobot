@@ -1,0 +1,64 @@
+/* 统一真实可视高度 */
+:root {
+  --lvh: 100vh;   /* 会被 JS 实时更新 */
+}
+
+/* 容器：占满可视区域，允许 flex 居中 */
+.layout1-container {
+  width: 100vw;
+  height: var(--lvh);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* 内容区：默认 100% 铺满，JS 会加 mode 类 */
+.layout1-content {
+  width: 100%;
+  height: 100%;
+  transition: none;   /* 如需要动画再打开 */
+  align-items: flex-end; /* 内容贴到底部开始算 */
+}
+
+/* ---------- 宽屏 ---------- */
+.layout1-container.wide-mode {
+  justify-content: center;
+  align-items: center;
+}
+
+.layout1-container.wide-mode .layout1-content {
+  width: auto;
+  height: var(--lvh);
+  aspect-ratio: 16 / 9;
+  max-width: 100vw;
+  max-height: var(--lvh);
+}
+
+/* ---------- 窄屏 ---------- */
+.layout1-container.narrow-mode {
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.layout1-container.narrow-mode .layout1-content {
+  width: calc(var(--lvh) * 16 / 9);
+  height: var(--lvh);
+  flex-shrink: 0;
+}
+
+/* 滚动条美化（可选） */
+.layout1-container.narrow-mode::-webkit-scrollbar {
+  height: 6px;
+}
+.layout1-container.narrow-mode::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.layout1-container.narrow-mode::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}

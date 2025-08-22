@@ -36,12 +36,12 @@ async def start():
 
 def stop():
     """清理函数，必须同步"""
-    config.save(storage)
+    config.save(storage)  # 持久化存储
 
 
 async def scheduler():
     """定时任务"""
-    await asyncio.sleep(5)
+    await asyncio.sleep(5)  # 执行其他任务
     asyncio.create_task(scheduler_add(backup_mysql, interval=86400))  # 备份 Mysql
     asyncio.create_task(scheduler_add(backup_mongo, interval=86400))  # 备份 Mongo
     asyncio.create_task(
@@ -82,7 +82,6 @@ async def BILI_init():
     asyncio.create_task(scheduler_add(bili_receive, 60, interval=60))  # 推荐刷新间隔 20
     asyncio.create_task(scheduler_add(bili_fan_get, interval=300))  # 检测粉丝
 
-
 def tasks_set():
     """生成任务列表"""
     tasks = [
@@ -90,8 +89,9 @@ def tasks_set():
         log_writer,  # 日志记录器
         scheduler,  # 定时任务
         MsgPool.process,  # 消息处理
+        server_runner  # fastapi 运行
     ]
-    platform_config = {
+    PLATFORM_CONFIG = {
         "LR232": ["LR232_ID", "LR232_SECRET"],
         "LR5921": ["LR5921_ID"],
         "WECHAT": ["WECHAT_ID", "WECHAT_SECRET", "WECHAT_SELF", "WECHAT_TOKEN"],
@@ -100,7 +100,7 @@ def tasks_set():
     }  # 平台配置参数
 
     platform_list = [
-        name for name, keys in platform_config.items() if all(config[k] for k in keys)
+        name for name, keys in PLATFORM_CONFIG.items() if all(config[k] for k in keys)
     ]  # 激活的平台列表
 
     tasks.extend(
@@ -111,7 +111,6 @@ def tasks_set():
     )
 
     tasks.append(lambda: refresh_tokens(platform_list))  # 令牌刷新任务
-    tasks.append(server_runner)  # 服务器运行
 
     return tasks
 
@@ -155,7 +154,11 @@ async def main():
 
     tasks = [task_warp(t, exit_event) for t in tasks_set()]
     try:
-        await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        # 检查并打印异常
+        for i, r in enumerate(results):
+            if isinstance(r, Exception):
+                print(f"[任务{i}] 捕获到异常: {type(r).__name__}: {r}")
     finally:
         stop()
 

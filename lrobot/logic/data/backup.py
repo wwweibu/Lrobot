@@ -4,7 +4,7 @@ import asyncio
 import datetime
 from pathlib import Path
 
-path = Path("/app")
+path = Path("/app")  # 可单独运行，不使用 config
 backup_dir = path / "storage/data/backup"
 backup_dir.mkdir(parents=True, exist_ok=True)
 

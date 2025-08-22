@@ -6,25 +6,31 @@ from fastapi import FastAPI, Request, Response
 from starlette.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+
 from web.backend.cab import *
 from config import path, loggers
 
 
 website_logger = loggers["website"]
+# 禁用文档页
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 # 注册 APIRouter
-app.include_router(admin_router, prefix="/hjd")
-app.include_router(command_router, prefix="/hjd")
-app.include_router(database_router, prefix="/hjd")
-app.include_router(file_router, prefix="/hjd")
-app.include_router(login_router, prefix="/hjd")
-app.include_router(user_router, prefix="/hjd")
-app.include_router(time_router, prefix="/hjd")
-app.include_router(bubble_router, prefix="/hjd")
-app.include_router(panel_router, prefix="/hjd")
-app.include_router(log_router, prefix="/hjd")
-app.include_router(wiki_router, prefix="/hjd")
+routers = [
+    admin_router,
+    command_router,
+    database_router,
+    file_router,
+    login_router,
+    user_router,
+    time_router,
+    bubble_router,
+    panel_router,
+    log_router,
+    wiki_router
+]
+for router in routers:
+    app.include_router(router, prefix="/hjd")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
 
@@ -50,14 +56,12 @@ async def homepage():
 def favicon():
     """图标"""
     file_path = path / "storage/file/firefly/logo.png"
-    if file_path.exists():
-        return FileResponse(file_path)
-    return {"error": "File not found"}
+    return FileResponse(file_path) if file_path.exists() else JSONResponse({"error": "File not found"}, status_code=404)
 
 
 @app.get("/test")
 async def test():
-    """测试端口"""
+    """正常测试"""
     return Response(content="Hello World!", media_type="text/plain")
 
 
@@ -70,10 +74,9 @@ async def test1():
 @app.get("/{full_path:path}")
 async def vue(full_path: str):
     """vue 挂载"""
-    filepath = path / "web/frontend/dist" / full_path
-    if filepath.exists():
-        return FileResponse(filepath)
-    return FileResponse(path / "web/frontend/dist/index.html")
+    dist_path = path / "web/frontend/dist"
+    filepath = dist_path / full_path
+    return FileResponse(filepath) if filepath.exists() else FileResponse(dist_path / "index.html")
 
 
 async def server_runner():

@@ -10,6 +10,7 @@ async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
     print(1111)
+    await asyncio.sleep(20)
     msg = Msg(
         platform=msg.platform,
         kind=f"{kind}发送",

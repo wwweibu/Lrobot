@@ -1,30 +1,26 @@
-"""LR232 接收消息"""
+"""LR232 消息接收"""
 
 import re
-import time
 import nacl.signing
 import nacl.encoding
 from fastapi import APIRouter
+from cachetools import TTLCache
 
 from message.handler.msg import Msg
 from config import config, monitor_adapter, loggers
 
-_msg_cache = {}
+cache_5s = TTLCache(maxsize=100_000, ttl=5)
 router = APIRouter()
 adapter_logger = loggers["adapter"]
 
 
 def generate_signature(bot_secret, event_ts, plain_token):
     """生成 ed25519 签名"""
-    while len(bot_secret) < 32:
-        bot_secret *= 2
-    bot_secret = bot_secret[:32].encode()
-    private_key = nacl.signing.SigningKey(bot_secret)  # 生成私钥
-    message = event_ts + plain_token
-    signature = private_key.sign(
-        message.encode(), encoder=nacl.encoding.HexEncoder
+    bot_secret = (bot_secret * 2)[:32].encode()
+    private_key = nacl.signing.SigningKey(bot_secret)  # 生成私钥n
+    return private_key.sign(
+        (event_ts + plain_token).encode(), encoder=nacl.encoding.HexEncoder
     ).signature.decode()  # 计算签名
-    return signature
 
 
 @router.post("/")
@@ -48,23 +44,65 @@ async def lr232_receive(data: dict):
         raise Exception(f" 不存在 op 码 | 数据: {data}")
 
 
+def _append_text(content_list, text):
+    """添加文本段落"""
+    text = text.strip()  # 去除 @ 后面跟着的空格
+    if text:
+        content_list.append({"type": "text", "data": {"text": text}})
+
+
+def _append_face(content_list, face_type, face_id, ext, raw):
+    """添加表情/动画"""
+    if face_type == "3":
+        if face_id == "358":
+            content_list.append({"type": "dice", "data": {"result": ''}})
+        elif face_id == "359":
+            content_list.append({"type": "rps", "data": {"result": ''}})
+        else:
+            content_list.append({"type": "face", "data": {"id": face_id, "type": face_type, "ext": ext}})
+    elif face_type == "4":
+        content_list.append({"type": "image", "data": {"summary": "[动画表情]", "file": ext}})
+    else:
+        _append_text(content_list, raw)
+
+
+def _append_attachment(content_list, attachment):
+    """添加附件"""
+    ATTACHMENT_TYPES = {
+        "image/jpeg": "image",
+        "image/png": "image",
+        "image/gif": "image",
+        "video/mp4": "video",
+        "voice": "record",
+    }
+    attachment_type = ATTACHMENT_TYPES.get(attachment.get("content_type"), "file")
+    content_list.append({
+        "type": attachment_type,
+        "data": {
+            "file": attachment.get("filename"),
+            "url": attachment.get("url"),
+            "file_size": attachment.get("size"),
+            "width": attachment.get("width", 0),
+            "height": attachment.get("height", 0),
+        }
+    })
+
 @monitor_adapter("LR232")
 async def lr232_msg_deal(data):
     """消息处理"""
-    now = time.time()
     event_id = data.get("id")  # 事件id
-    if event_id in _msg_cache and (now - _msg_cache[event_id] < 5):
+    if not event_id or event_id in cache_5s:
         adapter_logger.info(
             f"⌈LR232⌋ 跳过 5 秒内重复消息 -> {data}", extra={"event": "消息接收"}
         )
         return  # 消息去重
-    _msg_cache[event_id] = now
+    cache_5s[event_id] = True
 
     t = data.get("t")
     d = data.get("d", {})
-    if not event_id or not t or not d:
+    if not t or not d:
         raise Exception(f"参数不完整 | 数据:{data}")
-    kind_map = {
+    KIND_MAP = {
         "C2C_MESSAGE_CREATE": "私聊接收",
         "FRIEND_ADD": "私聊添加",
         "FRIEND_DEL": "私聊删除",
@@ -72,112 +110,40 @@ async def lr232_msg_deal(data):
         "GROUP_ADD_ROBOT": "群聊添加",
         "GROUP_DEL_ROBOT": "群聊删除",
     }
-    if t not in kind_map:
+    kind = KIND_MAP.get(t)
+    if not t:
         raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
-    kind = kind_map.get(t, "未知消息类型")
     if kind == "私聊添加":  # 其他三种不处理
-        user_id = d.get("openid")
         Msg(
             platform="LR232",
             kind=kind,
             event="处理",
             seq=event_id,
-            user=user_id,
+            user=d.get("openid"),
         )
     elif kind.endswith("接收"):
-        id = d.get("id")  # 消息id
+        FACE_PATTERN = re.compile(r'<faceType=(\d+),\s*faceId="(.*?)",\s*ext="(.*?)">')
         raw_content = d.get("content")
-        author = d.get("author", {})
-        user_id = author.get("id")
-        group_id = d.get("group_id")
-        attachments = d.get("attachments", {})
-        pattern = re.compile(r'<faceType=(\d+),\s*faceId="(.*?)",\s*ext="(.*?)">')
         content = []
         last_index = 0
 
-        for match in pattern.finditer(raw_content):
+        for match in FACE_PATTERN.finditer(raw_content):
             start, end = match.span()
-            face_type, face_id, ext = match.groups()
-
-            if start > last_index:
-                text_part = raw_content[last_index:start]
-                if text_part:
-                    content.append({
-                        "type": "text",
-                        "data": {"text": text_part.strip()}  # 去除 @ 后面跟着的空格
-                    })
-            if face_type in ["1", "3"]:
-                if face_id == "358":
-                    content.append({"type": "dice", "data": {"result": ''}})
-                elif face_id == "359":
-                    content.append({"type": "rps", "data": {"result": ''}})
-                else:
-                    content.append({
-                        "type": "face",
-                        "data": {
-                            "id": face_id,
-                            "type": face_type,
-                            "ext": ext
-                        }
-                    })
-            elif face_type == "4":
-                content.append({
-                    "type": "image",
-                    "data": {
-                        "summary": "[动画表情]",
-                        "file": ext
-                    }
-                })
-            else:
-                content.append({
-                    "type": "text",
-                    "data": {"text": match.group(0)}
-                })
+            _append_text(content, raw_content[last_index:start])
+            _append_face(content, *match.groups(), raw=match.group(0))
             last_index = end
 
-        if last_index < len(raw_content):
-            text_part = raw_content[last_index:]
-            if text_part:
-                content.append({
-                    "type": "text",
-                    "data": {"text": text_part.strip()}
-                })
-        if attachments:
-            for attachment in attachments:
-                url = attachment.get("url")
-                filename = attachment.get("filename")
-                size = attachment.get("size")
-                width = attachment.get("width", 0)
-                height = attachment.get("height", 0)
-                content_type = attachment.get("content_type", "")
+        _append_text(content, raw_content[last_index:])
 
-                if content_type in ("image/jpeg", "image/png", "image/gif"):
-                    type = "image"
-                elif content_type == "video/mp4":
-                    type = "video"
-                elif content_type == "voice":
-                    type = "record"
-                else:
-                    type = "file"
-
-                segment = {
-                    "type": type,
-                    "data": {
-                        "file": filename,
-                        "url": url,
-                        "file_size": size,
-                        "width": width,
-                        "height": height,
-                    }
-                }
-                content.append(segment)
+        for attachment in d.get("attachments", []) or []:
+            _append_attachment(content, attachment)
 
         Msg(
             platform="LR232",
             kind=kind,
             event="处理",
-            user=user_id,
-            seq=id,
+            user=d.get("author", {}).get("id"),
+            seq=d.get("id"),
             content=content,
-            group=group_id,
+            group=d.get("group_id"),
         )

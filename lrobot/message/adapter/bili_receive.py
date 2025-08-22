@@ -1,4 +1,4 @@
-"""B 站消息获取"""
+"""BILI 消息接收"""
 import re
 import json
 import time

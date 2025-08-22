@@ -1,5 +1,5 @@
 # 基本的配置及常量
-# 包含：全局路径、代理连接、future 变量、消息处理监控、定时任务、配置信息读写、日志记录器、 数据库写入查询操作
+# 包含：全局路径、代理连接、future 变量、消息处理监控、定时任务、配置信息读写、日志记录器、数据库写入查询操作
 # 需要使用 mysql 数据库引入 mysql_init；日志写入需要 gather log_writer；配置自动更新需要 gather config_watcher
 import re
 import sys
@@ -62,16 +62,7 @@ loggers = {}  # 日志记录器
 
 
 class FutureManager:
-    """
-    管理 future 变量，用于协程间通信
-    创建
-    try:
-        _future = future.get(seq)
-        response = await asyncio.wait_for(_future, timeout=20)
-    except asyncio.TimeoutError:
-    设值
-    future.set(seq, response)
-    """
+    """管理 future 变量，用于协程间通信"""
 
     def __init__(self):
         self._futures = {}  # Future 对象字典
@@ -181,9 +172,10 @@ class AutoConfig:
         for name in list(
                 logging.root.manager.loggerDict.keys()
         ):  # 获取所有 Logger 名称
-            logging.getLogger(name).handlers.clear()  # 清空 handlers
-            logging.getLogger(name).filters.clear()  # 清空 filters
-            logging.getLogger(name).setLevel(logging.NOTSET)  # 重置 level
+            logger = logging.getLogger(name)
+            logger.handlers.clear()  # 清空 handlers
+            logger.filters.clear()  # 清空 filters
+            logger.setLevel(logging.NOTSET)  # 重置 level
 
     def log_set(self):
         """应用日志配置"""
@@ -213,7 +205,7 @@ class AutoConfig:
     def save(self, data):
         """数据保存"""
         save_path = self._config_path / "storage.yaml"
-        tmp = save_path.with_suffix(".tmp")
+        tmp = save_path.with_suffix(".tmp")  # 写入临时文件避免写入错误
         try:
             with open(tmp, "w", encoding="utf-8") as f:
                 yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
@@ -229,7 +221,7 @@ class AutoConfigHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if not event.is_directory and event.src_path.endswith(".yaml"):
             file_path = Path(event.src_path)
-            if file_path.name.endswith("_copy.yaml"):
+            if file_path.name.endswith("_copy.yaml") or file_path.name == "storage.yaml":
                 return  # 忽略模板文件变动
             time.sleep(0.5)  # 防止修改 yaml 后未更新哈希
             new_hash = file_hash_get(file_path)
@@ -244,15 +236,11 @@ class AutoConfigHandler(FileSystemEventHandler):
 
 class ConsoleHandler(logging.Handler):
     """控制台日志输出"""
-
-    def __init__(self, level=logging.NOTSET):
-        super().__init__(level)
-
     def emit(self, record):
         """控制台输出格式化"""
         if record.name.startswith("uvicorn") or record.name == "server":
             record.levelno = logging.DEBUG  # 更改 web 和 server 日志等级
-        log_color = COLORS.get(record.levelno, Fore.RESET)  # 添加日志颜色
+        log_color = COLORS.get(record.levelno, "")  # 添加日志颜色
         source = f"[{SOURCE_DICT.get(record.name, record.name)}]"  # 更新 source
         event = getattr(record, "event", "-")  # 获取 event，默认 '-'
         message = record.getMessage()
@@ -267,10 +255,6 @@ class ConsoleHandler(logging.Handler):
 
 class DatabaseHandler(logging.Handler):
     """数据库日志写入"""
-
-    def __init__(self, level=logging.NOTSET):
-        super().__init__(level)
-
     def emit(self, record):
         """数据库日志数据格式化"""
         message = record.getMessage()
@@ -312,12 +296,13 @@ class ServerFilter(logging.Filter):
 
     def filter(self, record):
         """过滤"""
-        if not record.getMessage():
+        msg = record.getMessage()
+        if not msg:
             return False
-        if "debug1" in record.getMessage():
+        if "debug1" in msg:
             record.levelname = "DEBUG"  # 设置为 DEBUG 级别
             record.levelno = logging.DEBUG
-            record.msg = record.msg.replace("debug1:", "").strip()  # 去掉 debug1: 前缀
+            record.msg = msg.replace("debug1:", "").strip()  # 去掉 debug1: 前缀
         return True
 
 
@@ -326,14 +311,15 @@ class LR5921Filter(logging.Filter):
 
     def filter(self, record):
         """过滤"""
-        if not record.getMessage():  # 去除空行
+        msg = record.getMessage()
+        if not msg:  # 去除空行
             return False
-        if record.getMessage().startswith("[") and not record.getMessage().startswith(
+        if msg.startswith("[") and not msg.startswith(
                 "[NapCat Backend]"
         ):  # 处理调试信息
             record.levelname = "DEBUG"
             record.levelno = logging.DEBUG
-        match = NAPCAT_PATTERN.search(record.getMessage())
+        match = NAPCAT_PATTERN.search(msg)
         if match:  # 提取 message 里自带的等级和信息
             record.levelname = match.group("level").upper()
             record.msg = match.group("info")
@@ -347,26 +333,18 @@ def file_hash_get(file):
 
 
 def connect(use_proxy=False, proxy_url="socks5://command:5923"):
-    """
-    代理/不代理连接，代理用 connect(True)，不代理用 connect()
-    调用方式:
-    client = connect(True)
-    response = await client.delete(url, headers=headers)
-    if response.status_code == 200:
-    else:
-    """
+    """代理/不代理连接"""
     if use_proxy:
         transport = AsyncProxyTransport.from_url(proxy_url)
         return httpx.AsyncClient(transport=transport)
-    else:
-        return httpx.AsyncClient()
+    return httpx.AsyncClient()
 
 
-def monitor_adapter(platform: str):
-    """
-    消息适配器监控
-    TODO 用于统计消息处理总数，成功数，失败数，总时间
-    """
+def monitor_adapter(platform):
+    """消息适配器监控（异步函数）"""
+
+    # TODO 用于统计消息处理总数，成功数，失败数，总时间
+
 
     def decorator(func):
         """装饰器"""
@@ -380,7 +358,7 @@ def monitor_adapter(platform: str):
                 result = await func(*args, **kwargs)
                 MONITOR_METRICS[platform]["success"] += 1
                 return result
-            except Exception as e:
+            except Exception:
                 MONITOR_METRICS[platform]["fail"] += 1
                 raise  # 仅统计，不处理
             finally:
@@ -393,11 +371,7 @@ def monitor_adapter(platform: str):
 
 
 async def scheduler_add(func, *args, interval=None, at_time=None, count=None, **kwargs):
-    """
-    添加定时任务（异步函数），使用时需要设置为新协程，逗号传入函数参数
-    如 asyncio.create_task(add_scheduler(clean_messages,86400,interval=86400))
-    interval是间隔时间（首次执行在间隔后）；at_time是固定时间（datetime.time(8, 30, 0)），count是执行次数
-    """
+    """添加定时任务（异步函数）"""
     executed = 0
     while True:
         if count is not None and executed >= count:
