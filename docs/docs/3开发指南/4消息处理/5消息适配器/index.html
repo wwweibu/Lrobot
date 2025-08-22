@@ -4,15 +4,44 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.8.1">
 <title data-rh="true">消息适配器 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/5消息适配器"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="消息适配器 | Lrobot"><meta data-rh="true" name="description" content="对应 adapter 文件夹中除 acess_token"><meta data-rh="true" property="og:description" content="对应 adapter 文件夹中除 acess_token"><link data-rh="true" rel="icon" href="/Lrobot/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/5消息适配器"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/4消息处理/5消息适配器" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/5消息适配器" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/5消息适配器" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/docs/category/开发指南"},{"@type":"ListItem","position":2,"name":"消息处理","item":"https://wwweibu.github.io/Lrobot/docs/category/消息处理"},{"@type":"ListItem","position":3,"name":"消息适配器","item":"https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/5消息适配器"}]}</script><link rel="stylesheet" href="/Lrobot/assets/css/styles.128759fc.css">
-<script src="/Lrobot/assets/js/runtime~main.a58a6c42.js" defer="defer"></script>
-<script src="/Lrobot/assets/js/main.14492a2a.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/runtime~main.023dbbdc.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/main.f7f4f830.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;"><defs>
 <symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
 </defs></svg>
-<script>!function(){var t="dark";var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",e||t),document.documentElement.setAttribute("data-theme-choice",e||t)}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/Lrobot/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Lrobot/"><div class="navbar__logo"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Lrobot</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Lrobot/docs/category/项目总览">文档</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/项目总览">项目总览</a><button aria-label="展开侧边栏分类 &#x27;项目总览&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/使用指南">使用指南</a><button aria-label="展开侧边栏分类 &#x27;使用指南&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--active" href="/Lrobot/docs/category/开发指南">开发指南</a><button aria-label="折叠侧边栏分类 &#x27;开发指南&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/开发指南指南">开发指南指南</a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/代码规范">代码规范</a><button aria-label="展开侧边栏分类 &#x27;代码规范&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/项目架构">项目架构</a><button aria-label="展开侧边栏分类 &#x27;项目架构&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--active" tabindex="0" href="/Lrobot/docs/category/消息处理">消息处理</a><button aria-label="折叠侧边栏分类 &#x27;消息处理&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/1消息">消息</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/2消息类">消息类</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/3消息队列">消息队列</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/">消息处理</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/5消息适配器">消息适配器</a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-3 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/消息适配器">消息适配器</a><button aria-label="展开侧边栏分类 &#x27;消息适配器&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/基础配置项">基础配置项</a><button aria-label="展开侧边栏分类 &#x27;基础配置项&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/项目开发">项目开发</a><button aria-label="展开侧边栏分类 &#x27;项目开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/项目测试">项目测试</a><button aria-label="展开侧边栏分类 &#x27;项目测试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/Lrobot/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/开发指南"><span>开发指南</span></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/消息处理"><span>消息处理</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">消息适配器</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>消息适配器</h1></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="请求统一处理">请求统一处理<a href="#请求统一处理" class="hash-link" aria-label="请求统一处理的直接链接" title="请求统一处理的直接链接">​</a></h2>
+<script>!function(){var t="dark";var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",e||t),document.documentElement.setAttribute("data-theme-choice",e||t)}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/Lrobot/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Lrobot/"><div class="navbar__logo"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Lrobot</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Lrobot/docs/category/项目总览">文档</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/项目总览">项目总览</a><button aria-label="展开侧边栏分类 &#x27;项目总览&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/使用指南">使用指南</a><button aria-label="展开侧边栏分类 &#x27;使用指南&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--active" href="/Lrobot/docs/category/开发指南">开发指南</a><button aria-label="折叠侧边栏分类 &#x27;开发指南&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/开发指南指南">开发指南指南</a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/代码规范">代码规范</a><button aria-label="展开侧边栏分类 &#x27;代码规范&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/项目架构">项目架构</a><button aria-label="展开侧边栏分类 &#x27;项目架构&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--active" tabindex="0" href="/Lrobot/docs/category/消息处理">消息处理</a><button aria-label="折叠侧边栏分类 &#x27;消息处理&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/1消息">消息</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/2消息类">消息类</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/3消息队列">消息队列</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/">消息处理</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Lrobot/docs/3开发指南/4消息处理/5消息适配器">消息适配器</a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/基础配置项">基础配置项</a><button aria-label="展开侧边栏分类 &#x27;基础配置项&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/指令开发">指令开发</a><button aria-label="展开侧边栏分类 &#x27;指令开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/页面开发">页面开发</a><button aria-label="展开侧边栏分类 &#x27;页面开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" href="/Lrobot/docs/category/项目测试">项目测试</a><button aria-label="展开侧边栏分类 &#x27;项目测试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/Lrobot/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/开发指南"><span>开发指南</span></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/消息处理"><span>消息处理</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">消息适配器</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>消息适配器</h1></header><blockquote>
+<p>本篇中，标题对应文件中的函数，同时也是<a href="/Lrobot/docs/3开发指南/4消息处理/1消息#%E6%B6%88%E6%81%AF%E6%A0%BC%E5%BC%8F">消息格式</a>中的接收、发送的函数、类型
+每个平台的<code>机制</code>为四项<a href="/Lrobot/docs/4项目测试/1消息接收测试">消息测试</a>中的测试结果汇总，<code>处理</code>为对应的函数逻辑</p>
+</blockquote>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="请求统一处理">请求统一处理<a href="#请求统一处理" class="hash-link" aria-label="请求统一处理的直接链接" title="请求统一处理的直接链接">​</a></h2>
 <ul>
+<li>LR5921<!-- -->
+<ul>
+<li>为视频设置 60s 超时，其他 15s</li>
+<li>自动拼接 url</li>
+<li>除了网络异常和状态码异常外，LR5921 返回中存在状态 status 为 ok 或者 failed</li>
+</ul>
+</li>
+<li>LR232<!-- -->
+<ul>
+<li>输出日志时格式化数据（其他平台都是 file 参数与 data 参数分开，只有 LR232 在 data 中包含 file 的 base64 数据）</li>
+<li>撤回为 delete 方法，其他为 post</li>
+<li>LR232 直接使用 status_code 代表错误码，且错误码大概率不在文档里</li>
+</ul>
+</li>
+<li>WECHAT<!-- -->
+<ul>
+<li>为文件设置 60s 超时，其中 15s</li>
+<li>自动拼接 url</li>
+<li>存在非 json 回复<!-- -->
+<ul>
+<li>除了网络异常和状态码异常外，json 回复中失败存在 errcode 字段</li>
+</ul>
+</li>
+</ul>
+</li>
 <li>BILI<!-- -->
 <ul>
 <li>根据是否是直播相关 API 分为两种请求头</li>
@@ -21,120 +50,285 @@
 </ul>
 </li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="发送">发送<a href="#发送" class="hash-link" aria-label="发送的直接链接" title="发送的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送机制">发送机制<a href="#发送机制" class="hash-link" aria-label="发送机制的直接链接" title="发送机制的直接链接">​</a></h4>
-<ul>
-<li>LR5921 的发送机制存在优先级，卡片&gt;文件&gt;视频&gt;语音&gt;其他，前面的会覆盖掉后面的</li>
-<li>WECHAT 和 BILI 的发送机制为: 若发送的内容匹配到了某个表情，则在发送后被替换成该表情<!-- -->
-<ul>
-<li>如文字发送 [doge_金箍] 或者 /::) 会被 B 站和微信自动解析成金箍表情和微笑</li>
-</ul>
-</li>
-<li>BILI 可以伪造表情，即根据发送机制，使用[xxx]时，主观意愿是接收/发送表情，解析也为表情<!-- -->:xx<!-- -->，省去了检索 B 站表情包（添加几百个表情到中途放弃了）的精力</li>
-<li>BILI 发送时，电脑端第一次可能会解析不出来，刷新一下即可</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数">发送函数<a href="#发送函数" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>将消息段分为文字+表情包和图片，文字统一发送，图片分开发送</li>
-<li>返回消息序号列表</li>
-<li>可以正常发送换行、emoji 表情</li>
-</ul>
-</li>
-<li>LR5921</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="文件上传">文件上传<a href="#文件上传" class="hash-link" aria-label="文件上传的直接链接" title="文件上传的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送机制-1">发送机制<a href="#发送机制-1" class="hash-link" aria-label="发送机制的直接链接" title="发送机制的直接链接">​</a></h4>
-<ul>
-<li>平台存在上传限制</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数-1">发送函数<a href="#发送函数-1" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>只能上传图片，根据 mime_type 判断文件类型</li>
-<li>返回 url，图片宽高</li>
-</ul>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="撤回">撤回<a href="#撤回" class="hash-link" aria-label="撤回的直接链接" title="撤回的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送机制-2">发送机制<a href="#发送机制-2" class="hash-link" aria-label="发送机制的直接链接" title="发送机制的直接链接">​</a></h4>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数-2">发送函数<a href="#发送函数-2" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>根据序号撤回</li>
-</ul>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="签名">签名<a href="#签名" class="hash-link" aria-label="签名的直接链接" title="签名的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送机制-3">发送机制<a href="#发送机制-3" class="hash-link" aria-label="发送机制的直接链接" title="发送机制的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>签名需要审核，过一段时间才能审核</li>
-</ul>
-</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数-3">发送函数<a href="#发送函数-3" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>修改签名</li>
-</ul>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="直播相关">直播相关<a href="#直播相关" class="hash-link" aria-label="直播相关的直接链接" title="直播相关的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送机制-4">发送机制<a href="#发送机制-4" class="hash-link" aria-label="发送机制的直接链接" title="发送机制的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>由于电脑开播只能通过直播姬，导致调用 API 选择网页版需要进行加密</li>
-<li>参考<a href="https://github.com/chenxi-Eumenides/bilibili_live_tool/tree/master" target="_blank" rel="noopener noreferrer">项目</a>对于请求参数进行加密后可以正常开播</li>
-<li>除了开播，其他 API 不需要加密</li>
-<li>请求附带直播请求头</li>
-</ul>
-</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数-4">发送函数<a href="#发送函数-4" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
-<ul>
-<li>开启直播，返回推流地址、推流码</li>
-<li>设置直播标题和封面（封面可选，使用&#x27;|&#x27;分割）</li>
-<li>更新直播间公告</li>
-<li>关闭直播</li>
-</ul>
-</li>
-</ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="接收">接收<a href="#接收" class="hash-link" aria-label="接收的直接链接" title="接收的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="接收机制">接收机制<a href="#接收机制" class="hash-link" aria-label="接收机制的直接链接" title="接收机制的直接链接">​</a></h4>
 <ul>
 <li>LR5921<!-- -->
 <ul>
-<li>临时消息类型与普通消息处理相同</li>
-<li>即接收后两个消息相同</li>
-<li>由于不能向未创建临时会话的用户发送消息，所以临时消息与正常好友消息的回复相同</li>
+<li>机制<!-- -->
+<ol>
+<li>普通消息</li>
+</ol>
+<ul>
+<li>会以文本类型解析 emoji 表情</li>
+<li>超级表情单发和与文本混合无区别</li>
+<li>引用消息时会自动@某人，但可以删掉不必须</li>
+<li>转发单条消息会是普通消息</li>
+<li>商城表情即使添加到收藏表情，也是解析成商城表情</li>
+<li>图片由拍照和上传图片产生，且与 LR232 文件名是一致的</li>
+<li>视频消息需要长按拍照产生，否则是文件</li>
+<li>视频消息可以自动预览播放，文件需要下载</li>
+<li>卡片消息中 data.data 值包含双引号，在处理时解析</li>
+</ul>
+<ol start="2">
+<li>临时消息</li>
+</ol>
+<ul>
+<li>临时消息的 sender 字段无昵称，多了 temp_source 和 group_id 字段</li>
+<li>由于不能主动向其他用户发送临时消息，其他用户创建临时消息会话后可以发送临时消息，所以临时消息的处理逻辑与正常消息相同，发送 API 相同，故二者统一处理</li>
+<li>系统处理后两个消息相同</li>
+</ul>
+<ol start="3">
+<li>撤回消息</li>
+</ol>
+<ul>
+<li>从消息池中获取</li>
+<li>撤回消息无消息 id，即消息池中没有消息（没接收过/超过一天）则无法找到原消息（与正常一致）</li>
+</ul>
+<ol start="4">
+<li>回应消息、设精消息</li>
+</ol>
+<ul>
+<li>没有对应消息 id（很奇怪）</li>
+</ul>
+<ol start="5">
+<li>好友添加</li>
+</ol>
+<ul>
+<li>设置任何人可添加时，会产生两条消息，请求添加为好友的文字消息和好友添加的事件</li>
+<li>只处理第二条</li>
+<li>没有消息序号</li>
+</ul>
+<ol start="6">
+<li>戳戳消息</li>
+</ol>
+<ul>
+<li>分为原始戳一戳（加号中的戳一戳类型、窗口抖动）和新戳一戳（双击头像）</li>
+<li>其中前者并入消息接收类型中的 poke 类型，后者为私聊/群聊戳戳类型</li>
+<li>前者除了第一个外，其他的均显示为文本“[xxx]请使用最新版本手机QQ查看。”，右边口袋中的内容无法解析</li>
+</ul>
+<ol start="7">
+<li>群聊回应</li>
+</ol>
+<ul>
+<li>回应只能显示一个表情且数量固定为 1</li>
+<li>回应只能接收对自己表态的，且无法获取对应的消息序号</li>
+</ul>
+<ol start="8">
+<li>精华消息</li>
+</ol>
+<ul>
+<li>自己设置自己为精华则 sender_id 与 user_id 均为 0</li>
+<li>无法接收移出精华消息</li>
+</ul>
+<ol start="9">
+<li>群名片更改</li>
+</ol>
+<ul>
+<li>只有更改后发了消息才能获取到</li>
+</ul>
+<ol start="10">
+<li>其他消息</li>
+</ol>
+<ul>
+<li>无法接收<!-- -->
+<ul>
+<li>QQ 电话</li>
+<li>动态点赞</li>
+<li>编辑群介绍</li>
+<li>好友删除</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>处理<!-- -->
+<ul>
+<li>过滤掉 meta_event,message_sent,request 事件</li>
+<li>处理 message 事件<!-- -->
+<ul>
+<li>跳过空消息</li>
+<li>过滤 LR232 消息</li>
+<li>转发消息使用原消息替换消息 id</li>
+<li>卡片消息解析字符串为 json 格式</li>
+<li>回复消息使用原消息替换 reply 段中的 id（只替换一次，故回复嵌套无法替换）</li>
+</ul>
+</li>
+<li>处理 notice 事件<!-- -->
+<ul>
+<li>进行事件分类</li>
+<li>忽略群聊文件、群聊添加、群聊删除、群聊管理、群聊禁言、群名片更改</li>
+<li>处理私聊添加、私聊/群聊撤回、私聊/群聊戳戳、群聊回应、群聊设精</li>
+<li>从消息池中寻找撤回消息段作为消息内容</li>
+<li>处理回应消息、设精消息</li>
+<li>处理消息提醒<!-- -->
+<ul>
+<li>忽略输入状态、头衔消息、群名称修改、私聊点赞</li>
+<li>处理戳戳，整理戳戳文字</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>LR232<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>普通消息</li>
+</ol>
+<ul>
+<li>会以文本类型解析 emoji 表情</li>
+<li>卡片消息，像推荐好友等均无法解析</li>
+<li>at 消息无法接收</li>
+<li>猜拳骰子无法解析结果</li>
+<li>回复消息无法接收</li>
+<li>转发消息无法解析</li>
+<li>商城表情即使添加到收藏表情，也是解析成商城表情</li>
+<li>可以接收所有类型文件（与文档不符）</li>
+</ul>
+<ol start="2">
+<li>回调配置</li>
+</ol>
+<ul>
+<li>回调配置与消息接收使用同一端口</li>
+<li>回调配置的 op 码为 13，消息接收为 0</li>
+</ul>
+<ol start="3">
+<li>附件</li>
+</ol>
+<ul>
+<li>LR232 的图片/语音/视频/文件在 attachments 字段里面</li>
+</ul>
+<ol start="4">
+<li>重复推送</li>
+</ol>
+<ul>
+<li>网络原因，QQ 可能会在 5 秒内多次推送同一消息</li>
+</ul>
+<ol start="5">
+<li>事件消息</li>
+</ol>
+<ul>
+<li>非接收类的消息，需要根据 event_id 来回复，接受类根据 msg_id 来回复</li>
+<li>删除事件不能通过 event_id 来回复</li>
+</ul>
+</li>
+<li>处理<!-- -->
+<ul>
+<li>设置 5 秒消息去重</li>
+<li>进行消息事件分类<!-- -->
+<ul>
+<li>处理事件消息<!-- -->
+<ul>
+<li>处理私聊添加，不处理群聊添加、群聊删除、私聊删除</li>
+</ul>
+</li>
+<li>处理普通消息<!-- -->
+<ul>
+<li>提取表情<!-- -->
+<ul>
+<li>提取骰子和猜拳</li>
+<li>提取普通和商城表情</li>
+</ul>
+</li>
+<li>提取文字</li>
+<li>提取附件<!-- -->
+<ul>
+<li>分离图片语音视频文件</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>WECHAT<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>回调配置</li>
+</ol>
+<ul>
+<li>回调配置使用 get 方法，消息使用 post</li>
+</ul>
+<ol start="2">
+<li>普通消息</li>
+</ol>
+<ul>
+<li>无法接收上传表情/收藏表情</li>
+<li>以文本类型解析 emoji 表情</li>
+<li>图片消息是相册中发送的</li>
+<li>收藏中的合并转发消息无法接收</li>
+<li>音频消息长按语音输入</li>
+<li>qq 音乐分享无法接收</li>
+<li>无法解析文件消息</li>
+<li>可分享推文/链接，需要先收藏</li>
+</ul>
+<ol start="3">
+<li>事件消息</li>
+</ol>
+<ul>
+<li>事件消息没有 seq</li>
+<li>点击菜单事件无法回复</li>
+</ul>
+<ol start="4">
+<li>重复推送</li>
+</ol>
+<ul>
+<li>消息没有回复则 5s 后重新发送一次，共三次</li>
+</ul>
+</li>
+<li>处理<!-- -->
+<ul>
+<li>处理事件消息<!-- -->
+<ul>
+<li>处理私聊添加，不处理私聊删除、菜单点击</li>
+<li>消息 seq 设置为接收时间+两位随机数（本身无消息）</li>
+</ul>
+</li>
+<li>处理普通消息<!-- -->
+<ul>
+<li>去除重复消息（通过 seq）</li>
+<li>分离文本、图片、语音、视频、卡片消息</li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>普通消息</li>
+</ol>
+<ul>
+<li>emoji 与表情中的颜文字表情均以文字形式解析</li>
+<li>图片消息只能单发</li>
+</ul>
+<ol start="2">
+<li>重复发送</li>
+</ol>
 <ul>
 <li>重复发送同一消息过多会触发 B 站的机制，无法接收</li>
 <li>后续发送不同的消息会把之前没有接收到的消息一起收到</li>
 </ul>
 </li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="接收函数">接收函数<a href="#接收函数" class="hash-link" aria-label="接收函数的直接链接" title="接收函数的直接链接">​</a></h4>
-<ul>
-<li>BILI<!-- -->
+<li>处理<!-- -->
 <ul>
 <li>定时任务中，调用 bili_receive 获取未读消息列表</li>
 <li>初始调用一次，不添加 interval 参数获取所有未读消息</li>
 <li>之后每隔 interval 秒调用一次，添加 begin_ts 参数获取间隔中的未读消息列表</li>
 <li>获取消息后不管 unread_count 是不是 0，获取最后已读消息序号 ack_seqno</li>
-<li>设置消息已读</li>
+<li>设置消息已读<!-- -->
+<ul>
 <li>根据 ack_seqno 获取会话列表中该用户 ack_seqno 之后的消息</li>
+</ul>
+</li>
 <li>重新排序消息列表，使撤回的原消息比撤回消息先进入消息池</li>
 <li>对消息进行处理，分离文字、图片、表情、撤回和卡片<!-- -->
 <ul>
@@ -148,14 +342,371 @@
 </ul>
 <blockquote>
 <ul>
-<li>如果不考虑撤回消息，可以在 unread_count 为 0，1，2 时分别处理，0 跳过，1 直接用 msg_deal 解析 last_msg，2 使用消息获取解析消息列表。由于撤回消息，导致在一段时间中 unread_count=0 表示存在撤回消息（发送 n 条，全部撤回）故不管多少都需要获取消息列表并解析
--有一个问题，如果在系统启动前撤回了消息，无法获取到。可以遍历消息列表来获取所有的撤回消息，但耗时长且没必要</li>
+<li>如果不考虑撤回消息，可以在 unread_count 为 0，1，2 时分别处理，0 跳过，1 直接用 msg_deal 解析 last_msg，2 使用消息获取解析消息列表。由于撤回消息，导致在一段时间中 unread_count=0 表示存在撤回消息（发送 n 条，全部撤回）故不管多少都需要获取消息列表并解析</li>
+<li>有一个问题，如果在系统启动前撤回了消息，无法获取到。可以遍历消息列表来获取所有的撤回消息，但耗时长且没必要</li>
 </ul>
 </blockquote>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="消息获取">消息获取<a href="#消息获取" class="hash-link" aria-label="消息获取的直接链接" title="消息获取的直接链接">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="发送函数-5">发送函数<a href="#发送函数-5" class="hash-link" aria-label="发送函数的直接链接" title="发送函数的直接链接">​</a></h4>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="发送">发送<a href="#发送" class="hash-link" aria-label="发送的直接链接" title="发送的直接链接">​</a></h2>
 <ul>
-<li>BILI</li>
-</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/docs/3开发指南/4消息处理/"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">消息处理</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/docs/category/消息适配器"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">消息适配器</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#请求统一处理" class="table-of-contents__link toc-highlight">请求统一处理</a></li><li><a href="#发送" class="table-of-contents__link toc-highlight">发送</a></li><li><a href="#文件上传" class="table-of-contents__link toc-highlight">文件上传</a></li><li><a href="#撤回" class="table-of-contents__link toc-highlight">撤回</a></li><li><a href="#签名" class="table-of-contents__link toc-highlight">签名</a></li><li><a href="#直播相关" class="table-of-contents__link toc-highlight">直播相关</a></li><li><a href="#接收" class="table-of-contents__link toc-highlight">接收</a></li><li><a href="#消息获取" class="table-of-contents__link toc-highlight">消息获取</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/4常见问题">常见问题</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+<li>LR5921<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>优先级</li>
+</ol>
+<ul>
+<li>卡片&gt;文件&gt;视频&gt;语音&gt;其他，前面的会覆盖掉后面的</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>将转发消息、转发节点消息与戳戳的 API 合并进消息发送中</li>
+<li>返回消息序号</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>LR232<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>添加发送</li>
+</ol>
+<ul>
+<li>接收时，将“接收”与“添加”区分开来，“添加”事件的消息序号需要以 event_id 字段名来回复，故在 LR232 发送时多了一种类型“添加发送”来回复此类消息</li>
+</ul>
+<ol start="2">
+<li>额外参数</li>
+</ol>
+<ul>
+<li>回复存在有效时间，私聊 60 分钟，群聊 5 分钟，且最多回复 5 次，需要记录 order 来应对多次回复的情况，使用同一 order 回复同一消息会失败。若是一条消息在消息发送中进行拆分，order 自动递增；若以多条消息回复同一条消息，需要自己设置 order 递增</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>将消息段分为文字+表情包和图片，文字统一发送，图片分开发送</li>
+<li>返回消息序号列表</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>WECHAT<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>发送表情</li>
+</ol>
+<ul>
+<li>若发送的内容匹配到了某个表情，则在发送后被替换成该表情</li>
+<li>如文字发送 [doge_金箍] 或者 /::) 会被 B 站和微信自动解析成金箍表情和微笑</li>
+</ul>
+<ol start="2">
+<li>发送</li>
+</ol>
+<ul>
+<li>只能回复当前消息，故只能发送一条消息</li>
+<li>发送换行符时，使用<code>/u2028</code> 电脑能解析但手机不能，使用<code>/n</code>二者均不能解析。故统一将<code>/n</code>替换成句号</li>
+<li>同样存在“添加发送”</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>取消息段中第一条消息，分离文本、图片、音频、视频、卡片类型</li>
+<li>拼接消息体</li>
+<li>表情处理<!-- -->
+<ul>
+<li>在微信的文字消息中，表情字段唯一且以&#x27;/:&#x27;开头或者被&#x27;[]&#x27;包裹</li>
+<li>为了解决 /::) 123 的匹配情况(实际消息为:[微笑] 123)</li>
+<li>代码中先提取出 wechat_emojis 中所有的键</li>
+<li>用 | 连接，构造一个 a|b|c……的正则表达式</li>
+<li>对文字消息中的表情进行逐一匹配</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>发送表情</li>
+</ol>
+<ul>
+<li>同 WECHAT</li>
+<li>BILI 可以伪造表情，即根据发送机制，使用[xxx]时，主观意愿是接收/发送表情，解析也为表情<!-- -->:xx<!-- -->，省去了检索 B 站表情包（添加几百个表情到中途放弃了）的精力</li>
+</ul>
+<ol start="2">
+<li>发送</li>
+</ol>
+<ul>
+<li>BILI 发送时，电脑端第一次可能会解析不出来，刷新一下即可</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>将消息段分为文字+表情包和图片，文字统一发送，图片分开发送</li>
+<li>返回消息序号列表</li>
+<li>可以正常发送换行、emoji 表情</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="消息获取">消息获取<a href="#消息获取" class="hash-link" aria-label="消息获取的直接链接" title="消息获取的直接链接">​</a></h2>
+<ul>
+<li>LR5921<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>无法获取不在群聊内的群聊消息 id</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>获取到的是消息列表，仍然需要转换 json 格式消息</li>
+<li>回复消息不继续转换（嵌套回复中第二层以上无法解析）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>指定用户和开始序号，获取指定序号后的消息列表</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>根据 talker_id,begin_seqno 获取指定用户指定序号后的会话列表</li>
+<li>由于数量限制了 20，所以<strong>在刷新间隔内发送超过 20 条消息会遗漏部分消息</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="文件上传">文件上传<a href="#文件上传" class="hash-link" aria-label="文件上传的直接链接" title="文件上传的直接链接">​</a></h2>
+<ul>
+<li>存储机制<!-- -->
+<ul>
+<li>三个平台均根据有效性将 media 值存入数据库，使用时先根据文件路径寻找数据库中未过期的 id<!-- -->
+<ul>
+<li>LR232 存入 json 字段，有效性 1h</li>
+<li>WECHAT 存入 media_id，有效期 3d</li>
+<li>BILI 存入 json 字段（url，height，width），有效期永久</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>LR232<!-- -->
+<ul>
+<li>机制<!-- -->
+<ol>
+<li>上传限制</li>
+</ol>
+<ul>
+<li>文件有效期 1h</li>
+<li>图片 20MB</li>
+<li>视频 9.99MB（9.999 不行，9.98 可以）</li>
+<li>音频 mp3 自动转换为 silk（silk 比较小，没测大小限制）</li>
+</ul>
+<ol start="2">
+<li>文件 id</li>
+</ol>
+<ul>
+<li>多次上传同一文件 id 不同</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>WECHAT<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>有效期 3d</li>
+<li>图片 10MB</li>
+<li>视频 10MB</li>
+<li>音频 2MB，60s</li>
+<li>缩略图 64KB</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>只能上传图片，根据 mime_type 判断文件类型</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="文件下载">文件下载<a href="#文件下载" class="hash-link" aria-label="文件下载的直接链接" title="文件下载的直接链接">​</a></h2>
+<ul>
+<li>LR5921<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>文件类消息不直接提供 url 而是 file_id</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>二者路径冲突均自动重命名</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>WECHAT<!-- -->
+<ul>
+<li>函数<!-- -->
+<ul>
+<li>二者路径冲突均自动重命名</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="撤回">撤回<a href="#撤回" class="hash-link" aria-label="撤回的直接链接" title="撤回的直接链接">​</a></h2>
+<ul>
+<li>LR5921<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>撤回时间最多 123s</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>根据序号撤回</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>LR232<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>撤回时最多 118s</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>根据序号、用户撤回</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>撤回时最多 120s</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>根据序号撤回</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="签名">签名<a href="#签名" class="hash-link" aria-label="签名的直接链接" title="签名的直接链接">​</a></h2>
+<ul>
+<li>LR5921</li>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>签名需要审核，过一段时间才能成功</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="直播相关">直播相关<a href="#直播相关" class="hash-link" aria-label="直播相关的直接链接" title="直播相关的直接链接">​</a></h2>
+<ul>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>由于电脑开播只能通过直播姬，导致调用 API 选择网页版需要进行加密</li>
+<li>参考<a href="https://github.com/chenxi-Eumenides/bilibili_live_tool/tree/master" target="_blank" rel="noopener noreferrer">项目</a>对于请求参数进行加密后可以正常开播</li>
+<li>除了开播，其他 API 不需要加密</li>
+<li>请求附带直播请求头</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>开启直播，返回推流地址、推流码</li>
+<li>设置直播标题和封面（封面可选，使用&#x27;|&#x27;分割）</li>
+<li>更新直播间公告</li>
+<li>关闭直播</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="粉丝获取">粉丝获取<a href="#粉丝获取" class="hash-link" aria-label="粉丝获取的直接链接" title="粉丝获取的直接链接">​</a></h2>
+<ul>
+<li>BILI<!-- -->
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>通过定期获取粉丝列表进行比较来获取新粉丝</li>
+<li>生成“私聊添加”类型消息（没有消息序号）</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>获取粉丝列表（不全，最新若干）</li>
+<li>查找数据库中拥有“fan”状态的用户</li>
+<li>寻找粉丝列表中该用户</li>
+<li>对于该用户之前的用户生成“私聊添加”消息</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="状态设置">状态设置<a href="#状态设置" class="hash-link" aria-label="状态设置的直接链接" title="状态设置的直接链接">​</a></h2>
+<p>-LR5921</p>
+<ul>
+<li>机制<!-- -->
+<ul>
+<li>状态设置失败也会返回成功</li>
+<li>自定义表情有可能设置成其他表情</li>
+</ul>
+</li>
+<li>函数<!-- -->
+<ul>
+<li>合并了设置状态和设置自定义状态的 API</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="群聊相关">群聊相关<a href="#群聊相关" class="hash-link" aria-label="群聊相关的直接链接" title="群聊相关的直接链接">​</a></h2>
+<ul>
+<li>LR5921<!-- -->
+<ul>
+<li>群聊成员<!-- -->
+<ul>
+<li>返回群成员列表，QQ 号及昵称</li>
+</ul>
+</li>
+<li>群聊签到</li>
+<li>群聊回应</li>
+<li>群聊精华<!-- -->
+<ul>
+<li>合并了设置与删除精华的 API</li>
+</ul>
+</li>
+<li>群聊头衔</li>
+</ul>
+</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/docs/3开发指南/4消息处理/"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">消息处理</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/docs/category/基础配置项"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">基础配置项</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#请求统一处理" class="table-of-contents__link toc-highlight">请求统一处理</a></li><li><a href="#接收" class="table-of-contents__link toc-highlight">接收</a></li><li><a href="#发送" class="table-of-contents__link toc-highlight">发送</a></li><li><a href="#消息获取" class="table-of-contents__link toc-highlight">消息获取</a></li><li><a href="#文件上传" class="table-of-contents__link toc-highlight">文件上传</a></li><li><a href="#文件下载" class="table-of-contents__link toc-highlight">文件下载</a></li><li><a href="#撤回" class="table-of-contents__link toc-highlight">撤回</a></li><li><a href="#签名" class="table-of-contents__link toc-highlight">签名</a></li><li><a href="#直播相关" class="table-of-contents__link toc-highlight">直播相关</a></li><li><a href="#粉丝获取" class="table-of-contents__link toc-highlight">粉丝获取</a></li><li><a href="#状态设置" class="table-of-contents__link toc-highlight">状态设置</a></li><li><a href="#群聊相关" class="table-of-contents__link toc-highlight">群聊相关</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/4常见问题">常见问题</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-hidden="true" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
 </body>
 </html>

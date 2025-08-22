@@ -736,7 +736,7 @@ onMounted(async () => {
     .setView(center, zoom)
 
   L.control.attribution({
-    prefix: '赣ICP备2024045354号 | Q:1326016706'
+    prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119" rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
   }).addTo(map);
   
   // 绑定在整个地图上

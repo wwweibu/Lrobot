@@ -1,11 +1,10 @@
-/qqapp
 /secret.py
 
 /storage/data/backup
+/storage/data/map
 /storage/data/mongodb
 /storage/data/mysql
 /storage/data/napcat
-/storage/data/map
 
 /storage/file/clouddrive
 /storage/file/command

@@ -34,7 +34,6 @@ for router in routers:
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
 
-
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, exc: Exception):
     """异常捕获"""
@@ -71,6 +70,9 @@ async def test1():
     raise ValueError("This is an internal server error.")
 
 
+@app.get("/debug")
+async def debug_headers(request: Request):
+    return dict(request.headers)
 @app.get("/{full_path:path}")
 async def vue(full_path: str):
     """vue 挂载"""
@@ -82,6 +84,7 @@ async def vue(full_path: str):
 async def server_runner():
     """后端启动"""
     website_logger.info("后台服务启动", extra={"event": "运行日志"})
-    config = uvicorn.Config(app, host="0.0.0.0", port=5922, log_config=None)
+    config = uvicorn.Config(app, host="0.0.0.0", port=5922, log_config=None, proxy_headers=True,
+                            forwarded_allow_ips="*")
     server = uvicorn.Server(config)
     await server.serve()
