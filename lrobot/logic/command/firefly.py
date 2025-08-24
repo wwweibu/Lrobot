@@ -12,18 +12,16 @@ async def firefly_in(msg: Msg):
 
 
 async def firefly_set(msg: Msg):
-    """TODO 设置测试员密码"""
+    """设置测试员密码"""
     user = next((item["data"]["qq"] for item in msg.content if item["type"] == "at"), None)
-
-    content_list = [
-        p.strip() for p in re.split(r"[，,]", match.group(2).strip()) if p.strip()
-    ]
-    name = content_list[1]
+    content = msg.content[1]["data"]["text"]
+    parts = re.split(r"[，,]", content)
+    name = parts[1].strip()
     password = await data.firefly_password_update(user, name)
     Msg(
         platform=msg.platform,
         event="发送",
-        kind=f"群聊发送文字",
+        kind=f"群聊发送",
         content=f"[at:{user}]你的账号为{name},密码为{password},请登录 whumystery.cn/cmd,并进入 whumystery.cn/firefly 提交你的每日任务",
         seq=msg.seq,
         user=msg.user,

@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import NotFound from '../views/NotFound.vue';
 import Fools1 from '../views/Event/Fools1.vue';
-import Fools2 from '../views/Event/Fools2.vue';
 import Cmd from '../views/Cab/Cmd.vue';
 import Cab from '../views/Cab/Cab.vue';
 import Command from '../views/Cab/Command.vue';
@@ -18,10 +17,16 @@ import component from 'element-plus/es/components/tree-select/src/tree-select-op
 import Test from '../views/Test/Test.vue';
 import Test1 from '../views/Test/Test1.vue'
 import Test2 from '../views/Test/Test2.vue';
+import Test3 from '../views/Test/Test3.vue';
 
 const routes = [
   {
     path: '/',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: Home
   },
@@ -39,6 +44,11 @@ const routes = [
     path: '/test4',
     name: 'Test2',
     component: Test2
+  },
+  {
+    path: '/test5',
+    name: 'Test3',
+    component: Test3
   },
   {
     path: '/firefly',
@@ -92,8 +102,8 @@ const routes = [
   },
   {
     path: "/AprilFools/2025",
-    name: 'Fools2',
-    component: Fools2
+    name: 'Fools1',
+    component: Fools1
   },
   {
     path: "/cmd",

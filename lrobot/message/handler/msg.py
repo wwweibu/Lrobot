@@ -268,7 +268,7 @@ class Msg:
             else:
                 # text 支持子串，其余按相等处理；text 支持空格代表 any
                 if content_type == 'text':
-                    return str(pattern_val) == " " or str(content_val) in str(pattern_val)
+                    return str(pattern_val) == " " or str(pattern_val) in str(content_val)
                 else:
                     return pattern_val == content_val
         return False  # 未知 content_type

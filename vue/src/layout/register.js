@@ -1,7 +1,9 @@
 import { Layout1Scale } from './layout1.js'
 import { Layout2Scale } from './layout2.js'
+import { Layout3Scale } from './layout3.js'
 import './layout1.css'
 import './layout2.css'
+import './layout3.css'
 
 /**
  * 布局自动注册系统
@@ -40,9 +42,11 @@ class LayoutAutoRegister {
   initExistingContainers() {
     const layout1Containers = document.querySelectorAll('.layout1-container')
     const layout2Containers = document.querySelectorAll('.layout2-container')
+    const layout3Containers = document.querySelectorAll('.layout3-container')
     
     layout1Containers.forEach(container => this.registerContainer(container, 'layout1'))
     layout2Containers.forEach(container => this.registerContainer(container, 'layout2'))
+    layout3Containers.forEach(container => this.registerContainer(container, 'layout3'))
   }
 
   /**
@@ -78,6 +82,8 @@ class LayoutAutoRegister {
         this.registerContainer(node, 'layout1')
       } else if (node.classList.contains('layout2-container')) {
         this.registerContainer(node, 'layout2')
+      } else if (node.classList.contains('layout3-container')){
+        this.registerContainer(node,'layout3')
       }
     }
     
@@ -85,9 +91,11 @@ class LayoutAutoRegister {
     if (node.querySelectorAll) {
       const layout1Containers = node.querySelectorAll('.layout1-container')
       const layout2Containers = node.querySelectorAll('.layout2-container')
+      const layout3Containers = node.querySelectorAll('.layout3-container')
       
       layout1Containers.forEach(container => this.registerContainer(container, 'layout1'))
       layout2Containers.forEach(container => this.registerContainer(container, 'layout2'))
+      layout3Containers.forEach(container => this.registerContainer(container, 'layout3'))
     }
   }
 
@@ -107,6 +115,8 @@ class LayoutAutoRegister {
     } else if (layoutType === 'layout2') {
       // Layout2的结构由其自身的函数处理
       Layout2Scale(container)
+    } else if (layoutType === 'layout3'){
+      Layout3Scale(container)
     }
     
     console.log(`已注册${layoutType}容器:`, container)
@@ -165,6 +175,7 @@ class LayoutAutoRegister {
   updateAllContainers() {
     const layout1Containers = document.querySelectorAll('.layout1-container')
     const layout2Containers = document.querySelectorAll('.layout2-container')
+    const layout3Containers = document.querySelectorAll('.layout3-container')
     
     layout1Containers.forEach(container => {
       if (this.registeredContainers.has(container)) {
@@ -175,6 +186,12 @@ class LayoutAutoRegister {
     layout2Containers.forEach(container => {
       if (this.registeredContainers.has(container)) {
         Layout2Scale(container)
+      }
+    })
+
+    layout3Containers.forEach(container => {
+      if (this.registeredContainers.has(container)) {
+        Layout3Scale(container)
       }
     })
   }

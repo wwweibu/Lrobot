@@ -1,6 +1,7 @@
 """LR232 API 调用"""
 
 import os
+import json
 import base64
 from datetime import datetime, timedelta
 
@@ -99,7 +100,7 @@ async def lr232_file_upload(file, type=None, url=None):
     if result:
         js, t = result[0]["media_json"], result[0]["qq"]
         if js and t and datetime.now() < t + timedelta(hours=1):
-            return js
+            return json.loads(js)
     file_name = os.path.basename(file)
     if file_name.endswith((".png", ".jpeg", ".gif")):
         file_type = 1
@@ -131,7 +132,7 @@ async def lr232_file_upload(file, type=None, url=None):
                        media_json = VALUES(media_json),
                        qq = CURRENT_TIMESTAMP
                """
-    await database_update(query, (file, response))
+    await database_update(query, (file, json.dumps(response)))
     return response
 
 

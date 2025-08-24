@@ -1,277 +1,69 @@
 commands:
-- content:
-  - /面板功能
-  func: 面板_功能添加
-  function: panel_add_func
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR5921
-  - LR232
-  state: []
-  users:
-  - 微部
-- content:
-  - /面板任务
-  func: 面板_任务添加
-  function: panel_add_task
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  state: []
-  users:
-  - 微部
-- content:
-  - /面板编辑
-  func: 面板_任务编辑
-  function: panel_edit_task
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  state: []
-  users:
-  - 微部
-- func: 测试
-  function: test_1
+- func: 面板_任务
+  function: panel_task
+  set: 面板
+  order: 1
   content:
-  - /测试1
-  - '[表情:打call]'
-  - '[文件:any]'
-  - '[语音:any]'
-  - '[视频:any]'
-  - '[图片:any]'
-  judge: equal
+  - /面板任务
+  judge: contains
   kind:
   - 私聊接收
   - 群聊接收
   state: []
   platforms:
-  - BILI
-  - WECHAT
-  - LR5921
   - LR232
+  - LR5921
   users:
   - 微部
   groups:
-  - 内测群
+  - 公测群
+- func: 面板_功能
+  function: panel_func
+  set: 面板
+  order: 2
+  content:
+  - /面板功能
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 公测群
 - content: []
-  func: 欢迎
-  function: welcome_all
-  groups: []
-  judge: contains
-  kind:
-  - 私聊添加
-  platforms:
-  - LR232
-  - WECHAT
-  state: []
-  users: []
-- content:
-  - /wiki获取
-  func: wiki_获取
-  function: wiki_change_get
-  groups:
-  - 内阁
-  - 内测群
-  judge: contains
-  kind:
-  - 群聊文字消息
-  platforms:
-  - LR5921
-  - LR232
-  state: []
-  users: []
-- content:
-  - /wiki修改
-  func: wiki_修改
-  function: wiki_change
-  groups:
-  - 内阁
-  judge: contains
-  kind:
-  - 群聊文字消息
-  platforms:
-  - LR5921
-  - LR232
-  state: []
-  users: []
-- content:
-  - /帮助
-  func: 帮助
-  function: help_text
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  - 群聊文字消息
-  platforms:
-  - WECHAT
-  - LR232
-  - LR5921
-  - BILI
-  state: []
-  users: []
-- content:
-  - /入会
-  func: 入会_1
-  function: register_first
-  groups: []
-  judge: equal
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state: []
-  users: []
-- content:
-  - '[文件]'
-  func: 入会_2
-  function: register_second
-  groups: []
-  judge: equal
-  kind:
-  - 私聊文件消息
-  platforms:
-  - LR5921
-  - LR232
-  - WECHAT
-  - BILI
-  state:
-  - 待入会
-  - 入会状态1
-  users: []
-- content:
-  - 姓名
-  - 代号
-  - 性别
-  - 年级
-  - 专业
-  - 学号
-  - 电话
-  - qq
-  - 政治面貌
-  - 籍贯
-  func: 入会_3
-  function: register_third
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - 待入会
-  - 入会状态2
-  users: []
-- func: 绑定_验证
-  function: platform_bind
-  content:
-  - /绑定
-  judge: equal
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - WECHAT
-  - BILI
-  - QQAPP
-  users: []
-  groups: []
-- func: 绑定_确认
-  function: qq_bind
-  content:
-  - 请将整条消息复制至 LR5921(QQ) 处
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR5921
-  users: []
-  groups: []
-- content:
-  - '786159347'
   func: 测试群_入群
   function: firefly_in
-  groups: []
+  groups:
+  - 内测群
   judge: contains
   kind:
-  - 群聊申请加入
-  - 群聊邀请加入
+  - 群聊添加
   platforms:
   - LR5921
   state: []
   users: []
+  set: 测试
+  order: 0
 - content:
   - /设置密码
   func: 测试群_设置密码
   function: firefly_set
   groups:
-  - 公测群
-  judge: contains
-  kind:
-  - 群聊文字消息
-  platforms:
-  - LR5921
-  state: []
-  users: []
-- content:
-  - /消息提醒
-  func: 提醒
-  function: remind_deal
-  groups: []
-  judge: equal
-  kind:
-  - 私聊文字消息
-  platforms:
-  - LR5921
-  state: []
-  users:
-  - 微步
-- content: []
-  func: 转发
-  function: forward_all
-  groups: []
-  judge: contains
-  kind:
-  - 私聊文字消息
-  platforms:
-  - WECHAT
-  - BILI
-  state: []
-  users: []
-- content:
-  - '[文件]'
-  func: 撤回_二维码
-  function: withdraw_qrcode
-  groups:
-  - 公测群
   - 内测群
   judge: contains
   kind:
-  - 群聊图文消息
-  - 群聊文字消息
+  - 群聊接收
   platforms:
   - LR5921
   state: []
   users: []
+  set: 测试
+  order: 0
 - content:
   - 航海日记提示
   func: 航海日记_提示
@@ -303,6 +95,8 @@ commands:
   - diary_15
   - diary_16
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 小推的航海日记
   func: 航海日记_1
@@ -318,6 +112,8 @@ commands:
   - BILI
   state: []
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - logic
   func: 航海日记_2
@@ -334,6 +130,8 @@ commands:
   state:
   - diary_1
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - ilikelogic
   func: 航海日记_3
@@ -350,6 +148,8 @@ commands:
   state:
   - diary_2
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 推协
   func: 航海日记_4
@@ -366,6 +166,8 @@ commands:
   state:
   - diary_3
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - love
   func: 航海日记_5
@@ -382,6 +184,8 @@ commands:
   state:
   - diary_4
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - dolphin
   func: 航海日记_6
@@ -398,6 +202,8 @@ commands:
   state:
   - diary_5
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 9527
   func: 航海日记_7
@@ -414,6 +220,8 @@ commands:
   state:
   - diary_6
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 082510
   func: 航海日记_8
@@ -430,6 +238,8 @@ commands:
   state:
   - diary_7
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - unlock
   func: 航海日记_9
@@ -446,6 +256,8 @@ commands:
   state:
   - diary_8
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - reversethree
   func: 航海日记_10
@@ -462,6 +274,8 @@ commands:
   state:
   - diary_9
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - run
   func: 航海日记_11
@@ -478,6 +292,8 @@ commands:
   state:
   - diary_10
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - <=>
   func: 航海日记_12
@@ -494,6 +310,8 @@ commands:
   state:
   - diary_11
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - jump
   func: 航海日记_13
@@ -510,6 +328,8 @@ commands:
   state:
   - diary_12
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 1001
   func: 航海日记_14
@@ -526,6 +346,8 @@ commands:
   state:
   - diary_13
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - 致爱丽丝
   func: 航海日记_15
@@ -542,6 +364,8 @@ commands:
   state:
   - diary_14
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - forest
   func: 航海日记_16
@@ -558,6 +382,8 @@ commands:
   state:
   - diary_15
   users: []
+  set: 航海日记
+  order: 0
 - content:
   - youdied
   func: 航海日记_17
@@ -574,3 +400,395 @@ commands:
   state:
   - diary_16
   users: []
+  set: 航海日记
+  order: 0
+- func: 帮助
+  function: help_show
+  set: 基础
+  order: 0
+  content:
+  - /帮助
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 常见问题
+  function: help_question
+  set: 基础
+  order: 0
+  content:
+  - /常见问题
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- content:
+  - 暂时不开
+  func: 欢迎
+  function: welcome_all
+  groups: []
+  judge: equal
+  kind:
+  - 私聊添加
+  platforms:
+  - LR232
+  - WECHAT
+  state: []
+  users: []
+  set: 基础
+  order: 0
+- func: 入会_临时
+  function: register_linshi
+  set: ''
+  order: 0
+  content:
+  - /入会
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 订阅-临时
+  function: subscribe_list
+  set: ''
+  order: 0
+  content:
+  - /订阅
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 订阅天气-临时
+  function: subscribe_weather
+  set: ''
+  order: 0
+  content:
+  - /订阅，天气
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 订阅测试_临时
+  function: subscribe_test
+  set: ''
+  order: 0
+  content:
+  - 早上好
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 成语_临时
+  function: game_chengyu
+  set: ''
+  order: 0
+  content:
+  - /成语
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 游戏_临时
+  function: game_list
+  set: ''
+  order: 0
+  content:
+  - /小游戏
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 当前活动_临时
+  function: help_activities
+  set: ''
+  order: 0
+  content:
+  - /当前活动
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 工具_临时
+  function: tool_list
+  set: ''
+  order: 0
+  content:
+  - /工具
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 工具_待办_临时
+  function: tool_schedule
+  content:
+  - /待办
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+  set: ''
+  order: 0
+- func: 推荐书单_临时
+  function: help_book
+  set: ''
+  order: 0
+  content:
+  - /书单
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 反馈_临时
+  function: feedback_text
+  set: ''
+  order: 0
+  content:
+  - /反馈
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- func: 分享_临时
+  function: share_text
+  set: ''
+  order: 0
+  content:
+  - /分享
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  users: []
+  groups: []
+- content:
+  - '[文件]'
+  func: 入会_2
+  function: register_second
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文件消息
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  state:
+  - 待入会
+  - 入会状态1
+  users: []
+  set: ''
+  order: 0
+- content:
+  - /wiki获取
+  func: wiki_获取
+  function: wiki_change_get
+  groups:
+  - 内阁
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  - LR232
+  state: []
+  users: []
+  set: ''
+  order: 0
+- content:
+  - /入会
+  func: 入会_1
+  function: register_first
+  groups: []
+  judge: equal
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state: []
+  users: []
+  set: ''
+  order: 0
+- content:
+  - 姓名
+  - 代号
+  - 性别
+  - 年级
+  - 专业
+  - 学号
+  - 电话
+  - qq
+  - 政治面貌
+  - 籍贯
+  func: 入会_3
+  function: register_third
+  groups: []
+  judge: contains
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state:
+  - 待入会
+  - 入会状态2
+  users: []
+  set: ''
+  order: 0
+- func: 绑定_验证
+  function: platform_bind
+  content:
+  - /绑定
+  judge: equal
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - WECHAT
+  - BILI
+  - QQAPP
+  users: []
+  groups: []
+  set: ''
+  order: 0
+- func: 绑定_确认
+  function: qq_bind
+  set: ''
+  order: 0
+  content:
+  - 请将整条消息复制至 LR5921(QQ) 处
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups: []
+- content:
+  - /消息提醒
+  func: 提醒
+  function: remind_deal
+  groups: []
+  judge: equal
+  kind:
+  - 私聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users:
+  - 微步
+  set: ''
+  order: 0
+- content:
+  - '[文件]'
+  func: 撤回_二维码
+  function: withdraw_qrcode
+  groups:
+  - 公测群
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊图文消息
+  - 群聊文字消息
+  platforms:
+  - LR5921
+  state: []
+  users: []
+  set: ''
+  order: 0
+- content: []
+  func: 转发
+  function: help_unknown
+  groups: []
+  judge: contains
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state: []
+  users: []
+  set: 基础
+  order: -1

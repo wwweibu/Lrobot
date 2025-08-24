@@ -16,3 +16,5 @@ pilk
 ffmpeg-python
 Pillow
 cachetools
+pandas
+pypinyin

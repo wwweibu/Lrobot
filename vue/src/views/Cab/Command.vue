@@ -5,146 +5,156 @@
       <el-button type="success" @click="handleSave" :icon="Upload">保存配置</el-button>
     </div>
 
-    <el-table 
-      :data="commands" 
-      border 
-      style="width: 100%" 
-      v-loading="loading"
-      empty-text="暂无指令数据"
-      row-key="func"
-    >
-      <!-- 添加拖拽手柄列 -->
-      <el-table-column width="50" align="center">
-        <template #default>
-          <el-icon class="drag-handle"><Menu /></el-icon>
-        </template>
-      </el-table-column>
-      <!-- 功能名称 -->
-      <el-table-column prop="func" label="功能名称" width="150" fixed="left" />
-
-      <!-- 响应内容 -->
-      <el-table-column label="响应内容" width="200">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="(item, index) in row.content"
-              :key="index"
-              type="info"
-              size="small"
-              class="content-tag"
+    <div v-loading="loading">
+      <!-- 动态渲染每个set分组 -->
+      <div 
+        v-for="(groupCommands, groupName) in groupedCommands" 
+        :key="groupName" 
+        class="group-container"
+      >
+        <div class="group-header" @click="toggleGroup(groupName)">
+          <el-icon class="group-icon">
+            <component :is="groupStates[groupName] ? 'ArrowDown' : 'ArrowRight'" />
+          </el-icon>
+          <span class="group-title">{{ groupName || '未分组' }} ({{ groupCommands.length }})</span>
+        </div>
+        
+        <el-collapse-transition>
+          <div v-show="groupStates[groupName]">
+            <el-table 
+              :data="groupCommands" 
+              border 
+              style="width: 100%; margin-bottom: 20px;" 
+              :empty-text="`暂无${groupName || '未分组'}指令`"
+              row-key="id"
+              class="group-table"
+              :ref="el => groupTableRefs[groupName] = el"
             >
-              {{ item }}
-            </el-tag>
+              <el-table-column width="50" align="center">
+                <template #default>
+                  <el-icon class="drag-handle"><Menu /></el-icon>
+                </template>
+              </el-table-column>
+              <el-table-column prop="func" label="功能名称" fixed="left" />
+              <el-table-column label="响应内容">
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="(item, index) in row.content"
+                      :key="index"
+                      type="info"
+                      size="small"
+                      class="content-tag"
+                    >
+                      {{ item }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="匹配方式" >
+                <template #default="{ row }">
+                  {{ judgeMap[row.judge] || row.judge }}
+                </template>
+              </el-table-column>
+              <el-table-column label="消息类型" >
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="type in row.kind"
+                      :key="type"
+                      size="small"
+                      :type="messageTypeStyle(type)"
+                    >
+                      {{ type }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="适用平台">
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="platform in row.platforms"
+                      :key="platform"
+                      size="small"
+                      :type="platformTagType(platform)"
+                    >
+                      {{ platform }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="适用状态">
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="state in row.state"
+                      :key="state"
+                      size="small"
+                      type="warning"
+                    >
+                      {{ state }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="适用用户">
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="user in row.users"
+                      :key="user"
+                      size="small"
+                      type="success"
+                    >
+                      {{ user }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="适用群组">
+                <template #default="{ row }">
+                  <div class="tag-container">
+                    <el-tag
+                      v-for="group in row.groups"
+                      :key="group"
+                      size="small"
+                      type="danger"
+                    >
+                      {{ group }}
+                    </el-tag>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" fixed="right">
+                <template #default="scope">
+                  <el-button 
+                    size="small" 
+                    @click="handleEdit(scope.row, groupName, scope.$index)" 
+                    :icon="Edit" 
+                    circle 
+                  />
+                  <el-button
+                    size="small"
+                    type="danger"
+                    @click="handleDelete(groupName, scope.$index)"
+                    :icon="Delete"
+                    circle
+                  />
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
-        </template>
-      </el-table-column>
+        </el-collapse-transition>
+      </div>
 
-      <!-- 匹配方式 -->
-      <el-table-column label="匹配方式" width="100">
-        <template #default="{ row }">
-          {{ judgeMap[row.judge] || row.judge }}
-        </template>
-      </el-table-column>
-
-      <!-- 消息类型 -->
-      <el-table-column label="消息类型" width="150">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="type in row.kind"
-              :key="type"
-              size="small"
-              :type="messageTypeStyle(type)"
-            >
-              {{ type }}
-            </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-
-      <!-- 适用平台 -->
-      <el-table-column label="适用平台" width="200">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="platform in row.platforms"
-              :key="platform"
-              size="small"
-              :type="platformTagType(platform)"
-            >
-              {{ platform }}
-            </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-
-      <!-- 适用状态 -->
-      <el-table-column label="适用状态" width="150">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="state in row.state"
-              :key="state"
-              size="small"
-              type="warning"
-            >
-              {{ state }}
-            </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-
-      <!-- 适用用户 -->
-      <el-table-column label="适用用户" width="180">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="user in row.users"
-              :key="user"
-              size="small"
-              type="success"
-            >
-              {{ user }}
-            </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-
-      <!-- 适用群组 -->
-      <el-table-column label="适用群组" width="180">
-        <template #default="{ row }">
-          <div class="tag-container">
-            <el-tag
-              v-for="group in row.groups"
-              :key="group"
-              size="small"
-              type="danger"
-            >
-              {{ group }}
-            </el-tag>
-          </div>
-        </template>
-      </el-table-column>
-
-      <!-- 操作列 -->
-      <el-table-column label="操作" width="120" fixed="right">
-        <template #default="scope">
-          <el-button 
-            size="small" 
-            @click="handleEdit(scope.row, scope.$index)" 
-            :icon="Edit" 
-            circle 
-          />
-          <el-button
-            size="small"
-            type="danger"
-            @click="handleDelete(scope.$index)"
-            :icon="Delete"
-            circle
-          />
-        </template>
-      </el-table-column>
-    </el-table>
+      <!-- 空状态 -->
+      <el-empty 
+        v-if="!loading && commands.length === 0"
+        description="暂无指令数据"
+        :image-size="200"
+      />
+    </div>
 
     <!-- 编辑对话框 -->
     <el-dialog
@@ -162,13 +172,54 @@
           <el-input v-model="formData.func" placeholder="请输入唯一功能名称" />
         </el-form-item>
 
-         <!-- 添加function字段 -->
+        <!-- 功能函数字段 -->
         <el-form-item label="功能函数" prop="function">
           <el-input 
             v-model="formData.function" 
             placeholder="请输入功能函数名称"
             clearable
           />
+        </el-form-item>
+
+        <!-- set字段：指令分组 -->
+        <el-form-item label="指令分组" prop="set">
+          <el-select
+            v-model="formData.set"
+            filterable
+            allow-create
+            default-first-option
+            placeholder="选择或输入分组名称"
+            style="width: 100%"
+            clearable
+          >
+            <el-option
+              v-for="setName in existingSets"
+              :key="setName"
+              :label="setName"
+              :value="setName"
+            />
+          </el-select>
+          <div class="form-tip">
+            可以选择已有分组或输入新分组名称
+          </div>
+        </el-form-item>
+
+        <!-- order字段：执行顺序 -->
+        <el-form-item label="执行顺序" prop="order">
+          <el-input-number 
+            v-model="formData.order" 
+            :min="-999"
+            :max="999"
+            placeholder="执行顺序"
+            style="width: 100%"
+            :controls="true"
+            controls-position="right"
+          />
+          <div class="form-tip">
+            正数(1,2,3...)：优先执行，数字越小越优先<br>
+            0或不填：普通执行顺序<br>
+            负数(-1,-2,-3...)：延后执行，-1最后执行
+          </div>
         </el-form-item>
 
         <el-form-item label="响应内容" prop="content">
@@ -280,16 +331,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, reactive } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick, reactive, computed } from 'vue'
 import Sortable from 'sortablejs'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElCollapseTransition } from 'element-plus'
 import { Plus, Upload, Edit, Delete, Menu } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import {http} from '../../api'
 
 interface Command {
+  id:string
   func: string
   function: string
+  set: string
+  order: number
   content: string[]
   judge: 'equal' | 'contains'
   kind: string[]
@@ -305,7 +359,6 @@ const platformOptions = [
   'LR5921',
   'WECHAT',
   'BILI',
-  'QQAPP'
 ]
 
 // 响应式数据
@@ -316,16 +369,52 @@ const states = ref<string[]>([])
 const userOptions = ref<string[]>([])
 const groupOptions = ref<string[]>([])
 
+// 分组状态（动态管理）
+const groupStates = ref<Record<string, boolean>>({})
+
+// 表格引用
+const groupTableRefs = ref<Record<string, any>>({})
+
+// 计算属性：按set分组的指令
+const groupedCommands = computed(() => {
+  const groups: Record<string, Command[]> = {}
+  
+  commands.value.forEach(cmd => {
+    const groupName = cmd.set || '未分组'
+    if (!groups[groupName]) {
+      groups[groupName] = []
+    }
+    groups[groupName].push(cmd)
+  })
+  
+  return groups
+})
+
+// 计算属性：获取所有已存在的分组名
+const existingSets = computed(() => {
+  const sets = new Set<string>()
+  commands.value.forEach(cmd => {
+    if (cmd.set && cmd.set.trim()) {
+      sets.add(cmd.set.trim())
+    }
+  })
+  return Array.from(sets).sort()
+})
+
 // 对话框相关
 const dialogVisible = ref(false)
 const isEditing = ref(false)
+const currentGroup = ref('')
 const currentIndex = ref(-1)
 
 // 表单相关
 const formRef = ref<FormInstance>()
 const formData = reactive<Command>({
+  id:'',
   func: '',
   function: '',
+  set: '',
+  order: 0,
   content: [],
   judge: 'equal',
   kind: [],
@@ -344,6 +433,12 @@ const formRules = reactive<FormRules>({
   function: [
     { required: true, message: '功能函数不能为空', trigger: 'blur' },
     { max: 50, message: '长度不能超过50个字符', trigger: 'blur' }
+  ],
+  set: [
+    { max: 30, message: '分组名称长度不能超过30个字符', trigger: 'blur' }
+  ],
+  order: [
+    { type: 'number', min: -999, max: 999, message: '执行顺序必须在-999到999之间', trigger: 'change' }
   ],
   judge: [
     { required: true, message: '请选择匹配方式', trigger: 'change' }
@@ -370,7 +465,6 @@ const platformTagType = (platform: string) => {
     'BILI': 'danger',
     'LR232': 'warning',
     'LR5921': 'primary',
-    'QQAPP': 'info'
   }
   return styleMap[platform] || 'info'
 }
@@ -379,33 +473,116 @@ const messageTypeStyle = (type: string): string => {
   return messageTypeStyleMap.value[type] || 'info'
 }
 
-// 在原有代码后添加拖拽逻辑
-let sortable: Sortable
+// 拖拽实例
+let sortableInstances: Record<string, Sortable> = {}
 
+// 初始化拖拽
 const initSortable = () => {
-  const tbody = document.querySelector('.el-table__body-wrapper tbody')
-  if (!tbody) return
+  nextTick(() => {
+    // 销毁所有旧实例
+    Object.values(sortableInstances).forEach(instance => instance?.destroy())
+    sortableInstances = {}
+    
+    // 为每个分组创建拖拽实例
+    Object.keys(groupedCommands.value).forEach(groupName => {
+      const tableEl = groupTableRefs.value[groupName]
+      if (!tableEl) return
 
-  sortable = new Sortable(tbody, {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    handle: '.drag-handle',
-    onEnd: ({ newIndex, oldIndex }) => {
-      if (typeof newIndex !== 'number' || typeof oldIndex !== 'number') return
-      const newCommands = [...commands.value]
-      const [removed] = newCommands.splice(oldIndex, 1)
-      newCommands.splice(newIndex, 0, removed)
-      commands.value = newCommands
+      const tbody = tableEl.$el?.querySelector('.el-table__body-wrapper tbody')
+      if (!tbody) return
+
+      sortableInstances[groupName] = new Sortable(tbody, {
+        group: 'commands', // 允许跨组拖拽
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        handle: '.drag-handle',
+        onEnd: ({ newIndex, oldIndex, from, to }) => {
+          if (typeof newIndex !== 'number' || typeof oldIndex !== 'number') return
+
+          // 获取源组和目标组
+          const fromGroup = getGroupNameFromElement(from)
+          const toGroup = getGroupNameFromElement(to)
+          
+          if (fromGroup && toGroup) {
+            handleDragEnd(fromGroup, toGroup, oldIndex, newIndex)
+          }
+        }
+      })
+    })
+  })
+}
+
+// 根据DOM元素获取组名
+const getGroupNameFromElement = (element: Element): string | null => {
+  const groupContainer = element.closest('.group-container')
+  if (!groupContainer) return null
+  
+  const titleElement = groupContainer.querySelector('.group-title')
+  if (!titleElement) return null
+  
+  const titleText = titleElement.textContent || ''
+  // 提取组名（去掉数量部分）
+  const match = titleText.match(/^(.+?)\s*\(\d+\)$/)
+  return match ? match[1] : titleText
+}
+
+// 处理拖拽结束
+const handleDragEnd = (fromGroup: string, toGroup: string, oldIndex: number, newIndex: number) => {
+  const fromCommands = groupedCommands.value[fromGroup]
+  const toCommands = groupedCommands.value[toGroup]
+  
+  if (!fromCommands || !toCommands) return
+
+  // 获取被移动的指令
+  const movedCommand = fromCommands[oldIndex]
+  if (!movedCommand) return
+
+  // 如果是跨组移动，更新指令的set值
+  if (fromGroup !== toGroup) {
+    const globalIndex = commands.value.findIndex(cmd => cmd.id === movedCommand.id)
+    if (globalIndex !== -1) {
+      commands.value[globalIndex] = {
+        ...movedCommand,
+        set: toGroup === '未分组' ? '' : toGroup
+      }
+    }
+  } else {
+    // 同组内移动，重新排列commands数组中的顺序
+    const groupCommands = commands.value.filter(cmd => (cmd.set || '未分组') === fromGroup)
+    const otherCommands = commands.value.filter(cmd => (cmd.set || '未分组') !== fromGroup)
+    
+    // 移动元素
+    const [moved] = groupCommands.splice(oldIndex, 1)
+    groupCommands.splice(newIndex, 0, moved)
+    
+    // 更新commands数组
+    commands.value = [...otherCommands, ...groupCommands]
+  }
+  
+  // 重新初始化拖拽（因为DOM结构可能改变）
+  setTimeout(() => initSortable(), 100)
+}
+
+// 切换分组展开/折叠
+const toggleGroup = (groupName: string) => {
+  groupStates.value[groupName] = !groupStates.value[groupName]
+}
+
+// 初始化分组状态
+const initGroupStates = () => {
+  Object.keys(groupedCommands.value).forEach(groupName => {
+    if (!(groupName in groupStates.value)) {
+      groupStates.value[groupName] = true // 默认展开
     }
   })
 }
 
 onMounted(() => {
   loadInitialData()
-  nextTick(() => initSortable())
 })
+
 onBeforeUnmount(() => {
-  if (sortable) sortable.destroy()
+  Object.values(sortableInstances).forEach(instance => instance?.destroy())
 })
 
 const messageTypeStyleMap = ref<Record<string, string>>({})
@@ -417,7 +594,20 @@ const loadInitialData = async () => {
     const response = await http.get('/commands')
     
     // 确保数据结构正确
-    commands.value = Array.isArray(response.data?.commands) ? response.data.commands : []
+    const rawCommands = Array.isArray(response.data?.commands) ? response.data.commands : []
+
+    idCounter = 1;
+    
+    // 处理每个指令，确保有set和order字段
+    commands.value = rawCommands.map((cmd: any) => ({
+      ...cmd,
+      id:generateId(),
+      set: cmd.set || '',
+      order: cmd.order !== undefined && cmd.order !== null ? Number(cmd.order) : 0,
+      function: cmd.function || ''
+    }))
+    console.log(commands)
+    
     events.value = Array.isArray(response.data?.events) ? response.data.events : []
     states.value = Array.isArray(response.data?.states) ? response.data.states : []
     userOptions.value = Array.isArray(response.data?.users) ? response.data.users : []
@@ -426,11 +616,17 @@ const loadInitialData = async () => {
     // 自动分配颜色
     const map: Record<string, string> = {}
     response.data.events?.forEach((event: string, index: number) => {
-      map[event] = tagColorTypes[index % tagColorTypes.length]  // 循环分配颜色
+      map[event] = tagColorTypes[index % tagColorTypes.length]
     })
     messageTypeStyleMap.value = map
     
-  } catch (error) {
+    // 初始化分组状态和拖拽
+    nextTick(() => {
+      initGroupStates()
+      initSortable()
+    })
+    
+  } catch (error: any) {
     ElMessage.error('数据加载失败: ' + error.message)
     console.error('API错误详情:', error)
   } finally {
@@ -441,9 +637,20 @@ const loadInitialData = async () => {
 // 保存配置
 const handleSave = async () => {
   try {
-    await http.put('/commands', commands.value)
+    // 按照要求重新排序：正数在前，0在中间，负数在后（-1最后）
+    const positiveCommands = commands.value.filter(cmd => cmd.order > 0).sort((a, b) => a.order - b.order)
+    const normalCommands = commands.value.filter(cmd => cmd.order === 0)
+    const negativeCommands = commands.value.filter(cmd => cmd.order < 0).sort((a, b) => b.order - a.order) // -1,-2,-3...
+    
+    const sortedCommands = [
+      ...positiveCommands,
+      ...normalCommands,
+      ...negativeCommands
+    ]
+    const payload = sortedCommands.map(({ id, ...rest }) => rest)
+    await http.put('/commands', payload)
     ElMessage.success('配置保存成功!')
-  } catch (error) {
+  } catch (error: any) {
     ElMessage.error('保存失败: ' + error.message)
   }
 }
@@ -456,44 +663,74 @@ const handleAdd = () => {
 }
 
 // 编辑指令
-const handleEdit = (row: Command, index: number) => {
+const handleEdit = (row: Command, groupName: string, index: number) => {
   Object.assign(formData, { ...row })
+  currentGroup.value = groupName
   currentIndex.value = index
   isEditing.value = true
   dialogVisible.value = true
 }
 
 // 删除指令
-const handleDelete = async (index: number) => {
+const handleDelete = async (groupName: string, index: number) => {
   try {
     await ElMessageBox.confirm('确定要删除该指令吗？', '警告', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     })
-    commands.value.splice(index, 1)
+    
+    const groupCommands = groupedCommands.value[groupName]
+    if (groupCommands && groupCommands[index]) {
+      const commandToDelete = groupCommands[index]
+      const globalIndex = commands.value.findIndex(cmd => cmd.id === commandToDelete.id)
+      if (globalIndex !== -1) {
+        commands.value.splice(globalIndex, 1)
+      }
+    }
+    
     ElMessage.success('删除成功')
+    
+    // 重新初始化拖拽
+    nextTick(() => initSortable())
   } catch {
     // 取消操作
   }
 }
-
+let idCounter = 1
+function generateId() {
+  return (idCounter++).toString()
+}
 // 提交表单
 const submitForm = async () => {
   if (!formRef.value) return
 
   try {
     await formRef.value.validate()
-    const commandData = { ...formData }
+    const commandData: Command = {
+      ...formData,
+      id: isEditing.value ? formData.id : generateId(),
+    }
 
     if (isEditing.value) {
-      commands.value[currentIndex.value] = commandData
+      // 编辑模式：更新现有指令
+      const globalIndex = commands.value.findIndex(cmd => cmd.id === commandData.id)
+      if (globalIndex !== -1) {
+        commands.value[globalIndex] = {...commands.value[globalIndex], ...commandData }
+      }
     } else {
+      // 新增模式：添加新指令
       commands.value.push(commandData)
     }
 
     dialogVisible.value = false
     ElMessage.success('操作成功')
+    
+    // 重新初始化分组状态和拖拽
+    nextTick(() => {
+      initGroupStates()
+      initSortable()
+    })
   } catch (error) {
     ElMessage.error('表单验证失败')
   }
@@ -503,23 +740,28 @@ const submitForm = async () => {
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
-    Object.assign(formData, {
-      func: '',
-      content: [],
-      judge: 'equal',
-      kind: [],
-      state: [],
-      platforms: [],
-      users: [],
-      groups: []
-    })
-    currentIndex.value = -1
   }
+  Object.assign(formData, {
+    id:'',
+    func: '',
+    function: '',
+    set: '',
+    order: 0,
+    content: [],
+    judge: 'equal',
+    kind: [],
+    state: [],
+    platforms: [],
+    users: [],
+    groups: []
+  })
+  currentGroup.value = ''
+  currentIndex.value = -1
 }
 </script>
 
 <style scoped>
-/* 添加拖拽相关样式 */
+/* 拖拽相关样式 */
 .drag-handle {
   cursor: move;
   color: #909399;
@@ -534,13 +776,65 @@ const resetForm = () => {
   opacity: 0.5;
   background: #c8ebfb;
 }
+
+/* 分组容器样式 */
+.group-container {
+  margin-bottom: 30px;
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.group-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 12px 20px;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.group-header:hover {
+  background: linear-gradient(135deg, #e3e7f0 0%, #b8c4dd 100%);
+}
+
+.group-icon {
+  margin-right: 8px;
+  transition: transform 0.2s ease;
+}
+
+.group-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #303133;
+}
+
+/* 表格样式优化 */
+.group-table {
+  border-top: none !important;
+}
+
+.group-table :deep(.el-table__header) {
+  background-color: #fafafa;
+}
+
+.group-table :deep(.el-table__row:hover > td) {
+  background-color: #f5f7fa;
+}
+
+/* 排序列样式 */
+.order-normal {
+  color: #909399;
+  font-size: 14px;
+}
+
+/* 主容器样式 */
 .command-manager {
   padding: 20px;
   max-width: 1600px;
   margin: 0 auto;
-
-  /* 添加高度和滚动条 */
-  max-height: calc(100vh - 40px); /* 保证顶部和底部不会溢出 */
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
 }
 
@@ -548,8 +842,10 @@ const resetForm = () => {
   margin-bottom: 20px;
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
+/* 标签容器样式 */
 .tag-container {
   display: flex;
   flex-wrap: wrap;
@@ -565,19 +861,55 @@ const resetForm = () => {
   text-overflow: ellipsis;
 }
 
-.el-table {
-  margin-top: 20px;
+.el-tag {
+  margin: 2px;
+}
+
+/* 表单提示样式 */
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* 空状态样式 */
+:deep(.el-empty) {
+  padding: 60px 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .command-manager {
+    max-width: 100%;
+    padding: 15px;
+  }
   
-  :deep(.el-table__cell) {
-    padding: 12px 0;
-    
-    .cell {
-      line-height: 1.5;
-    }
+  .group-header {
+    padding: 10px 15px;
+  }
+  
+  .group-title {
+    font-size: 14px;
   }
 }
 
-.el-tag {
-  margin: 2px;
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .toolbar .el-button {
+    width: 100%;
+  }
+  
+  .group-header {
+    padding: 8px 12px;
+  }
+  
+  .group-title {
+    font-size: 13px;
+  }
 }
 </style>

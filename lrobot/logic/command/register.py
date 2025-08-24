@@ -33,6 +33,27 @@ PATTERN_KEY = {
 }
 
 
+async def register_linshi(msg: Msg):
+    register = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
+    if len(register) != 3:
+        content = "入会信息错误，请填写'/入会，代号，电话'"
+    else:
+        status = await data.status_check(msg.user)
+        if "入会成功" in status:
+            content = "已入会"
+        else:
+            await data.status_add(msg.user, "入会成功")
+            content = "入会成功"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+
 async def register_first(msg: Msg):
     """入会"""
     msg_kind = msg.kind[:2]

@@ -100,7 +100,6 @@ async def lr5921_msg_deal(data):
                 content = f"{data.get('operator_id')} 邀请 {user} 加入群 {group}"
             else:
                 content = f"{data.get('operator_id')} 同意 {user} 加入群 {group}"
-            return
         elif kind.endswith("删除"):
             if data.get("sub_type").startswith("kick"):  # kick or kick_me
                 content = f"{data.get('operator_id')} 将 {user} 踢出群 {group}"

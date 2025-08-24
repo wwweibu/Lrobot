@@ -46,7 +46,7 @@ async def lr232_receive(data: dict):
 
 def _append_text(content_list, text):
     """添加文本段落"""
-    text = text.strip()  # 去除 @ 后面跟着的空格
+    text = text.replace(" ", "")  # 去除 @ 后面/默认指令后面跟着的空格
     if text:
         content_list.append({"type": "text", "data": {"text": text}})
 
