@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="1"/>
+  <Sidebar :githubLink="'http://localhost:3000/Lrobot/docs/2%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/3%E5%B9%B3%E5%8F%B0%E9%85%8D%E7%BD%AE#%E5%B9%B3%E5%8F%B0%E9%80%89%E6%8B%A9'"/>
   <div class="wiki-container">
     <!-- 侧边栏 -->
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
