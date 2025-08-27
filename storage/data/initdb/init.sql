@@ -38,7 +38,10 @@ CREATE TABLE IF NOT EXISTS system_wiki (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255),
     group_name VARCHAR(255),
+    content Text,
+    sort INT
 );
+
 
 CREATE TABLE IF NOT EXISTS user_information (
     id INT AUTO_INCREMENT PRIMARY KEY,

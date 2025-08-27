@@ -9,15 +9,14 @@ from logic import data
 async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
-    print(1111)
-    await asyncio.sleep(20)
     msg = Msg(
         platform=msg.platform,
         kind=f"{kind}发送",
         event="发送",
-        content=f"[图片:{path}/storage/file/firefly/10MB.png]",
+        content=f"[语音:{path}/storage/file/firefly/10MB.mp3]",
+        seq=msg.seq,
         user=msg.user,
-        group="786159347"
+        group=msg.group
     )
 
     try:

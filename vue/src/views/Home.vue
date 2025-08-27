@@ -1,6 +1,6 @@
 <template>
-  <div class="layout1-container">
-    <div class="case-board">
+  <div class="layout1-container" ref="containerRef" :style="containerStyle">
+    <div class="case-board" :style="stageStyle">
       <!-- 顶部栏 -->
       <header class="case-board__header">
         <div class="case-board__left">
@@ -724,6 +724,81 @@ async function singleCheck () {
   }
 }
 
+// —— 视口与舞台自适应（改为本页监听 visualViewport）——
+
+// 正常宽高比：请替换为你的“正常宽高比”
+const STAGE_RATIO = 16 / 9   // 例如 16:9；如需 4:3 则改为 4 / 3
+
+const containerRef = ref(null)
+
+// 当前视口参数（取自 visualViewport）
+const viewport = reactive({
+  width: 0,
+  height: 0,
+  scale: 1,
+  offsetLeft: 0,
+  offsetTop: 0,
+})
+
+// 外层容器样式：始终高=视窗高；宽=100vw；窄屏时横向滚
+const containerStyle = computed(() => ({
+  height: `${viewport.height}px`,
+  overflowX: 'auto',
+  overflowY: 'hidden',
+}))
+
+// 舞台样式：宽=视窗高×正常宽高比；高=视窗高；宽屏时水平居中
+const stageStyle = computed(() => {
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO)
+  const centered = viewport.width >= expectedWidth
+  return {
+    width: expectedWidth + 'px',
+    height: viewport.height + 'px',
+    margin: centered ? '0 auto' : '0', // 宽屏左右留白；窄屏不居中以产生横向滚动
+  }
+})
+
+// 应用视口尺寸，并在下一帧让 Leaflet 重新测量
+function applyViewportSize(vp) {
+  viewport.width = vp.width
+  viewport.height = vp.height
+  viewport.scale = vp.scale ?? 1
+  viewport.offsetLeft = vp.offsetLeft ?? 0
+  viewport.offsetTop = vp.offsetTop ?? 0
+
+  // 合并多次 resize，避免频繁触发
+  cancelAnimationFrame(applyViewportSize._rafId)
+  applyViewportSize._rafId = requestAnimationFrame(() => {
+    if (map) map.invalidateSize()
+  })
+}
+
+// 本页监听 visualViewport.resize；同时保留对外广播（如你已有总线）
+function handleViewportResize() {
+  const vp = window.visualViewport
+    ? {
+        width: window.visualViewport.width,
+        height: window.visualViewport.height,
+        scale: window.visualViewport.scale,
+        offsetLeft: window.visualViewport.offsetLeft,
+        offsetTop: window.visualViewport.offsetTop,
+        source: 'viewport',
+      }
+    : {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        scale: 1,
+        offsetLeft: 0,
+        offsetTop: 0,
+        source: 'window',
+      }
+
+  // 若你的工程内有 emitEvent，这里照常广播；没有也不会报错
+  try { emitEvent && emitEvent('viewportChange', vp) } catch (_) {}
+
+  // 本页立即应用计算结果
+  applyViewportSize(vp)
+}
 
 // 初始化
 onMounted(async () => {
@@ -746,11 +821,6 @@ onMounted(async () => {
     // 阻止 Leaflet 默认自动平移
     e.originalEvent.preventDefault();
 
-    // 把局部容器滚回顶部
-    nextTick(() => {
-      const container = document.querySelector('.layout1-container');
-      if (container) container.scrollTop = 0;
-    });
   });
 
   L.tileLayer(tileUrl.value, { maxZoom: 19 ,attribution: "&copy; OpenStreetMap contributors",}).addTo(map)
@@ -807,6 +877,13 @@ Yes, they have been good days...\n
         });
       }
     )
+
+  // —— 视口监听：本页自处理 —— // 
+  handleViewportResize() // 进页先算一次
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportResize)
+  }
   
   
   // 放在 onMounted 里，地图初始化之后
@@ -918,6 +995,25 @@ const visibleLines = computed(() =>
     .filter(Boolean)
 )
 
+// —— 辅助：滚动到舞台居中 —— //
+function scrollContainerToCenter() {
+  if (!containerRef.value) return
+  const el = containerRef.value
+
+  const containerWidth = el.clientWidth
+  const containerHeight = el.clientHeight
+  const stageWidth = el.scrollWidth
+  const stageHeight = el.scrollHeight
+
+  const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
+  const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
+
+  el.scrollTo({
+    left: scrollLeft,
+    top: scrollTop,
+    behavior: 'smooth',
+  })
+}
 
 /* —————————————————— 卡片逻辑 —————————————————— */
 const activeCard = ref(null)
@@ -945,6 +1041,11 @@ function closeCaseFile() {
   activeCard.value = null
   clearInterval(textInterval)
   displayText.value = []
+
+  // 归档/返回/选项（都会走到这里）后，滚动到居中
+  nextTick(() => {
+    scrollContainerToCenter()
+  })
 }
 
 function handleAnswer(choice) {
@@ -983,6 +1084,9 @@ function startTyping(text) {
 }
 
 onUnmounted(() => {
+  if (window.visualViewport) {
+    window.visualViewport.removeEventListener('resize', handleViewportResize)
+  }
   clearInterval(textInterval)
   if (map) {
     map.off()
@@ -1000,10 +1104,15 @@ onUnmounted(() => {
   --bg: #0f1113;
 }
 
+.layout1-container {
+  width: 100vw;                 /* 与 visualViewport.width 对齐 */
+  overflow-x: auto;             /* 窄屏时出现横向滚动条 */
+  overflow-y: hidden;           /* 高度由脚本设置为视窗高度 */
+  -webkit-overflow-scrolling: touch; /* iOS 提升滚动体验 */
+}
+
 /* —— 外壳 —— */
 .case-board {
-  width: 100%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--bg) var(--metal-bg);

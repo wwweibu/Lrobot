@@ -101,7 +101,7 @@ export default {
       if (count.value >= 5) {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
-        router.push('/AprilFools/2025');
+        router.push('/AprilFools/2025/1');
       }
       
       if (animationFrame) {

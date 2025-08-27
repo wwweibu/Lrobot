@@ -2,8 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Home from '../views/Home.vue';
 import NotFound from '../views/NotFound.vue';
 import Fools1 from '../views/Event/Fools1.vue';
+import Fools2 from '../views/Event/Fools2.vue'
 import Cmd from '../views/Cab/Cmd.vue';
 import Cab from '../views/Cab/Cab.vue';
+import Wiki from '../views/Cab/Wiki.vue';
 import Command from '../views/Cab/Command.vue';
 import Database from '../views/Cab/Database.vue';
 import User from '../views/Cab/User.vue';
@@ -22,11 +24,6 @@ import Test3 from '../views/Test/Test3.vue';
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/home',
     name: 'Home',
     component: Home
   },
@@ -59,6 +56,11 @@ const routes = [
     path: '/cab',
     name: 'Cab',
     component: Cab,
+  },
+  {
+    path: '/cab/wiki',
+    name: 'Wiki',
+    component: Wiki,
   },
   {
     path: '/cab/papaw',
@@ -104,6 +106,11 @@ const routes = [
     path: "/AprilFools/2025",
     name: 'Fools1',
     component: Fools1
+  },
+  {
+    path: "/AprilFools/2025/1",
+    name: 'Fools2',
+    component: Fools2
   },
   {
     path: "/cmd",

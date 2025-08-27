@@ -35,35 +35,6 @@ commands:
   - 微部
   groups:
   - 公测群
-- content: []
-  func: 测试群_入群
-  function: firefly_in
-  groups:
-  - 内测群
-  judge: contains
-  kind:
-  - 群聊添加
-  platforms:
-  - LR5921
-  state: []
-  users: []
-  set: 测试
-  order: 0
-- content:
-  - /设置密码
-  func: 测试群_设置密码
-  function: firefly_set
-  groups:
-  - 内测群
-  judge: contains
-  kind:
-  - 群聊接收
-  platforms:
-  - LR5921
-  state: []
-  users: []
-  set: 测试
-  order: 0
 - content:
   - 航海日记提示
   func: 航海日记_提示
@@ -775,6 +746,54 @@ commands:
   state: []
   users: []
   set: ''
+  order: 0
+- func: 测试
+  function: test_1
+  set: 测试
+  order: 0
+  content:
+  - /测试1
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 内测群
+- content: []
+  func: 测试群_入群
+  function: firefly_in
+  groups:
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊添加
+  platforms:
+  - LR5921
+  state: []
+  users: []
+  set: 测试
+  order: 0
+- content:
+  - /设置密码
+  func: 测试群_设置密码
+  function: firefly_set
+  groups:
+  - 内测群
+  judge: contains
+  kind:
+  - 群聊接收
+  platforms:
+  - LR5921
+  state: []
+  users: []
+  set: 测试
   order: 0
 - content: []
   func: 转发
