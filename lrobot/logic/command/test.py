@@ -10,21 +10,21 @@ async def test_1(msg: Msg):
     """测试函数"""
     kind = msg.kind[:2]
     msg = Msg(
-        platform=msg.platform,
-        kind=f"{kind}发送",
+        platform="LR5921",
+        kind=f"私聊发送",
         event="发送",
-        content=f"[语音:{path}/storage/file/firefly/10MB.mp3]",
+        content=f"[语音:{path / 'storage/file/command/sparkle_2025-9-9_head.wav'}]",
         seq=msg.seq,
         user=msg.user,
         group=msg.group
     )
-
-    try:
-        _future = future.get(msg.num)
-        response = await asyncio.wait_for(_future, timeout=20)
-        print(response)
-    except asyncio.TimeoutError:
-        print("111111111")
+    #
+    # try:
+    #     _future = future.get(msg.num)
+    #     response = await asyncio.wait_for(_future, timeout=20)
+    #     print(response)
+    # except asyncio.TimeoutError:
+    #     print("111111111")
 
 
 # 以下为测试成功但没有使用的功能

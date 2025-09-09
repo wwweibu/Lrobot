@@ -1,11 +1,12 @@
 """wiki 页面"""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from config import database_query, database_update
+from .cookie import cookie_account_get
+from config import database_query, database_update, loggers
 
 router = APIRouter()
-
+website_logger = loggers["website"]
 
 @router.get("/wiki")
 async def wiki_get_all():
@@ -16,8 +17,10 @@ async def wiki_get_all():
 
 
 @router.post("/wiki")
-async def wiki_create(data: dict):
+async def wiki_create(data: dict, account: str = Depends(cookie_account_get)):
     """创建新的wiki页面"""
+    if not account:
+        return
     title = data.get("title")
     group_name = data.get("group_name")
     content = data.get("content", "")
@@ -44,21 +47,34 @@ async def wiki_create(data: dict):
     await database_update(shift_query, (target_sort,))
     insert_query = "INSERT INTO system_wiki (title, group_name, content, sort) VALUES (%s, %s, %s, %s)"
     await database_update(insert_query, (title, group_name, content, target_sort))
+    website_logger.info(
+        f"[{account}] 创建 wiki 页: {data}", extra={"event": "管理操作"}
+    )
     return {"success": True}
 
 
 @router.put("/wiki")
-async def wiki_update(data: dict):
+async def wiki_update(data: dict, account: str = Depends(cookie_account_get)):
     """更新wiki页面"""
+    if not account:
+        return
     update_query = "UPDATE system_wiki SET content = %s WHERE id = %s"
     update_params = (data.get("content", ""), data.get("id", ""))
     await database_update(update_query, update_params)
+    website_logger.info(
+        f"[{account}] 更新 wiki 页: {data}", extra={"event": "管理操作"}
+    )
     return {"success": True}
 
 
 @router.put("/wiki/name")
-async def wiki_update_name(data: dict):
+async def wiki_update_name(data: dict, account: str = Depends(cookie_account_get)):
     """更新wiki名称（组名或标题）"""
+    if not account:
+        return
+    website_logger.info(
+        f"[{account}] 更新 wiki 页名: {data}", extra={"event": "管理操作"}
+    )
     edit_type = data.get("type")
 
     if edit_type == "group":
@@ -94,23 +110,33 @@ async def wiki_update_name(data: dict):
 
 
 @router.put("/wiki/sort")
-async def update_wiki_sort(sort_data: list[dict]):
+async def update_wiki_sort(sort_data: list[dict], account: str = Depends(cookie_account_get)):
     """
     接收前端传回的排序结果，重新赋值 sort
     """
+    if not account:
+        return
     update_query = "UPDATE system_wiki SET sort = %s WHERE id = %s"
     for item in sort_data:
         await database_update(update_query, (item["sort"], item["id"]))
+    website_logger.info(
+        f"[{account}] 排序 wiki: {sort_data}", extra={"event": "管理操作"}
+    )
     return {"success": True}
 
 
 @router.put("/wiki/move")
-async def wiki_move_page(data: dict):
+async def wiki_move_page(data: dict, account: str = Depends(cookie_account_get)):
     """拖动排序时的组重命名"""
+    if not account:
+        return
     page_id = data.get("id")
     new_group = data.get("new_group")
     if not page_id or not new_group:
         return {"success": False, "message": "参数缺失"}
     update_query = "UPDATE system_wiki SET group_name = %s WHERE id = %s"
     await database_update(update_query, (new_group, page_id))
+    website_logger.info(
+        f"[{account}] 排序 wiki 组: {data}", extra={"event": "管理操作"}
+    )
     return {"success": True}

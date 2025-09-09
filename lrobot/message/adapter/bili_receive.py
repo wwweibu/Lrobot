@@ -36,8 +36,10 @@ async def bili_receive(interval=None):
         # 不直接提取消息，因为撤回消息不算数量（unread_count）
         await _bili_msg_read(msg["talker_id"])
         if not msg.get("ack_seqno"):
-            continue
-        msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
+            msg_get_list = await bili_msg_get(0, user=msg["talker_id"])
+            msg_get_list = msg_get_list[:msg["unread_count"]]
+        else:
+            msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
         for msg_get in sort_messages(msg_get_list):
             await bili_msg_deal(msg_get)
 
@@ -163,7 +165,8 @@ async def bili_fan_get():
     response = await request_deal(url, "get", params, "私聊粉丝获取")
     fan_list = response["data"]["list"]
     fan_users = await status_check(status="fan")
-    old_fan = fan_users[0] if fan_users else None  # 上次最新粉丝
+    fan_set = {str(item["mid"]) for item in fan_list}
+    old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)  # 上次最新粉丝
     old_fan_index = None
     if old_fan:
         for idx, item in enumerate(fan_list):

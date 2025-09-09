@@ -179,6 +179,14 @@ async def lr5921_title(user, group, title):
     await request_deal(url, data, "群聊头衔")
 
 
+async def lr5921_nickname(num, user):
+    """私聊昵称"""
+    url = "get_stranger_info"
+    data = {"user_id": user}
+    data = await request_deal(url, data, "私聊昵称")
+    future.set(num, data.get("data", []).get("nick"))
+
+
 async def lr5921_card(num, type, title, desc, picUrl, jumpUrl):
     """卡片 TODO"""
     url = f"get_mini_app_ark"
@@ -195,4 +203,3 @@ async def lr5921_card(num, type, title, desc, picUrl, jumpUrl):
     future.set(num, data.get("data").get("data"))
 
 # TODO 群文件上传下载整理相关
-# TODO 获取昵称

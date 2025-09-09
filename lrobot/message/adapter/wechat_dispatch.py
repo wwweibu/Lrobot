@@ -61,9 +61,12 @@ async def wechat_dispatch(
     <CreateTime>{seq[:-2] if kind.endswith("添加发送") else seq}</CreateTime>"""
 
     if msg_type == "text":
-        content = data.get("text", "").replace("\n", "。")  # 替换换行符  "\u2028"
+        send_content = ""
+        for item in content:
+            if item["type"] == "text":
+                send_content += item.get("data", {}).get("text", "").replace("\n", "。")  # 替换换行符  "\u2028"
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
-        <Content><![CDATA[{content}]]></Content>\n"""
+        <Content><![CDATA[{send_content}]]></Content>\n"""
 
     elif msg_type == "image":
         file = data.get("file", "")
@@ -127,7 +130,7 @@ async def wechat_file_upload(file, type=None, url=None):
     query = "SELECT media_id, wechat FROM user_media WHERE filepath = %s"
     result = await database_query(query, (file,))
     if result:
-        media_id, t = result[0]["uploaded_at"], result[0]["wechat"]
+        media_id, t = result[0]["media_id"], result[0]["wechat"]
         if media_id and t and datetime.now() < t + timedelta(days=3):
             return media_id
 

@@ -5,7 +5,7 @@ import asyncio
 from .status import status_check
 from .firefly import firefly_judge
 from message.handler.msg import Msg
-from config import config, future, database_query
+from config import config, future, database_query, loggers
 
 
 async def user_identify(user, platform):
@@ -34,29 +34,30 @@ async def user_identify(user, platform):
     return result
 
 
-async def user_member_judge(source):
+async def user_member_judge(qq):
     """判断用户是否为社员"""
     query = "SELECT 1 FROM user_information WHERE qq = %s LIMIT 1"
-    result = await database_query(query, (source,))
+    result = await database_query(query, (qq,))
     return 1 if result else 0
 
 
 async def user_nickname_get(user):
-    """TODO 获取用户昵称"""
+    """获取用户昵称"""
     msg = Msg(
         platform="LR5921",
-        kind="私聊获取信息",
         event="发送",
-        user="663748426",
-        content=user,
+        kind="私聊昵称",
+        user=user
     )
     try:
         _future = future.get(msg.num)
         response = await asyncio.wait_for(_future, timeout=20)
-        data = response.json().get("data", {})
-        return data.get("nickname", {})
+        return response
     except asyncio.TimeoutError:
-        raise Exception(f"昵称获取超时 | 用户: {user}")
+        loggers["message"].error(
+            f"昵称获取超时 | 用户: {user}", extra={"event": "消息处理"},
+        )
+        return None
 
 
 async def user_codename_change(codename):
@@ -65,4 +66,14 @@ async def user_codename_change(codename):
     result = await database_query(query, (codename,))
     if result:
         return result[0]["qq"]
+    return None
+
+
+async def user_qq_transform(user, platform):
+    """转换为 QQ 号"""
+    if platform == "LR5921":
+        return user
+    information = await status_check(user, "qq")
+    if information:
+        return information
     return None

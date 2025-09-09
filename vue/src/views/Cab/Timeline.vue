@@ -1,86 +1,101 @@
 <template>
-  <div class="timeline-container">
-    <div class="header">
-      <div class="detective-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 2a9 9 0 0 1 9 9c0 1.57-.47 3.07-1.26 4.36l2.27 2.27a1 1 0 0 1 0 1.41a1 1 0 0 1-1.41 0l-2.3-2.3A8.94 8.94 0 0 1 12 20a9 9 0 0 1-9-9a9 9 0 0 1 9-9m0 2a7 7 0 0 0-7 7c0 1.78.74 3.42 1.95 4.58l.03.03c.67.63 1.48 1.1 2.36 1.36c.24.06.48.11.72.15c.33.05.66.08 1 .08a7 7 0 0 0 7-7a7 7 0 0 0-7-7m0 3a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 2a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2Z"/>
-        </svg>
-      </div>
-      <h1>推协年度时间轴</h1>
-      <p>时间范围：{{ formatDate(minDate) }} - {{ formatDate(maxDate) }}</p>
-    </div>
-    
-    <div class="controls">
-      <button class="control-btn" @click="resetView">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 16c1.671 0 3-1.331 3-3s-1.329-3-3-3-3 1.331-3 3 1.329 3 3 3z"/>
-          <path fill="currentColor" d="M20.817 11.186a8.94 8.94 0 0 0-1.355-3.219 9.053 9.053 0 0 0-2.43-2.43 8.95 8.95 0 0 0-3.219-1.355 9.028 9.028 0 0 0-1.838-.18V2L8 5l3.975 3V6.002c.484-.002.968.044 1.435.14a6.961 6.961 0 0 1 2.502 1.053 7.005 7.005 0 0 1 1.892 1.892A6.967 6.967 0 0 1 19 13a7.032 7.032 0 0 1-.55 2.725 7.11 7.11 0 0 1-.644 1.188 7.2 7.2 0 0 1-.858 1.039 7.028 7.028 0 0 1-3.536 1.907 7.13 7.13 0 0 1-2.822 0 6.961 6.961 0 0 1-2.503-1.054 7.002 7.002 0 0 1-1.89-1.89A6.996 6.996 0 0 1 5 13H3a9.02 9.02 0 0 0 1.539 5.034 9.096 9.096 0 0 0 2.428 2.428A8.95 8.95 0 0 0 12 22a9.09 9.09 0 0 0 1.814-.183 9.014 9.014 0 0 0 3.218-1.355 8.886 8.886 0 0 0 1.331-1.099 9.228 9.228 0 0 0 1.1-1.332A8.952 8.952 0 0 0 21 13a9.09 9.09 0 0 0-.183-1.814z"/>
-        </svg>
-        <span>重置视图</span>
-      </button>
-      <button class="control-btn" @click="addNode">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-        </svg>
-        <span>添加事件</span>
-      </button>
-      <div class="scale-indicator">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M12 6a2 2 0 0 0-2-2a2 2 0 0 0-2 2c0 1.11.89 2 2 2a2 2 0 0 0 2-2m7 10h2v-2h-2m0-2h2v-2h-2m-8 8h2v-2h-2m-4 2h2v-2H7m4-2h2v-2h-2m8-6h2V4h-2m0 6h2V8h-2M3 8h2V4H3m0 6h2V8H3m12 12h2v-2h-2m-4-6H3v-2h8v2m10 6h-2v-2h2v2m0-4h-2v-2h2v2m-6 0h-2v-2h2v2m-4-2h-2v-2h2v2m-4-2H7v-2h2v2m-4-2H3v-2h2v2Z"/>
-        </svg>
-        <span>缩放级别: {{ zoomLevel }}%</span>
-      </div>
-    </div>
-    
-    <div 
-      class="timeline-wrapper"
-      @wheel.prevent="handleWheel"
-      @mousedown="startDrag"
-      @mousemove="dragTimeline"
-      @mouseup="stopDrag"
-      @mouseleave="stopDrag"
-      @dblclick="handleTimelineDoubleClick"
-    >
-      <div class="timeline" :style="{ transform: `translateX(${offsetX}px)`, width: timelineWidth + 'px' }">
-        <div class="timeline-center"></div>
-        
-        <!-- 时间刻度 -->
-        <div 
-          v-for="tick in timelineTicks" 
-          :key="tick.date" 
-          class="timeline-tick"
-          :style="{ left: getDatePosition(tick.date) + 'px' }"
-        >
-          <div class="tick-line"></div>
-          <div class="tick-label">{{ formatDate(tick.date) }}</div>
-        </div>
-        
-        <!-- 时间节点 -->
-        <div 
-          v-for="node in nodes" 
-          :key="node.id" 
-          class="timeline-node"
-          :style="{ left: getDatePosition(node.date) + 'px' }"
-          @click="openEditDialog(node)"
-        >
-          <div class="node-pin" :class="getNodeColor(node)">
-            <div class="pin-head"></div>
-            <div class="pin-needle"></div>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#时间轴'"/>
+  <div class="timeline-container" @click="clearActiveIfNeed">
+    <!-- 顶部栏：标题 + 时间范围（同一行） + 控制区 -->
+    <div class="topbar">
+      <div class="title-row">
+        <div class="title-left">
+          <div class="detective-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2a9 9 0 0 1 9 9c0 1.57-.47 3.07-1.26 4.36l2.27 2.27a1 1 0 0 1 0 1.41a1 1 0 0 1-1.41 0l-2.3-2.3A8.94 8.94 0 0 1 12 20a9 9 0 0 1-9-9a9 9 0 0 1 9-9m0 2a7 7 0 0 0-7 7c0 1.78.74 3.42 1.95 4.58l.03.03c.67.63 1.48 1.1 2.36 1.36c.24.06.48.11.72.15c.33.05.66.08 1 .08a7 7 0 0 0 7-7a7 7 0 0 0-7-7m0 3a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 2a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2Z"/>
+            </svg>
           </div>
-          <div class="node-connector"></div>
-          <div class="node-content">
-            <div class="node-date">{{ formatDate(node.date) }}</div>
-            <div class="node-event">{{ node.event }}</div>
-            <div class="node-tag">{{ node.tag }}</div>
-          </div>
+          <h1 class="page-title">年度时间轴</h1>
+          <div class="date-range">时间范围：{{ formatDate(minDate) }} - {{ formatDate(maxDate) }}</div>
         </div>
       </div>
+
+      <div class="controls">
+        <button class="control-btn" @click="resetView" title="重置视图">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M12 16c1.671 0 3-1.331 3-3s-1.329-3-3-3-3 1.331-3 3 1.329 3 3 3z"/><path fill="currentColor" d="M20.817 11.186a8.94 8.94 0 0 0-1.355-3.219 9.053 9.053 0 0 0-2.43-2.43 8.95 8.95 0 0 0-3.219-1.355 9.028 9.028 0 0 0-1.838-.18V2L8 5l3.975 3V6.002c.484-.002.968.044 1.435.14a6.961 6.961 0 0 1 2.502 1.053 7.005 7.005 0 0 1 1.892 1.892A6.967 6.967 0 0 1 19 13a7.032 7.032 0 0 1-.55 2.725 7.11 7.11 0 0 1-.644 1.188 7.2 7.2 0 0 1-.858 1.039 7.028 7.028 0 0 1-3.536 1.907 7.13 7.13 0 0 1-2.822 0 6.961 6.961 0 0 1-2.503-1.054 7.002 7.002 0 0 1-1.89-1.89A6.996 6.996 0 0 1 5 13H3a9.02 9.02 0 0 0 1.539 5.034 9.096 9.096 0 0 0 2.428 2.428A8.95 8.95 0 0 0 12 22a9.09 9.09 0 0 0 1.814-.183 9.014 9.014 0 0 0 3.218-1.355 8.886 8.886 0 0 0 1.331-1.099 9.228 9.228 0 0 0 1.1-1.332A8.952 8.952 0 0 0 21 13a9.09 9.09 0 0 0-.183-1.814z"/></svg>
+          重置
+        </button>
+        <button class="control-btn" @click="addNode" title="添加节点">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          新增
+        </button>
+        <div class="scale-indicator"><span>{{ zoomLevel }}%</span></div>
+      </div>
     </div>
-    
+
+    <!-- 时间轴：支持鼠标拖拽/滚轮缩放，触摸拖拽/捏合缩放，双击空白添加节点 -->
+    <div id="timeline-container" style="border:1px solid #ccc; border-radius:8px; padding:10px; background:#f9f9f9;">
+      <div
+        class="timeline-wrapper"
+        @wheel.prevent="handleWheel"
+        @mousedown="startDrag"
+        @mousemove="dragTimeline"
+        @mouseup="stopDrag"
+        @mouseleave="stopDrag"
+        @dblclick="handleTimelineDoubleClick"
+        @touchstart.passive="onTouchStart"
+        @touchmove.prevent="onTouchMove"
+        @touchend="onTouchEnd"
+        ref="wrapperRef"
+      >
+        <div class="timeline" :style="{ transform: `translateX(${offsetX}px)`, width: timelineWidth + 'px' }">
+          <div class="timeline-center"></div>
+          <div class="axis-line" aria-hidden="true"></div>
+  
+          <!-- 时间刻度 -->
+          <div
+            v-for="tick in timelineTicks"
+            :key="tick.date"
+            class="timeline-tick"
+            :style="{ left: getDatePosition(tick.date) + 'px' }"
+          >
+            <div class="tick-line" :class="{ major: tick.major }"></div>
+            <div class="tick-label">{{ formatDate(tick.date) }}</div>
+          </div>
+  
+          <!-- 时间节点 -->
+          <div
+            v-for="node in nodes"
+            :key="node.id"
+            class="timeline-node"
+            :class="{ active: activeNodeId === node.id }"
+            :style="{ left: getDatePosition(node.date) + 'px' }"
+            @click.stop="onNodeClick(node)"
+            @dblclick.stop="openEditDialog(node)"
+            @touchstart.passive="onNodeTouchStart(node)"
+            @touchmove.passive="onNodeTouchMove"
+            @touchend.passive="onNodeTouchEnd"
+          >
+            <div class="node-pin" :class="getNodeColor(node)">
+              <div class="pin-head"></div>
+              <div class="pin-needle"></div>
+            </div>
+            <div class="node-connector"></div>
+  
+            <div class="node-content" @click.stop>
+              <button class="content-close" @click.stop="activeNodeId = null" aria-label="关闭">×</button>
+              <div class="node-date">{{ formatDate(node.date) }}</div>
+              <div class="node-event">{{ node.event }}</div>
+              <div class="node-tag">{{ node.tag }}</div>
+              <div class="content-actions">
+                <button class="mini-btn" @click.stop="openEditDialog(node)">编辑</button>
+                <button class="mini-btn danger" @click.stop="() => { currentNode = { ...node }; dialogType = 'edit'; deleteNode(); }">删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 添加/编辑对话框 -->
     <div v-if="dialogVisible" class="dialog-overlay">
-      <div class="dialog">
-        <h3>{{ dialogType === 'add' ? '添加线索节点' : '编辑线索节点' }}</h3>
+      <div class="dialog" role="dialog" aria-modal="true">
+        <h3>{{ dialogType === 'add' ? '添加节点' : '编辑节点' }}</h3>
         <div class="form-group">
           <label>日期:</label>
           <input type="date" v-model="currentNode.date" :min="minDate" :max="maxDate" />
@@ -97,73 +112,17 @@
         </div>
         <div class="dialog-buttons">
           <button v-if="dialogType === 'edit'" class="dialog-btn delete-btn" @click="deleteNode">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
             删除
           </button>
           <button class="dialog-btn save-btn" @click="saveNode">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
             保存
           </button>
           <button class="dialog-btn cancel-btn" @click="dialogVisible = false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
             取消
           </button>
-        </div>
-      </div>
-    </div>
-    
-    <div class="instructions">
-      <h3>操作说明</h3>
-      <div class="instruction-grid">
-        <div class="instruction-item">
-          <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M17 15h2V7c0-1.1-.9-2-2-2H9v2h8v8zM7 17V1H5v4H1v2h4v10c0 1.1.9 2 2 2h10v4h2v-4h4v-2H7z"/>
-            </svg>
-          </div>
-          <div>
-            <h4>缩放时间轴</h4>
-            <p>使用鼠标滚轮向上/向下滚动</p>
-          </div>
-        </div>
-        <div class="instruction-item">
-          <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M20 9H4v2h16V9zM4 15h16v-2H4v2z"/>
-            </svg>
-          </div>
-          <div>
-            <h4>拖动时间轴</h4>
-            <p>点击并按住时间轴左右拖动</p>
-          </div>
-        </div>
-        <div class="instruction-item">
-          <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-            </svg>
-          </div>
-          <div>
-            <h4>添加事件</h4>
-            <p>双击时间轴空白区域或点击添加按钮</p>
-          </div>
-        </div>
-        <div class="instruction-item">
-          <div class="icon-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-            </svg>
-          </div>
-          <div>
-            <h4>编辑事件</h4>
-            <p>单击时间节点打开编辑对话框</p>
-          </div>
         </div>
       </div>
     </div>
@@ -171,59 +130,55 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { http } from '@/api.js';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { http } from '@/api.js'
+import Sidebar from './Sidebar.vue'
 
-// 时间轴节点数据
-const nodes = ref([]);
+/** ============ 数据与状态 ============ */
+const nodes = ref([])
+const tags = ref(['大型活动', '社指', '会议', '日常', '读书会', '聚餐', '事件'])
 
-// 标签类型
-const tags = ref(['大型活动', '社指', '会议', '日常', '读书会','聚餐','事件']);
+const offsetX = ref(0)
+const scale = ref(1)
+const isDragging = ref(false)
+const dragStartX = ref(0)
+const dragStartOffset = ref(0)
 
-// 时间轴参数
-const offsetX = ref(0);
-const scale = ref(1);
-const isDragging = ref(false);
-const dragStartX = ref(0);
-const dragStartOffset = ref(0);
+const dialogVisible = ref(false)
+const dialogType = ref('add')
+let currentNode = ref({ id: null, date: '', event: '', tag: '事件' })
 
-// 对话框相关
-const dialogVisible = ref(false);
-const dialogType = ref('add');
-const currentNode = ref({ id: null, date: '', event: '', tag: '事件' });
+const activeNodeId = ref(null) // 单击高亮/显示详情
 
-// 设置日期范围（今年7月1日到明年6月30日）
-const now = new Date();
-const currentYear = now.getFullYear();
-const minDate = ref(`${currentYear}-07-01`);
-const maxDate = ref(`${currentYear + 1}-06-30`);
+// 日期范围：今年 7-1 ~ 明年 6-30
+const now = new Date()
+const currentYear = now.getFullYear()
+const minDate = ref(`${currentYear}-07-01`)
+const maxDate = ref(`${currentYear + 1}-06-30`)
 
-// 计算时间轴宽度
-const timelineWidth = computed(() => 5000 * scale.value);
+const BASE_WIDTH = 5000 // 基础宽度（逻辑宽度）
+const timelineWidth = computed(() => BASE_WIDTH * scale.value)
+const zoomLevel = computed(() => Math.round(scale.value * 100))
 
-// 计算缩放级别百分比
-const zoomLevel = computed(() => Math.round(scale.value * 100));
-
-// 生成时间轴刻度
+/** ============ 刻度生成：按季度 ============ */
 const timelineTicks = computed(() => {
-  const ticks = [];
-  const start = new Date(minDate.value);
-  const end = new Date(maxDate.value);
-  
-  // 添加季度刻度
+  const ticks = []
+  const start = new Date(minDate.value)
+  const end = new Date(maxDate.value)
   for (let d = new Date(start); d <= end; d.setMonth(d.getMonth() + 3)) {
     ticks.push({
       date: new Date(d).toISOString().split('T')[0],
       major: d.getMonth() === 0 || d.getMonth() === 6
-    });
+    })
   }
-  
-  return ticks;
-});
+  return ticks
+})
 
-// 获取节点颜色
+/** ============ 工具函数 ============ */
+const clamp = (v, min, max) => Math.max(min, Math.min(max, v))
+
 const getNodeColor = (node) => {
-  const colors = {
+  const map = {
     '大型活动': 'evidence',
     '社指': 'testimony',
     '会议': 'proof',
@@ -231,655 +186,452 @@ const getNodeColor = (node) => {
     '读书会': 'video',
     '事件': 'meeting',
     '聚餐': 'conclusion'
-  };
-  return colors[node.tag] || 'other';
-};
+  }
+  return map[node.tag] || 'other'
+}
 
-// 处理鼠标滚轮事件（缩放）
+const getDatePosition = (dateStr) => {
+  const start = new Date(minDate.value)
+  const end = new Date(maxDate.value)
+  const nodeDate = new Date(dateStr)
+  const totalDays = (end - start) / (1000 * 60 * 60 * 24)
+  const daysFromStart = (nodeDate - start) / (1000 * 60 * 60 * 24)
+  // 位置 = 占比 * 逻辑宽度 * 缩放
+  return clamp((daysFromStart / totalDays) * BASE_WIDTH * scale.value, 0, BASE_WIDTH * scale.value)
+}
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr)
+  return `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+}
+
+/** ============ 视图交互：缩放（围绕指针）& 拖拽 ============ */
+const wrapperRef = ref(null)
+
+const applyZoomAt = (clientX, deltaScale) => {
+  const wrapper = wrapperRef.value
+  if (!wrapper) {
+    scale.value = clamp(scale.value + deltaScale, 0.1, 3)
+    return
+  }
+  const rect = wrapper.getBoundingClientRect()
+  const pointerX = clientX - rect.left
+  const preRatio = (pointerX - offsetX.value) / (BASE_WIDTH * scale.value)
+  const newScale = clamp(scale.value + deltaScale, 0.1, 3)
+  offsetX.value = pointerX - preRatio * BASE_WIDTH * newScale
+  scale.value = newScale
+}
+
 const handleWheel = (e) => {
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  const newScale = Math.max(0.1, Math.min(scale.value + delta, 3));
-  
-  // 更新缩放比例
-  scale.value = newScale;
-};
+  const delta = e.deltaY > 0 ? -0.1 : 0.1
+  applyZoomAt(e.clientX, delta)
+}
 
-// 开始拖拽
 const startDrag = (e) => {
-  if (e.button !== 0) return; // 只响应左键
-  isDragging.value = true;
-  dragStartX.value = e.clientX;
-  dragStartOffset.value = offsetX.value;
-};
+  if (e.button !== 0) return
+  isDragging.value = true
+  dragStartX.value = e.clientX
+  dragStartOffset.value = offsetX.value
+}
 
-// 拖拽时间轴
 const dragTimeline = (e) => {
-  if (!isDragging.value) return;
-  const deltaX = e.clientX - dragStartX.value;
-  offsetX.value = dragStartOffset.value + deltaX;
-};
+  if (!isDragging.value) return
+  const dx = e.clientX - dragStartX.value
+  offsetX.value = dragStartOffset.value + dx
+}
 
-// 停止拖拽
 const stopDrag = () => {
-  isDragging.value = false;
-};
+  isDragging.value = false
+}
 
-// 重置视图
+/** ============ 触摸：单指拖拽、双指捏合缩放 ============ */
+let pinchStartDist = 0
+let pinchStartScale = 1
+let pinchCenterClientX = 0
+
+const distance = (t1, t2) => Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY)
+
+const onTouchStart = (e) => {
+  if (e.touches.length === 1) {
+    isDragging.value = true
+    dragStartX.value = e.touches[0].clientX
+    dragStartOffset.value = offsetX.value
+  } else if (e.touches.length === 2) {
+    isDragging.value = false
+    const [t1, t2] = e.touches
+    pinchStartDist = distance(t1, t2)
+    pinchStartScale = scale.value
+    pinchCenterClientX = (t1.clientX + t2.clientX) / 2
+  }
+}
+
+const onTouchMove = (e) => {
+  if (e.touches.length === 1 && isDragging.value) {
+    const dx = e.touches[0].clientX - dragStartX.value
+    offsetX.value = dragStartOffset.value + dx
+  } else if (e.touches.length === 2) {
+    const [t1, t2] = e.touches
+    const dist = distance(t1, t2)
+    const ratio = dist / pinchStartDist
+    const newScale = clamp(pinchStartScale * ratio, 0.1, 3)
+    const rect = wrapperRef.value.getBoundingClientRect()
+    const pointerX = pinchCenterClientX - rect.left
+    const preRatio = (pointerX - offsetX.value) / (BASE_WIDTH * scale.value)
+    offsetX.value = pointerX - preRatio * BASE_WIDTH * newScale
+    scale.value = newScale
+  }
+}
+
+const onTouchEnd = () => {
+  isDragging.value = false
+}
+
+/** ============ 顶部操作 ============ */
 const resetView = () => {
-  offsetX.value = 0;
-  scale.value = 1;
-};
+  offsetX.value = 0
+  scale.value = 1
+}
 
-// 添加新节点
 const addNode = () => {
-  // 默认选择中间日期
-  const midDate = new Date(minDate.value);
-  midDate.setMonth(midDate.getMonth() + 6);
-  
-  currentNode.value = { 
+  const midDate = new Date(minDate.value)
+  midDate.setMonth(midDate.getMonth() + 6)
+  currentNode.value = {
+    id: null,
     date: midDate.toISOString().split('T')[0],
     event: '',
     tag: '事件'
-  };
-  
-  dialogType.value = 'add';
-  dialogVisible.value = true;
-};
+  }
+  dialogType.value = 'add'
+  dialogVisible.value = true
+}
 
-// 处理时间轴双击事件
+/** ============ 时间轴空白双击：根据点击位置添加节点 ============ */
 const handleTimelineDoubleClick = (e) => {
-  const timelineWrapper = e.currentTarget;
-  const rect = timelineWrapper.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  
-  // 计算在时间轴上的相对位置 (考虑缩放和偏移)
-  const timelinePosition = (clickX - offsetX.value) / scale.value;
-  
-  // 计算总天数和点击位置对应的日期
-  const start = new Date(minDate.value);
-  const end = new Date(maxDate.value);
-  const totalDays = (end - start) / (1000 * 60 * 60 * 24);
-  const daysFromStart = (timelinePosition / 5000) * totalDays;
-  
-  // 计算新日期
-  const newDate = new Date(start);
-  newDate.setDate(start.getDate() + daysFromStart);
-  
-  // 格式化日期为 YYYY-MM-DD
-  const formattedDate = newDate.toISOString().split('T')[0];
-  
-  // 打开添加对话框
-  currentNode.value = {
-    id: Date.now(),
-    date: formattedDate,
-    event: '',
-    tag: '事件'
-  };
-  dialogType.value = 'add';
-  dialogVisible.value = true;
-};
+  const wrapper = e.currentTarget
+  const rect = wrapper.getBoundingClientRect()
+  const clickX = e.clientX - rect.left
+  const timelinePosition = (clickX - offsetX.value) / scale.value
+  const start = new Date(minDate.value)
+  const end = new Date(maxDate.value)
+  const totalDays = (end - start) / (1000 * 60 * 60 * 24)
+  const daysFromStart = (timelinePosition / BASE_WIDTH) * totalDays
+  const newDate = new Date(start)
+  newDate.setDate(start.getDate() + daysFromStart)
+  const formattedDate = newDate.toISOString().split('T')[0]
+  currentNode.value = { id: null, date: formattedDate, event: '', tag: '事件' }
+  dialogType.value = 'add'
+  dialogVisible.value = true
+}
 
-// 打开编辑对话框
+/** ============ 节点交互：单击显示详情；双击编辑 ============ */
+const onNodeClick = (node) => {
+  activeNodeId.value = node.id === activeNodeId.value ? null : node.id
+}
+const clearActiveIfNeed = (e) => {
+  // 点击容器空白处关闭详情
+  if (!e.target.closest('.timeline-node')) {
+    activeNodeId.value = null
+  }
+}
+
+/** ============ 移动端长按编辑（兼容无双击） ============ */
+let longPressTimer = null
+const onNodeTouchStart = (node) => {
+  longPressTimer = setTimeout(() => {
+    openEditDialog(node)
+  }, 550)
+}
+const onNodeTouchMove = () => {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+const onNodeTouchEnd = () => {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+
+/** ============ 对话框 CRUD ============ */
 const openEditDialog = (node) => {
-  currentNode.value = { ...node };
-  dialogType.value = 'edit';
-  dialogVisible.value = true;
-};
+  currentNode.value = { ...node }
+  dialogType.value = 'edit'
+  dialogVisible.value = true
+}
 
-// 保存节点
 const saveNode = async () => {
   try {
     if (dialogType.value === 'add') {
-      // 调用API添加节点
-      const response = await http.post('/nodes', currentNode.value);
-      nodes.value.push(response.data);
+      const resp = await http.post('/nodes', currentNode.value)
+      nodes.value.push(resp.data)
     } else {
-      // 调用API更新节点
-      await http.put(`/nodes/${currentNode.value.id}`, currentNode.value);
-      const index = nodes.value.findIndex(n => n.id === currentNode.value.id);
-      if (index !== -1) nodes.value[index] = { ...currentNode.value };
+      await http.put(`/nodes/${currentNode.value.id}`, currentNode.value)
+      const idx = nodes.value.findIndex(n => n.id === currentNode.value.id)
+      if (idx !== -1) nodes.value[idx] = { ...currentNode.value }
     }
-    
-    dialogVisible.value = false;
-  } catch (error) {
-    console.error('保存失败:', error);
-    // 实际应用中应添加用户通知
+    dialogVisible.value = false
+  } catch (err) {
+    console.error('保存失败:', err)
   }
-};
+}
 
-// 删除节点
 const deleteNode = async () => {
   try {
-    // 调用API删除节点
-    await http.delete(`/nodes/${currentNode.value.id}`);
-    nodes.value = nodes.value.filter(n => n.id !== currentNode.value.id);
-    dialogVisible.value = false;
-  } catch (error) {
-    console.error('删除失败:', error);
-    // 实际应用中应添加用户通知
+    await http.delete(`/nodes/${currentNode.value.id}`)
+    nodes.value = nodes.value.filter(n => n.id !== currentNode.value.id)
+    dialogVisible.value = false
+    activeNodeId.value = null
+  } catch (err) {
+    console.error('删除失败:', err)
   }
-};
+}
 
-// 计算日期在时间轴上的位置
-const getDatePosition = (dateStr) => {
-  const startDate = new Date(minDate.value);
-  const endDate = new Date(maxDate.value);
-  const nodeDate = new Date(dateStr);
-  
-  // 计算总天数和从开始到当前日期的天数
-  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
-  const daysFromStart = (nodeDate - startDate) / (1000 * 60 * 60 * 24);
-  
-  // 计算在缩放后时间轴上的位置
-  return (daysFromStart / totalDays) * 5000 * scale.value;
-};
-
-// 格式化日期为 MM-DD
-const formatDate = (dateStr) => {
-  const date = new Date(dateStr);
-  return `${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-};
-
-// 从API加载数据
+/** ============ 数据加载 ============ */
 const loadNodes = async () => {
   try {
-    const response = await http.get('/nodes');
-    nodes.value = response.data;
-  } catch (error) {
-    console.error('加载数据失败:', error);
-    // 实际应用中应添加用户通知
+    const resp = await http.get('/nodes')
+    nodes.value = resp.data
+  } catch (err) {
+    console.error('加载数据失败:', err)
   }
-};
+}
+
+const onKeydown = (e) => {
+  if (e.key === 'Escape') activeNodeId.value = null
+}
 
 onMounted(() => {
-  loadNodes();
-});
+  loadNodes()
+  document.addEventListener('keydown', onKeydown)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeydown)
+})
 </script>
 
 <style scoped>
+/* ======= 主题变量：可与 Sidebar 统一 ======= */
+:root, :host {
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #606771;
+  --line: #e5e7eb;
+  --soft-bg: #f8fafc;
+  --card: #ffffff;
+  --shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+  --primary: #2563eb;   /* 如需与 Sidebar 统一，可改为同色 */
+  --primary-weak: #dbeafe;
+  --danger: #dc2626;
+  --danger-weak: #fee2e2;
+  --success: #16a34a;
+}
+
+/* ======= 布局容器 ======= */
 .timeline-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Georgia', 'Times New Roman', serif;
-  color: #e0d6c2;
-  background-color: #0a0a0a;
-  background-image: 
-    radial-gradient(circle at 1px 1px, rgba(90, 70, 50, 0.3) 1px, transparent 0),
-    linear-gradient(to bottom, rgba(20, 15, 10, 0.8), rgba(10, 8, 5, 0.9));
-  background-size: 20px 20px, 100% 100%;
-  border-radius: 15px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  max-width: 1600px;
+  margin: 16px auto;
+  padding: 0px 20px 28px;
+  color: var(--fg);
+  background: var(--bg);
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: rgba(20, 15, 10, 0.7);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid #3a2c20;
-  position: relative;
-  overflow: hidden;
+/* 顶部栏 */
+.topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
 }
 
-.header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #8b5a2b, #d2b48c, #8b5a2b);
-}
+.title-row { display: flex; align-items: center; gap: 12px; }
+.title-left { display: inline-flex; align-items: center; gap: 10px; }
+.page-title { font-size: 22px; line-height: 28px; margin: 0; font-weight: 600; }
+.detective-icon { color: var(--primary); opacity: .85; }
+.date-range { color: var(--muted); font-size: 14px; margin-left: 8px; }
 
-.detective-icon {
-  margin-bottom: 15px;
-  color: #d2b48c;
-}
-
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: #d2b48c;
-  text-shadow: 0 0 10px rgba(210, 180, 140, 0.3);
-  letter-spacing: 1px;
-  font-family: 'Cinzel', serif;
-}
-
-.header p {
-  font-size: 1.1rem;
-  color: #b0a090;
-  font-style: italic;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin: 1.5rem 0;
-  flex-wrap: wrap;
-}
-
+/* 控制区 */
+.controls { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .control-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: linear-gradient(45deg, #2a2018, #3a281f);
-  border: 1px solid #4a382a;
-  padding: 0.8rem 1.8rem;
-  border-radius: 50px;
-  color: #d2b48c;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line);
+  background: var(--soft-bg);
+  padding: 8px 12px; border-radius: 10px; cursor: pointer;
+  font-size: 14px;
 }
-
-.control-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-  background: linear-gradient(45deg, #3a281f, #4a382a);
-  color: #f0e6d2;
-}
-
+.control-btn:hover { background: #eef2ff; border-color: #e0e7ff; }
 .scale-indicator {
-  background: #2a2018;
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  border: 1px solid #4a382a;
-  color: #b0a090;
+  min-width: 60px; text-align: center; border: 1px solid var(--line);
+  background: var(--card); padding: 8px 10px; border-radius: 10px; font-weight: 600;
 }
 
+/* ======= 时间轴画布 ======= */
 .timeline-wrapper {
   position: relative;
-  height: 300px;
+  height: 440px;                 /* 扩大高度 */
+  margin-top: 16px;
   overflow: hidden;
-  border-radius: 15px;
-  background: rgba(15, 12, 8, 0.8);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
-  border: 1px solid #3a2c20;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(0deg, var(--soft-bg), #fff);
+  box-shadow: var(--shadow);
   cursor: grab;
-  background-image: 
-    linear-gradient(90deg, transparent 98%, rgba(90, 70, 50, 0.3) 100%),
-    linear-gradient(0deg, transparent 98%, rgba(90, 70, 50, 0.3) 100%);
-  background-size: 50px 50px, 50px 50px;
 }
-
-.timeline-wrapper:active {
-  cursor: grabbing;
-}
+.timeline-wrapper:active { cursor: grabbing; }
 
 .timeline {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  height: 4px;
-  background: linear-gradient(90deg, transparent, #8b5a2b, transparent);
+  height: 6px;                   /* 轴线更粗 */
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
   left: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .timeline-center {
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 100%;
+  top: -200px; bottom: -200px;
+  left: 50%; transform: translateX(-50%);
   width: 2px;
-  background: linear-gradient(to bottom, transparent, #d2b48c, transparent);
-  z-index: 1;
+  background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+  opacity: .25;
 }
 
+/* 刻度 */
 .timeline-tick {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
 }
-
-.tick-line {
-  height: 20px;
-  width: 2px;
-  background: rgba(139, 90, 43, 0.6);
-  margin: 0 auto;
-}
-
+.tick-line { height: 28px; width: 2px; background: #cbd5e1; margin: 0 auto; }
+.tick-line.major { background: #94a3b8; height: 36px; }
 .tick-label {
-  position: absolute;
-  top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.85rem;
-  color: #b0a090;
-  white-space: nowrap;
-  font-family: 'Cinzel', serif;
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  font-size: 12px; color: var(--muted); white-space: nowrap;
 }
 
+/* 节点 */
 .timeline-node {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer; z-index: 10;
 }
+.node-pin { position: relative; width: 22px; height: 22px; z-index: 2; transition: transform .15s ease; }
+.pin-head { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 3px 10px rgba(2,6,23,.18); }
+.pin-needle { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); width: 2px; height: 16px; background: #94a3b8; }
+.timeline-node:hover .node-pin { transform: scale(1.18); }
 
-.node-pin {
-  position: relative;
-  width: 24px;
-  height: 24px;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
+/* 节点颜色（浅色主题） */
+.node-pin.evidence .pin-head { background: #ef4444; }     /* 大型活动 */
+.node-pin.testimony .pin-head { background: #16a34a; }    /* 社指 */
+.node-pin.proof .pin-head { background: #6366f1; }        /* 会议 */
+.node-pin.record .pin-head { background: #0891b2; }       /* 日常 */
+.node-pin.video .pin-head { background: #f59e0b; }        /* 读书会 */
+.node-pin.meeting .pin-head { background: #7c3aed; }      /* 事件 */
+.node-pin.conclusion .pin-head { background: #0ea5e9; }   /* 聚餐 */
 
-.pin-head {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-.pin-needle {
-  position: absolute;
-  bottom: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2px;
-  height: 15px;
-  background: #aaa;
-}
-
-.node-pin.evidence .pin-head { background: #8b0000; }
-.node-pin.testimony .pin-head { background: #556b2f; }
-.node-pin.proof .pin-head { background: #483d8b; }
-.node-pin.record .pin-head { background: #2f4f4f; }
-.node-pin.video .pin-head { background: #8b4513; }
-.node-pin.meeting .pin-head { background: #4b0082; }
-.node-pin.conclusion .pin-head { background: #006400; }
-
-.timeline-node:hover .node-pin {
-  transform: scale(1.3);
-}
-
-.node-connector {
-  position: absolute;
-  top: 24px;
-  bottom: -60px;
-  width: 2px;
-  background: rgba(210, 180, 140, 0.3);
-  z-index: 1;
-}
-
+/* 详情卡片：悬停或 active（单击）均显示 */
+.node-connector { position: absolute; top: 22px; bottom: -66px; width: 2px; background: #e2e8f0; z-index: 1; }
 .node-content {
-  position: absolute;
-  top: 40px;
-  width: 240px;
-  padding: 15px;
-  background: #1a120b;
-  border-radius: 8px;
-  color: #f0e6d2;
-  text-align: center;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
-  border: 1px solid #3a2c20;
-  transform: translateY(10px);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 100;
-  border-left: 4px solid #8b5a2b;
+  position: absolute; top: 38px; width: 260px; padding: 14px 14px 12px 14px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  color: var(--fg); text-align: left; box-shadow: var(--shadow);
+  transform: translateY(8px); opacity: 0; pointer-events: none;
+  transition: all .18s ease;
 }
-
-.timeline-node:hover .node-content {
-  transform: translateY(0);
-  opacity: 1;
+.timeline-node:hover .node-content,
+.timeline-node.active .node-content {
+  transform: translateY(0); opacity: 1; pointer-events: auto;
 }
-
-.node-date {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
-  color: #d2b48c;
-  font-family: 'Cinzel', serif;
+.content-close {
+  position: absolute; top: 6px; right: 8px; border: none; background: transparent;
+  font-size: 18px; line-height: 1; cursor: pointer; color: var(--muted);
 }
-
-.node-event {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #f0e6d2;
-  margin-bottom: 10px;
+.content-actions { display: flex; gap: 6px; margin-top: 10px; }
+.mini-btn {
+  border: 1px solid var(--line); background: var(--soft-bg); padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;
 }
+.mini-btn:hover { background: var(--primary-weak); border-color: #bfdbfe; }
+.mini-btn.danger { background: var(--danger-weak); border-color: #fecaca; }
+.mini-btn.danger:hover { background: #fecaca; }
 
-.node-tag {
-  display: inline-block;
-  padding: 4px 12px;
-  background: rgba(139, 90, 43, 0.3);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  color: #d2b48c;
-  border: 1px solid #8b5a2b;
-}
+/* 内容文案 */
+.node-date { font-weight: 700; font-size: 14px; margin-bottom: 6px; color: var(--primary); }
+.node-event { font-size: 14px; line-height: 1.6; color: var(--fg); margin-bottom: 6px; }
+.node-tag { display: inline-block; padding: 2px 10px; background: var(--soft-bg); border-radius: 999px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); }
 
+/* ======= 对话框（浅色） ======= */
 .dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  position: fixed; inset: 0; background: white;
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
-
 .dialog {
-  background: #1a120b;
-  padding: 30px;
-  border-radius: 15px;
-  width: 450px;
-  max-width: 90%;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
-  color: #f0e6d2;
-  border: 1px solid #3a2c20;
-  position: relative;
-  overflow: hidden;
+  background: var(--card); padding: 24px; border-radius: 14px; width: 520px; max-width: 92%;
+  box-shadow: 0 30px 80px rgba(2, 6, 23, 0.25); color: var(--fg); border: 1px solid var(--line);
 }
-
-.dialog::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #8b5a2b, #d2b48c, #8b5a2b);
+.dialog h3 { font-size: 18px; margin: 0 0 16px 0; font-weight: 600; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 14px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--fg); font-size: 14px;
 }
-
-.dialog h3 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  color: #d2b48c;
-  text-shadow: 0 0 10px rgba(210, 180, 140, 0.3);
-  font-family: 'Cinzel', serif;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.8rem;
-  font-weight: bold;
-  color: #b0a090;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  width: 100%;
-  padding: 14px;
-  border-radius: 8px;
-  border: 1px solid #3a2c20;
-  background: #0a0805;
-  color: #f0e6d2;
-  font-size: 1rem;
-}
-
-.form-group textarea {
-  min-height: 120px;
-  resize: vertical;
-}
-
-.dialog-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 1rem;
-}
-
+.form-group textarea { min-height: 120px; resize: vertical; }
+.dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
 .dialog-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 25px;
-  border: 1px solid #3a2c20;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s;
-  font-size: 1rem;
-  min-width: 120px;
-  justify-content: center;
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 10px; cursor: pointer; font-weight: 600; border: 1px solid var(--line);
+  background: var(--soft-bg);
+}
+.save-btn { background: #ecfdf5; border-color: #bbf7d0; }
+.delete-btn { background: var(--danger-weak); border-color: #fecaca; }
+.cancel-btn { background: var(--soft-bg); }
+
+.axis-line {
+  position:absolute;
+  left:0; right:0;
+  top:50%;
+  height:4px;
+  transform:translateY(-50%);
+  background: linear-gradient(90deg, var(--line), var(--primary), var(--line));
+  border-radius:3px;
+  z-index:0;
+  background-color: #999;
 }
 
-.delete-btn {
-  background: linear-gradient(45deg, #4a1a1a, #2a0a0a);
-  color: #f0e6d2;
+/* ======= 响应式优化 ======= */
+@media (min-width: 768px) {
+  .timeline-container  {
+    margin-top: 60px;
+  }
 }
 
-.save-btn {
-  background: linear-gradient(45deg, #1a4a1a, #0a2a0a);
-  color: #f0e6d2;
+@media (max-width: 1024px) {
+  .timeline-wrapper { height: 380px; }
+  .node-content { width: 240px; }
 }
-
-.cancel-btn {
-  background: linear-gradient(45deg, #2a1a0a, #1a0a0a);
-  color: #f0e6d2;
+@media (max-width: 768px) {
+  .topbar { grid-template-columns: 1fr; gap: 8px; }
+  .controls { justify-content: flex-start; }
+  .timeline-wrapper { height: 360px; }
+  .tick-label { font-size: 11px; }
+  .node-content { width: min(78vw, 300px); }
+  .control-btn, .scale-indicator { padding: 8px 10px; }
 }
-
-.dialog-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-.instructions {
-  margin-top: 2.5rem;
-  padding: 1.5rem;
-  background: rgba(20, 15, 10, 0.7);
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid #3a2c20;
-}
-
-.instructions h3 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  color: #d2b48c;
-  text-shadow: 0 0 10px rgba(210, 180, 140, 0.3);
-  font-family: 'Cinzel', serif;
-}
-
-.instruction-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.instruction-item {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(15, 12, 8, 0.8);
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-  border: 1px solid #3a2c20;
-}
-
-.instruction-item:hover {
-  transform: translateY(-5px);
-  background: rgba(25, 20, 15, 0.9);
-}
-
-.icon-box {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #1a120b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid #3a2c20;
-}
-
-.icon-box svg {
-  width: 24px;
-  height: 24px;
-  color: #d2b48c;
-}
-
-.instruction-item h4 {
-  margin-bottom: 0.3rem;
-  color: #d2b48c;
-  font-family: 'Cinzel', serif;
-}
-
-.instruction-item p {
-  font-size: 0.95rem;
-  color: #b0a090;
-}
-
-/* 添加一些侦探风格的装饰元素 */
-.timeline-container::before {
-  content: "";
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 100px;
-  height: 100px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%238b5a2b' d='M12 2a9 9 0 0 1 9 9c0 1.57-.47 3.07-1.26 4.36l2.27 2.27a1 1 0 0 1 0 1.41a1 1 0 0 1-1.41 0l-2.3-2.3A8.94 8.94 0 0 1 12 20a9 9 0 0 1-9-9a9 9 0 0 1 9-9m0 2a7 7 0 0 0-7 7c0 1.78.74 3.42 1.95 4.58l.03.03c.67.63 1.48 1.1 2.36 1.36c.24.06.48.11.72.15c.33.05.66.08 1 .08a7 7 0 0 0 7-7a7 7 0 0 0-7-7m0 3a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 2a2 2 0 0 0-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2Z'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.05;
-  z-index: -1;
-}
-
-.timeline-container::after {
-  content: "";
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  width: 100px;
-  height: 100px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%238b5a2b' d='M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm0 4c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1.4c0-2 4-3.1 6-3.1s6 1.1 6 3.1V19z'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.05;
-  z-index: -1;
+@media (max-width: 480px) {
+  .page-title { font-size: 18px; }
+  .date-range { font-size: 12px; }
+  .timeline-wrapper { height: 340px; }
+  .tick-line { height: 24px; }
+  .tick-line.major { height: 30px; }
 }
 </style>

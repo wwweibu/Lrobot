@@ -18,3 +18,7 @@ Pillow
 cachetools
 pandas
 pypinyin
+chardet
+xlrd
+openpyxl
+vosk

@@ -31,6 +31,8 @@ async def database_get():
 @router.put("/database")
 async def database_renew(request: Request, account: str = Depends(cookie_account_get)):
     """更新数据库"""
+    if not account:
+        return
     payload = await request.json()
     table_name = payload.get("table_name")
     action = payload.get("action")

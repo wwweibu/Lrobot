@@ -20,12 +20,17 @@ import Test from '../views/Test/Test.vue';
 import Test1 from '../views/Test/Test1.vue'
 import Test2 from '../views/Test/Test2.vue';
 import Test3 from '../views/Test/Test3.vue';
+import { onMounted } from 'vue';
 
 const routes = [
   {
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/home',
+    redirect: '/'
   },
   {
     path: '/test2',
@@ -56,6 +61,11 @@ const routes = [
     path: '/cab',
     name: 'Cab',
     component: Cab,
+  },
+    {
+    path: '/cab/firefly',
+    name: 'Firefly1',
+    component: Firefly,
   },
   {
     path: '/cab/wiki',
@@ -101,6 +111,56 @@ const routes = [
     path: '/cab/preview/:path*',
     name: 'Preview',
     component: () => import('../views/Cab/Preview.vue'),
+  },
+  {
+    path: '/share/firefly',
+    name: 'Firefly2',
+    component: Firefly
+  },
+  {
+    path: '/share',
+    name: 'Cab1',
+    component: Cab,
+  },
+  {
+    path: '/share/wiki',
+    name: 'Wiki1',
+    component: Wiki,
+  },
+  {
+    path: '/share/timeline',
+    name: 'Timeline1',
+    component: Timeline
+  },
+  {
+    path: '/share/file',
+    name: 'File1',
+    component: File
+  },
+  {
+    path: '/share/preview/:path*',
+    name: 'Preview1',
+    component: () => import('../views/Cab/Preview.vue'),
+  },
+  {
+    path: '/share/command',
+    name: 'Command1',
+    component: Command,
+  },
+  {
+    path: '/share/database',
+    name: 'Database1',
+    component: Database,
+  },
+  {
+    path: '/share/user',
+    name: 'User1',
+    component: User,
+  },
+  {
+    path: '/share/log',
+    name: 'Log1',
+    component: Log
   },
   {
     path: "/AprilFools/2025",
@@ -151,6 +211,18 @@ router.beforeEach((to, from, next) => {
       next();
     } else {
       next({ name: 'NotFound' }); // 无效账号拦截
+    }
+  } else if (to.path.startsWith('/share')) {
+    const shareCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('cab='));
+
+    // 若找不到 cookie 则 rawCookie 为 undefined
+    const cab = shareCookie ? decodeURIComponent(shareCookie.split('=')[1]) : null;
+      if (cab === 'cab_temp') {
+        next();
+      } else {
+        next({ name: 'NotFound' });
     }
   } else {
     // 其他页面不限制

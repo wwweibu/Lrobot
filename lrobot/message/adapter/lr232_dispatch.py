@@ -1,6 +1,7 @@
 """LR232 API 调用"""
 
 import os
+import re
 import json
 import base64
 from datetime import datetime, timedelta
@@ -70,8 +71,10 @@ async def lr232_dispatch(
 
     seq_list = []
     if text_parts:
+        # 清除网址 .cn
+        content = re.sub(r'\b[^\s/]+\.cn\b', '[网址]', "".join(text_parts), flags=re.IGNORECASE)
         data = {
-            "content": "".join(text_parts),
+            "content": content,
             "msg_type": 0,
             tag: seq,
             "msg_seq": order
@@ -102,7 +105,7 @@ async def lr232_file_upload(file, type=None, url=None):
         if js and t and datetime.now() < t + timedelta(hours=1):
             return json.loads(js)
     file_name = os.path.basename(file)
-    if file_name.endswith((".png", ".jpeg", ".gif")):
+    if file_name.endswith((".png", ".jpeg", ".gif", ".jpg")):
         file_type = 1
         file_data = await image_compress(file, target_size_mb=20, return_type=1)
     elif file_name.endswith(".mp4"):

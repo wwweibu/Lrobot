@@ -1,14 +1,15 @@
 """fastapi 主逻辑"""
 
+import uuid
 import uvicorn
 import traceback
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 from web.backend.cab import *
-from config import path, loggers
+from config import path, loggers, temp_key
 
 
 website_logger = loggers["website"]
@@ -45,6 +46,26 @@ async def exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=200, content={})
 
 
+@app.middleware("http")
+async def temp_middleware(request: Request, call_next):
+    """管理页面临时分享"""
+    path_parts = request.url.path.strip("/").split("/")
+    if path_parts and path_parts[0] == temp_key["uuid"]:
+        # 去掉 uid 部分，转发到 /share/xxx
+        new_path = "/share/" + "/".join(path_parts[1:])
+        response = RedirectResponse(url=new_path, status_code=302)
+        response.set_cookie(
+            "cab",
+            "cab_temp",
+            max_age=600,
+            path="/share",
+            httponly=False,
+            samesite="lax"
+        )
+        return response
+    # 正常访问
+    return await call_next(request)
+
 @app.get("/")
 async def homepage():
     """主页"""
@@ -70,9 +91,10 @@ async def test1():
     raise ValueError("This is an internal server error.")
 
 
-@app.get("/debug")
-async def debug_headers(request: Request):
-    return dict(request.headers)
+async def rotator():
+    """更换 uuid"""
+    temp_key["uuid"] = uuid.uuid4().hex
+
 @app.get("/{full_path:path}")
 async def vue(full_path: str):
     """vue 挂载"""
@@ -88,3 +110,6 @@ async def server_runner():
                             forwarded_allow_ips="*")
     server = uvicorn.Server(config)
     await server.serve()
+
+
+temp_key["uuid"] = uuid.uuid4().hex

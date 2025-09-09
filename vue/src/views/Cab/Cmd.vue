@@ -147,7 +147,10 @@ const handlePasswordValidation = async (password) => {
     if (response.data.isValid) {
       terminalLines.value.push(successMessage)
       validationStep.value = 'success'
-      document.cookie = `account=${encodeURIComponent(validatedAccount.value)}; path=/; max-age=31536000` //设置 cookie
+      document.cookie = `account=${encodeURIComponent(validatedAccount.value)}; path=/; max-age=31536000`// 页面 cookie
+      setTimeout(() => {
+        window.location.href = '/cab'
+      }, 5000)
     }
   } catch (error) {}
 }

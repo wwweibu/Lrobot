@@ -60,7 +60,7 @@
         correctSequence: [9, 16, 21, 0, 13, 3, 18, 19, 17, 20, 2, 10, 12, 24, 1, 8, 6, 5, 14, 23, 22, 7, 4, 11, 15],
         flippedSequence: [],
         imageOrder: Array(25).fill(0),
-        puzzleImage: new URL('@/assets/test1.png', import.meta.url).href,
+        puzzleImage: new URL('/images/fools2.png', import.meta.url).href,
         showCongrats: false,
         showBlank: false,
         message: '',

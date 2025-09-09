@@ -1,7 +1,5 @@
 """消息发送"""
 
-import re
-
 from message.adapter import *
 from message.handler.msg import Msg
 
@@ -27,7 +25,7 @@ async def msg_send(msg: Msg):
         elif msg.platform == "BILI":
             await bili_dispatch(msg.content, user=msg.user, num=msg.num)
         elif msg.platform == "WECHAT":
-            await wechat_dispatch(msg.content, user=msg.user, seq=msg.seq)
+            await wechat_dispatch(msg.content, kind=msg.kind, user=msg.user, seq=msg.seq)
     elif msg.kind.endswith("消息获取"):
         if msg.platform == "LR5921":
             await lr5921_msg_get(msg.seq, num=msg.num)
@@ -65,6 +63,11 @@ async def msg_send(msg: Msg):
             await lr5921_signature(content_str)
         elif msg.platform == "BILI":
             await bili_signature(content_str)
+    elif msg.kind.endswith("昵称"):
+        if msg.platform == "LR5921":
+            await lr5921_nickname(msg.num, msg.user)
+        elif msg.platform == "BILI":
+            await bili_nickname(msg.num, msg.user)
     elif msg.platform == "BILI":
         if msg.kind.endswith("直播开启"):
             await bili_live_start(msg.num)
@@ -78,6 +81,20 @@ async def msg_send(msg: Msg):
             await bili_live_stop()
         elif msg.kind.endswith("粉丝获取"):
             await bili_fan_get()
+        elif msg.kind.endswith("用户视频"):
+            await bili_user_video(msg.num, msg.user)
+        elif msg.kind.endswith("搜索"):
+            parts = content_str.split("|", 1)
+            keyword, type = parts if len(parts) == 2 else (parts[0], None)
+            await bili_search(msg.num, keyword, type)
+        elif msg.kind.endswith("视频下载"):
+            await bili_bv_download(msg.num, content_str)
+        elif msg.kind.endswith("cid"):
+            id = content_str.split("|")
+            if id[0] == "av":
+                await bili_cid(av=id[1])
+            else:
+                await bili_cid(bv=id[1])
     elif msg.platform == "LR5921":
         if msg.kind.endswith("状态"):
             status = content_str.split("|")

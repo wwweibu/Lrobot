@@ -62,6 +62,7 @@ class MsgPool:
         """清理旧消息"""
         global msg_pool
         expire_time = time.time() - interval  # 过期时间
+
         to_delete = [
             num
             for num, msg_data in msg_pool.items()

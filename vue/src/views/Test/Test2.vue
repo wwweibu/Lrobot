@@ -1,90 +1,64 @@
 <template>
-  <div class="layout2-container layout2-debug">
-    <!-- 调试面板 -->
-    <div class="debug-panel">
-      <div>当前模式：{{ mode }}</div>
-      <div>最近滑动：{{ lastSwipe }}</div>
-      <div>
-        <button @click="toggle('left')">左栏</button>
-        <button @click="toggle('right')">右栏</button>
-        <button @click="toggle('none')">关闭</button>
-      </div>
+  <div class="page">
+    <!-- 纯文字区域 -->
+    <div class="text">
+      长按我试试，看夸克会不会弹出它自己的菜单。
     </div>
 
-    <!-- 三栏内容（仅文字，可随意替换） -->
-    <div class="layout2-container1">
-      <div class="layout2-content">左侧栏</div>
+    <!-- 自定义菜单 -->
+    <div
+      v-if="menuVisible"
+      class="menu"
+      :style="{ left: menuX + 'px', top: menuY + 'px' }"
+    >
+      rightClick 触发
     </div>
-
-    <div class="layout2-container2">
-      <div class="layout2-content">
-        <h2>中间栏</h2>
-        <p>窄屏：左右滑动或点击按钮 / 遮罩 / 中栏 开关侧栏</p>
-        <p>宽屏：始终三栏并列</p>
-      </div>
-    </div>
-
-    <div class="layout2-container3">
-      <div class="layout2-content">右侧栏</div>
-    </div>
-
-    <!-- 遮罩由 layout2.js 自动生成 -->
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const mode      = ref('')
-const lastSwipe = ref('')
+const menuVisible = ref(false)
+const menuX = ref(0)
+const menuY = ref(0)
 
-/* 实时计算状态 */
-const sync = () => {
-  const vw = window.visualViewport?.width ?? window.innerWidth
-  const isNarrow = vw <= 767
-  mode.value = isNarrow ? '窄屏' : '宽屏'
-}
-
-/* 监听自定义事件 */
-const onPanel = (e) => {
-  lastSwipe.value = `${e.detail.action} ${e.detail.panel}`
-}
-const onResize = () => sync()
-
-/* 程序化开关侧栏（已注册到 window） */
-const toggle = (panel) => {
-  const wrapper = document.querySelector('.layout2-container')
-  if (wrapper && typeof window.toggleLayout2Panel === 'function') {
-    window.toggleLayout2Panel(wrapper, panel)
-  }
-  sync()
+/* 只响应自定义事件 rightClick */
+function onRight (e) {
+  const { x, y } = e.detail
+  menuVisible.value = true
+  menuX.value = x
+  menuY.value = y
+  setTimeout(() => (menuVisible.value = false), 3000)
 }
 
 onMounted(() => {
-  sync()
-  window.addEventListener('layout2-panel-change', onPanel)
-  window.addEventListener('resize', sync)
+  window.addEventListener('rightClick', onRight)
 })
 
-onUnmounted(() => {
-  window.removeEventListener('layout2-panel-change', onPanel)
-  window.removeEventListener('resize', sync)
+onBeforeUnmount(() => {
+  window.removeEventListener('rightClick', onRight)
 })
 </script>
 
 <style scoped>
-.debug-panel {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  z-index: 999;
+.page {
+  padding: 40px;
 }
-.debug-panel button {
-  margin: 2px;
+.text {
+  background: #f6f6f6;
+  padding: 30px;
+  font-size: 22px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.menu {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
 }
 </style>

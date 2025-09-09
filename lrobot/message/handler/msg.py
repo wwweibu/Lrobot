@@ -111,7 +111,7 @@ class Msg:
 
     @classmethod
     def _content_token_match(cls, content):
-        """解析 content 字符串中的消息段 [prefix:value]，支持 value 中嵌套 [] 的情况。"""
+        """解析 content 字符串中的消息段 [prefix:value]，支持 value 中嵌套 [] 的情况"""
         out, i, n = [], 0, len(content)
         while i < n:
             if content[i] != '[':
@@ -244,13 +244,14 @@ class Msg:
 
         # image 单独处理
         if content_type == 'image':
-            content_match = content_data.get('summary')
-            pattern_match = pattern_data.get('summary')
-
-            if not content_match or not pattern_match:
-                content_match = content_data.get('file')
-                pattern_match = pattern_data.get('file')
-            return pattern_match in ('any', content_match)
+            content_summary = content_data.get('summary')
+            pattern_summary = pattern_data.get('summary')
+            # 必须两边都有 summary，一边有不行
+            if content_summary is not None or pattern_summary is not None:
+                if content_summary is None or pattern_summary is None:
+                    return False
+                return pattern_summary in ('any', content_summary)
+            return pattern_data.get('file') in ('any', content_data.get('file'))
 
         # 取出该类型需要比较的字段
         field = Msg.PATTERN_FIELDS.get(content_type)

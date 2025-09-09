@@ -5,9 +5,9 @@ import asyncio
 
 from config import config
 from secret import secret
-from logic import backup_mysql, backup_mongo
 from message.handler.msg_pool import MsgPool
-from web.backend.app import server_runner, app
+from logic import backup_mysql, backup_mongo, remind_load, subscribe_up_init
+from web.backend.app import server_runner, app, rotator
 from config import (
     future,
     loggers,
@@ -32,6 +32,8 @@ async def start():
     loop = asyncio.get_running_loop()
     future.init(loop)  # future 管理器记录主循环
     await mysql_init()
+    await remind_load()  # 加载待办等待
+    await subscribe_up_init()  # 轮询 up 更新
 
 
 def stop():
@@ -47,6 +49,7 @@ async def scheduler():
     asyncio.create_task(
         scheduler_add(MsgPool.clean, 86400, interval=86400)
     )  # 消息池清理
+    asyncio.create_task(scheduler_add(rotator, interval=600))  # 临时网址更换
     # asyncio.create_task(add_scheduler(check_network, interval=300))  # TODO 检查网络
     # asyncio.create_task(add_scheduler(check_system, interval=60))  # TODO 检查系统
 

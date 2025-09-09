@@ -111,7 +111,7 @@ async def lr232_msg_deal(data):
         "GROUP_DEL_ROBOT": "群聊删除",
     }
     kind = KIND_MAP.get(t)
-    if not t:
+    if not kind:
         raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
     if kind == "私聊添加":  # 其他三种不处理
         Msg(

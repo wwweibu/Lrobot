@@ -7,12 +7,12 @@ from message.handler.msg import Msg
 
 
 async def panel_task(msg: Msg):
-    """面板任务，功能，任务/面板任务，功能，序号，任务"""
+    """新建或修改面板功能"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
     while len(parts) < 3:
         parts.append("")
     func = parts[1].strip()
-    match = re.match(r"^(\d+)[，,](.*)$", parts[2])
+    match = re.match(r"^\s*(\d+)\s*[，,]\s*(.*)$", parts[2], re.S)  # 除了开头是数字，里面还有\n
     if match:
         index = int(match.group(1))
         task_content = match.group(2)
@@ -22,7 +22,7 @@ async def panel_task(msg: Msg):
 
 
 async def panel_func(msg: Msg):
-    """面板功能，功能，描述"""
+    """新增面板功能组"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
     while len(parts) < 3:
         parts.append("")

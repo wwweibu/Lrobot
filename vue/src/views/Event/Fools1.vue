@@ -33,7 +33,7 @@ export default {
     const count = ref(0);
     const router = useRouter();
     let animationFrame = null;
-    const dollImage = new URL('@/assets/test.png', import.meta.url).href;
+    const dollImage = new URL('/images/fools1.png', import.meta.url).href;
     const groundHeight = ref(0);
     const containerHeight = ref(0);
     

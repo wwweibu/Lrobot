@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="'http://localhost:3000/Lrobot/docs/2%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/3%E5%B9%B3%E5%8F%B0%E9%85%8D%E7%BD%AE#%E5%B9%B3%E5%8F%B0%E9%80%89%E6%8B%A9'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2 使用指南/8功能开发/2页面功能#wiki'"/>
   <div class="wiki-container">
     <!-- 侧边栏 -->
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
@@ -172,7 +172,7 @@
             
             <div class="preview-pane">
               <h4>预览</h4>
-              <div class="markdown-preview" v-html="previewHtml"></div>
+              <div class="markdown-preview markdown-body" v-html="previewHtml"></div>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@
             <div class="page-meta">
               <span class="page-group">{{ currentPage.group_name }}</span>
             </div>
-            <div class="markdown-content" v-html="currentPageHtml"></div>
+            <div class="markdown-content markdown-body" v-html="currentPageHtml"></div>
           </div>
           
           <div v-else class="welcome-page">
@@ -207,6 +207,7 @@
 <script setup>
 import { nextTick, ref, reactive, computed, onMounted, onBeforeUnmount,watch } from 'vue'
 import MarkdownIt from 'markdown-it'
+import taskLists from 'markdown-it-task-lists'
 import { http } from '../../api'
 import Sortable from 'sortablejs'
 import Sidebar from './Sidebar.vue'
@@ -231,12 +232,12 @@ const editData = reactive({
 const newGroupName = ref('')
 const previewHtml = ref('')
 
-const groupListEl   = ref(null)   // 最外层“组列表”
+const groupListEl   = ref(null)   // 最外层"组列表"
 const subPagesMapEl = {}     // key 是 groupname，value 是子页容器
 const orderedPages = ref([])
 
 // Markdown解析器
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true })
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true }).use(taskLists)
 
 const groupedPages = computed(() => {
   const groupMap = new Map()
@@ -712,14 +713,15 @@ onBeforeUnmount(() => {
 <style scoped>
 .wiki-container {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f5f6fa;
 }
 
 /* 侧边栏样式 */
 .sidebar {
-  width: 280px;
+  width: 260px;
   background: white;
   border-right: 1px solid #e1e4e8;
   display: flex;
@@ -949,6 +951,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   margin-left: 0;
   transition: margin-left 0.3s ease;
+  min-width: 0;
 }
 
 .toolbar {
@@ -979,6 +982,7 @@ onBeforeUnmount(() => {
 .toolbar-actions {
   display: flex;
   gap: 0.5rem;
+  z-index: 9999;
 }
 
 .edit-btn, .save-btn, .cancel-btn {
@@ -1012,7 +1016,8 @@ onBeforeUnmount(() => {
 /* 内容区域 */
 .content-area {
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
+  overflow: auto;
 }
 
 .editor-container {
@@ -1080,14 +1085,14 @@ onBeforeUnmount(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 /* 查看模式 */
 .content-view {
   padding: 2rem;
-  height: 100%;
-  overflow-y: auto;
+  height: auto;
+  overflow: visible;
 }
 
 .page-content {
@@ -1182,66 +1187,7 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Markdown内容样式 */
-.markdown-content h1,
-.markdown-preview h1 {
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.3rem;
-  margin-bottom: 1rem;
-}
-
-.markdown-content h2,
-.markdown-preview h2 {
-  border-bottom: 1px solid #eee;
-  padding-bottom: 0.2rem;
-}
-
-.markdown-content code,
-.markdown-preview code {
-  background: #f6f8fa;
-  padding: 0.2rem 0.4rem;
-  border-radius: 3px;
-  font-size: 0.85em;
-}
-
-.markdown-content pre,
-.markdown-preview pre {
-  background: #f6f8fa;
-  padding: 1rem;
-  border-radius: 6px;
-  overflow-x: auto;
-}
-
-.markdown-content blockquote,
-.markdown-preview blockquote {
-  border-left: 4px solid #dfe2e5;
-  padding-left: 1rem;
-  margin-left: 0;
-  color: #6a737d;
-}
-
-.markdown-content table,
-.markdown-preview table {
-  border-collapse: collapse;
-  width: 100%;
-  margin: 1rem 0;
-}
-
-.markdown-content th,
-.markdown-content td,
-.markdown-preview th,
-.markdown-preview td {
-  border: 1px solid #dfe2e5;
-  padding: 0.5rem;
-  text-align: left;
-}
-
-.markdown-content th,
-.markdown-preview th {
-  background: #f6f8fa;
-  font-weight: 600;
-}
-
+/* 拖拽相关样式 */
 .drag-handle {
   width: 12px;
   height: 16px;
@@ -1254,10 +1200,191 @@ onBeforeUnmount(() => {
   transition: opacity .12s;
   box-sizing: border-box;
 }
-.nav-item:hover .drag-handle { opacity: 1; }
+.nav-item:hover .drag-handle { 
+  opacity: 1; 
+}
 .empty-title {
   visibility: hidden; /* 元素占位，但文字不可见 */
   margin: 0;
   font-size: inherit;
+}
+</style>
+
+<style>
+/* ========== 美化的 Markdown 样式 ========== */
+.markdown-body {
+  max-width: 800px;
+  line-height: 1.7;
+  color: #333;
+  padding: 0.5rem 1.2rem;
+  margin: 0 auto;
+}
+
+/* 标题样式 */
+.markdown-body h1 {
+  font-size: 2.2rem;
+  margin: 1.8rem 0 0.5rem;
+  border-bottom: 2px solid #f1f1f1;
+  padding-bottom: 0.5rem;
+  color: #000;
+}
+.markdown-body h2 {
+  font-size: 1.8rem;
+  margin: 1.5rem 0 0.5rem;
+  border-bottom: 1px solid #f1f1f1;
+  padding-bottom: 0.3rem;
+  color: #23538b;
+}
+.markdown-body h3 {
+  font-size: 1.5rem;
+  margin: 1.3rem 0 0.4rem;
+  color: #2a6099;
+}
+.markdown-body h4 {
+  font-size: 1.3rem;
+  margin: 1.2rem 0 0.3rem;
+  color: #3772b3;
+}
+.markdown-body h5 {
+  font-size: 1.1rem;
+  margin: 1.1rem 0 0.3rem;
+  color: #4a80c0;
+}
+.markdown-body h6 {
+  font-size: 1rem;
+  margin: 1rem 0 0.2rem;
+  color: #5c8ab3;
+}
+.markdown-body p {
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+/* 列表 */
+.markdown-body ul,
+.markdown-body ol {
+  margin: 1.2rem 0;
+  padding-left: 1.5rem;
+  line-height: 1.6;
+}
+.markdown-body ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 1.2rem 0;
+  line-height: 1.6;
+}
+.markdown-body ul li {
+  display: list-item;
+  align-items: flex-start;
+  margin: 0 0 .5em 0;
+  padding: 0;
+}
+.markdown-body li::marker {
+  color: #0366d6;              /* 自定义圆点颜色 */
+}
+.markdown-body ul ul { list-style: circle; }
+.markdown-body ul ul ul { list-style: square; }
+
+.markdown-body ol {
+  list-style-type: decimal;
+}
+
+/* 引用 */
+.markdown-body blockquote {
+  margin: 1.5rem 0;
+  padding: 0.8em 1.2em;
+  border-left: 4px solid #d0d7de;
+  background-color: #f6f8fa;
+  color: #57606a;
+  font-style: italic;
+  position: relative;
+  border-radius: 0 4px 4px 0;
+}
+.markdown-body blockquote::before {
+  content: '\201C';
+  font-size: 2.5rem;
+  position: absolute;
+  left: -5px;
+  top: -10px;
+  color: #b1b1b1;
+  font-family: Georgia, serif;
+}
+
+/* 图片 */
+.markdown-body img {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 1rem auto;
+  display: block;
+  background-color: #f9f9f9;
+  padding: 4px;
+  border: 1px solid #e1e1e1;
+}
+
+/* 表格 */
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.markdown-body th,
+.markdown-body td {
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid #e1e1e1;
+}
+.markdown-body th {
+  background-color: #f6f8fa;
+  color: #24292f;
+  font-weight: bold;
+}
+.markdown-body tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+.markdown-body tr:hover {
+  background-color: #f1f8ff;
+}
+
+/* 代码 */
+.markdown-body pre {
+  background-color: #f6f8fa;
+  padding: 15px;
+  border-radius: 5px;
+  overflow: auto;
+  margin: 1.2rem 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  border-left: 4px solid #d0d7de;
+}
+.markdown-body code {
+  background-color: #f3f3f3;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  color: #333;
+}
+
+/* 链接 */
+.markdown-body a {
+  color: #0366d6;
+  text-decoration: none;
+}
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+/* 粗体 / 斜体 */
+.markdown-body strong {
+  font-weight: bold;
+  color: #23538b;
+}
+.markdown-body em {
+  font-style: italic;
+  color: #57606a;
 }
 </style>

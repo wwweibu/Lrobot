@@ -32,6 +32,8 @@ async def commands_get():
 @router.put("/commands")
 async def commands_update(request: Request, account: str = Depends(cookie_account_get)):
     """更新指令"""
+    if not account:
+        return
     try:
         new_commands = await request.json()
         if not isinstance(new_commands, list):

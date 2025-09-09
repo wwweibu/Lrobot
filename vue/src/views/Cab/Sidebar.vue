@@ -23,9 +23,7 @@
 
     <!-- 移动端导航 -->
     <nav class="mobile-nav">
-      <div class="mobile-nav-header">
-        <div class="logo-placeholder"></div>
-        
+      <div class="mobile-nav-header">        
         <button class="hamburger" @click="isMobileNavOpen = !isMobileNavOpen">
           <i class="fas fa-bars" v-if="!isMobileNavOpen"></i>
           <i class="fas fa-times" v-else></i>
@@ -60,16 +58,36 @@ export default {
       isMobileNavOpen: false,
       isScrolled: false,
       navItems: [
-        { id: 1, text: 'Wiki', icon: 'fas fa-book', link: '/cab/wiki' },
-        { id: 2, text: '功能', icon: 'fas fa-cogs', link: '/firefly' },
-        { id: 3, text: '网盘', icon: 'fas fa-hdd', link: '/cab/file' },
-        { id: 4, text: '时间轴', icon: 'fas fa-stream', link: '/cab/timeline' },
-        { id: 5, text: '指令', icon: 'fas fa-terminal', link: '/cab/command' },
-        { id: 6, text: '数据库', icon: 'fas fa-database', link: '/cab/database' },
-        { id: 7, text: '日志', icon: 'fas fa-clipboard-list', link: '/cab/log' },
-        { id: 8, text: '用户', icon: 'fas fa-user', link: '/cab/users' }
+        { id: 1, text: 'Wiki', icon: 'fas fa-book', link: 'wiki' },
+        { id: 2, text: '功能', icon: 'fas fa-cogs', link: 'firefly' },
+        { id: 3, text: '网盘', icon: 'fas fa-hdd', link: 'file' },
+        { id: 4, text: '时间轴', icon: 'fas fa-stream', link: 'timeline' },
+        { id: 5, text: '指令', icon: 'fas fa-terminal', link: 'command' },
+        { id: 6, text: '数据库', icon: 'fas fa-database', link: 'database' },
+        { id: 7, text: '日志', icon: 'fas fa-clipboard-list', link: 'log' },
+        { id: 8, text: '用户', icon: 'fas fa-user', link: 'user' }
       ]
     };
+  },
+  computed: {
+    // 动态生成 navItems，根据当前路由前缀添加
+    navItems() {
+      const pathParts = this.$route.path.split('/').filter(Boolean);
+      let prefix = '/'; 
+
+      if (pathParts.length > 0) {
+        if (pathParts[0] === 'cab') {
+          prefix = '/cab';
+        } else if (pathParts[0] === 'share') {
+          prefix = `/share`;
+        }
+      }
+
+      return this.navItems.map(item => ({
+        ...item,
+        link: `${prefix}/${item.link}`
+      }));
+    }
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll);
@@ -210,10 +228,15 @@ body {
 }
 
 .mobile-nav-header {
-  display: flex;
-  justify-content: space-between;
+  display: inline-flex;
   align-items: center;
-  padding: 0.8rem 1.5rem;
+  height: auto;
+  padding: 0;
+  width: auto;
+  position: fixed;   /* 固定定位 */
+  top: 10px;         /* 距离顶部 */
+  right: 10px;       /* 靠右 */
+  z-index: 1001;
 }
 
 .hamburger {
@@ -246,6 +269,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 1.5rem;
+  background-color: #ffffff !important;
 }
 
 .mobile-nav-content.open {
@@ -265,7 +289,7 @@ body {
 }
 
 /* 响应式设计 */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 768px) {
   .desktop-nav {
     display: none;
   }

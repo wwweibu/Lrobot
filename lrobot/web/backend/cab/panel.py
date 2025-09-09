@@ -38,6 +38,8 @@ async def firefly_get():
 @router.post("/firefly")
 async def firefly_update(request: Request, account: str = Depends(cookie_account_get)):
     """上传展板评论"""
+    if not account:
+        return
     data = await request.json()
 
     feature_id = data.get("id")

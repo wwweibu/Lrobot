@@ -59,6 +59,7 @@ mongo_db = None
 mysql_db_pool = None  # mysql 连接
 log_queue = asyncio.Queue()  # 日志队列
 loggers = {}  # 日志记录器
+temp_key = {}  # 网址临时密钥
 
 
 class FutureManager:

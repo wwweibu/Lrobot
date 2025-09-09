@@ -11,7 +11,6 @@ router = APIRouter()
 @router.get("/nodes")
 async def node_get():
     """获取时间节点"""
-
     query = "SELECT node_id AS id, date, event, tag FROM system_timeline"
     rows = await database_query(query)
     return rows
@@ -20,6 +19,8 @@ async def node_get():
 @router.post("/nodes")
 async def node_create(request: Request, account: str = Depends(cookie_account_get)):
     """创建时间节点"""
+    if not account:
+        return
     data = await request.json()
     date_val = data.get("date")
     event_val = data.get("event")
@@ -50,6 +51,8 @@ async def node_update(
     node_id: int, request: Request, account: str = Depends(cookie_account_get)
 ):
     """更新时间节点"""
+    if not account:
+        return
     data = await request.json()
     date_val = data.get("date")
     event_val = data.get("event")
@@ -77,6 +80,8 @@ async def node_update(
 @router.delete("/nodes/{node_id}")
 async def node_delete(node_id: int, account: str = Depends(cookie_account_get)):
     """删除时间节点"""
+    if not account:
+        return
     delete_query = "DELETE FROM system_timeline WHERE node_id = %s"
     await database_update(delete_query, (node_id,))
     website_logger.info(

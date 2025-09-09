@@ -14,6 +14,8 @@ manager.start()
 
 # 静态引入，用于非 command 模块
 from .ip import ip_check
+from .remind import remind_load
+from .subscribe import subscribe_up_init
 from .firefly import firefly_password_get
 from .backup import backup_mysql, backup_mongo
 from .user import user_codename_change, user_identify

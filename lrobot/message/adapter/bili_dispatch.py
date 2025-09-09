@@ -165,6 +165,16 @@ async def bili_signature(sign):
     await request_deal(url, "post", params, "私聊签名")
 
 
+async def bili_nickname(num, user):
+    """私聊昵称"""
+    url = "https://api.bilibili.com/x/polymer/pc-electron/v1/user/cards"
+    params = {"uids": [user]}
+    response = await request_deal(url, "get", params, "私聊昵称")
+    name = response.get("data", {}).get(user, {}).get("name")
+    future.set(num, name)
+    print(response)
+
+
 def sign_data(data):
     """数据加密"""
     data.update(
@@ -246,3 +256,45 @@ async def bili_live_stop():
         "csrf": config["BILI_JCT"],
     }
     await request_deal(url, "post", params, "私聊直播关闭", headers=LIVE_HEADERS)
+
+
+async def bili_user_video(num, mid):
+    """查询用户投稿视频"""
+    url = "https://app.biliapi.com/x/v2/space/archive/cursor"
+    params = {
+        "vmid": mid
+    }
+    response = await request_deal(url, "get", params, "私聊用户视频")
+    future.set(num, response.get("data", {}).get("item"))
+
+
+async def bili_search(num, keyword, type=None):
+    """私聊搜索"""
+    url = "https://api.bilibili.com/x/web-interface/wbi/search/type"
+    params = {
+        "search_type": type,
+        "keyword": keyword
+    }
+    response = await request_deal(url, "get", params, "私聊搜索")
+    future.set(num, response.get("data", {}).get("result"))
+
+
+async def bili_bv_download(num, bv):
+    """私聊视频下载"""
+    cid = await bili_cid(bv=bv)
+    url = "https://api.bilibili.com/x/player/wbi/playurl"
+    params = {
+        "bvid": bv,
+        "cid": cid,
+        "fnval": 16
+    }
+    response = await request_deal(url, "get", params, "私聊视频下载")
+    future.set(num, response.get("data", {}).get("dash"))
+
+
+async def bili_cid(av=None, bv=None):
+    """私聊 cid"""
+    url = "https://api.bilibili.com/x/player/pagelist"
+    params = {"aid": av} if av else {"bvid": bv}
+    response = await request_deal(url, "get", params, "私聊cid")
+    return response.get("data", {})[0].get("cid")

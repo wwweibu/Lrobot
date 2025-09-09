@@ -6,6 +6,20 @@ CREATE TABLE IF NOT EXISTS system_bubble (
     active BOOLEAN DEFAULT FALSE
 );
 
+CREATE TABLE IF NOT EXISTS system_data(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) UNIQUE,
+    text TEXT
+);
+
+CREATE TABLE IF NOT EXISTS system_feedback(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    questions JSON,
+    responses JSON,
+    period TIMESTAMP
+)
+
 CREATE TABLE IF NOT EXISTS system_ip(
     id INT AUTO_INCREMENT PRIMARY KEY,
     ip TEXT,
@@ -24,6 +38,13 @@ CREATE TABLE IF NOT EXISTS system_panel (
     description TEXT,
     url TEXT,
     tasks TEXT
+);
+
+CREATE TABLE system_remind (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    time DATETIME,
+    content TEXT,
+    user VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS system_timeline (
@@ -49,7 +70,7 @@ CREATE TABLE IF NOT EXISTS user_information (
     nickname VARCHAR(50),
     codename VARCHAR(50),
     name VARCHAR(50),
-    grade varchar(50),
+    grade VARCHAR(50),
     gender ENUM('男', '女') DEFAULT NULL,
     major VARCHAR(100),
     student_id VARCHAR(20),
@@ -75,6 +96,14 @@ CREATE TABLE IF NOT EXISTS user_status (
     user VARCHAR(255) UNIQUE,
     status TEXT,
     information TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_subscribe (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user VARCHAR(255),
+    sub VARCHAR(64),
+    info VARCHAR(64),
+    UNIQUE KEY unique_user_sub (user, sub) -- 防止重复订阅
 );
 
 CREATE TABLE IF NOT EXISTS user_test (

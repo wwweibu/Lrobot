@@ -19,6 +19,8 @@ async def get_users():
 @router.put("/users")
 async def update_users(request: Request, account: str = Depends(cookie_account_get)):
     """更新用户组"""
+    if not account:
+        return
     try:
         new_data = await request.json()
         if not isinstance(new_data, dict):

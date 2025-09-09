@@ -1,4 +1,5 @@
 <template>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#日志'"/>
   <div class="log-panel">
     <!-- 时间选择区域 -->
     <div class="time-section">
@@ -71,6 +72,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { http } from '@/api'
+import Sidebar from './Sidebar.vue'
 
 // 数据
 const timeRange = ref('custom')
@@ -198,5 +200,10 @@ onMounted(() => {
   gap: 10px;
   margin-bottom: 15px;
   flex-wrap: wrap;
+}
+@media (min-width: 768px) {
+  .log-panel  {
+    margin-top: 60px;
+  }
 }
 </style>

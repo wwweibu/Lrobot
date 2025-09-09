@@ -1,11 +1,14 @@
 <template>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#指令'"/>
   <div class="command-manager">
-    <div class="toolbar">
-      <el-button type="primary" @click="handleAdd" :icon="Plus">新增指令</el-button>
-      <el-button type="success" @click="handleSave" :icon="Upload">保存配置</el-button>
+    <div class="toolbar-wrapper">
+      <div class="toolbar">
+        <el-button type="primary" @click="handleAdd" :icon="Plus">新增</el-button>
+        <el-button type="success" @click="handleSave" :icon="Upload">保存</el-button>
+      </div>
     </div>
 
-    <div v-loading="loading">
+    <div v-loading="loading" class="command-group">
       <!-- 动态渲染每个set分组 -->
       <div 
         v-for="(groupCommands, groupName) in groupedCommands" 
@@ -337,6 +340,7 @@ import { ElMessage, ElMessageBox, ElCollapseTransition } from 'element-plus'
 import { Plus, Upload, Edit, Delete, Menu } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import {http} from '../../api'
+import Sidebar from './Sidebar.vue'
 
 interface Command {
   id:string
@@ -640,7 +644,8 @@ const handleSave = async () => {
     // 按照要求重新排序：正数在前，0在中间，负数在后（-1最后）
     const positiveCommands = commands.value.filter(cmd => cmd.order > 0).sort((a, b) => a.order - b.order)
     const normalCommands = commands.value.filter(cmd => cmd.order === 0)
-    const negativeCommands = commands.value.filter(cmd => cmd.order < 0).sort((a, b) => b.order - a.order) // -1,-2,-3...
+    const negativeCommands = commands.value.filter(cmd => cmd.order < 0).sort((a, b) => a.order - b.order) // -1,-2,-3...
+    console.log(negativeCommands)
     
     const sortedCommands = [
       ...positiveCommands,
@@ -894,12 +899,7 @@ const resetForm = () => {
   }
 }
 
-@media (max-width: 768px) {
-  .toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
+@media (max-width: 768px) {  
   .toolbar .el-button {
     width: 100%;
   }
@@ -911,5 +911,14 @@ const resetForm = () => {
   .group-title {
     font-size: 13px;
   }
+}
+
+.toolbar-wrapper {
+  position: absolute;
+  z-index: 3000;
+}
+
+.command-group {
+  margin-top: 60px;
 }
 </style>

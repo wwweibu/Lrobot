@@ -1,4 +1,8 @@
 <template>
+  <Sidebar 
+    v-if="showSidebar" 
+    :githubLink="'http://wwweibu.github.io/Lrobot/docs/2 使用指南/8功能开发/2页面功能#功能'" 
+  />
   <div class="firefly-container">
     <div class="features-container" ref="featuresContainer">
       <div 
@@ -74,7 +78,24 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useWindowSize } from '@vueuse/core';
-import { http } from '../api'; // ✅ 引入你的 http 工具
+import { http } from '../api'; 
+import Sidebar from './Cab/Sidebar.vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+
+// 判断是否显示 Sidebar
+const showSidebar = computed(() => {
+  // 如果路径是 /firefly，不显示
+  if (route.path === '/firefly') return false;
+
+  // 其他情况下显示
+  if (route.path.startsWith('/cab/firefly') || route.path.startsWith('/share/firefly')) {
+    return true;
+  }
+
+  return false;
+});
 
 const features = ref([]);
 const featuresContainer = ref(null);

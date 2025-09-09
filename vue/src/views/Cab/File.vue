@@ -1,4 +1,5 @@
 <template> 
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#网盘'"/>
   <div class="file-manager" @click="closeContextMenu">
     <!-- 面包屑 + 搜索框 容器 -->
     <div class="top-bar">
@@ -41,35 +42,38 @@
     </div>
 
     <!-- 文件列表 -->
-    <div class="file-list" @contextmenu.prevent="openBlankContextMenu">
-  <!-- 空状态 -->
-  <div 
-    v-if="sortedItems.length === 0"
-    class="empty-placeholder"
-    @contextmenu.prevent="openBlankContextMenu"
-  >
-    此文件夹为空，右键可上传文件或新建文件夹
-  </div>
+    <div class="file-list">
+      <!-- 空状态 -->
+      <div 
+        v-if="sortedItems.length === 0"
+        class="empty-placeholder"
+        data-context-type="blank"
+      >
+        此文件夹为空，右键可上传文件或新建文件夹
+      </div>
 
-  <!-- 有内容时渲染文件项 -->
-  <div 
-    v-for="item in sortedItems" 
-    :key="item.path"
-    class="file-item"
-    :draggable="true"
-    @dragstart="handleDragStart(item)"
-    @dragover.prevent="handleDragOver"
-    @drop="handleDrop(item)"
-    @contextmenu.prevent="openContextMenu($event, item)"
-    @click="handleItemClick(item)"
-  >
-    <img :src="getIconForItem(item)" class="icon" />
-    <div class="details">
-      <span>{{ item.name }}</span>
-      <time>{{ formatDate(item.modified) }}</time>
+      <!-- 有内容时渲染文件项 -->
+      <div 
+        v-for="item in sortedItems" 
+        :key="item.path"
+        class="file-item"
+        :draggable="true"
+        :data-context-type="'file'"
+        :data-file-path="item.path"
+        :data-file-name="item.name"
+        :data-is-dir="item.is_dir"
+        @dragstart="handleDragStart(item)"
+        @dragover.prevent="handleDragOver"
+        @drop="handleDrop(item)"
+        @click="handleItemClick(item)"
+      >
+        <img :src="getIconForItem(item)" class="icon" />
+        <div class="details">
+          <span>{{ item.name }}</span>
+          <time>{{ formatDate(item.modified) }}</time>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
     <!-- 右键菜单 -->
     <div 
@@ -110,8 +114,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { http } from '@/api.js'
+import Sidebar from './Sidebar.vue'
+
+let loadDataReqId = 0
 
 // 排序相关状态
 const sortBy = ref('name')
@@ -123,7 +130,7 @@ const sortedItems = computed(() => {
     let compareValue = 0
     
     if (sortBy.value === 'name') {
-      compareValue = a.name.localeCompare(b.name)
+      compareValue = a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
     } 
     else if (sortBy.value === 'modified') {
       compareValue = new Date(a.modified) - new Date(b.modified)
@@ -178,9 +185,60 @@ const iconMap = {
 }
 const folderIcon = '/icons/folder.png'
 
+// 统一的交互事件处理函数
+const handleInteraction = (event) => {
+  const { type, x, y, target } = event.detail
+  
+  if (type === 'rightClick') {    
+    // 使用坐标来确定目标元素，而不依赖传入的 target
+    const elementAtPoint = document.elementFromPoint(x, y)
+    
+    // 查找最近的具有 data-context-type 属性的元素
+    const contextTarget = elementAtPoint ? elementAtPoint.closest('[data-context-type]') : null
+    
+    if (!contextTarget) {
+      // 如果没找到特定目标，默认当作空白区域处理
+      const mockEvent = { pageX: x, pageY: y }
+      openBlankContextMenu(mockEvent)
+      return
+    }
+    
+    const contextType = contextTarget.getAttribute('data-context-type')
+    
+    if (contextType === 'file') {
+      // 处理文件项右键
+      const filePath = contextTarget.getAttribute('data-file-path')
+      const fileName = contextTarget.getAttribute('data-file-name')
+      const isDir = contextTarget.getAttribute('data-is-dir') === 'true'
+      
+      const fileItem = {
+        path: filePath,
+        name: fileName,
+        is_dir: isDir
+      }
+      
+      
+      // 创建模拟的事件对象
+      const mockEvent = { pageX: x, pageY: y }
+      openContextMenu(mockEvent, fileItem)
+    } else if (contextType === 'blank') {
+      // 处理空白区域右键
+      const mockEvent = { pageX: x, pageY: y }
+      openBlankContextMenu(mockEvent)
+    }
+  }
+}
+
 // 初始化加载
 onMounted(() => {
   loadData(currentPath.value)
+  // 添加统一的交互事件监听器
+  window.addEventListener('interaction', handleInteraction)
+})
+
+// 组件卸载时移除事件监听器
+onUnmounted(() => {
+  window.removeEventListener('interaction', handleInteraction)
 })
 
 // 文件图标获取
@@ -192,10 +250,13 @@ const getIconForItem = (item) => {
 
 // 数据加载
 const loadData = async (path) => {
+  const reqId = ++loadDataReqId
   try {
-    const res = await http.get(`/browse/${encodeURIComponent(path || 'none')}`)
+    const res = await http.get(`/file/${encodeURIComponent(path || 'none')}`,{timeout:15000})
+    if (reqId !== loadDataReqId) return
     items.value = res.data.items
   } catch (error) {
+    if (reqId !== loadDataReqId) return
     console.error('Error loading directory:', error)
   }
 }
@@ -211,7 +272,7 @@ const pathParts = computed(() => {
       })
     }
     return acc
-  }, [{ name: '根目录', path: 'none' }])
+  }, [{ name: '网盘', path: 'none' }])
 })
 
 // 导航功能
@@ -223,13 +284,11 @@ const navigateTo = (index) => {
 
 // 右键菜单处理
 const openBlankContextMenu = (e) => {
-  if (!e.target.closest('.file-item')) {
-    contextMenu.value = {
-      visible: true,
-      x: e.pageX,
-      y: e.pageY,
-      target: null
-    }
+  contextMenu.value = {
+    visible: true,
+    x: e.pageX,
+    y: e.pageY,
+    target: null
   }
 }
 
@@ -252,13 +311,13 @@ const startRename = async () => {
   const newName = prompt('输入新名称', item.name)
   if (newName) {
     try {
-      await http.put('/rename', {
+      await http.put('/file/rename', {
         old_path: item.path,
         new_path: newName
       })
       loadData(currentPath.value)
     } catch (error) {
-      alert('重命名失败: ' + error.response?.data?.detail || error.message)
+      alert('重命名失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
   }
 }
@@ -268,13 +327,13 @@ const handleDelete = async () => {
   if (!confirm(`确定要永久删除 ${item.name} 吗？`)) return
   
   try {
-    await http.delete('/files', {
+    await http.delete('/file', {
       data: { path: item.path }
     })
     alert('删除成功')
     loadData(currentPath.value)
   } catch (error) {
-    alert(`删除失败: ${error.response?.data?.detail || error.message}`)
+    alert(`删除失败: ${error.response?.data?.detail || error.message || '网络异常，请稍后重试'}`)
   } finally {
     contextMenu.value.visible = false
   }
@@ -283,14 +342,14 @@ const handleDelete = async () => {
 const moveToRoot = async () => {
   const item = contextMenu.value.target
   try {
-    await http.post('/move', {
+    await http.post('/file/move', {
       src_path: item.path,
       dst_path: item.name
     })
     loadData(currentPath.value)
     alert('移动成功')
   } catch (error) {
-    alert('移动失败: ' + error.response?.data?.detail || error.message)
+    alert('移动失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
   } finally {
     contextMenu.value.visible = false
   }
@@ -300,20 +359,41 @@ const moveToRoot = async () => {
 const handleDownload = async () => {
   const item = contextMenu.value.target
   try {
-    const response = await http.get(`/download/${encodeURIComponent(item.path)}`, {
-      responseType: 'blob'
-    })
+    const response = await http.get(`/file/download/${encodeURIComponent(item.path)}`, {
+      responseType: 'blob',timeout:120000})
+
+    const contentType = response.headers['content-type']
+    if (contentType && contentType.includes('application/json')) {
+      // 说明是后端报错，解析 JSON
+      const text = await response.data.text()
+      const errObj = JSON.parse(text)
+      alert('下载失败: ' + (errObj.detail || '未知错误'))
+      return
+    }
     
     const url = window.URL.createObjectURL(new Blob([response.data]))
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', item.name)
+    let filename = item.name
+    if (item.is_dir) filename += '.zip'
+    link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
   } catch (error) {
-    alert('下载失败: ' + error.response?.data?.detail || error.message)
+    if (error.response && error.response.data) {
+      try {
+        const text = await error.response.data.text()
+        const errObj = JSON.parse(text)
+        alert('下载失败: ' + (errObj.detail || '未知错误'))
+      } catch (e) {
+        alert('下载失败: ' + error.message)
+      }
+    } else {
+      alert('下载失败: ' + error.message)
+    }
+
   }
 }
 
@@ -330,13 +410,13 @@ const handleDragOver = (e) => {
 const handleDrop = async (target) => {
   if (draggingItem.value && target.is_dir) {
     try {
-      await http.post('/move', {
+      await http.post('/file/move', {
         src_path: draggingItem.value.path,
         dst_path: `${target.path}/${draggingItem.value.name}`
       })
       loadData(currentPath.value)
     } catch (error) {
-      alert('移动失败: ' + error.response?.data?.detail || error.message)
+      alert('移动失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
   }
   draggingItem.value = null
@@ -347,12 +427,12 @@ const createNewFolder = async () => {
   const folderName = prompt('输入文件夹名称')
   if (folderName) {
     try {
-      await http.post('/folders', {
+      await http.post('/file/new_folders', {
         path: `${currentPath.value === 'none' ? '' : currentPath.value}/${folderName}`
       })
       loadData(currentPath.value)
     } catch (error) {
-      alert('创建失败: ' + error.response?.data?.detail || error.message)
+      alert('创建失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
   }
 }
@@ -360,16 +440,17 @@ const createNewFolder = async () => {
 // 移动功能
 const startMove = async () => {
   const item = contextMenu.value.target
-  const targetPath = prompt('输入目标路径', currentPath.value)
+  const targetPath = prompt('输入目标文件夹路径', currentPath.value)
   if (targetPath) {
     try {
-      await http.post('/move', {
+      await http.post('/file/move', {
         src_path: item.path,
-        dst_path: targetPath
+        dst_path: `${targetPath}/${item.name}`
       })
       loadData(currentPath.value)
+      alert('移动成功')
     } catch (error) {
-      alert('移动失败: ' + error.response?.data?.detail || error.message)
+      alert('移动失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
   }
 }
@@ -396,14 +477,14 @@ const handleFileUpload = async (e) => {
       formData.append('files', files[i])
     }
     formData.append('paths', basePath)
-    await http.post('/files', formData, {
+    await http.post('/file', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     })
     loadData(currentPath.value)
   } catch (error) {
-    alert('上传失败: ' + error.response?.data?.detail || error.message)
+    alert('上传失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
   } finally {
     e.target.value = ''
   }
@@ -412,6 +493,18 @@ const handleFileUpload = async (e) => {
 const handleFolderUpload = async (e) => {
   const files = e.target.files
   if (files.length === 0) return
+
+  // 计算总大小
+  let totalSize = 0
+  Array.from(files).forEach(file => {
+    totalSize += file.size
+  })
+
+  if (totalSize > MAX_SIZE) {
+    alert(`上传文件夹总大小不能超过 2GB，当前 ${(totalSize / 1024 / 1024).toFixed(2)}MB`)
+    e.target.value = '' // 清空选择
+    return
+  }
 
   try {
     const formData = new FormData()
@@ -423,17 +516,18 @@ const handleFolderUpload = async (e) => {
       formData.append('paths', fullPath)
       formData.append('files', file)
     })
+    console.log(1234)
 
-    await http.post('/file_folders', formData, {
+    await http.post('/file/folders', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
-      }
+      },timeout:60000
     })
     
     loadData(currentPath.value)
     alert('文件夹上传成功')
   } catch (error) {
-    alert('上传失败: ' + (error.response?.data?.detail || error.message))
+    alert('上传失败: ' + (error.response?.data?.detail || error.message || '网络异常，请稍后重试'))
   } finally {
     e.target.value = ''
   }
@@ -465,15 +559,16 @@ const handleSearch = async () => {
   }
 
   try {
-    const res = await http.get('/search', {
+    const res = await http.get('/file/search', {
       params: {
         path: currentPath.value,
         keyword
-      }
+      },
+      timeout: 60000
     })
     items.value = res.data.items
   } catch (error) {
-    alert('搜索失败: ' + error.response?.data?.detail || error.message)
+    alert('搜索失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
   }
 }
 </script>
@@ -482,6 +577,12 @@ const handleSearch = async () => {
 .file-manager {
   padding: 20px;
   min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .file-manager {
+    margin-top: 40px; /* Sidebar 高度 */
+  }
 }
 
 .top-bar {
@@ -574,9 +675,9 @@ const handleSearch = async () => {
   gap: 20px;
   position: relative;
   z-index: 1;
-  max-height: 90vh; /* 可根据需要调整高度 */
+  max-height: 85vh; 
   overflow-y: auto;
-  padding-right: 6px; /* 避免滚动条覆盖内容 */
+  padding-right: 6px;
 }
 
 .file-item {
@@ -672,6 +773,8 @@ const handleSearch = async () => {
   .sort-container {
     justify-content: space-between;
   }
+   .file-list {
+    max-height: 70vh;
+  }
 }
-
 </style>

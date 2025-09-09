@@ -79,13 +79,28 @@ async def status_add(user, status, information="无信息"):
         platform_result = await database_query(
             "SELECT status, information FROM user_status WHERE user = %s", (str(information),)
         )
+
+        # 分离绑定状态与普通状态
         qq_status, qq_info, status_1, info_1 = extract_base_and_merged(qq_result)
         platform_status, platform_info, status_2, info_2 = extract_base_and_merged(platform_result)
 
+        # 合并普通状态
         for s, i in zip(status_2, info_2):
             if s not in status_1:
                 status_1.append(s)
                 info_1.append(i)
+
+        # 合并普通状态信息(均为数字则取大的)
+        for s2, i2 in zip(status_2, info_2):
+            try:
+                val_2 = float(i2)
+                idx = status_1.index(s2)
+                i1 = info_1[idx]
+                val_1 = float(i1)
+                if val_2 > val_1:
+                    info_1[idx] = i2
+            except (ValueError, TypeError):
+                continue
 
         write_data = [
             (user, qq_status, qq_info),
@@ -93,9 +108,10 @@ async def status_add(user, status, information="无信息"):
         ]
 
         for idx, platform in enumerate(qq_status):
-            # 同步已绑定平台状态
+            # 已绑定平台同步绑定状态
             write_data.append((qq_info[idx], platform_status, platform_info))
 
+        # 写入，绑定状态（base）+基础状态（status_1）
         for u, base_status, base_info in write_data:
             final_status = base_status + status_1
             final_info = base_info + info_1
@@ -199,10 +215,10 @@ async def status_edit(user, status, information=None):
         await database_update(
             """
             INSERT INTO user_status (user, status, information)
-            VALUES (%s, %s, %s)
+            VALUES (%s, %s, %s) AS new
             ON DUPLICATE KEY UPDATE
-                status = VALUES(status),
-                information = VALUES(information)
+                status = new.status,
+                information = new.information
             """,
             (
                 user,

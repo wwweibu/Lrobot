@@ -2,20 +2,62 @@
 
 import av
 import os
+import json
 import pilk
+import wave
 import base64
 import ffmpeg
 import shutil
 import asyncio
 import tempfile
-from PIL import Image
+import textwrap
 from io import BytesIO
+from vosk import Model, KaldiRecognizer
+from PIL import Image, ImageDraw, ImageFont
 from concurrent.futures import ProcessPoolExecutor
 
-from config import connect, loggers
+from message.handler.msg import Msg
+from config import connect, loggers, future, path
 
 process_pool = ProcessPoolExecutor()
 msg_logger = loggers["message"]
+
+
+async def text_to_image(text, output, font_path, font_size=24, line_width=40):
+    """文件转图片"""
+    wrapper = textwrap.TextWrapper(
+        width=line_width,
+        replace_whitespace=False,  # 不折叠空白，保留行内空格
+        drop_whitespace=False,  # 不丢弃行首/行尾空白
+        break_long_words=True,  # 中文/长词可拆分
+        break_on_hyphens=False
+    )
+
+    lines = []
+    for para in text.splitlines():
+        if para == "":
+            lines.append("")
+        else:
+            lines.extend(wrapper.wrap(para))
+    font = ImageFont.truetype(font_path, font_size)
+    # 计算图片大小
+    line_height = font.getbbox("A")[3] - font.getbbox("A")[1] + 10  # 行高（含间距）
+    img_width = max(font.getlength(line) for line in lines) + 20  # 预留边距
+    img_height = line_height * len(lines) + 20
+
+    img = Image.new("RGB", (int(img_width), img_height), color="white")
+    draw = ImageDraw.Draw(img)
+
+    y = 10
+    for line in lines:
+        draw.text((10, y), line, font=font, fill="black")
+        y += line_height
+
+    img.save(output)
+    msg_logger.info(
+        f"⌈文件处理⌋: 文字转换 -> 图片转换成功 {output}",
+        extra={"event": "消息处理"},
+    )
 
 
 def file_name_overwrite(path):
@@ -305,3 +347,146 @@ async def video_compress(path, target_size_mb=10, return_type=None):
         return _read(comp_path, return_type)
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(process_pool, _video_compress, path, target_size_mb, return_type)
+
+
+async def sparkle_record_deal(bv, today):
+    """获取花火视频并处理"""
+    today_wav = path / f"storage/file/command/sparkle_{today}.wav"
+    if today_wav.exists():
+        return str(today_wav)
+    # 清理旧文件
+    for file in (path / "storage/file/command").glob("sparkle_*.wav"):
+        if file != today_wav:
+            try:
+                file.unlink()
+            except Exception as e:
+                msg_logger.error(
+                    f"⌈文件处理⌋: 音频转换 -> 删除旧文件失败: {file} - {e}",
+                    extra={"event": "消息处理"},
+                )
+    # 下载视频
+    msg = Msg(
+        platform="BILI",
+        kind="私聊视频下载",
+        event="发送",
+        content=bv,
+    )
+    try:
+        _future = future.get(msg.num)
+        dash = await asyncio.wait_for(_future, timeout=20)
+    except asyncio.TimeoutError:
+        raise Exception("私聊视频下载链接获取超时")
+
+    url = dash.get("audio", [])[0].get("baseUrl") if dash.get("audio", []) else None
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+        "Referer": "https://www.bilibili.com"
+    }
+    today_m4s = path / f"storage/file/command/sparkle_{today}.m4s"
+    client = connect()
+    async with client.stream("GET", url, headers=headers) as r:
+        if r.status_code != 200:
+            raise Exception(f"下载失败:{r.status_code}")
+        with open(today_m4s, "wb") as f:
+            async for chunk in r.aiter_bytes():
+                f.write(chunk)
+    # 截取视频头部
+    head_wav = str(today_m4s).replace(".m4s", "_head.wav")
+    try:
+        (
+            ffmpeg
+            .input(str(today_m4s), t=10)  # 截取前 10 秒
+            .output(
+                head_wav,
+                format="wav",  # 指定容器为 wav
+                acodec="pcm_s16le",  # 16-bit PCM
+                ac=1,  # 单声道
+                ar="16000",  # 16kHz 采样率
+            )
+            .overwrite_output()
+            .run(quiet=True, capture_stdout=True, capture_stderr=True)
+        )
+    except ffmpeg.Error as e:
+        err_msg = e.stderr.decode("utf-8", errors="ignore") if e.stderr else str(e)
+        msg_logger.error(f"⌈文件处理⌋: 音频转换 -> ffmpeg 失败 : {err_msg}", extra={"event": "消息处理"})
+        raise
+    # 语音识别
+    try:
+        model = Model(str(path / "storage/file/command/vosk-model-small-cn-0.22"))
+        wf = wave.open(head_wav, "rb")
+        rec = KaldiRecognizer(model, wf.getframerate())
+        rec.SetWords(True)
+
+        results = []
+        while True:
+            data = wf.readframes(4000)
+            if len(data) == 0:
+                break
+            if rec.AcceptWaveform(data):
+                results.append(json.loads(rec.Result()))
+        results.append(json.loads(rec.FinalResult()))
+
+        target_end = None
+        prev_word = None
+        for res in results:
+            if "result" not in res:
+                continue
+            msg_logger.info(f"⌈文件处理⌋: 语音识别 -> 识别分段 : {res}", extra={"event": "消息处理"})
+            for w in res["result"]:
+                word = w["word"]
+                # 如果上一个是 "过"，当前是 "呀/啊/牙"
+                if prev_word == "过" and any(ch in word for ch in ["呀", "啊", "牙"]):
+                    target_end = w["end"]
+                    break
+                prev_word = word
+            if target_end:
+                break
+
+        if target_end is None:
+            raise RuntimeError("未找到 '过呀' 相关位置")
+
+        msg_logger.info(
+            f"⌈文件处理⌋: 识别完成 -> '过呀' 结束时间 {target_end:.2f}s",
+            extra={"event": '消息处理'}
+        )
+    except Exception as e:
+        msg_logger.error(
+            f"⌈文件处理⌋: 语音识别失败 {e}",
+            extra={"event": "消息处理"}
+        )
+        raise
+    # 裁剪
+    try:
+        (
+            ffmpeg
+            .input(head_wav)
+            .output(
+                str(today_wav),
+                t=target_end + 0.2,  # 保留“过呀”稍后一点
+                acodec="pcm_s16le",
+                ac=1,
+                ar=16000
+            )
+            .overwrite_output()
+            .run(quiet=True)
+        )
+    except ffmpeg.Error as e:
+        err_msg = e.stderr.decode("utf-8", errors="ignore") if e.stderr else str(e)
+        msg_logger.error(
+            f"⌈文件处理⌋: mp3 裁剪失败 : {err_msg}",
+            extra={"event": "消息处理"}
+        )
+        raise
+
+    # 清理临时文件
+    for tmp_file in [today_m4s, head_wav]:
+        try:
+            if os.path.exists(tmp_file):
+                os.remove(tmp_file)
+        except Exception as e:
+            msg_logger.error(
+                f"⌈文件处理⌋: 临时文件删除失败 {tmp_file} - {e}",
+                extra={"event": "消息处理"},
+            )
+    return str(today_wav)
