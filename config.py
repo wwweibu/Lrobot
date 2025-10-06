@@ -363,7 +363,7 @@ def file_hash_get(file):
 @asynccontextmanager
 async def connect(use_proxy=False, proxy_url="socks5://command:5923"):
     """代理/不代理连接"""
-    if use_proxy:
+    if config["SERVER_IP"] and config["SERVER_USERNAME"] and use_proxy:
         transport = AsyncProxyTransport.from_url(proxy_url)
         client = httpx.AsyncClient(transport=transport)
     else:
