@@ -8,19 +8,15 @@ from message.handler.msg import Msg
 
 async def test_1(msg: Msg):
     """测试函数"""
-    from .help import docs_merge
-    text1 = docs_merge("登录页", False)
-    print(text1)
-    print(1)
-    # msg = Msg(
-    #     platform=msg.platform,
-    #     kind=f"私聊发送",
-    #     event="发送",
-    #     content="\n\n".join(text1) + "\n\n" + "\n".join(text2) + "\n\n" + "\n".join(text3),
-    #     seq=msg.seq,
-    #     user=msg.user,
-    #     group=msg.group
-    # )
+    msg = Msg(
+        platform=msg.platform,
+        kind=f"私聊发送",
+        event="发送",
+        content="[节点:123|张三|[节点:123|张三|[转发:29238957]]]",
+        seq=msg.seq,
+        user=msg.user,
+        group=msg.group
+    )
     # response = await future.wait(msg.num, "测试超时!")
     #
     # response = await future.wait(msg.num, "测试超时!")

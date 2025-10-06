@@ -5,7 +5,7 @@ import traceback
 from config import config, loggers
 from message.handler.msg import Msg
 from message.handler.msg_send import msg_send
-from logic import status_check, user_identify, command, user_nickname_transform
+from logic import status_check, user_identify, command, user_nickname_transform, record_write
 
 msg_logger = loggers["message"]
 
@@ -29,7 +29,7 @@ async def safe_msg_process(msg: Msg):
     msg_logger.debug(f"{msg}", extra={"event": "消息处理"})
 
     content_str = Msg.content_join(msg.content) or msg.kind
-
+    await record_write(msg)
     if msg.event == "处理":
         user_name = await user_nickname_transform(msg.user, msg.platform)
         user_name = user_name if user_name else msg.user

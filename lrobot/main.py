@@ -54,12 +54,13 @@ async def scheduler():
     scheduler_add(backup_mongo, interval=86400)  # 备份 Mongo
     scheduler_add(MsgPool.clean, 86400, interval=86400)  # 消息池清理
     scheduler_add(rotator, interval=600)  # 临时网址更换
-    scheduler_add(check_net, interval=300)  # 网址连通性检测
+
 
 
 async def LR232_init():
     """LR232 初始化函数"""
     app.include_router(LR232_router, prefix=secret("/LR232"))
+    scheduler_add(check_net, interval=300)  # 网址连通性检测
 
 
 async def LR5921_init():

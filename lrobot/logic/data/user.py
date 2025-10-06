@@ -95,6 +95,14 @@ async def user_codename_change(codename):
     return None
 
 
+async def user_codename_qq_change(user):
+    """根据 qq 获取代号"""
+    query_code = "SELECT codename FROM user_information WHERE qq = %s LIMIT 1"
+    result = await database_query(query_code, (user,))
+    if result:
+        return result[0]["codename"]
+    return None
+
 async def user_qq_transform(user, platform):
     """转换为 QQ 号"""
     if platform == "LR5921":

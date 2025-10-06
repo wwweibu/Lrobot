@@ -14,3 +14,4 @@ manager.start()
 
 from .check import check_net
 from .help import docs_merge
+from .record import record_write

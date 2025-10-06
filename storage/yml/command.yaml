@@ -1,184 +1,4 @@
 commands:
-- func: 帮助
-  function: help_show
-  set: 基础
-  order: 0
-  content:
-  - /帮助
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-  - 水群
-- func: 常见问题
-  function: base_question
-  set: 基础
-  order: 0
-  content:
-  - /常见问题
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-  - 水群
-- content: []
-  func: 欢迎
-  function: base_welcome
-  groups: []
-  judge: contains
-  kind:
-  - 私聊添加
-  platforms:
-  - LR232
-  - WECHAT
-  - BILI
-  - LR5921
-  state: []
-  users: []
-  set: 基础
-  order: 0
-- func: 当前活动
-  function: base_activity
-  set: 基础
-  order: 0
-  content:
-  - /活动
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-  - 水群
-- func: 修改当前活动
-  function: base_activity_change
-  set: 基础
-  order: 0
-  content:
-  - /修改活动
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  users:
-  - 微部
-  groups:
-  - 内测群
-  - 内阁
-- func: 推荐书单
-  function: base_book
-  set: 基础
-  order: 0
-  content:
-  - /书单
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-  - 水群
-- func: 修改当前书单
-  function: base_book_change
-  set: 基础
-  order: 0
-  content:
-  - /修改书单
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  users:
-  - 微部
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-- func: 留言
-  function: base_word
-  set: 基础
-  order: 0
-  content:
-  - /留言
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 网址
-  function: base_web
-  set: 基础
-  order: 0
-  content:
-  - /网址
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR5921
-  - WECHAT
-  - BILI
-  users:
-  - 内阁
-  groups:
-  - 内测群
-  - 内阁
 - func: 入会_小推
   function: register_official
   set: 入会
@@ -1082,6 +902,246 @@ commands:
   - BILI
   users:
   - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 帮助
+  function: help_show
+  set: 基础
+  order: 0
+  content:
+  - /帮助
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 常见问题
+  function: base_question
+  set: 基础
+  order: 0
+  content:
+  - /常见问题
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- content: []
+  func: 欢迎
+  function: base_welcome
+  groups: []
+  judge: contains
+  kind:
+  - 私聊添加
+  platforms:
+  - LR232
+  - WECHAT
+  - BILI
+  - LR5921
+  state: []
+  users: []
+  set: 基础
+  order: 0
+- func: 当前活动
+  function: base_activity
+  set: 基础
+  order: 0
+  content:
+  - /活动
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 修改当前活动
+  function: base_activity_change
+  set: 基础
+  order: 0
+  content:
+  - /修改活动
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 内测群
+  - 内阁
+- func: 推荐书单
+  function: base_book
+  set: 基础
+  order: 0
+  content:
+  - /书单
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 修改当前书单
+  function: base_book_change
+  set: 基础
+  order: 0
+  content:
+  - /修改书单
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 留言
+  function: base_word
+  set: 基础
+  order: 0
+  content:
+  - /留言
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 网址
+  function: base_web
+  set: 基础
+  order: 0
+  content:
+  - /网址
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  - WECHAT
+  - BILI
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 记录_结束
+  function: record_delete
+  set: 基础
+  order: 0
+  content:
+  - /记录结束
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 记录_导出
+  function: record_export
+  set: 基础
+  order: 0
+  content:
+  - /记录导出
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 记录_开始
+  function: record_add
+  set: 基础
+  order: 0
+  content:
+  - /记录
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
   groups:
   - 公测群
   - 内测群
