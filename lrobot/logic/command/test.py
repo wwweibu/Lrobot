@@ -12,7 +12,7 @@ async def test_1(msg: Msg):
         platform=msg.platform,
         kind=f"私聊发送",
         event="发送",
-        content="[节点:123|张三|[节点:123|张三|123456]]",
+        content="[节点:123|张三|[节点:123|张三|1234567]]",
         seq=msg.seq,
         user=msg.user,
         group=msg.group
