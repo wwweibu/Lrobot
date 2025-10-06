@@ -67,6 +67,15 @@ class ModuleManager(FileSystemEventHandler):
         else:
             self._module_load(stem)
 
+    def on_created(self, event):
+        if event.is_directory or not event.src_path.endswith(".py"):
+            return
+        filename = Path(event.src_path).name
+        if filename in self.ignore_files:
+            return
+        stem = Path(filename).stem
+        self._module_load(stem)
+
     def start(self):
         """开启监听"""
         observer = PollingObserver()
