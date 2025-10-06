@@ -41,7 +41,7 @@ async def merge_img():
 
     # 最终合并所有单群图
     final_output = path / "storage/file/command/hunt/merge.jpg"
-    await data.image_merge(temp_images, final_output, direction="vertical")
+    await data.image_merge(temp_images, final_output, direction="vertical", padding=30)
     await database_update(
         "DELETE FROM user_media WHERE filepath = %s",
         (final_output,)

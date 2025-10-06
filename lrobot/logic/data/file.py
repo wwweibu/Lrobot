@@ -58,7 +58,7 @@ async def text_to_image(text, output, font_path=path / "storage/file/command/sim
     )
 
 
-async def image_merge(image_paths, output, direction="vertical"):
+async def image_merge(image_paths, output, direction="vertical", padding=0):
     """合并多张图片"""
     images = [Image.open(p).convert("RGB") for p in image_paths]
 
@@ -69,10 +69,10 @@ async def image_merge(image_paths, output, direction="vertical"):
             new_h = int(img.height * (avg_width / img.width))
             resized.append(img.resize((avg_width, new_h), Image.Resampling.LANCZOS))
 
-        total_height = sum(img.height for img in resized)
+        total_height = sum(img.height for img in resized) + padding
         merged = Image.new("RGB", (avg_width, total_height), "white")
 
-        y_offset = 0
+        y_offset = padding
         for img in resized:
             merged.paste(img, (0, y_offset))
             y_offset += img.height
@@ -83,10 +83,10 @@ async def image_merge(image_paths, output, direction="vertical"):
             new_w = int(img.width * (avg_height / img.height))
             resized.append(img.resize((new_w, avg_height), Image.Resampling.LANCZOS))
 
-        total_width = sum(img.width for img in resized)
+        total_width = sum(img.width for img in resized) + padding
         merged = Image.new("RGB", (total_width, avg_height), "white")
 
-        x_offset = 0
+        x_offset = padding
         for img in resized:
             merged.paste(img, (x_offset, 0))
             x_offset += img.width
