@@ -86,7 +86,9 @@
     - `docker compose up --build -d lrobot`
     - 需安装 libreoffice，预计 10 分钟
     - 遇到报错大概率是网络问题，直接重试
-8. 配置各平台回调地址
+8. 启动 napcat 监听服务
+    - `docker compose up --build -d napcat_log`
+9. 配置各平台回调地址
 
 ---
 
