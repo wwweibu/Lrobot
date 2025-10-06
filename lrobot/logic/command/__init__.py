@@ -11,3 +11,6 @@ manager = ModuleManager(
     inject_target=sys.modules[__name__],
 )
 manager.start()
+
+from .check import check_net
+from .help import docs_merge

@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#时间轴'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#时间轴页'"/>
   <div class="timeline-container" @click="clearActiveIfNeed">
     <!-- 顶部栏：标题 + 时间范围（同一行） + 控制区 -->
     <div class="topbar">
@@ -146,7 +146,7 @@ const dragStartOffset = ref(0)
 
 const dialogVisible = ref(false)
 const dialogType = ref('add')
-let currentNode = ref({ id: null, date: '', event: '', tag: '事件' })
+const currentNode = ref({ id: null, date: '', event: '', tag: '事件' })
 
 const activeNodeId = ref(null) // 单击高亮/显示详情
 
@@ -364,37 +364,55 @@ const openEditDialog = (node) => {
 const saveNode = async () => {
   try {
     if (dialogType.value === 'add') {
-      const resp = await http.post('/nodes', currentNode.value)
-      nodes.value.push(resp.data)
+      const res = await http.post('/nodes', currentNode.value)
+      if (res.data.status==="success"){
+        nodes.value.push(res.data.data)
+      } else{
+        alert("新建节点失败:" + res.data.data||'网络错误，请稍后重试')
+      }
     } else {
-      await http.put(`/nodes/${currentNode.value.id}`, currentNode.value)
-      const idx = nodes.value.findIndex(n => n.id === currentNode.value.id)
-      if (idx !== -1) nodes.value[idx] = { ...currentNode.value }
+      const res = await http.put('/nodes', currentNode.value)
+      if (res.data.status==="success"){
+        const idx = nodes.value.findIndex(n => n.id === currentNode.value.id)
+        if (idx !== -1) {
+          nodes.value.splice(idx,1,{ ...currentNode.value })
+        }
+      } else{
+        alert("修改节点失败"+ res.data.data||'网络错误，请稍后重试')
+      }
     }
     dialogVisible.value = false
   } catch (err) {
-    console.error('保存失败:', err)
+    alert('保存失败:', err)
   }
 }
 
 const deleteNode = async () => {
   try {
-    await http.delete(`/nodes/${currentNode.value.id}`)
-    nodes.value = nodes.value.filter(n => n.id !== currentNode.value.id)
-    dialogVisible.value = false
-    activeNodeId.value = null
+    const res = await http.delete('/nodes',{params: { data:JSON.stringify({id: currentNode.value.id })}})
+    if (res.data.status ==="success"){
+      nodes.value = nodes.value.filter(n => n.id !== currentNode.value.id)
+      dialogVisible.value = false
+      activeNodeId.value = null
+    } else{
+      alert('删除失败: '+res.data.data||'网络问题，请稍后重试')
+    }
   } catch (err) {
-    console.error('删除失败:', err)
+    alert('删除失败:', err)
   }
 }
 
 /** ============ 数据加载 ============ */
 const loadNodes = async () => {
   try {
-    const resp = await http.get('/nodes')
-    nodes.value = resp.data
+    const res = await http.get('/nodes')
+    if (res.data.status==="success"){
+      nodes.value = res.data.data
+    }else{
+      alert('加载数据失败: '+res.data.data||'网络错误，请稍后重试' )
+    }
   } catch (err) {
-    console.error('加载数据失败:', err)
+    alert('加载数据失败:', err)
   }
 }
 

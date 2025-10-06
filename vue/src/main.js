@@ -1,13 +1,11 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
+import router from "./router.js";
 import 'echarts'
-
-// 引入 Element Plus
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 
-import registerInteractions from './layout/layout.js'
+import registerInteractions from './layout.js'
 
 const app = createApp(App);
 

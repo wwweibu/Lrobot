@@ -5,8 +5,8 @@ export default defineConfig({
   plugins: [vue()],
   base: '/',
   build: {
-    outDir: '../lrobot/web/frontend/dist', // 指定输出路径
-    assetsDir: '', // 如果你希望将所有资源都放在一个文件夹内，可以设置为''
+    outDir: '../lrobot/web/frontend/dist',
+    assetsDir: '',
   },
   server: {
     proxy: {

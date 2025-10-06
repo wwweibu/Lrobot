@@ -1,4 +1,5 @@
 """BILI 消息接收"""
+
 import re
 import json
 import time
@@ -11,11 +12,13 @@ from logic import status_add, status_delete, status_check
 adapter_logger = loggers["adapter"]
 
 
-def sort_messages(msg_list):
+def message_sort(msg_list):
     """重新排序消息列表"""
+    if not msg_list:
+        return []
     non_withdraw, withdraw = [], []
-    for m in reversed(msg_list):
-        (withdraw if m["msg_type"] == 5 else non_withdraw).append(m)
+    for msg in reversed(msg_list):
+        (withdraw if msg["msg_type"] == 5 else non_withdraw).append(msg)
     # 将非撤回消息放在前面，撤回消息放在后面
     return non_withdraw + withdraw
 
@@ -23,7 +26,10 @@ async def bili_receive(interval=None):
     """私聊接收"""
     url = "https://api.vc.bilibili.com/session_svr/v1/session_svr/new_sessions"
     params = {}
-    if interval:
+    if not getattr(bili_receive, "_first_called", False):
+        bili_receive._first_called = True
+        interval = 0
+    elif interval:
         params["begin_ts"] = int((time.time() - interval) * 1_000_000)
     response = await request_deal(url, "get", params, "私聊接收")
 
@@ -33,14 +39,14 @@ async def bili_receive(interval=None):
     for msg in msg_list:
         if msg["unread_count"] == 0 and not interval:
             continue
-        # 不直接提取消息，因为撤回消息不算数量（unread_count）
-        await _bili_msg_read(msg["talker_id"])
-        if not msg.get("ack_seqno"):
+        # 不直接提取消息，因为撤回消息不算未读
+        await bili_msg_read(msg["talker_id"])
+        if not msg.get("ack_seqno"):  # 有时拿不到序号
             msg_get_list = await bili_msg_get(0, user=msg["talker_id"])
             msg_get_list = msg_get_list[:msg["unread_count"]]
         else:
             msg_get_list = await bili_msg_get(msg["ack_seqno"], user=msg["talker_id"])
-        for msg_get in sort_messages(msg_get_list):
+        for msg_get in message_sort(msg_get_list):
             await bili_msg_deal(msg_get)
 
 
@@ -57,7 +63,7 @@ async def bili_msg_get(seq, num=None, user=None):
     return response.get("data", {}).get("messages", [])
 
 
-async def _bili_msg_read(user):
+async def bili_msg_read(user):
     """私聊已读"""
     url = "https://api.vc.bilibili.com/session_svr/v1/session_svr/update_ack"
     params = {
@@ -72,6 +78,7 @@ async def _bili_msg_read(user):
 @monitor_adapter("BILI")
 async def bili_msg_deal(msg):
     """消息处理，对应私信主体对象"""
+    adapter_logger.debug(f"[接收]⌈BILI⌋{msg}", extra={"event": "消息接收"})
     content = json.loads(msg["content"])
     kind = "私聊接收"
     mtype = msg.get("msg_type")
@@ -141,10 +148,7 @@ async def bili_msg_deal(msg):
         new_content = {"prompt": content_value, "type": "视频分享", **content}
         content = [{"type": "json", "data": {"data": new_content}}]
     else:
-        adapter_logger.error(
-            f"[BILI] 未定义的消息类型 -> {msg}", extra={"event": "消息接收"}
-        )
-        return
+        raise Exception(f"[消息接收]⌈BILI⌋请求失败-> 未定义的 msg_type: {msg}")
     Msg(
         platform="BILI",
         kind=kind,
@@ -166,9 +170,9 @@ async def bili_fan_get():
     fan_list = response["data"]["list"]
     fan_users = await status_check(status="fan")
     fan_set = {str(item["mid"]) for item in fan_list}
-    old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)  # 上次最新粉丝
+    old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)
     old_fan_index = None
-    if old_fan:
+    if old_fan:  # 之前记录最新粉丝时不发送消息
         for idx, item in enumerate(fan_list):
             if str(item["mid"]) == str(old_fan):
                 old_fan_index = idx

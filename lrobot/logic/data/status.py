@@ -59,18 +59,18 @@ async def status_add(user, status, information="无信息"):
 
         def extract_base_and_merged(result):
             """分离绑定状态与其他状态"""
-            base_status, base_info, merged_status, merged_info = [], [], [], []
+            base_sta, base_inf, merged_sta, merged_inf = [], [], [], []
             if result:
                 s_list = json.loads(result[0]["status"]) or []
                 i_list = json.loads(result[0]["information"]) or []
                 for s, i in zip(s_list, i_list):
                     if s in ["qq", "LR232", "WECHAT", "BILI", "QQAPP"]:
-                        base_status.append(s)
-                        base_info.append(i)
+                        base_sta.append(s)
+                        base_inf.append(i)
                     else:
-                        merged_status.append(s)
-                        merged_info.append(i)
-            return base_status, base_info, merged_status, merged_info
+                        merged_sta.append(s)
+                        merged_inf.append(i)
+            return base_sta, base_inf, merged_sta, merged_inf
 
         # 此处进行平台绑定状态合并
         qq_result = await database_query(
@@ -85,10 +85,10 @@ async def status_add(user, status, information="无信息"):
         platform_status, platform_info, status_2, info_2 = extract_base_and_merged(platform_result)
 
         # 合并普通状态
-        for s, i in zip(status_2, info_2):
-            if s not in status_1:
-                status_1.append(s)
-                info_1.append(i)
+        for s1, i1 in zip(status_2, info_2):
+            if s1 not in status_1:
+                status_1.append(s1)
+                info_1.append(i1)
 
         # 合并普通状态信息(均为数字则取大的)
         for s2, i2 in zip(status_2, info_2):
@@ -119,10 +119,10 @@ async def status_add(user, status, information="无信息"):
             await database_update(
                 """
                 INSERT INTO user_status (user, status, information)
-                VALUES (%s, %s, %s)
+                VALUES (%s, %s, %s) AS new
                 ON DUPLICATE KEY UPDATE
-                    status = VALUES(status),
-                    information = VALUES(information)
+                    status = new.status,
+                    information = new.information
                 """,
                 (
                     u,

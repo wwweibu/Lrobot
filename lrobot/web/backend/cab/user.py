@@ -1,39 +1,54 @@
 """用户界面"""
 
-from fastapi import Request, APIRouter, Depends
-from config import config, loggers
-from .cookie import cookie_account_get
+from config import config, monitor_adapter
+from .base import APIRouter, Depends, R, website_logger, cookie_account_get, Dict
 
 router = APIRouter()
-website_logger = loggers["website"]
 
 
 @router.get("/users")
 async def get_users():
     """获取用户组"""
-    chat_users = config["private"]
-    chat_groups = config["public"]
-    return {"private_users": chat_users, "group_users": chat_groups}
+    return R(status="success", data={"private_users": config["private"], "group_users": config["public"]})
 
 
 @router.put("/users")
-async def update_users(request: Request, account: str = Depends(cookie_account_get)):
+@monitor_adapter("#内阁_用户更新")
+async def update_users(data: Dict, account: str = Depends(cookie_account_get)):
     """更新用户组"""
     if not account:
         return
     try:
-        new_data = await request.json()
-        if not isinstance(new_data, dict):
-            raise Exception(f"用户组数据格式错误 | {new_data}")
-
-        private_users = new_data.get("private_users", {})
-        group_users = new_data.get("group_users", {})
+        private_users = data["private_users"]
+        group_users = data["group_users"]
+        private_diff = user_compare(config["private"], private_users)
+        group_diff = user_compare(config["public"], group_users)
         config["private"] = private_users
         config["public"] = group_users
         website_logger.info(
-            f"[{account}] 更新用户组:{private_users},{group_users}",
-            extra={"event": "管理操作"},
+            f"[用户组更新]{account}-> 私聊: {private_diff} | 群聊: {group_diff}",
+            extra={"event": "网页日志"},
         )
+        return R(status="success", data=f"私聊: {private_diff} | 群聊: {group_diff}")
 
     except Exception as e:
-        raise Exception(f"用户组更新失败: {e}")
+        website_logger.error(f"[用户页]更新失败-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+
+
+def user_compare(old, new):
+    """用户组前后对比"""
+    old_keys, new_keys = set(old.keys()), set(new.keys())
+
+    added = {k: new[k] for k in (new_keys - old_keys)}
+    removed = {k: old[k] for k in (old_keys - new_keys)}
+
+    changed = {}
+    for k in old_keys & new_keys:
+        old_values = set(old[k])
+        new_values = set(new[k])
+        if old_values != new_values:
+            added_items = list(new_values - old_values)
+            removed_items = list(old_values - new_values)
+            changed[k] = {"新增项": added_items, "删除项": removed_items}
+
+    return f"新增: {added} | 删除: {removed} | 变更: {changed}"

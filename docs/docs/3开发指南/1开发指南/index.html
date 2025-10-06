@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-3开发指南/1开发指南" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.1">
+<title data-rh="true">开发指南 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="开发指南 | Lrobot"><meta data-rh="true" name="description" content="总开发指南"><meta data-rh="true" property="og:description" content="总开发指南"><link data-rh="true" rel="icon" href="/Lrobot/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/1开发指南" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/docs/category/开发指南"},{"@type":"ListItem","position":2,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南"}]}</script><link rel="stylesheet" href="/Lrobot/assets/css/styles.01e145c3.css">
+<script src="/Lrobot/assets/js/runtime~main.4ed6e93f.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/main.70be6bd8.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"dark"),document.documentElement.setAttribute("data-theme-choice",t||"dark")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/Lrobot/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Lrobot/"><div class="navbar__logo"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Lrobot</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Lrobot/docs/category/项目总览">文档</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/项目总览"><span title="项目总览" class="categoryLinkLabel_W154">项目总览</span></a><button aria-label="展开侧边栏分类 &#x27;项目总览&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/使用指南"><span title="使用指南" class="categoryLinkLabel_W154">使用指南</span></a><button aria-label="展开侧边栏分类 &#x27;使用指南&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/Lrobot/docs/category/开发指南"><span title="开发指南" class="categoryLinkLabel_W154">开发指南</span></a><button aria-label="折叠侧边栏分类 &#x27;开发指南&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Lrobot/docs/3开发指南/1开发指南"><span title="开发指南" class="linkLabel_WmDU">开发指南</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/代码规范"><span title="代码规范" class="categoryLinkLabel_W154">代码规范</span></a><button aria-label="展开侧边栏分类 &#x27;代码规范&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/项目架构"><span title="项目架构" class="categoryLinkLabel_W154">项目架构</span></a><button aria-label="展开侧边栏分类 &#x27;项目架构&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/消息处理"><span title="消息处理" class="categoryLinkLabel_W154">消息处理</span></a><button aria-label="展开侧边栏分类 &#x27;消息处理&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/基础配置"><span title="基础配置" class="categoryLinkLabel_W154">基础配置</span></a><button aria-label="展开侧边栏分类 &#x27;基础配置&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/指令开发"><span title="指令开发" class="categoryLinkLabel_W154">指令开发</span></a><button aria-label="展开侧边栏分类 &#x27;指令开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/页面开发"><span title="页面开发" class="categoryLinkLabel_W154">页面开发</span></a><button aria-label="展开侧边栏分类 &#x27;页面开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/项目测试"><span title="项目测试" class="categoryLinkLabel_W154">项目测试</span></a><button aria-label="展开侧边栏分类 &#x27;项目测试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/Lrobot/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/开发指南"><span>开发指南</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">开发指南</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>开发指南</h1></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="文档说明">文档说明<a href="#文档说明" class="hash-link" aria-label="文档说明的直接链接" title="文档说明的直接链接" translate="no">​</a></h2>
+<p><strong>如果对于代码产生疑问，直接在搜索框内输入文件名即可</strong></p>
+<ul>
+<li>代码规范对应 Readme 文档及 docs 文档、gitignore</li>
+<li>项目架构对应 docker-compose.yml，command 文件夹以及各服务的 dockerfile</li>
+<li>消息处理对应 lrobot.message 文件夹中内容</li>
+<li>基础配置对应 main.py、config.py、secret.py 中的内容、storage 文件夹中的内容</li>
+<li>页面开发对应 vue 文件夹，lrobot.web 文件夹</li>
+<li>指令开发对应 lrobot.logic 文件夹</li>
+</ul>
+<blockquote>
+<ul>
+<li>功能开发（后端开发）最好玩</li>
+<li>前端开发样式又臭又长，也记不住，交给 AI</li>
+<li>ssh与容器开发产生一大堆看不懂的日志，以及随网络变化有不同结果，错误不能复现就很麻烦，总之很诡异</li>
+</ul>
+</blockquote>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="后端开发">后端开发<a href="#后端开发" class="hash-link" aria-label="后端开发的直接链接" title="后端开发的直接链接" translate="no">​</a></h2>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="功能开发">功能开发<a href="#功能开发" class="hash-link" aria-label="功能开发的直接链接" title="功能开发的直接链接" translate="no">​</a></h4>
+<blockquote>
+<ul>
+<li>功能开发前，先想好一些常见的问题:</li>
+<li>所有的消息返回是否在数据编辑之后？可不可能消息返回&#x27;编辑成功但&#x27;数据&#x27;编辑失败&#x27;？</li>
+<li>消息是否有即时性？不能用 BILI</li>
+<li>是否需要复制？不能在 WECHAT 中使用换行（否则是图片）</li>
+<li>是否会发送网址？不能使用 LR232（需要配置固定网址）</li>
+<li>消息中是否存在空值、多余的&#x27;\n&#x27;等等，会导致格式或逻辑错误吗？</li>
+<li>指令错误后，是否有错误提示指引用户输入正确指令？</li>
+</ul>
+</blockquote>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="条件设置">条件设置<a href="#条件设置" class="hash-link" aria-label="条件设置的直接链接" title="条件设置的直接链接" translate="no">​</a></h6>
+<ul>
+<li>在开发前，设想好功能涉及到的指令、用户、条件（顺序 or 状态）</li>
+<li>然后在<code>localhost:5922/cab/command</code>（或者<code>域名/cab/command</code>）中新建指令</li>
+<li>填写各参数<!-- -->
+<ul>
+<li>指令名称和分组：便于找到指令和理解含义</li>
+<li>功能函数：指令调用的函数，<!-- -->
+<ul>
+<li>一般建议以<code>文件名_xx</code>的格式放在<code>logic.command.文件名</code>里（虽然所有 logic.command 里的函数都注册完成了，但是统一以文件名开头便于查找）</li>
+</ul>
+</li>
+<li>消息类型：包含私聊/群聊接收、添加、撤回、戳戳、回应、设精等<!-- -->
+<ul>
+<li>具体可<a href="/Lrobot/docs/3开发指南/4消息处理/1消息#%E6%B6%88%E6%81%AF%E6%8E%A5%E6%94%B6%E6%A0%BC%E5%BC%8F">查看此处</a></li>
+</ul>
+</li>
+<li>平台：4 个平台<!-- -->
+<ul>
+<li>LR232 无法返回变化的网址（固定的可配置）</li>
+<li>WECHAT 会发送图片无法复制</li>
+<li>BILI 每隔 1 分钟反馈一次，太慢了</li>
+</ul>
+</li>
+<li>用户组判定：返回消息发送者所在的一个或多个用户组；若在用户组中，同时返回内阁身份；若在测试员表中，同时返回测试员身份。若身份在配置的身份列表中则继续</li>
+<li>群组判定：返回消息所在的群组，若群组在群列表里则继续</li>
+<li>状态：必须要某状态才能触发，如必须要先进入成语接龙状态，才能进行接龙</li>
+<li>顺序<!-- -->
+<ul>
+<li>用于匹配顺序，如 A 指令完全匹配的是&quot;/你好&quot;，B 指令包含匹配的是&quot;/你&quot;，则发送&quot;/你好&quot;时，如果 B 在前面，则会匹配到 B。此时应该拖动排序 AB 让 A 在前面（没有指定顺序时，显示顺序即为排序顺序）</li>
+<li>假设有一条匹配很多内容的指令（如成语接龙时，发送任意内容都要进行接龙），但是其他的&quot;/&quot;开头的指令又要先于它进行匹配（如&quot;/退出成语接龙&quot;必须要先于此指令匹配，否则永远无法退出），此时可以设置顺序，设置此指令的顺序为&#x27;-1&#x27;，永远最后匹配，这样其他指令都在它前面。还可以设置 1，2，3，-1，-2，-3 之类的</li>
+</ul>
+</li>
+<li>响应内容和匹配方式：具体可<a href="/Lrobot/docs/3开发指南/4消息处理/2消息类#%E6%B6%88%E6%81%AF%E5%AD%97%E6%AE%B5%E6%AF%94%E8%BE%83">查看此处</a>
+<ul>
+<li>简要说明，内容可设置为:<code>文字</code>,<code>[表情:xx]</code>,<code>[at:xx]</code>,<code>[猜拳:xx]</code>,<code>[骰子:xx]</code>,<code>[回复:xx]</code>,<code>[转发:xx]</code>,<code>[戳戳:xx]</code>,<code>[动画表情:xx]</code>,<code>[图片:xx]</code>,<code>[语音:xx]</code>,<code>[视频:xx]</code>,<code>[文件:xx]</code>,<code>[卡片:xx]</code>的任意组合</li>
+<li>匹配方式分为包含匹配和完全匹配，内容均可设置多个，只需要其中一个包含匹配/完全匹配即可</li>
+<li>包含匹配为包含内容段，即一段内容区间包含匹配的内容；完全匹配需要与内容段完全相同</li>
+<li>上一点的完全相同指：如果<code>[表情:xx]</code>的“xx”不为 any，则必须一致；如果匹配字段为<code>[表情:any]</code>，则可以匹配任何表情，无论是在包含匹配还是完全匹配都是如此</li>
+<li>文字的任意匹配没有 any，而是空格（仅在包含匹配中生效），即<code>[表情:any] [at:any]</code>能够匹配任意表情+任意文字+任意@的组合</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="逻辑开发">逻辑开发<a href="#逻辑开发" class="hash-link" aria-label="逻辑开发的直接链接" title="逻辑开发的直接链接" translate="no">​</a></h6>
+<ul>
+<li>在 logic/command/xx 里开发对应的功能函数</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">from</span><span class="token plain"> message</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">handler</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">msg </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> Msg</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@monitor_adapter</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;/基础_帮助&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain">  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 数据统计中的名称</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">async</span><span class="token plain"> </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">help_show</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain">   </span><span class="token comment" style="color:rgb(98, 114, 164)"># help.py 是文件名，函数名对应条件中的函数名</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    platform</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">platform</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    event</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    kind</span><span class="token operator">=</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">f&quot;</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">msg</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token string-interpolation interpolation">kind</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token string-interpolation interpolation format-spec">2]</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    seq</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">seq</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    content</span><span class="token operator">=</span><span class="token plain">content</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    user</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">user</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    group</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">group</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain">  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 消息发送，只需要 event 设置成发送，即可向对应用户发送消息</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> content  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 此处的 return 是用于数据统计中的结果值</span><br></span></code></pre></div></div>
+<ul>
+<li>期间可以进行很多处理，调用 file 中的函数等等</li>
+</ul>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="功能开发示例">功能开发示例<a href="#功能开发示例" class="hash-link" aria-label="功能开发示例的直接链接" title="功能开发示例的直接链接" translate="no">​</a></h6>
+<ol>
+<li>设想</li>
+</ol>
+<ul>
+<li>假设你现在需要开发一个&quot;早上好&quot;的功能，定期发送早上好</li>
+<li>首先设置逻辑与指令，需要三条指令：订阅早上好，发送早上好，取消订阅早上好</li>
+<li>平台面向的是所有平台吗？只有 LR5921 才能主动发送，故订阅和取消订阅可以设置成所有（调用 user_qq_transform 进行转换），发送只设置 LR5921</li>
+<li>用户需要用户组吗？不需要，任何用户可订阅；群组功能需要吗？在群内发送不太好</li>
+<li>故消息类型设置为&quot;私聊接收&quot;，用户、群组均不填</li>
+<li>状态？订阅早上好应该是任何状态，取消订阅应该是只有早上好状态才能触发</li>
+<li>发送早上好有消息接收吗？无，设计成定时产生消息即可</li>
+</ul>
+<ol start="2">
+<li>配置</li>
+</ol>
+<ul>
+<li>在 cab/command 中新建两条指令，名称为早上好_订阅，早上好_取消订阅，归于“早上好”组</li>
+<li>函数设置为 morning_subscribe,morning_unsubscribe</li>
+<li>响应内容为:&quot;/订阅早上好&quot;,&quot;/取消订阅早上好&quot;,均为完全匹配</li>
+<li>消息类型为私聊接收，平台为 LR5921</li>
+<li>早上好_取消订阅的状态设计为&quot;早上好&quot;&quot;</li>
+<li>保存</li>
+</ul>
+<ol start="3">
+<li>开发</li>
+</ol>
+<ul>
+<li>新建 morning.py</li>
+<li>新建 morning_subscribe,morning_unsubscribe 函数</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@monitor_adapter</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;/早上好_订阅&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"> </span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">async</span><span class="token plain"> </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">morning_subscribe</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token plain">逻辑</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token operator">-</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    platform</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">platform</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    event</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    kind</span><span class="token operator">=</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">f&quot;</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">msg</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token string-interpolation interpolation">kind</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token string-interpolation interpolation format-spec">2]</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    seq</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">seq</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    content</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;订阅成功&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    user</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">user</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    group</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">group</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> content</span><br></span></code></pre></div></div>
+<ul>
+<li>逻辑处，需要给用户加上&quot;早上好&quot;的状态，调用 logic.data 里面的 status_add 函数</li>
+<li><code>from logic import data</code> <code>await data.status_add(msg.user,&quot;早上好&quot;)</code> 直接引入 data 模块用于动态更新</li>
+<li>此时订阅便完成了，取消订阅的逻辑类似</li>
+<li>发送早上好需要用到定时函数 schedule_add，然后建立一个函数为 morning_send()</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">async</span><span class="token plain"> </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">morning_send</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">   user_list</span><span class="token operator">=</span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">await</span><span class="token plain"> data</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">status_check</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;早上好&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">   </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">for</span><span class="token plain"> user </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">in</span><span class="token plain"> user_list</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">     Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      platform</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;LR5921&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      event</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      kind</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;私聊发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      content</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;早上好&quot;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">      user</span><span class="token operator">=</span><span class="token plain">user</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">     </span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><br></span></code></pre></div></div>
+<ul>
+<li>在 main 的 scheduler() 里面</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">asyncio</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">create_task</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">scheduler_add</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">morning</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> interval</span><span class="token operator">=</span><span class="token number">86400</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><br></span></code></pre></div></div>
+<ul>
+<li>这样一个早上好的订阅、发送及取消的功能便做好啦</li>
+</ul>
+<blockquote>
+<ul>
+<li>功能参考:</li>
+<li>常见数据库修改<a href="/Lrobot/docs/3开发指南/6指令开发/5系统#%E9%9D%A2%E6%9D%BF%E5%8A%9F%E8%83%BD">参考</a></li>
+<li>常见验证码逻辑<a href="/Lrobot/docs/3开发指南/6指令开发/5系统#%E7%BB%91%E5%AE%9A">参考</a></li>
+<li>常见功能菜单<a href="/Lrobot/docs/3开发指南/6指令开发/6基础#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">参考</a></li>
+<li>常见状态递增逻辑<a href="/Lrobot/docs/3开发指南/6指令开发/8反馈#%E6%94%B6%E9%9B%86%E8%A1%A8%E5%BC%80%E5%A7%8B%E5%A1%AB%E5%86%99">参考</a></li>
+<li>常见文字+图片两状态逻辑<a href="/Lrobot/docs/3开发指南/6指令开发/10工具#wiki-%E4%B8%8A%E4%BC%A0">参考</a></li>
+</ul>
+</blockquote>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="状态添加">状态添加<a href="#状态添加" class="hash-link" aria-label="状态添加的直接链接" title="状态添加的直接链接" translate="no">​</a></h4>
+<ul>
+<li>一个状态除了 status，还有 info，info 可以起到传递信息的作用</li>
+<li>比如说答题活动，如果给每个题都设置一个状态（答题_1~n），添加和判断起来都很麻烦，且不容易合并（两个平台都在答题，一个答题_2，一个答题_10，不好合并）</li>
+<li>改成状态&quot;答题&quot;，信息为&quot;1-n&quot;可以合并（合并时如果是数字取大的），且减少前端状态表中的数据，减少指令的配置项（command 页）以及函数</li>
+<li>按照此方式设计好状态后，在 kind.yaml 中新增，前端即可使用</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="用户组群组配置更改">用户组群组配置更改<a href="#用户组群组配置更改" class="hash-link" aria-label="用户组群组配置更改的直接链接" title="用户组群组配置更改的直接链接" translate="no">​</a></h4>
+<ul>
+<li>目前的判断逻辑为：在 cab/user 页面中配置用户组和群组，每个组有组名，成员是一个列表，一个用户可以在多组内</li>
+<li>data/user 的 user_identify 函数负责用户组判断逻辑<!-- -->
+<ul>
+<li>首先统一转换到 LR5921 平台，然后判断是否在用户组内，添加对应用户组身份</li>
+<li>若在任意用户组，添加内阁身份</li>
+<li>判断是否在测试员表内，若在，添加测试员身份</li>
+</ul>
+</li>
+<li>群组判断仅简单判断</li>
+<li>若要加其他逻辑（如其他表，固定用户等等），修改 user_identify 即可</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="消息适配器开发">消息适配器开发<a href="#消息适配器开发" class="hash-link" aria-label="消息适配器开发的直接链接" title="消息适配器开发的直接链接" translate="no">​</a></h4>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="添加新平台">添加新平台<a href="#添加新平台" class="hash-link" aria-label="添加新平台的直接链接" title="添加新平台的直接链接" translate="no">​</a></h6>
+<ul>
+<li>在 message/adapter 下新建 xx_receive,xx_dispatch</li>
+<li>采用 fastapi 接口、ws 连接、轮询查询等方式接收消息</li>
+<li>处理成<a href="/Lrobot/docs/3开发指南/4消息处理/1消息#%E6%B6%88%E6%81%AF%E5%AD%97%E6%AE%B5">消息段格式</a>（可以加一个 @monitor_adapter 用于统计）</li>
+<li>创建消息，将自动加入消息池处理</li>
+</ul>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    platform</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;LR5921&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    event</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;处理&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    kind</span><span class="token operator">=</span><span class="token plain">kind</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    seq</span><span class="token operator">=</span><span class="token plain">seq</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    content</span><span class="token operator">=</span><span class="token plain">content</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    user</span><span class="token operator">=</span><span class="token plain">user</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    group</span><span class="token operator">=</span><span class="token plain">group</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><br></span></code></pre></div></div>
+<ul>
+<li>在 main.py 的 task_set 里加上平台启动条件，新建 xx_init 函数</li>
+<li>在页面 command.vue 的平台选择项中加入此平台，在已有的指令（如绑定平台）中补充此平台</li>
+</ul>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="添加新消息接收类型">添加新消息接收类型<a href="#添加新消息接收类型" class="hash-link" aria-label="添加新消息接收类型的直接链接" title="添加新消息接收类型的直接链接" translate="no">​</a></h6>
+<ul>
+<li>在消息处理时根据 kind_map 匹配处新的消息类型（或者把私聊接收拆分成私聊图片、文件等也可以）</li>
+<li>修改创建的 Msg 的 kind</li>
+<li>在 storage/yml/kind.yaml 中添加对应类型</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="添加新消息发送类型">添加新消息发送类型<a href="#添加新消息发送类型" class="hash-link" aria-label="添加新消息发送类型的直接链接" title="添加新消息发送类型的直接链接" translate="no">​</a></h4>
+<ul>
+<li>在 xx_dispatch 中加入新函数</li>
+<li>调用 request_deal 中的处理方式</li>
+<li>在 msg_send 中加入对应的路径</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="前端开发">前端开发<a href="#前端开发" class="hash-link" aria-label="前端开发的直接链接" title="前端开发的直接链接" translate="no">​</a></h2>
+<ul>
+<li>使用 vscode 打开 Lrobot/vue 文件夹</li>
+<li>在 views 里添加页面(注意使用<code>import { http } from &#x27;@/api.js&#x27;;</code>)，在 router/index.js 中添加路径</li>
+<li>在后端 Lrobot/lrobot/web/cab 中添加后端代码，重新构建 lrobot 容器</li>
+<li>使用 <code>npm run dev</code> 进行测试，打开<code>http://localhost:5173/</code></li>
+<li>调试完成后，使用 <code>npm run build</code> 把 vue 自动打包项目到 lrobot 中（已配置好打包路径为 lrobot/web/frontend）</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="开发配置">开发配置<a href="#开发配置" class="hash-link" aria-label="开发配置的直接链接" title="开发配置的直接链接" translate="no">​</a></h2>
+<ul>
+<li>整体建议使用 pycharm 进行 python 后端开发，使用 vscode 进行前端 vue3 开发</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="数据可视化">数据可视化<a href="#数据可视化" class="hash-link" aria-label="数据可视化的直接链接" title="数据可视化的直接链接" translate="no">​</a></h4>
+<ul>
+<li>在 pycharm 中连接与查看数据源（需启动对应数据库容器）<!-- -->
+<ul>
+<li>数据库-数据源-mysql，端口选择 5925，用户名选择 root，架构选择 lrobot_data</li>
+<li>数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="标红处理强迫症狂喜">标红处理(<del>强迫症狂喜</del>)<a href="#标红处理强迫症狂喜" class="hash-link" aria-label="标红处理强迫症狂喜的直接链接" title="标红处理强迫症狂喜的直接链接" translate="no">​</a></h4>
+<ul>
+<li>若遇到数据库语句标红，可配置对应的数据库方言并右键选择对应架构</li>
+<li>若遇到路径标红，右键 lrobot 子文件夹，将目录标记为<code>源代码目录</code></li>
+<li>若遇到项目包标红，<code>设置-python 解释器-docker compose-选择 lrobot-选择 python 解释器</code></li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="环境管理">环境管理<a href="#环境管理" class="hash-link" aria-label="环境管理的直接链接" title="环境管理的直接链接" translate="no">​</a></h4>
+<ul>
+<li>引入新包时，将包名加入到 lrobot/requirements.in 中（注意是小写的 lrobot）</li>
+<li><code>cd lrobot</code>进入 lrobot 文件夹(注意是里面的小写的子文件夹)</li>
+<li>输入 <code>docker run -it --rm -v %cd%:/app -w /app python:3.11 bash -c &quot;python -m pip install --upgrade pip &amp;&amp; pip install -r requirements.in &amp;&amp; pip freeze &gt; requirements.txt&quot;</code></li>
+<li>生成新的环境依赖 requirements.txt，重新构建 docker 时自动安装</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="项目更新">项目更新<a href="#项目更新" class="hash-link" aria-label="项目更新的直接链接" title="项目更新的直接链接" translate="no">​</a></h4>
+<ul>
+<li>进入项目，使用 <code>git pull origin master</code>更新</li>
+<li>一般包含 _copy 的文件不会更新</li>
+<li>logic 部分需要手动解决冲突（如果经常需要获取 git 更新且自己开发过的话）</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="项目迁移">项目迁移<a href="#项目迁移" class="hash-link" aria-label="项目迁移的直接链接" title="项目迁移的直接链接" translate="no">​</a></h4>
+<ul>
+<li>storage/data/initdb 中的文件需要在 mysql 为空时才能生效，初始化前需要清空 storage/mysql 文件夹</li>
+<li>当 git 更新中存在新表时不会自动新建，需要手动执行 storage/data/initdb/mysql.sql 中更新的语句，或者删除整个 mysql 文件夹（记得保存数据）后重新启动容器</li>
+<li>数据库备份方法<!-- -->
+<ul>
+<li>系统 24 小时自动备份一次</li>
+<li>手动备份:<code>docker exec -it lrobot /bin/bash</code>,<code>cd /app/logic/data</code>,<code>python backup.py</code></li>
+<li>导出空信息表 <code>python backup.py a</code></li>
+<li>备份文件在 storage/data/backup 处</li>
+</ul>
+</li>
+<li>数据库恢复方法（清空原有数据）<!-- -->
+<ul>
+<li><code>docker exec -it mysql bash</code>,<code>mysql -u root lrobot_data &lt; /app/backup/mysql_2025-07-03.sql</code></li>
+<li><code>docker exec -it mongodb bash</code>,<code>mongorestore --drop --uri=&quot;mongodb://localhost:27017&quot; /app/backup/mongo_2025-07-03</code></li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="pycharm环境相关">pycharm环境相关<a href="#pycharm环境相关" class="hash-link" aria-label="pycharm环境相关的直接链接" title="pycharm环境相关的直接链接" translate="no">​</a></h4>
+<ul>
+<li>在 pycharm 中，未命名的环境名为路径名</li>
+<li>在 anaconda 中，未命名的环境会以路径显示且无名字，只能以路径调用，conda env list</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/docs/category/开发指南"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">开发指南</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/docs/category/代码规范"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">代码规范</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#文档说明" class="table-of-contents__link toc-highlight">文档说明</a></li><li><a href="#后端开发" class="table-of-contents__link toc-highlight">后端开发</a></li><li><a href="#前端开发" class="table-of-contents__link toc-highlight">前端开发</a></li><li><a href="#开发配置" class="table-of-contents__link toc-highlight">开发配置</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+</body>
+</html>

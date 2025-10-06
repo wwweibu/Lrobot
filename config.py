@@ -1,8 +1,9 @@
-# 基本的配置及常量
-# 包含：全局路径、代理连接、future 变量、消息处理监控、定时任务、配置信息读写、日志记录器、数据库写入查询操作
+"""基本的配置及常量"""
+# 包含：全局路径、代理连接、future 变量、消息处理监控、进程池任务、定时任务、配置信息读写、日志记录器、数据库写入查询操作
 # 需要使用 mysql 数据库引入 mysql_init；日志写入需要 gather log_writer；配置自动更新需要 gather config_watcher
 import re
 import sys
+import json
 import time
 import yaml
 import httpx
@@ -11,14 +12,15 @@ import hashlib
 import logging
 import aiomysql
 import datetime
-import functools
 import traceback
 from pathlib import Path
 import motor.motor_asyncio
+from functools import wraps
 from colorama import Fore, Style
-from collections import defaultdict
 from logging.config import dictConfig
+from contextlib import asynccontextmanager
 from httpx_socks import AsyncProxyTransport
+from concurrent.futures import ProcessPoolExecutor
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver
 
@@ -42,16 +44,25 @@ SOURCE_DICT = {
     "uvicorn": "website",
     "uvicorn.access": "website",
     "uvicorn.error": "website",
+    "napcat": "napcat "
 }
-# 适配器监控指标
-MONITOR_METRICS = defaultdict(
-    lambda: {
-        "total": 0,
-        "success": 0,
-        "fail": 0,
-        "total_time": 0.0,
-    }
-)
+# 监视器统计数据
+MONITOR_METRICS = {}
+# mongodb 索引
+MONGODB_INDEX = [
+    # 主要
+    ([("time", -1)], {}),
+    ([("message", 1)], {}),
+    ([("level", 1), ("time", -1)], {}),
+    ([("source", 1), ("time", -1)], {}),
+    ([("source", 1), ("event", 1), ("time", -1)], {}),
+    ([("event", 1), ("source", 1), ("level", 1), ("time", -1)], {}),
+    ([("source", 1), ("event", 1), ("level", 1), ("message", 1), ("time", -1)], {}),
+    # 其他  l,s,e,s-e,lse 存在，补 l-s,l-e
+    ([("event", 1), ("level", 1), ("time", -1)], {}),
+    ([("source", 1), ("level", 1), ("time", -1)], {}),
+    ([("message", "text"), ("time", -1)], {"hasTextIndex": True})  # 放在最后
+]
 
 path = Path(__file__).resolve().parent  # 全局路径,python 中为 /lrobot,dokcer 中为 /app
 mongo_client = None  # mongo 连接
@@ -60,7 +71,7 @@ mysql_db_pool = None  # mysql 连接
 log_queue = asyncio.Queue()  # 日志队列
 loggers = {}  # 日志记录器
 temp_key = {}  # 网址临时密钥
-
+process_pool = ProcessPoolExecutor()  # 进程池
 
 class FutureManager:
     """管理 future 变量，用于协程间通信"""
@@ -88,6 +99,12 @@ class FutureManager:
             )  # 同步线程调用时可唤醒异步线程
             self._loop.call_soon_threadsafe(lambda: None)
 
+    async def wait(self, key, err_msg=None, timeout=20):
+        """等待 Future 结果"""
+        try:
+            return await asyncio.wait_for(self.get(key), timeout=timeout)
+        except asyncio.TimeoutError:
+            raise TimeoutError(err_msg or f"[future]请求失败-> {key} 获取超时: {timeout}s")
 
 class SafeDict(dict):
     """支持多层嵌套访问的字典，访问不存在的键时返回空 safe_dict 而非抛异常"""
@@ -109,12 +126,13 @@ class AutoConfig:
         self._config_sources = {}  # 记录每个 key 来自哪个文件
         self._config_hashes = {}  # 文件哈希，避免重复加载
         self._storage = {}  # 数据持久化存储
+        self._log_hash = None  # 日志记录器哈希值
         self.config_load()
 
     def __setitem__(self, key, value):
         """自动写回 YAML"""
         if key not in self._config_sources:
-            raise Exception(f"配置项 {key} 不存在，无法确定其来源文件")
+            raise Exception(f"[配置数据]写入失败-> 配置项 {key} 不存在，无法确定其来源文件")
 
         file_path = self._config_sources[key]
         try:
@@ -126,7 +144,7 @@ class AutoConfig:
             self._config[key] = value  # 同步更新内存中的值
             self._config_hashes[file_path] = file_hash_get(file_path)  # 更新哈希值
         except Exception as e:
-            raise Exception(f"写入配置项 {key} 至 {file_path.name} 失败 -> {e}")
+            raise Exception(f"[配置数据]写入失败-> 配置项: {key} | 文件: {file_path.name} | 错误: {e}")
 
     def __getitem__(self, key):
         """实现多层访问"""
@@ -163,7 +181,7 @@ class AutoConfig:
                         self._config_sources[key] = config_file  # 记录来源文件
                     self._config_hashes[config_file] = file_hash_get(config_file)
             except Exception as e:
-                print(f"yaml 文件 {config_file.name} 格式错误 -> {e}")
+                print(f"[配置数据]yaml 文件格式错误-> {config_file.name}: {e}")
         self.log_set()  # 更新日志记录器
 
     @staticmethod
@@ -181,11 +199,16 @@ class AutoConfig:
     def log_set(self):
         """应用日志配置"""
         global loggers
+        new_hash = hash(str(self._config["logging"]))
+        if self._log_hash == new_hash:
+            loggers["system"].debug("[配置数据]更新", extra={"event": "配置更新"})
+            return  # 日志配置没变化
+        self._log_hash = new_hash
         self.log_reset()
         try:
             dictConfig(self._config["logging"])  # 载入日志配置
         except Exception as e:
-            loggers["system"].error(f"日志配置错误 -> {e}", extra={"event": "运行日志"})
+            loggers["system"].error(f"[配置数据]日志错误-> {type(e).__name__}: {e}", extra={"event": "配置更新"})
         logger_names = list(self._config["logging"]["loggers"].keys())
         loggers = {name: logging.getLogger(name) for name in logger_names}
         # 配置过滤器
@@ -193,7 +216,9 @@ class AutoConfig:
         loggers["uvicorn.access"].addFilter(UvicornFilter())
         loggers["uvicorn.error"].addFilter(UvicornFilter())
         loggers["server"].addFilter(ServerFilter())
-        loggers["system"].info("配置数据更新", extra={"event": "配置读取"})
+        loggers["napcat"].addFilter(NapcatFilter())
+
+        loggers["system"].debug("[配置数据]更新", extra={"event": "配置更新"})
 
     def load(self):
         """数据载入"""
@@ -211,6 +236,7 @@ class AutoConfig:
             with open(tmp, "w", encoding="utf-8") as f:
                 yaml.safe_dump(data, f, allow_unicode=True, sort_keys=False)
             tmp.replace(save_path)
+            loggers["system"].debug("[配置数据]临时数据保存成功", extra={"event": "配置更新"})
         except Exception:
             tmp.unlink(missing_ok=True)
             raise
@@ -228,9 +254,9 @@ class AutoConfigHandler(FileSystemEventHandler):
             new_hash = file_hash_get(file_path)
             if config.hash_get().get(file_path) == new_hash:
                 return  # 内容未改变
-            loggers["system"].info(
-                f"yaml 文件 {file_path} 更新",
-                extra={"event": "配置读取"},
+            loggers["system"].debug(
+                f"[配置数据]写入-> {file_path}",
+                extra={"event": "配置更新"},
             )
             config.config_load()  # 重新加载
 
@@ -264,7 +290,7 @@ class DatabaseHandler(logging.Handler):
         log_queue.put_nowait(
             (
                 record.levelname,
-                SOURCE_DICT.get(record.name, record.name),
+                SOURCE_DICT.get(record.name, record.name).strip(),
                 getattr(record, "event", "-"),
                 message,
             )
@@ -287,7 +313,7 @@ class UvicornFilter(logging.Filter):
             ip, method, route, http_version, status_code = record.args[:5]
             STATUS_MAP = config["status_codes"]
             record.event = STATUS_MAP.get(str(status_code), f"未知状态{status_code}")
-            record.msg = f"[{ip}]{method} {route} -> HTTP/{http_version}"
+            record.msg = f"{method}[{ip}]{route}-> HTTP/{http_version}"
             record.args = ()  # 清空 args，避免格式化错误
         return True
 
@@ -307,11 +333,12 @@ class ServerFilter(logging.Filter):
         return True
 
 
-class LR5921Filter(logging.Filter):
-    """napcat 的日志过滤器，暂时不用"""
+class NapcatFilter(logging.Filter):
+    """napcat 日志过滤器"""
 
     def filter(self, record):
         """过滤"""
+        record.event = "运行日志"
         msg = record.getMessage()
         if not msg:  # 去除空行
             return False
@@ -333,52 +360,87 @@ def file_hash_get(file):
         return hashlib.md5(f.read()).hexdigest()
 
 
-def connect(use_proxy=False, proxy_url="socks5://command:5923"):
+@asynccontextmanager
+async def connect(use_proxy=False, proxy_url="socks5://command:5923"):
     """代理/不代理连接"""
     if use_proxy:
         transport = AsyncProxyTransport.from_url(proxy_url)
-        return httpx.AsyncClient(transport=transport)
-    return httpx.AsyncClient()
+        client = httpx.AsyncClient(transport=transport)
+    else:
+        client = httpx.AsyncClient()
+    try:
+        yield client
+    finally:
+        await client.aclose()
 
 
-def monitor_adapter(platform):
+def monitor_adapter(source):
     """消息适配器监控（异步函数）"""
-
-    # TODO 用于统计消息处理总数，成功数，失败数，总时间
-
-
     def decorator(func):
         """装饰器"""
 
-        @functools.wraps(func)
+        @wraps(func)
         async def wrapper(*args, **kwargs):
             """统计数据"""
+            from logic.data.system import system_get, system_edit, system_command_add
+            global MONITOR_METRICS
+            if not MONITOR_METRICS:  # 首次加载数据库
+                text = await system_get("monitor_metrics")
+                MONITOR_METRICS.update(json.loads(text) if text else {})
+
+            if source not in MONITOR_METRICS:
+                MONITOR_METRICS[source] = {
+                    "total": 0,
+                    "success": 0,
+                    "fail": 0,
+                    "total_time": 0.0
+                }
+
             start = time.perf_counter()
-            MONITOR_METRICS[platform]["total"] += 1
+            MONITOR_METRICS[source]["total"] += 1
             try:
                 result = await func(*args, **kwargs)
-                MONITOR_METRICS[platform]["success"] += 1
+                MONITOR_METRICS[source]["success"] += 1
+                if source.startswith("/"):
+                    msg = args[0]
+                    from message.handler.msg import Msg
+                    await system_command_add(source, msg.user, msg.platform, Msg.content_join(msg.content), result)
+                if source.startswith("#"):
+                    account = kwargs.get("account") or "unknown"
+                    raw_data = kwargs.get("data", {})
+                    if isinstance(raw_data, str):
+                        try:
+                            raw_data = json.loads(raw_data)
+                        except Exception:
+                            raw_data = {}
+                    data_str = "-".join(str(v) for v in raw_data.values()) if isinstance(raw_data, dict) else ""
+                    result_str = f"{result.status}-{result.data}" if result.data is not None else result.status
+                    await system_command_add(source, account, "web", data_str, result_str)
                 return result
-            except Exception:
-                MONITOR_METRICS[platform]["fail"] += 1
+            except Exception as e:
+                MONITOR_METRICS[source]["fail"] += 1
                 raise  # 仅统计，不处理
             finally:
                 elapsed = time.perf_counter() - start
-                MONITOR_METRICS[platform]["total_time"] += elapsed
+                MONITOR_METRICS[source]["total_time"] += elapsed
+                await system_edit("monitor_metrics", json.dumps(MONITOR_METRICS))
 
         return wrapper
 
     return decorator
 
 
-async def scheduler_add(func, *args, interval=None, at_time=None, count=None, **kwargs):
-    """添加定时任务（异步函数）"""
+async def scheduler_run(func, *args, interval=None, at_time=None, count=None, at_once=False, **kwargs):
+    """定时任务执行"""
     executed = 0
     while True:
         if count is not None and executed >= count:
             break
         if interval:
-            await asyncio.sleep(interval)
+            if executed == 0 and at_once:
+                pass
+            else:
+                await asyncio.sleep(interval)
         else:
             now = datetime.datetime.now()
             target = datetime.datetime.combine(now.date(), at_time)
@@ -390,11 +452,18 @@ async def scheduler_add(func, *args, interval=None, at_time=None, count=None, **
             await func(*args, **kwargs)  # 只能执行异步
         except Exception as e:
             loggers["system"].error(
-                f"定时任务 {func.__name__} 异常 -> {e}", extra={"event": "定时任务"}
+                f"[定时任务]{func.__name__} 异常-> {type(e).__name__}: {e}", extra={"event": "定时任务"}
             )
-            loggers["system"].error(traceback.format_exc(), extra={"event": "错误堆栈"})
+            loggers["system"].debug(f"[定时任务]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
+                                    extra={"event": "错误堆栈"})
         executed += 1
 
+
+def scheduler_add(func, *args, interval=None, at_time=None, count=None, at_once=False, **kwargs):
+    """定时任务(需添加异步函数)"""
+    return asyncio.create_task(
+        scheduler_run(func, *args, interval=interval, at_time=at_time, count=count, at_once=at_once, **kwargs)
+    )
 
 async def config_watcher():
     """开启配置自动更新"""
@@ -404,6 +473,8 @@ async def config_watcher():
 
     try:
         await asyncio.Event().wait()
+    except Exception as e:
+        loggers["system"].error(f"[配置数据]自动更新异常-> {type(e).__name__}: {e}", extra={"event": "配置更新"})
     finally:
         observer.stop()
         observer.join()
@@ -415,33 +486,109 @@ def mongo_init(uri="mongodb://mongodb:27017/lrobot_log"):
     try:
         mongo_client = motor.motor_asyncio.AsyncIOMotorClient(uri)
         mongo_db = mongo_client.get_default_database()
-        loggers["system"].info("Mongodb 数据库连接成功", extra={"event": "运行日志"})
+        loggers["system"].debug("[数据库]连接成功-> Mongodb", extra={"event": "运行日志"})
     except Exception as e:
-        print(f"[数据库连接失败] Mongodb 异常: {e}")
+        print(f"[数据库]连接失败-> Mongodb: {e}")
 
 
 def mongo_get():
     """获取 MongoDB 数据库连接"""
     if mongo_db is None:
-        raise RuntimeError("MongoDB 尚未初始化，请先调用 init_mongo()")
+        raise RuntimeError("[数据库]mongodb 未初始化")
     return mongo_db
+
+
+async def mongo_indexes_create():
+    """建立索引"""
+    coll = mongo_db.system_log
+
+    normalized_indexes = []
+    for i, (keys, filter_expr) in enumerate(MONGODB_INDEX, start=1):
+        options = {"name": f"idx_{i}"}
+        if filter_expr:  # 空 dict 不加
+            options["partialFilterExpression"] = filter_expr
+        normalized_indexes.append((keys, options))
+
+    # 获取已存在索引
+    existing_indexes = await coll.index_information()
+
+    normalized_existing = {}
+    for name, info in existing_indexes.items():
+        keys = tuple(info["key"])
+        pfe = info.get("partialFilterExpression") or {}
+        normalized_existing[name] = (keys, pfe)
+
+    for keys, options in normalized_indexes:
+        index_name = options["name"]
+        pfe = options.get("partialFilterExpression", {})
+
+        if any(v == "text" for v in dict(keys).values()):  # text 索引
+            if any("text" in str(info.get("key", {})) for info in existing_indexes.values()):
+                loggers["system"].debug(
+                    f"[索引创建]{index_name} 已存在 text 索引-> 跳过",
+                    extra={"event": "索引创建"}
+                )
+                continue
+
+        # 检查是否有同名索引
+        if index_name in normalized_existing:
+            exist_keys, exist_pfe = normalized_existing[index_name]
+            if exist_keys == tuple(keys) and exist_pfe == pfe:
+                loggers["system"].debug(f"[索引创建]{index_name} 已存在-> {keys}: {options}",
+                                        extra={"event": "索引创建"})
+                continue  # 已存在
+            else:
+                await coll.drop_index(index_name)
+                loggers["system"].debug(
+                    f"[索引删除]{index_name} 名称冲突-> {exist_keys}: {exist_pfe}",
+                    extra={"event": "索引创建"}
+                )
+                normalized_existing.pop(index_name, None)
+
+        duplicate_name = None
+        for exist_name, (exist_keys, exist_pfe) in normalized_existing.items():
+            if exist_name == "_id_":
+                continue
+            if exist_keys == tuple(keys):
+                duplicate_name = exist_name
+                loggers["system"].debug(
+                    f"[索引删除]{duplicate_name} 键值冲突-> {exist_keys}: {exist_pfe}",
+                    extra={"event": "索引创建"}
+                )
+                break
+        if duplicate_name:
+            await coll.drop_index(duplicate_name)
+            normalized_existing.pop(duplicate_name, None)
+
+        try:
+            await coll.create_index(keys, **options)
+            loggers["system"].debug(f"[索引创建]{index_name} 成功-> {keys}: {options}", extra={"event": "索引创建"})
+        except Exception as e:
+            loggers["system"].error(f"[索引创建]{index_name} 失败-> {type(e).__name__}: {e}",
+                                    extra={"event": "索引创建"})
+    loggers["system"].debug("[索引创建]完成", extra={"event": "索引创建"})
 
 
 async def log_writer():
     """开启日志写入 MongoDB 数据库"""
     while True:
         level, source, event, message = await log_queue.get()
+        text_index = (
+                (source in ["system", "adapter", "message"])
+                or (source == "website" and event == "网页日志")
+        )
         document = {
             "time": datetime.datetime.now(),
             "level": level,
             "source": source,
             "event": event,
             "message": message,
+            "hasTextIndex": text_index,
         }
         try:
             await mongo_db.system_log.insert_one(document)
         except Exception as e:
-            print(f"[日志写入失败] Mongodb 异常: {e}")
+            print(f"[数据库]写入失败-> Mongodb: {e}")
 
 
 async def mysql_init():
@@ -457,7 +604,7 @@ async def mysql_init():
         maxsize=20,
         autocommit=False,  # 必须为 False 才能手动控制提交与回滚
     )
-    loggers["system"].info("Mysql 数据库连接成功", extra={"event": "运行日志"})
+    loggers["system"].debug("[数据库]连接成功-> Mysql", extra={"event": "运行日志"})
 
 
 async def database_query(query: str, params: tuple = ()):
@@ -471,7 +618,7 @@ async def database_query(query: str, params: tuple = ()):
                 return result
             except Exception as e:
                 raise RuntimeError(
-                    f"数据库查询失败: {e} | SQL: {query} | 参数: {params}"
+                    f"[数据库]查询失败: {e} | SQL: {query} | 参数: {params}"
                 ) from e
 
 
@@ -489,7 +636,7 @@ async def database_update(query: str, params: tuple = ()):
             except Exception as e:
                 await conn.rollback()
                 raise RuntimeError(
-                    f"数据库更新失败: {e} | SQL: {query} | 参数: {params}"
+                    f"[数据库]更新失败: {e} | SQL: {query} | 参数: {params}"
                 ) from e
 
 

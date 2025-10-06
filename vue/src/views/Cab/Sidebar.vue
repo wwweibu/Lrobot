@@ -1,20 +1,25 @@
 <template>
   <div>
     <!-- 桌面端导航 -->
-    <nav class="desktop-nav" :class="{'scrolled': isScrolled}">
+    <nav class="desktop-nav" :class="{ 'scrolled': isScrolled }">
       <div class="nav-container">
         <div class="logo">
           <img class="logo-img" src="/images/logo.png" alt="Logo" />
           <span>Cabinet</span>
         </div>
-        
+
         <div class="nav-items">
-          <a v-for="item in navItems" :key="item.id" :href="item.link" class="nav-item">
+          <a
+            v-for="item in dynamicNavItems"
+            :key="item.id"
+            :href="item.link"
+            class="nav-item"
+          >
             <i :class="item.icon"></i>
             <span>{{ item.text }}</span>
           </a>
         </div>
-        
+
         <a :href="githubLink" class="github-btn" target="_blank">
           <i class="fas fa-question-circle"></i>
         </a>
@@ -23,20 +28,30 @@
 
     <!-- 移动端导航 -->
     <nav class="mobile-nav">
-      <div class="mobile-nav-header">        
+      <div class="mobile-nav-header">
         <button class="hamburger" @click="isMobileNavOpen = !isMobileNavOpen">
-          <i class="fas fa-bars" v-if="!isMobileNavOpen"></i>
-          <i class="fas fa-times" v-else></i>
+          <i class="fas" :class="isMobileNavOpen ? 'fa-times' : 'fa-bars'"></i>
         </button>
       </div>
-      
-      <div class="mobile-nav-content" :class="{'open': isMobileNavOpen}">
-        <a v-for="item in navItems" :key="item.id" :href="item.link" class="nav-item" @click="isMobileNavOpen = false">
+
+      <div class="mobile-nav-content" :class="{ 'open': isMobileNavOpen }">
+        <a
+          v-for="item in dynamicNavItems"
+          :key="item.id"
+          :href="item.link"
+          class="nav-item"
+          @click="isMobileNavOpen = false"
+        >
           <i :class="item.icon"></i>
           <span>{{ item.text }}</span>
         </a>
-        
-        <a :href="githubLink" class="nav-item github-item" target="_blank" @click="isMobileNavOpen = false">
+
+        <a
+          :href="githubLink"
+          class="nav-item github-item"
+          target="_blank"
+          @click="isMobileNavOpen = false"
+        >
           <i class="fas fa-question-circle"></i>
         </a>
       </div>
@@ -44,63 +59,67 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Sidebar',
-  props: {
-    githubLink: {
-      type: String,
-      default: 'https://github.com'
-    }
-  },
-  data() {
-    return {
-      isMobileNavOpen: false,
-      isScrolled: false,
-      navItems: [
-        { id: 1, text: 'Wiki', icon: 'fas fa-book', link: 'wiki' },
-        { id: 2, text: '功能', icon: 'fas fa-cogs', link: 'firefly' },
-        { id: 3, text: '网盘', icon: 'fas fa-hdd', link: 'file' },
-        { id: 4, text: '时间轴', icon: 'fas fa-stream', link: 'timeline' },
-        { id: 5, text: '指令', icon: 'fas fa-terminal', link: 'command' },
-        { id: 6, text: '数据库', icon: 'fas fa-database', link: 'database' },
-        { id: 7, text: '日志', icon: 'fas fa-clipboard-list', link: 'log' },
-        { id: 8, text: '用户', icon: 'fas fa-user', link: 'user' }
-      ]
-    };
-  },
-  computed: {
-    // 动态生成 navItems，根据当前路由前缀添加
-    navItems() {
-      const pathParts = this.$route.path.split('/').filter(Boolean);
-      let prefix = '/'; 
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 
-      if (pathParts.length > 0) {
-        if (pathParts[0] === 'cab') {
-          prefix = '/cab';
-        } else if (pathParts[0] === 'share') {
-          prefix = `/share`;
-        }
-      }
+// ========== Props ==========
+const props = defineProps({
+  githubLink: {
+    type: String,
+    default: 'https://github.com'
+  }
+})
 
-      return this.navItems.map(item => ({
-        ...item,
-        link: `${prefix}/${item.link}`
-      }));
-    }
-  },
-  mounted() {
-    window.addEventListener('scroll', this.handleScroll);
-  },
-  beforeUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
-  },
-  methods: {
-    handleScroll() {
-      this.isScrolled = window.scrollY > 10;
+// ========== 响应式状态 ==========
+const isMobileNavOpen = ref(false)
+const isScrolled = ref(false)
+
+// ========== 静态导航项（原始配置）==========
+const baseNavItems = [
+  { id: 1, text: 'Wiki', icon: 'fas fa-book', link: 'wiki' },
+  { id: 2, text: '功能', icon: 'fas fa-cogs', link: 'firefly' },
+  { id: 3, text: '网盘', icon: 'fas fa-hdd', link: 'file' },
+  { id: 4, text: '时间轴', icon: 'fas fa-stream', link: 'timeline' },
+  { id: 5, text: '指令', icon: 'fas fa-terminal', link: 'command' },
+  { id: 6, text: '数据库', icon: 'fas fa-database', link: 'database' },
+  { id: 7, text: '日志', icon: 'fas fa-clipboard-list', link: 'log' },
+  { id: 8, text: '用户', icon: 'fas fa-user', link: 'user' }
+]
+
+// ========== 动态计算导航链接 ==========
+const route = useRoute()
+
+const dynamicNavItems = computed(() => {
+  const pathParts = route.path.split('/').filter(Boolean)
+  let prefix = '/'
+
+  if (pathParts.length > 0) {
+    if (pathParts[0] === 'cab') {
+      prefix = '/cab'
+    } else if (pathParts[0] === 'share') {
+      prefix = `/share`
     }
   }
-};
+
+  return baseNavItems.map(item => ({
+    ...item,
+    link: `${prefix}/${item.link}`
+  }))
+})
+
+// ========== 滚动监听 ==========
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 10
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
@@ -233,14 +252,14 @@ body {
   height: auto;
   padding: 0;
   width: auto;
-  position: fixed;   /* 固定定位 */
-  top: 10px;         /* 距离顶部 */
-  right: 10px;       /* 靠右 */
+  position: fixed;
+  top: 10px;
+  right: 10px;
   z-index: 1001;
 }
 
 .hamburger {
-  background: rgba(0, 0, 0, 0.45);   /* 深色半透明背景 */
+  background: rgba(0, 0, 0, 0.45);
   border: none;
   border-radius: 6px;
   padding: 6px;
@@ -252,10 +271,10 @@ body {
   height: 32px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
-.hamburger i {
-  color: #fff;                       /* 图标白色，任何背景都看得见 */
-}
 
+.hamburger i {
+  color: #fff;
+}
 
 .mobile-nav-content {
   position: fixed;
@@ -293,63 +312,19 @@ body {
   .desktop-nav {
     display: none;
   }
-  
   .mobile-nav {
     display: block;
   }
 }
 
-/* 页面内容样式（仅用于演示） */
-.page-content {
-  max-width: 1200px;
-  margin: 80px auto 40px;
-  padding: 2rem;
-}
-
-.page-section {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 2rem;
-}
-
-.page-title {
-  color: var(--primary-color);
-  margin-bottom: 1.5rem;
-}
-
-.github-info {
-  background: #e6f7ff;
-  padding: 1rem;
-  border-radius: 6px;
-  border-left: 4px solid var(--primary-color);
-  margin: 1.5rem 0;
-}
-
-.demo-buttons {
-  display: flex;
-  gap: 1rem;
-  margin: 1.5rem 0;
-}
-
-.demo-button {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-.demo-button:hover {
-  opacity: 0.9;
+@media screen and (max-width: 1024px) {
+  .nav-item:nth-child(n+5) {
+    display: none;
+  }
 }
 
 body {
-  padding-top: 60px;   /* 与 .desktop-nav、.mobile-nav-header 同高 */
+  padding-top: 60px;
 }
 
 .logo-img {

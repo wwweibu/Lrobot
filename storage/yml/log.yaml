@@ -51,3 +51,8 @@ logging:
       level: DEBUG
       handlers: [ console, database ]
       propagate: no
+
+    napcat:
+      level: DEBUG
+      handlers: [ console, database ]
+      propagate: no

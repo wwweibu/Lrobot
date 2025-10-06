@@ -133,26 +133,34 @@ const executeCommand = async () => {
 
 const handleAccountValidation = async (account) => {
   try {
-    const response = await http.get('/account', { params: { account } })
-    if (response.data.isValid) {
+    const response = await http.put('/account', { account:  account })
+    if (response.data.status==="success") {
       validatedAccount.value = account
       validationStep.value = 'password'
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 const handlePasswordValidation = async (password) => {
   try {
-    const response = await http.get('/password', { params: { password } })
-    if (response.data.isValid) {
+    const response = await http.put('/password', { password: password } )
+    if (response.data.status === "success") {
       terminalLines.value.push(successMessage)
       validationStep.value = 'success'
       document.cookie = `account=${encodeURIComponent(validatedAccount.value)}; path=/; max-age=31536000`// 页面 cookie
       setTimeout(() => {
-        window.location.href = '/cab'
-      }, 5000)
+        if (validatedAccount.value.startsWith('花火')) {
+          window.location.href = '/firefly';
+        } else {
+          window.location.href = '/cab';
+        }
+      }, 3000);
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error) // 不显示
+  }
 }
 
 const updateInputArea = () => {

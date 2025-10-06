@@ -1,128 +1,125 @@
 <template>
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#日志'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#日志页'"/>
   <div class="log-panel">
-    <!-- 时间选择区域 -->
-    <div class="time-section">
-      <el-select v-model="timeRange" @change="applyTimeRange" style="width: 130px;">
-        <el-option label="自定义" value="custom" />
-        <el-option label="5分钟" value="5m" />
-        <el-option label="30分钟" value="30m" />
-        <el-option label="1小时" value="1h" />
-        <el-option label="1天" value="1d" />
-      </el-select>
+    <!-- 时间和筛选区域：分组布局 -->
+    <div class="filter-row">
+      <!-- 时间输入组 -->
+      <div class="time-group">
+        <el-input 
+          v-model="startTime" 
+          placeholder="2024-01-01 10:30:00" 
+          class="time-input"
+        />
+        <el-input 
+          v-model="endTime" 
+          placeholder="2024-01-01 12:30:00" 
+          class="time-input"
+        />
+      </div>
 
-      <el-date-picker v-model="startTime" type="datetime" placeholder="开始时间" style="width: 200px; margin-left: 10px;" @change="fetchLogs" />
-      <el-date-picker v-model="endTime" type="datetime" placeholder="结束时间" style="width: 200px;" @change="fetchLogs" />
+      <!-- 下拉选择组 -->
+      <div class="select-group">
+        <el-select v-model="source" placeholder="来源" clearable class="select-input">
+          <el-option v-for="s in sourceOptions" :key="s" :label="s" :value="s" />
+        </el-select>
+        <el-select v-model="level" placeholder="级别" clearable class="select-input">
+          <el-option v-for="l in levelOptions" :key="l" :label="l" :value="l" />
+        </el-select>
+        <el-select v-model="event" placeholder="事件" clearable class="select-input">
+          <el-option v-for="e in eventOptions" :key="e" :label="e" :value="e" />
+        </el-select>
+      </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <div class="filter-section">
-      <el-select v-model="source" placeholder="来源" clearable @change="fetchLogs" style="width: 150px;">
-        <el-option v-for="s in sourceOptions" :key="s" :label="s" :value="s" />
-      </el-select>
-      <el-select v-model="level" placeholder="级别" clearable @change="fetchLogs" style="width: 120px;">
-        <el-option v-for="l in levelOptions" :key="l" :label="l" :value="l" />
-      </el-select>
-      <el-select v-model="event" placeholder="事件" clearable @change="fetchLogs" style="width: 220px;">
-        <el-option v-for="e in eventOptions" :key="e" :label="e" :value="e" />
-      </el-select>
-    </div>
-
-    <!-- 搜索输入 -->
-    <div class="search-section">
+    <!-- 搜索区域 -->
+    <div class="search-row">
       <el-input
         v-model="keyword"
-        placeholder="请输入关键词/正则"
+        placeholder="关键词,整段匹配(中间符号分隔)"
         clearable
-        @input="fetchLogs"
-        style="width: 500px;"
+        class="search-input"
+      />
+      <el-input
+        v-model="regex"
+        placeholder="正则表达式,搜索'词','前缀'^数字/字母'"
+        clearable
+        class="search-input"
       />
     </div>
 
     <!-- 快捷按钮 -->
-    <div class="preset-buttons">
-      <el-button @click="applyPreset('request')">请求</el-button>
-      <el-button @click="applyPreset('help')">/帮助</el-button>
-      <el-button @click="resetFilters">重置</el-button>
+    <div class="preset-buttons-container">
+      <div class="preset-buttons">
+        <el-button type="primary" @click="fetchLogs">查询</el-button>
+        <el-button @click="applyPreset('msg_process')">消息处理</el-button>
+        <el-button @click="applyPreset('receive')">接收</el-button>
+        <el-button @click="applyPreset('send')">发送</el-button>
+        <el-button @click="applyPreset('anal')">分析</el-button>
+        <el-button @click="applyPreset('scheduler')">定时任务</el-button>
+        <el-button @click="applyPreset('request')">网页访问</el-button>
+        <el-button @click="applyPreset('web')">网页操作</el-button>
+        <el-button @click="applyPreset('ssh')">ssh</el-button>
+        <el-button @click="applyPreset('napcat')">napcat</el-button>
+        <el-button @click="applyPreset('file')">文件</el-button>
+        <el-button @click="applyPreset('system')">系统</el-button>
+        <el-button @click="applyPreset('type')">查种类</el-button>
+        <el-button @click="applyPreset('platform')">查平台</el-button>
+        <el-button @click="resetFilters">重置</el-button>
+      </div>
     </div>
 
     <!-- 日志表格 -->
     <el-table :data="logs" border style="margin-top: 20px;">
-      <el-table-column prop="time" label="时间" width="180">
+      <el-table-column prop="time" label="时间" width="160">
         <template #default="{ row }">{{ formatDisplayTime(row.time) }}</template>
       </el-table-column>
-      <el-table-column prop="source" label="来源" width="120" />
-      <el-table-column prop="level" label="级别" width="100" />
-      <el-table-column prop="event" label="事件" width="200" />
-      <el-table-column prop="message" label="消息" />
+      <el-table-column prop="source" label="来源" width="90" />
+      <el-table-column prop="level" label="级别" width="80" />
+      <el-table-column prop="event" label="事件" width="100" />
+      <el-table-column prop="message" label="消息" min-width="300px"/>
     </el-table>
 
     <!-- 分页 -->
     <el-pagination
       background
-      layout="prev, pager, next"
+      layout="prev, pager, next, jumper"
       :total="total"
       :page-size="pageSize"
       @current-change="handlePageChange"
-      style="margin-top: 15px"
+      class="pagination"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { http } from '@/api'
 import Sidebar from './Sidebar.vue'
 
 // 数据
-const timeRange = ref('custom')
-const startTime = ref(null)
-const endTime = ref(null)
+const startTime = ref('')
+const endTime = ref('')
 const source = ref(null)
-const level = ref(null)
+const level = ref('base')  // 默认值设为base
 const event = ref(null)
 const keyword = ref('')
+const regex = ref('')  // 新增正则表达式字段
 const page = ref(1)
 const pageSize = 100
 const total = ref(0)
 const logs = ref([])
 
 // 可选项
-const sourceOptions = ['website', 'system', 'adapter', 'server', 'message']
-const levelOptions = ['info', 'debug', 'error']
-const eventOptions = [
-  '请求成功', '函数错误', '运行日志', '定时任务',
-  '配置读取', '令牌接收', '消息接收', '消息发送',
-  '消息存储', '消息清理', '消息处理'
-]
+const sourceOptions = ['all','base','msg','message','adapter','website', 'system', 'server ', 'napcat']
+const levelOptions = ['all','base', 'info', 'debug', 'error']
+const eventOptions = ['消息接收','消息处理','消息发送','消息分析','网页日志', '定时任务',
+'运行日志','运行失败', '文件处理','错误堆栈','消息超时','消息去重','索引创建','配置更新', '模块加载']
 
-// 快捷时间范围
-const applyTimeRange = () => {
-  const now = new Date()
-  let start = new Date(now)
-
-  switch (timeRange.value) {
-    case '5m': start = new Date(now.getTime() - 5 * 60 * 1000); break
-    case '30m': start = new Date(now.getTime() - 30 * 60 * 1000); break
-    case '1h': start = new Date(now.getTime() - 60 * 60 * 1000); break
-    case '1d': start = new Date(now.getTime() - 24 * 60 * 60 * 1000); break
-  }
-
-  startTime.value = start
-  endTime.value = now
-  fetchLogs()
-}
-
-// 格式化时间为 YYYY-MM-DD HH:mm:ss
-const formatQueryTime = (date) => {
-  const pad = (n) => String(n).padStart(2, '0')
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-}
-
-// 格式化表格显示时间（人类可读）
+// 格式化表格显示时间
 const formatDisplayTime = (isoStr) => {
   const date = new Date(isoStr)
-  return formatQueryTime(date)
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 
 // 查询日志
@@ -134,47 +131,118 @@ const fetchLogs = async () => {
     level: level.value,
     event: event.value,
     keyword: keyword.value,
-    start_time: startTime.value ? formatQueryTime(startTime.value) : null,
-    end_time: endTime.value ? formatQueryTime(endTime.value) : null
+    regex: regex.value,  // 添加正则参数
+    start_time: startTime.value || null,
+    end_time: endTime.value || null
   }
 
   try {
-    const res = await http.get('/logs', { params })
-    logs.value = res.data.data
-    total.value = res.data.total
+    const res = await http.post('/logs', params, { timeout: 30000 })
+    if (res.data.status === "success") {
+      logs.value = res.data.data.data
+      total.value = res.data.data.total
+    } else {
+      alert('获取日志失败' + res.data.data || '网络异常，请稍后重试')
+    }
   } catch (e) {
-    console.error('获取日志失败', e)
+    alert('获取日志失败' + e || '网络异常，请稍后重试')
   }
 }
 
 // 快捷筛选 preset
 const applyPreset = (type) => {
-  if (type === 'request') {
-    level.value = 'info'
-    source.value = 'website'
-    event.value = '请求成功'
+  if (type === 'msg_process') {
+    level.value = '--'
+    source.value = '--'
+    event.value = '消息处理&堆栈'
     keyword.value = ''
-  }
-  else if (type === 'help') {
-  level.value = 'info'
-  source.value = 'message'
-  event.value = '消息处理'
-  // keyword 使用正则，匹配平台 LR5921 且含“私聊文字消息”和“/帮助”
-  keyword.value = '\\⌈LR5921\\⌋.*私聊文字消息.*\\/帮助'
-}
+    regex.value = ''
+  } else if (type ==='receive'){
+    level.value = 'all'
+    source.value = 'adapter'
+    event.value = '消息接收&消息去重&消息超时'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type ==='send'){
+    level.value= 'debug'
+    source.value = 'adapter'
+    event.value = '消息发送'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type ==='anal'){
+    level.value= 'info'
+    source.value = 'message'
+    event.value = '消息分析'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'scheduler') {
+    level.value = '--'
+    source.value = '--'
+    event.value = '定时任务&堆栈'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'request'){
+    level.value = '--'
+    source.value = '--'
+    event.value = '!网页日志&错误堆栈'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'web') {
+    level.value = 'all'
+    source.value = 'website'
+    event.value = '网页日志'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'ssh'){
+    level.value = 'all'
+    source.value = 'server'
+    event.value = ''
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'napcat'){
+    level.value = 'all'
+    source.value = 'napcat'
+    event.value = ''
+    keyword.value = ''
+    regex.value = ''
+  } else if (type==='file'){
+    level.value = 'all'
+    source.value = 'message'
+    event.value = '文件处理'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'system') {
+    level.value = 'all'
+    source.value = 'system'
+    event.value = '!错误堆栈&定时任务'
+    keyword.value = ''
+    regex.value = ''
+  } else if (type === 'type'){
+    level.value = ''
+    source.value = ''
+    event.value = ''
+    keyword.value = ''
+    regex.value = '^\\[加载\\]'
+  } else if (type==='platform'){
+    level.value = ''
+    source.value = ''
+    event.value = ''
+    keyword.value = 'LR5921'
+    regex.value = ''
+  } 
   page.value = 1
   fetchLogs()
 }
 
 // 重置筛选
 const resetFilters = () => {
-  timeRange.value = 'custom'
-  startTime.value = null
-  endTime.value = null
+  startTime.value = ''
+  endTime.value = ''
   source.value = null
-  level.value = null
+  level.value = 'base'
   event.value = null
   keyword.value = ''
+  regex.value = ''
   page.value = 1
   fetchLogs()
 }
@@ -183,10 +251,6 @@ const handlePageChange = (val) => {
   page.value = val
   fetchLogs()
 }
-
-onMounted(() => {
-  fetchLogs()
-})
 </script>
 
 <style scoped>
@@ -195,15 +259,212 @@ onMounted(() => {
   max-height: 95vh;
   overflow-y: auto;
 }
-.time-section, .filter-section, .search-section, .preset-buttons {
+
+/* 主筛选行：桌面端为一行，移动端分两行 */
+.filter-row {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
-@media (min-width: 768px) {
-  .log-panel  {
-    margin-top: 60px;
+
+/* 时间组：两个输入框 */
+.time-group {
+  display: flex;
+  gap: 10px;
+  flex: 1 1 100%;
+}
+
+.time-input {
+  width: 160px;
+}
+
+/* 下拉组：三个选择框 */
+.select-group {
+  display: flex;
+  gap: 10px;
+  flex: 1 1 100%;
+}
+
+.select-input {
+  width: 150px;
+}
+
+/* 搜索行 */
+.search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+/* 按钮容器 */
+.preset-buttons-container {
+  margin-bottom: 15px;
+  overflow-x: auto;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.pagination {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* **************** 响应式布局 **************** */
+/* 移动端：时间一行，下拉一行，搜索一行 */
+@media (max-width: 767px) {
+  .filter-row {
+    flex-direction: column;
   }
+
+  .time-group,
+  .select-group {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .time-group {
+    flex-wrap: wrap;
+  }
+
+  .time-input {
+    width: calc(50% - 5px); /* 两个输入框并排，留出 gap 间距 */
+    flex: none;
+  }
+
+  .select-input {
+    width: calc(33.33% - 6.67px); /* 三个下拉框并排 */
+    flex: none;
+  }
+
+  .search-input {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .search-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .search-row .search-input {
+    width: calc(50% - 5px);
+  }
+
+  .pagination :deep(.el-pager li),
+  .pagination :deep(button),
+  .pagination :deep(.number) {
+    padding: 0 2px;
+    min-width: 24px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 12px;
+  }
+
+  /* 隐藏跳转输入框*/
+  .pagination :deep(.el-pagination__jump) {
+    display: none;
+  }
+}
+
+/* 平板及以上：恢复紧凑布局 */
+@media (min-width: 768px) {
+  .filter-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .time-group,
+  .select-group {
+    flex: none;
+  }
+
+  .time-group {
+    display: flex;
+  }
+
+  .select-group {
+    display: flex;
+  }
+
+  .time-input {
+    width: 160px;
+  }
+
+  .select-input {
+    width: 150px;
+  }
+
+  .search-row {
+    flex-direction: row;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .log-panel {
+    margin-top: 60px;
+    max-height: calc(95vh - 60px);
+  }
+}
+
+/* 平板小屏优化 */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .time-input {
+    width: 140px;
+  }
+  .select-input {
+    width: 130px;
+  }
+}
+
+/* 大屏优化 */
+@media (min-width: 1200px) {
+  .time-input {
+    width: 170px;
+  }
+  .select-input {
+    width: 150px;
+  }
+}
+
+/* 滚动条样式优化 */
+.preset-buttons-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.preset-buttons-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.preset-buttons-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.preset-buttons-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 输入框占位符样式 */
+.time-input :deep(.el-input__inner::placeholder),
+.select-input :deep(.el-input__inner::placeholder),
+.search-input :deep(.el-input__inner::placeholder) {
+  color: #a8abb2;
+  font-size: 13px;
 }
 </style>

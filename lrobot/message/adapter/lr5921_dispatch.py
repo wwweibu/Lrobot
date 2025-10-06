@@ -13,25 +13,25 @@ headers = {"Content-Type": "application/json"}
 async def request_deal(url, data, tag):
     """请求统一处理"""
     timeout = 60.0 if ".mp4" in str(data) else 15.0  # 视频延长超时
-    client = connect()
-    try:
-        response = await client.post(f"{base_url}{url}", json=data, headers=headers, timeout=timeout)
-    except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  e: {e} | data: {data}")
+    async with connect() as client:
+        try:
+            response = await client.post(f"{base_url}{url}", json=data, headers=headers, timeout=timeout)
+        except Exception as e:
+            raise Exception(f"[{tag}]⌈LR5921⌋请求失败->  {type(e).__name__}: {e} | 数据: {data}")
 
-    if response.status_code != 200:
-        raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data}"
+        if response.status_code != 200:
+            raise Exception(
+                f"[{tag}]⌈LR5921⌋请求失败-> {response.status_code}: {response.text} | 数据: {data}"
+            )
+
+        json_resp = response.json()
+        if json_resp.get("status") != "ok":
+            raise Exception(f"[{tag}]⌈LR5921⌋请求失败-> 返回: {json_resp} | 数据: {data}")
+
+        adapter_logger.debug(
+            f"[{tag}]⌈LR5921⌋-> {json_resp} | {data}",
+            extra={"event": "消息发送"},
         )
-
-    json_resp = response.json()
-    if json_resp.get("status") != "ok":
-        raise Exception(f"{tag} 请求失败 -> {json_resp} | data: {data}")
-
-    adapter_logger.info(
-        f"[LR5921] {tag} 成功 -> {data} | {json_resp}",
-        extra={"event": "消息发送"},
-    )
     return json_resp
 
 
@@ -73,7 +73,7 @@ async def lr5921_dispatch(
         tag1: content,
     }
 
-    response = await request_deal(url, data, "消息发送")
+    response = await request_deal(url, data, f"{kind[:2]}消息发送")
     future.set(num, response.get("data").get("message_id", ""))
 
 
@@ -81,7 +81,7 @@ async def lr5921_msg_get(seq, num=None, user=None):
     """消息获取"""
     url = "get_msg"
     data = {"message_id": seq}
-    data = await request_deal(url, data, "消息获取")
+    data = await request_deal(url, data, "私聊消息获取")
     message_list = data.get("data", {}).get("message", [])
     for message in message_list:
         if message.get("type", "") == "json" and isinstance(message["data"]["data"], str):
@@ -92,13 +92,14 @@ async def lr5921_msg_get(seq, num=None, user=None):
     future.set(num, message_list)
 
 
-async def lr5921_file_download(file, path):
+async def lr5921_file_download(num, file, file_path):
     """文件下载"""
     url = "get_private_file_url"
     data = {"file_id": file}
-    response = await request_deal(url, data, "文件下载")
+    response = await request_deal(url, data, "私聊文件下载")
     url = response.get("data", {}).get("url")
-    await file_download(path, url)
+    response = await file_download(file_path, url)
+    future.set(num, response)
 
 
 async def lr5921_withdraw(seq, user=None, kind=None):
@@ -115,6 +116,13 @@ async def lr5921_signature(sign):
     await request_deal(url, data, "私聊签名")
 
 
+async def lr5921_nickname(num, user):
+    """私聊昵称"""
+    url = "get_stranger_info"
+    data = {"user_id": user}
+    data = await request_deal(url, data, "私聊昵称")
+    future.set(num, data.get("data", []).get("nick"))
+
 async def lr5921_status(state=None, battery_status=None, emoji=None, word=None):
     """私聊状态，输入'状态|电量'或'自定义|表情|文字"""
     if emoji:
@@ -124,7 +132,7 @@ async def lr5921_status(state=None, battery_status=None, emoji=None, word=None):
     else:
         status = config["online_status"][state].split("|")
         if not status:
-            raise Exception(f"状态不存在 | 状态: {state}")
+            raise Exception(f"[消息]QQ 状态不存在-> {state}")
         url = "set_online_status"
         data = {
             "status": status[0],
@@ -169,7 +177,7 @@ async def lr5921_essence(id, content=None):
     data = await request_deal(url, data, "群聊精华")
     word = data.get("data", "").get("result", "").get("wording")
     if word:
-        raise Exception(f"精华设置失败 -> {data}")
+        raise Exception(f"[消息]精华设置失败-> {data}")
 
 
 async def lr5921_title(user, group, title):
@@ -177,14 +185,6 @@ async def lr5921_title(user, group, title):
     url = "set_group_special_title"
     data = {"group_id": group, "user_id": user, "special_title": title}
     await request_deal(url, data, "群聊头衔")
-
-
-async def lr5921_nickname(num, user):
-    """私聊昵称"""
-    url = "get_stranger_info"
-    data = {"user_id": user}
-    data = await request_deal(url, data, "私聊昵称")
-    future.set(num, data.get("data", []).get("nick"))
 
 
 async def lr5921_card(num, type, title, desc, picUrl, jumpUrl):
@@ -202,4 +202,4 @@ async def lr5921_card(num, type, title, desc, picUrl, jumpUrl):
     data = await request_deal(url, data, "测试消息")
     future.set(num, data.get("data").get("data"))
 
-# TODO 群文件上传下载整理相关
+# TODO 群文件上传下载整理相关，群待办设置

@@ -1,10 +1,10 @@
 commands:
-- func: 面板_功能_新建
-  function: panel_task
-  set: 系统
-  order: 1
+- func: 帮助
+  function: help_show
+  set: 基础
+  order: 0
   content:
-  - /面板功能
+  - /帮助
   judge: contains
   kind:
   - 私聊接收
@@ -13,16 +13,20 @@ commands:
   platforms:
   - LR232
   - LR5921
-  users:
-  - 微部
+  - WECHAT
+  - BILI
+  users: []
   groups:
   - 公测群
-- func: 面板_新建
-  function: panel_func
-  set: 系统
-  order: 2
+  - 内测群
+  - 内阁
+  - 水群
+- func: 常见问题
+  function: base_question
+  set: 基础
+  order: 0
   content:
-  - /面板
+  - /常见问题
   judge: contains
   kind:
   - 私聊接收
@@ -31,399 +35,36 @@ commands:
   platforms:
   - LR232
   - LR5921
-  users:
-  - 微部
+  - WECHAT
+  - BILI
+  users: []
   groups:
   - 公测群
-- content:
-  - 航海日记提示
-  func: 航海日记_提示
-  function: diary_prompt
+  - 内测群
+  - 内阁
+  - 水群
+- content: []
+  func: 欢迎
+  function: base_welcome
   groups: []
-  judge: equal
+  judge: contains
   kind:
-  - 私聊接收
+  - 私聊添加
   platforms:
   - LR232
-  - LR5921
   - WECHAT
   - BILI
-  state:
-  - diary_1
-  - diary_2
-  - diary_3
-  - diary_4
-  - diary_5
-  - diary_6
-  - diary_7
-  - diary_8
-  - diary_9
-  - diary_10
-  - diary_11
-  - diary_12
-  - diary_13
-  - diary_14
-  - diary_15
-  - diary_16
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 小推的航海日记
-  func: 航海日记_1
-  function: diary_1
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
   - LR5921
-  - WECHAT
-  - BILI
   state: []
   users: []
-  set: 航海日记
+  set: 基础
   order: 0
-- content:
-  - logic
-  func: 航海日记_2
-  function: diary_2
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_1
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - ilikelogic
-  func: 航海日记_3
-  function: diary_3
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_2
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 推协
-  func: 航海日记_4
-  function: diary_4
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_3
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - love
-  func: 航海日记_5
-  function: diary_5
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_4
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - dolphin
-  func: 航海日记_6
-  function: diary_6
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_5
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 9527
-  func: 航海日记_7
-  function: diary_7
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_6
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 082510
-  func: 航海日记_8
-  function: diary_8
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_7
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - unlock
-  func: 航海日记_9
-  function: diary_9
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_8
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - reversethree
-  func: 航海日记_10
-  function: diary_10
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_9
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - run
-  func: 航海日记_11
-  function: diary_11
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_10
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - <=>
-  func: 航海日记_12
-  function: diary_12
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_11
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - jump
-  func: 航海日记_13
-  function: diary_13
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_12
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 1001
-  func: 航海日记_14
-  function: diary_14
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_13
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - 致爱丽丝
-  func: 航海日记_15
-  function: diary_15
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_14
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - forest
-  func: 航海日记_16
-  function: diary_16
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_15
-  users: []
-  set: 航海日记
-  order: 0
-- content:
-  - youdied
-  func: 航海日记_17
-  function: diary_17
-  groups: []
-  judge: equal
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state:
-  - diary_16
-  users: []
-  set: 航海日记
-  order: 0
-- func: 订阅-临时
-  function: subscribe_list
-  set: ''
+- func: 当前活动
+  function: base_activity
+  set: 基础
   order: 0
   content:
-  - /订阅
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  users: []
-  groups: []
-- func: 订阅天气-临时
-  function: subscribe_weather
-  set: ''
-  order: 0
-  content:
-  - /订阅，天气
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  users: []
-  groups: []
-- func: 订阅测试_临时
-  function: subscribe_test
-  set: ''
-  order: 0
-  content:
-  - 早上好
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  users: []
-  groups: []
-- func: 工具_列表
-  function: tool_list
-  set: 工具
-  order: 0
-  content:
-  - /工具
+  - /活动
   judge: equal
   kind:
   - 私聊接收
@@ -440,12 +81,12 @@ commands:
   - 内测群
   - 内阁
   - 水群
-- func: 分享_临时
-  function: share_text
-  set: ''
+- func: 修改当前活动
+  function: base_activity_change
+  set: 基础
   order: 0
   content:
-  - /分享
+  - /修改活动
   judge: contains
   kind:
   - 私聊接收
@@ -453,7 +94,105 @@ commands:
   state: []
   platforms:
   - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 内测群
+  - 内阁
+- func: 推荐书单
+  function: base_book
+  set: 基础
+  order: 0
+  content:
+  - /书单
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
   users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 修改当前书单
+  function: base_book_change
+  set: 基础
+  order: 0
+  content:
+  - /修改书单
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 微部
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 留言
+  function: base_word
+  set: 基础
+  order: 0
+  content:
+  - /留言
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 网址
+  function: base_web
+  set: 基础
+  order: 0
+  content:
+  - /网址
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  - WECHAT
+  - BILI
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 入会_小推
+  function: register_official
+  set: 入会
+  order: 0
+  content:
+  - 籍贯
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 微部
   groups: []
 - content:
   - /入会
@@ -490,50 +229,19 @@ commands:
   users: []
   set: 入会
   order: 0
-- func: 入会_小推
-  function: register_offical
-  set: 入会
-  order: 0
-  content:
-  - 籍贯
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR5921
-  users:
-  - 微部
-  groups: []
-- func: 收集表_获取
-  function: feedback_list
-  set: 反馈
-  order: 0
-  content:
-  - /反馈
-  judge: equal
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
 - func: 收集表_设置
   function: feedback_set
-  set: 反馈
+  set: 收集表
   order: 0
   content:
-  - /反馈设置
+  - /收集表设置
   judge: contains
   kind:
   - 私聊接收
   - 群聊接收
   state: []
   platforms:
+  - LR232
   - LR5921
   users:
   - 内阁
@@ -543,10 +251,10 @@ commands:
   - 内测群
 - func: 收集表_结果
   function: feedback_result
-  set: 反馈
+  set: 收集表
   order: 0
   content:
-  - /反馈结果
+  - /收集表结果
   judge: contains
   kind:
   - 私聊接收
@@ -555,20 +263,38 @@ commands:
   platforms:
   - LR232
   - LR5921
-  - WECHAT
-  - BILI
   users:
   - 内阁
   groups:
   - 公测群
   - 内测群
   - 内阁
-- func: 收集表_开始
-  function: feedback_start
-  set: 反馈
+- func: 收集表_删除
+  function: feedback_delete
+  set: 收集表
   order: 0
   content:
-  - /反馈
+  - /收集表删除
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 收集表_列表
+  function: feedback_list
+  set: 收集表
+  order: 0
+  content:
+  - /收集表
   judge: contains
   kind:
   - 私聊接收
@@ -580,12 +306,116 @@ commands:
   - BILI
   users: []
   groups: []
-- func: 游戏_列表
-  function: game_list
-  set: 游戏
+- func: 订阅_活动提醒
+  function: subscribe_activity
+  set: 订阅
   order: 0
   content:
-  - /小游戏
+  - /订阅活动提醒
+  judge: equal
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 订阅_早上好
+  function: subscribe_morning
+  set: 订阅
+  order: 0
+  content:
+  - /订阅早上好
+  judge: equal
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 订阅_晚安
+  function: subscribe_evening
+  set: 订阅
+  order: 0
+  content:
+  - /订阅晚安
+  judge: equal
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 订阅_up
+  function: subscribe_up
+  set: 订阅
+  order: 0
+  content:
+  - /订阅up
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 订阅_up_确认
+  function: subscribe_up_check
+  set: 订阅
+  order: 0
+  content:
+  - 确认
+  - 取消
+  judge: equal
+  kind:
+  - 私聊接收
+  state:
+  - up
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 订阅_删除
+  function: subscribe_delete
+  set: 订阅
+  order: 0
+  content:
+  - /订阅
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 活动_列表
+  function: activity_list
+  set: 活动
+  order: 0
+  content:
+  - /活动
   judge: equal
   kind:
   - 私聊接收
@@ -600,13 +430,129 @@ commands:
   groups:
   - 公测群
   - 内测群
+  - 内阁
   - 水群
-- func: 成语_接龙开始
-  function: game_idiom_start
-  set: 游戏
+- func: 活动_寻宝
+  function: activity_hunt_group
+  set: 活动
   order: 0
   content:
-  - /成语接龙
+  - /寻宝
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+  - 玩耍地
+- func: 活动_寻宝_群删除
+  function: activity_hunt_group_delete
+  set: 活动
+  order: 0
+  content:
+  - /寻宝群删除
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 活动_寻宝_群介绍
+  function: activity_hunt_group_info
+  set: 活动
+  order: 0
+  content:
+  - /寻宝群介绍
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 活动_寻宝_群新建
+  function: activity_hunt_group_set
+  set: 活动
+  order: 0
+  content:
+  - /寻宝群
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 活动_寻宝_群上传
+  function: activity_hunt_group_upload
+  set: 活动
+  order: 0
+  content:
+  - '[文件:any]'
+  - '[图片:any]'
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 寻宝添加群
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 内测群
+  - 内阁
+- func: 活动_寻宝_题目
+  function: activity_hunt_problem
+  set: 活动
+  order: 0
+  content:
+  - /寻宝题目
+  judge: contains
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups: []
+- func: 活动_日记_开始
+  function: activity_diary_start
+  set: 活动
+  order: 0
+  content:
+  - 小推的航海日记
   judge: equal
   kind:
   - 私聊接收
@@ -618,13 +564,31 @@ commands:
   - BILI
   users: []
   groups: []
-- func: 成语_同字接龙开始
-  function: game_idiom_word_start
-  set: 游戏
+- func: 活动_日记_提示
+  function: activity_diary_prompt
+  set: 活动
   order: 0
   content:
-  - /成语接龙严格
+  - 航海日记提示
   judge: equal
+  kind:
+  - 私聊接收
+  state:
+  - 日记
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 工具_待办
+  function: tool_pending
+  set: 工具
+  order: 0
+  content:
+  - /待办
+  judge: contains
   kind:
   - 私聊接收
   state: []
@@ -635,6 +599,263 @@ commands:
   - BILI
   users: []
   groups: []
+- func: 工具_凯撒
+  function: tool_caesar
+  set: 工具
+  order: 0
+  content:
+  - /凯撒
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_维吉尼亚
+  function: tool_vigenere
+  set: 工具
+  order: 0
+  content:
+  - /维吉尼亚
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_摩斯加密
+  function: tool_morse_encrypt
+  set: 工具
+  order: 0
+  content:
+  - /摩斯加密
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_摩斯解密
+  function: tool_morse_decrypt
+  set: 工具
+  order: 0
+  content:
+  - /摩斯解密
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_培根加密
+  function: tool_bacon_encrypt
+  set: 工具
+  order: 0
+  content:
+  - /培根加密
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_培根解密
+  function: tool_bacon_decrypt
+  set: 工具
+  order: 0
+  content:
+  - /培根解密
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_频率解密
+  function: tool_freq_decrypt
+  set: 工具
+  order: 0
+  content:
+  - /频率解密
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+  - 水群
+- func: 工具_直播关闭
+  function: tool_live_close
+  set: 工具
+  order: 0
+  content:
+  - /直播关闭
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 工具_直播公告
+  function: tool_live_notice
+  set: 工具
+  order: 0
+  content:
+  - /直播公告
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 工具_直播开启
+  function: tool_live_start
+  set: 工具
+  order: 0
+  content:
+  - /直播
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 工具_直播设置
+  function: tool_live_set
+  set: 工具
+  order: 0
+  content:
+  - 否
+  - '[图片:any]'
+  - '[文件:any]'
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 直播
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
+- func: 工具_wiki上传
+  function: tool_wiki_1
+  set: 工具
+  order: 0
+  content:
+  - /wiki
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 内阁
 - func: 成语_接龙退出
   function: game_idiom_end
   set: 游戏
@@ -646,6 +867,23 @@ commands:
   - 私聊接收
   state:
   - 成语
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 成语_接龙开始
+  function: game_idiom_start
+  set: 游戏
+  order: 0
+  content:
+  - /成语接龙
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
   platforms:
   - LR232
   - LR5921
@@ -673,6 +911,7 @@ commands:
   groups:
   - 公测群
   - 内测群
+  - 内阁
   - 水群
 - func: 真心话
   function: game_truth
@@ -708,25 +947,8 @@ commands:
   - BILI
   users: []
   groups: []
-- func: 工具_待办
-  function: tool_pending
-  set: 工具
-  order: 0
-  content:
-  - /待办
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
 - func: 绑定_验证
-  function: platform_bind
+  function: bind_platform
   content:
   - /绑定
   judge: equal
@@ -742,7 +964,7 @@ commands:
   set: 系统
   order: 0
 - func: 绑定_确认
-  function: qq_bind
+  function: bind_qq
   set: 系统
   order: 0
   content:
@@ -755,25 +977,6 @@ commands:
   - LR5921
   users: []
   groups: []
-- func: 测试
-  function: test_1
-  set: 系统
-  order: 0
-  content:
-  - /测试1
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 内测群
 - content: []
   func: 测试群_入群
   function: firefly_in
@@ -804,105 +1007,12 @@ commands:
   users: []
   set: 系统
   order: 0
-- func: 订阅_up
-  function: up_subscribe
-  set: 订阅
+- func: 测试
+  function: test_1
+  set: 系统
   order: 0
   content:
-  - /订阅up
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users:
-  - 微部
-  groups: []
-- func: 订阅_花火
-  function: subscribe_sparkle
-  set: 订阅
-  order: 0
-  content:
-  - /订阅花火
-  judge: equal
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 帮助
-  function: help_show
-  set: 基础
-  order: 0
-  content:
-  - /帮助
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 水群
-- func: 常见问题
-  function: help_question
-  set: 基础
-  order: 0
-  content:
-  - /常见问题
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 水群
-- content: []
-  func: 欢迎
-  function: help_welcome
-  groups: []
-  judge: contains
-  kind:
-  - 私聊添加
-  platforms:
-  - LR232
-  - WECHAT
-  - BILI
-  - LR5921
-  state: []
-  users: []
-  set: 基础
-  order: 0
-- func: 当前活动
-  function: help_activities
-  set: 基础
-  order: 0
-  content:
-  - /当前活动
+  - /测试1
   judge: equal
   kind:
   - 私聊接收
@@ -913,76 +1023,53 @@ commands:
   - LR5921
   - WECHAT
   - BILI
-  users: []
+  users:
+  - 微部
   groups:
-  - 公测群
   - 内测群
-  - 水群
-- func: 修改当前活动
-  function: help_activity_change
-  set: 基础
+- func: 容器_重启
+  function: check_restart
+  set: 系统
   order: 0
   content:
-  - /修改当前活动
-  judge: contains
+  - /容器重启
+  judge: equal
   kind:
   - 私聊接收
-  - 群聊接收
   state: []
   platforms:
   - LR5921
   users:
   - 微部
-  groups:
-  - 内测群
-  - 公测群
+  groups: []
+- func: 物资_查询
+  function: material_get
+  set: 系统
+  order: 0
+  content:
+  - /物资查询
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users:
   - 内阁
-- func: 推荐书单
-  function: help_book
-  set: 基础
-  order: 0
-  content:
-  - /书单
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 水群
-- func: 修改当前书单
-  function: help_book_change
-  set: 基础
-  order: 0
-  content:
-  - /修改书单
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR5921
-  users:
-  - 微部
   groups:
   - 公测群
   - 内测群
   - 内阁
-- func: 留言
-  function: help_word
-  set: 基础
+- func: 物资_更新
+  function: material_add
+  set: 系统
   order: 0
   content:
-  - /留言
+  - /物资
   judge: contains
   kind:
   - 私聊接收
@@ -993,27 +1080,28 @@ commands:
   - LR5921
   - WECHAT
   - BILI
-  users: []
+  users:
+  - 内阁
   groups:
   - 公测群
   - 内测群
-  - 水群
-- func: 网址
-  function: help_web
-  set: 基础
-  order: 0
+  - 内阁
+- func: 工具_wiki链接
+  function: tool_wiki_2
+  set: 工具
+  order: -5
   content:
-  - /网址
+  - '[图片:any]'
+  - '[文件:any]'
   judge: equal
   kind:
   - 私聊接收
   - 群聊接收
-  state: []
+  state:
+  - wiki
   platforms:
   - LR232
   - LR5921
-  - WECHAT
-  - BILI
   users:
   - 内阁
   groups:
@@ -1039,9 +1127,10 @@ commands:
   groups: []
 - func: 收集表_填写
   function: feedback_write
-  set: 反馈
+  set: 收集表
   order: -3
-  content: []
+  content:
+  - ' '
   judge: contains
   kind:
   - 私聊接收
@@ -1075,7 +1164,7 @@ commands:
   order: -2
 - content: []
   func: 转发
-  function: help_unknown
+  function: base_unknown
   groups: []
   judge: contains
   kind:

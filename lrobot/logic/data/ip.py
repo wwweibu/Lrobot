@@ -5,13 +5,12 @@ from time import time
 from config import database_update, database_query
 
 BAN_TIME = 600  # 封禁时间
-ERROR_RESET_TIME = 10  # 访问间隔 5 次 / x 秒
+BAN_NUMBER = 5  # 访问次数
+BAN_INTERVAL_TIME = 10  # 访问间隔 number 次 / interval 秒
 
 
 async def ip_check(ip):
-    """
-    检查 IP 是否已被封禁，并更新数据库状态。
-    """
+    """检查 IP 是否已被封禁，并更新数据库状态。"""
     if ip == "222.20.193.18":  # 武汉大学 ip
         return False
     current_time = int(time())
@@ -24,8 +23,8 @@ async def ip_check(ip):
 
     # 次数重置
     await database_update(
-        "UPDATE system_ip SET count = 0 WHERE count BETWEEN 1 AND 5 AND %s - first_time > %s",
-        (current_time, ERROR_RESET_TIME),
+        "UPDATE system_ip SET count = 0,first_time=%s WHERE count BETWEEN 1 AND %s AND %s - first_time > %s",
+        (current_time, BAN_NUMBER, current_time, BAN_INTERVAL_TIME),
     )
 
     # 查找 IP 记录
@@ -42,13 +41,13 @@ async def ip_check(ip):
             return True
 
         # 累计访问次数
-        if 0 <= count < 5:
+        if 0 <= count < BAN_NUMBER:
             await database_update(
                 "UPDATE system_ip SET count = count + 1 WHERE ip = %s AND count = %s",
                 (ip, count),
             )
 
-        elif count == 5:
+        elif count >= BAN_NUMBER:
             await database_update(
                 "UPDATE system_ip SET count = -1, first_time = %s WHERE ip = %s",
                 (

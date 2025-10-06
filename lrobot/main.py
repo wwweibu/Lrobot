@@ -3,11 +3,11 @@
 import signal
 import asyncio
 
-from config import config
+from config import config  # 放在前面
 from secret import secret
 from message.handler.msg_pool import MsgPool
-from logic import backup_mysql, backup_mongo, remind_load, subscribe_up_init
 from web.backend.app import server_runner, app, rotator
+from logic import backup_mysql, backup_mongo, remind_load, subscribe_up_init, check_net
 from config import (
     future,
     loggers,
@@ -15,7 +15,8 @@ from config import (
     scheduler_add,
     log_writer,
     config_watcher,
-    storage
+    storage,
+    mongo_indexes_create
 )
 from message.adapter import (
     refresh_tokens,
@@ -29,11 +30,16 @@ from message.adapter import (
 
 async def start():
     """初始化函数"""
-    loop = asyncio.get_running_loop()
-    future.init(loop)  # future 管理器记录主循环
-    await mysql_init()
-    await remind_load()  # 加载待办等待
-    await subscribe_up_init()  # 轮询 up 更新
+    try:
+        loop = asyncio.get_running_loop()
+        future.init(loop)  # future 管理器记录主循环
+        await mysql_init()
+        await mongo_indexes_create()  # mongodb 建立索引
+        await remind_load()  # 加载待办等待
+        await subscribe_up_init()  # 轮询 up 更新
+    except Exception as e:
+        loggers["system"].error(f"[初始化]失败-> {type(e).__name__}: {e}", extra={"event": "运行失败"})
+
 
 
 def stop():
@@ -44,14 +50,11 @@ def stop():
 async def scheduler():
     """定时任务"""
     await asyncio.sleep(5)  # 执行其他任务
-    asyncio.create_task(scheduler_add(backup_mysql, interval=86400))  # 备份 Mysql
-    asyncio.create_task(scheduler_add(backup_mongo, interval=86400))  # 备份 Mongo
-    asyncio.create_task(
-        scheduler_add(MsgPool.clean, 86400, interval=86400)
-    )  # 消息池清理
-    asyncio.create_task(scheduler_add(rotator, interval=600))  # 临时网址更换
-    # asyncio.create_task(add_scheduler(check_network, interval=300))  # TODO 检查网络
-    # asyncio.create_task(add_scheduler(check_system, interval=60))  # TODO 检查系统
+    scheduler_add(backup_mysql, interval=86400)  # 备份 Mysql
+    scheduler_add(backup_mongo, interval=86400)  # 备份 Mongo
+    scheduler_add(MsgPool.clean, 86400, interval=86400)  # 消息池清理
+    scheduler_add(rotator, interval=600)  # 临时网址更换
+    scheduler_add(check_net, interval=300)  # 网址连通性检测
 
 
 async def LR232_init():
@@ -69,21 +72,10 @@ async def WECHAT_init():
     app.include_router(WECHAT_router, prefix=secret("/WECHAT"))
 
 
-async def QQAPP_init():
-    """QQAPP 初始化函数"""
-    pass
-
-
 async def BILI_init():
     """BILI 初始化函数"""
-    try:
-        await bili_receive()
-    except Exception as e:
-        loggers["system"].error(
-            f"定时任务 bili_receive 异常 -> {e}", extra={"event": "定时任务"}
-        )
-    asyncio.create_task(scheduler_add(bili_receive, 60, interval=60))  # 推荐刷新间隔 20
-    asyncio.create_task(scheduler_add(bili_fan_get, interval=300))  # 检测粉丝
+    scheduler_add(bili_receive, 60, interval=60, at_once=True)  # 推荐刷新间隔 20
+    scheduler_add(bili_fan_get, interval=300)  # 检测粉丝
 
 def tasks_set():
     """生成任务列表"""
@@ -92,13 +84,12 @@ def tasks_set():
         log_writer,  # 日志记录器
         scheduler,  # 定时任务
         MsgPool.process,  # 消息处理
-        server_runner  # fastapi 运行
+        server_runner,  # fastapi 运行
     ]
     PLATFORM_CONFIG = {
         "LR232": ["LR232_ID", "LR232_SECRET"],
         "LR5921": ["LR5921_ID"],
         "WECHAT": ["WECHAT_ID", "WECHAT_SECRET", "WECHAT_SELF", "WECHAT_TOKEN"],
-        "QQAPP": ["QQAPP_ID", "QQAPP_SECRET"],
         "BILI": ["BILI_SESSDATA", "BILI_JCT", "BILI_UID", "BILI_UUID"],
     }  # 平台配置参数
 
@@ -124,6 +115,7 @@ def task_warp(func, exit_event):
     async def wrapper():
         """装饰器"""
         task = asyncio.create_task(func())
+        task.name = func.__name__
         await asyncio.wait(
             [task, asyncio.create_task(exit_event.wait())],
             return_when=asyncio.FIRST_COMPLETED
@@ -134,11 +126,13 @@ def task_warp(func, exit_event):
             try:
                 await task
             except asyncio.CancelledError:
-                print(f"任务 {func.__name__} 被取消")
+                loggers["system"].debug(
+                    f"[任务]被取消-> {func.__name__}", extra={"event": "运行日志"}
+                )
 
         return await task if not task.cancelled() else None
 
-    return asyncio.create_task(wrapper())
+    return asyncio.create_task(wrapper(), name=func.__name__)
 
 
 async def main():
@@ -149,7 +143,9 @@ async def main():
 
     def signal_handle(sig, frame):
         """处理信号"""
-        print(f"收到退出信号 {sig}")
+        loggers["system"].debug(
+            f"[信号]收到退出信号-> {sig}", extra={"event": "运行日志"}
+        )
         exit_event.set()
 
     signal.signal(signal.SIGINT, signal_handle)
@@ -159,9 +155,12 @@ async def main():
     try:
         results = await asyncio.gather(*tasks, return_exceptions=True)
         # 检查并打印异常
-        for i, r in enumerate(results):
+        for task, r in zip(tasks, results):
+            name = task.get_name()
             if isinstance(r, Exception):
-                print(f"[任务{i}] 捕获到异常: {type(r).__name__}: {r}")
+                loggers["system"].error(
+                    f"[任务]{name} 异常-> {type(r).__name__}: {r}", extra={"event": "运行失败"}
+                )
     finally:
         stop()
 

@@ -3,8 +3,8 @@
 import asyncio
 from datetime import datetime
 
-from config import database_update, database_query
 from message.handler.msg import Msg
+from config import database_update, database_query
 
 
 async def remind_send(id, target_time, content, user):

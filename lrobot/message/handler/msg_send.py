@@ -1,7 +1,10 @@
 """消息发送"""
 
+import re
+
 from message.adapter import *
 from message.handler.msg import Msg
+from logic import user_nickname_transform
 
 msg_logger = loggers["message"]
 
@@ -9,9 +12,11 @@ msg_logger = loggers["message"]
 async def msg_send(msg: Msg):
     """消息发送分配器"""
     content_str = Msg.content_join(msg.content) or msg.kind
+    user_name = await user_nickname_transform(msg.user, msg.platform, True)
+    user_name = user_name if user_name else msg.user
     msg_logger.info(
-        f"⌈{msg.platform}⌋: {msg.kind} -> {content_str}",
-        extra={"event": "消息发送"},
+        f"[{msg.kind}]⌈{msg.platform}⌋发送-> {user_name}: {content_str}",
+        extra={"event": "消息处理"},
     )
     if msg.kind.endswith("发送"):
         if msg.platform == "LR5921":
@@ -47,9 +52,9 @@ async def msg_send(msg: Msg):
         file = msg.content[0]["data"].get("file")
         file_path = msg.content[0]["data"].get("file_path")
         if msg.platform == "LR5921":
-            await lr5921_file_download(file, file_path)
+            await lr5921_file_download(msg.num, file, file_path)
         elif msg.platform == "WECHAT":
-            await wechat_file_download(file, file_path)
+            await wechat_file_download(msg.num, file, file_path)
     elif msg.kind.endswith("撤回"):
         if msg.platform == "LR5921":
             await lr5921_withdraw(msg.seq, kind=msg.kind)
@@ -74,7 +79,7 @@ async def msg_send(msg: Msg):
         elif msg.kind.endswith("直播标题"):
             parts = content_str.split("|", 1)
             title, file = parts if len(parts) == 2 else (parts[0], None)
-            await bili_live_title(title, file)
+            await bili_live_title(msg.num, title, file)
         elif msg.kind.endswith("直播公告"):
             await bili_live_notice(content_str)
         elif msg.kind.endswith("直播关闭"):
@@ -83,6 +88,9 @@ async def msg_send(msg: Msg):
             await bili_fan_get()
         elif msg.kind.endswith("用户视频"):
             await bili_user_video(msg.num, msg.user)
+        elif msg.kind.endswith("用户合集"):
+            parts = content_str.split("|", 1)
+            await bili_user_collection(msg.num, msg.user, parts[0], parts[1])
         elif msg.kind.endswith("搜索"):
             parts = content_str.split("|", 1)
             keyword, type = parts if len(parts) == 2 else (parts[0], None)

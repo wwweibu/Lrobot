@@ -1,4 +1,11 @@
+/storage/yml/model.yaml
+
+/command/lrobot.pem
+
 /secret.py
+/storage/yml/secret.yaml
+/storage/yml/storage.yaml
+/storage/yml/user.yaml
 
 /storage/data/backup
 /storage/data/map
@@ -6,18 +13,12 @@
 /storage/data/mysql
 /storage/data/napcat
 
-/storage/file/clouddrive
-/storage/file/command
 /storage/file/recycle
-/storage/file/resource
 /storage/file/user
-/storage/file/wiki
 
-/storage/yml/model.yaml
-/storage/yml/secret.yaml
-/storage/yml/storage.yaml
-/storage/yml/user.yaml
-
-/storage/lrobot.pem
+/storage/file/clouddrive
+/storage/file/resource
+/storage/file/command/money.jpg
+/storage/file/command/hunt
 
 /.idea

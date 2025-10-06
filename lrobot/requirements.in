@@ -22,3 +22,5 @@ chardet
 xlrd
 openpyxl
 vosk
+jieba
+docker

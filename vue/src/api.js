@@ -2,15 +2,14 @@ import axios from "axios";
 
 export const http = axios.create({
   baseURL: "/hjd",
-  timeout: 5000,
-  withCredentials: true
+  timeout: 5000
 });
 
 
 // WebSocket 管理器
 const wsInstances = {};
 
-// 创建 WebSocket 的函数
+// 创建 WebSocket
 export function createWebSocket(endpoint) {
   const key = endpoint;
   if (!wsInstances[key]) {
@@ -20,7 +19,7 @@ export function createWebSocket(endpoint) {
     const isDev = import.meta.env.DEV;
     const host = isDev ? 'localhost:5922' : window.location.host;
 
-    // 拼接完整 WebSocket URL，注意保留前缀 /hjd
+    // 拼接完整 WebSocket URL
     const wsUrl = `${protocol}://${host}/hjd/${endpoint}`;
 
     const ws = new WebSocket(wsUrl);
@@ -33,7 +32,7 @@ export function createWebSocket(endpoint) {
   return wsInstances[key];
 }
 
-// 关闭指定 WebSocket 的函数
+// 关闭指定 WebSocket
 export function closeWebSocket(endpoint) {
   const ws = wsInstances[endpoint];
   if (ws && ws.readyState === WebSocket.OPEN) {

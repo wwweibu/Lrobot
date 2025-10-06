@@ -1,11 +1,12 @@
 """用户相关"""
 
 import asyncio
+from datetime import datetime, timedelta
 
 from .status import status_check
 from .firefly import firefly_judge
 from message.handler.msg import Msg
-from config import config, future, database_query, loggers
+from config import config, future, database_query, database_update
 
 
 async def user_identify(user, platform):
@@ -41,6 +42,35 @@ async def user_member_judge(qq):
     return 1 if result else 0
 
 
+async def user_nickname_transform(user, platform, is_send=None):
+    """用户昵称转换"""
+    qq = await user_qq_transform(user, platform)
+    if not qq:
+        return None
+    query = "SELECT nickname, created_at FROM user_nickname WHERE user = %s LIMIT 1"
+    result = await database_query(query, (qq,))
+    if result:
+        nickname = result[0]["nickname"]
+        created_at = result[0]["created_at"]
+        if datetime.now() - created_at < timedelta(days=3):
+            return nickname
+    if is_send:  # 发送不能调用 user_nickname_get
+        return None
+    nickname = await user_nickname_get(qq)
+    if not nickname:
+        return None
+    update_sql = """
+            INSERT INTO user_nickname (user, nickname, created_at)
+            VALUES (%s, %s, NOW()) AS new
+            ON DUPLICATE KEY UPDATE
+                nickname = new.nickname,
+                created_at = new.created_at
+        """
+    await database_update(update_sql, (qq, nickname))
+
+    return nickname
+
+
 async def user_nickname_get(user):
     """获取用户昵称"""
     msg = Msg(
@@ -50,13 +80,9 @@ async def user_nickname_get(user):
         user=user
     )
     try:
-        _future = future.get(msg.num)
-        response = await asyncio.wait_for(_future, timeout=20)
+        response = await future.wait(msg.num)
         return response
     except asyncio.TimeoutError:
-        loggers["message"].error(
-            f"昵称获取超时 | 用户: {user}", extra={"event": "消息处理"},
-        )
         return None
 
 
@@ -77,3 +103,40 @@ async def user_qq_transform(user, platform):
     if information:
         return information
     return None
+
+
+async def user_register(user_data):
+    """入会"""
+    await database_update(
+        """
+        INSERT INTO user_information (
+            qq, codename, name, grade, gender,
+            major, student_id, phone, political_status, hometown
+        ) VALUES (
+            %s, %s, %s, %s, %s,
+            %s, %s, %s, %s, %s
+        ) AS new
+        ON DUPLICATE KEY UPDATE
+            codename = new.codename,
+            name = new.name,
+            grade = new.grade,
+            gender = new.gender,
+            major = new.major,
+            student_id = new.student_id,
+            phone = new.phone,
+            political_status = new.political_status,
+            hometown = new.hometown
+        """,
+        (
+            user_data["qq"],
+            user_data["codename"],
+            user_data["name"],
+            user_data["grade"],
+            user_data["gender"],
+            user_data["major"],
+            user_data["student_id"],
+            user_data["phone"],
+            user_data["political_status"],
+            user_data["hometown"],
+        ),
+    )

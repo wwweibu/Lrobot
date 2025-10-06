@@ -6,37 +6,19 @@ import pandas as pd
 from pypinyin import pinyin, Style
 
 from logic import data
-from config import path
 from message.handler.msg import Msg
-
-async def game_list(msg: Msg):
-    """游戏列表"""
-    content = ("当前游戏:\n"
-               "成语接龙:\n"
-               "/成语,[成语]:进行同音接龙\n"
-               "/成语,[成语],[数字]:进行任意个数的同音接龙(除qq外数字不宜过大)\n"
-               "/成语,[成语],严格:进行同字接龙\n"
-               "/成语,[成语],知识:返回对应释义\n"
-               "/成语接龙:开始成语接龙(后续输入任意词开始接龙，仅限私聊)\n"
-               "/成语接龙严格:开始成语同字接龙\n"
-               "/成语接龙结束:结束成语接龙状态\n\n"
-               "真心话大冒险:\n"
-               "/真心话:随机真心话\n"
-               "/大冒险:随机大冒险\n")
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
+from config import path, monitor_adapter
 
 
 def idiom_prepare():
     """成语预处理"""
     idom_full = pd.read_json(str(path / "storage/file/command/idiom.json"))
+    new_idiom = {
+        "derivation": "夏洛克·福尔摩斯，英国作家阿瑟·柯南·道尔所著长篇推理小说《福尔摩斯探案集》中的人物，外貌特征参考插画师沃尔特·帕吉特的创作。该人物首次登场于《血字的研究》，常居伦敦贝克街221号B公寓，凭借敏锐观察与演绎推理法破解案件，搭档约翰·H·华生以第一人称记录其多数探案经历",
+        "example": "福尔摩斯——他的知识程度(1)文学知识——无(2)哲学知识——无(3)天文学知识——无(4)政治知识——弱(5)植物学知识——不定，对莨菪、鸦片及一般毒物知识丰富，对实用园艺植物一无所知(6)地质学知识——实用，但有限，可以在一瞥之下就识别不同的泥土(7)化学知识——深厚(8)解剖学知识——正确，但无系统(9)罪案记载——极渊博，他似乎知道本世纪每一个可怕刑案的细节(10)小提琴拉得很好(11)精于棍棒、拳击及剑术(12)对英国法律有很好的实用知识",
+        "explanation": "Once you eliminate the impossible, whatever remains, no matter how improbable, must be the truth.",
+        "pinyin": "fú ěr mó sī", "word": "福尔摩斯", "abbreviation": "fems"}
+    idom_full = pd.concat([idom_full, pd.DataFrame([new_idiom])], ignore_index=True)
     t = idom_full.pinyin.str.split()
     idom_full["first"] = t.str[0]
     idom_full["last"] = t.str[-1]
@@ -58,81 +40,13 @@ def remove_tone(pinyin_str):
     return ''.join(tone_map.get(c, c) for c in pinyin_str)
 
 
-async def game_idiom_start(msg: Msg):
-    """成语接龙开始"""
-    await data.status_add(msg.user, "成语", "同音")
-    content = "现在你可以输入任意内容，系统将自动进行接龙。输入'/成语接龙结束'退出此状态"
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-
-
-async def game_idiom_word_start(msg: Msg):
-    """成语同字接龙开始"""
-    await data.status_add(msg.user, "成语", "同字")
-    content = "现在你可以输入任意内容，系统将自动进行接龙。输入'/成语接龙结束'退出此状态"
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-
-
-async def game_idiom_end(msg: Msg):
-    """成语接龙退出"""
-    await data.status_delete(msg.user, "成语")
-    content = "退出成功"
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-
-
-async def game_idiom_chain(msg: Msg):
-    """成语接龙"""
-    status = await data.status_check(msg.user, "成语")
-    idiom = Msg.content_join(msg.content)
-    if status == "同字":
-        options = [option for option in idiom_index.index if option[0] == idiom[-1] and option != idiom]
-        content = random.choice(options) if options else "无匹配成语"
-    else:
-        last_char = idiom[-1]
-        last_pinyin = pinyin(last_char, style=Style.NORMAL)[0][0]
-        options = idiom_index[idiom_index["first_norm"] == last_pinyin].index.tolist()
-        options = [option for option in options if option != idiom]
-        content = random.choice(options) if options else "无匹配成语"
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-
-
+@monitor_adapter("/游戏_接龙_单个")
 async def game_idiom(msg: Msg):
     """成语"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
     if len(parts) == 3:
-        mod = parts[2]
-        idiom = parts[1]
+        mod = parts[2].strip()
+        idiom = parts[1].strip()
         if mod == "知识":
             row = idiom_full[idiom_full["word"] == idiom]
             if row.empty:
@@ -159,6 +73,7 @@ async def game_idiom(msg: Msg):
                     options = idiom_index[idiom_index["first_norm"] == last_pinyin].index.tolist()
                     options = [option for option in options if option not in used and option != idiom]
                     if not options:
+                        chain.append("无匹配")
                         break
                     next_idiom = random.choice(options)
                     chain.append(next_idiom)
@@ -166,16 +81,16 @@ async def game_idiom(msg: Msg):
                     current_last_char = next_idiom[-1]
                 content = ",".join(chain) if chain else "无匹配成语"
             except ValueError:
-                content = "指令格式错误"
+                content = "指令格式错误，请使用'/成语,愚公移山,10'类似格式"
     elif len(parts) == 2:
-        idiom = parts[1]
+        idiom = parts[1].strip()
         last_char = idiom[-1]
         last_pinyin = pinyin(last_char, style=Style.NORMAL)[0][0]
         options = idiom_index[idiom_index["first_norm"] == last_pinyin].index.tolist()
         options = [option for option in options if option != idiom]
         content = random.choice(options) if options else "无匹配成语"
     else:
-        content = "格式错误"
+        content = "格式错误，请使用'/成语,愚公移山'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -185,7 +100,69 @@ async def game_idiom(msg: Msg):
         user=msg.user,
         group=msg.group,
     )
+    return content
 
+
+@monitor_adapter("/游戏_接龙_开始")
+async def game_idiom_start(msg: Msg):
+    """成语接龙开始"""
+    if "严格" in Msg.content_join(msg.content):
+        await data.status_add(msg.user, "成语", "同字")
+    else:
+        await data.status_add(msg.user, "成语", "同音")
+    content = "现在你可以输入任意内容，系统将自动进行接龙。输入'/成语接龙结束'退出此状态"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/游戏_接龙")
+async def game_idiom_chain(msg: Msg):
+    """成语接龙"""
+    info = await data.status_check(msg.user, "成语")
+    idiom = Msg.content_join(msg.content)
+    if info == "同字":
+        options = [option for option in idiom_index.index if option[0] == idiom[-1] and option != idiom]
+    else:
+        last_char = idiom[-1]
+        last_pinyin = pinyin(last_char, style=Style.NORMAL)[0][0]
+        options = idiom_index[idiom_index["first_norm"] == last_pinyin].index.tolist()
+        options = [option for option in options if option != idiom]
+    content = random.choice(options) if options else "无匹配成语"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/游戏_接龙_退出")
+async def game_idiom_end(msg: Msg):
+    """成语接龙退出"""
+    await data.status_delete(msg.user, "成语")
+    content = "退出成功"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
 
 def truth_prepare():
     """真心话大冒险预处理"""
@@ -197,6 +174,7 @@ def truth_prepare():
     return truths, dares
 
 
+@monitor_adapter("/游戏_真心话")
 async def game_truth(msg: Msg):
     """随机真心话"""
     question = random.choice(truth)
@@ -209,8 +187,10 @@ async def game_truth(msg: Msg):
         user=msg.user,
         group=msg.group,
     )
+    return question
 
 
+@monitor_adapter("/游戏_大冒险")
 async def game_dare(msg: Msg):
     """随机大冒险"""
     question = random.choice(dare)
@@ -223,6 +203,7 @@ async def game_dare(msg: Msg):
         user=msg.user,
         group=msg.group,
     )
+    return question
 
 
 idiom_full, idiom_index = idiom_prepare()

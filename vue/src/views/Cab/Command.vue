@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#指令'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#指令页'"/>
   <div class="command-manager">
     <div class="toolbar-wrapper">
       <div class="toolbar">
@@ -596,9 +596,12 @@ const loadInitialData = async () => {
   try {
     loading.value = true
     const response = await http.get('/commands')
+    if (response.data.status!=="success"){
+      alert("数据获取失败: "+response.data.data)
+      return
+    }
     
-    // 确保数据结构正确
-    const rawCommands = Array.isArray(response.data?.commands) ? response.data.commands : []
+    const rawCommands = response.data.data.commands
 
     idCounter = 1;
     
@@ -612,14 +615,17 @@ const loadInitialData = async () => {
     }))
     console.log(commands)
     
-    events.value = Array.isArray(response.data?.events) ? response.data.events : []
-    states.value = Array.isArray(response.data?.states) ? response.data.states : []
-    userOptions.value = Array.isArray(response.data?.users) ? response.data.users : []
-    groupOptions.value = Array.isArray(response.data?.groups) ? response.data.groups : []
+    events.value = response.data.data.events
+    states.value = response.data.data.states
+    userOptions.value = response.data.data.users
+    userOptions.value.push('社员')
+    userOptions.value.push('内阁')
+    userOptions.value.push('测试员')
+    groupOptions.value = response.data.data.groups
 
     // 自动分配颜色
     const map: Record<string, string> = {}
-    response.data.events?.forEach((event: string, index: number) => {
+    response.data.data.events?.forEach((event: string, index: number) => {
       map[event] = tagColorTypes[index % tagColorTypes.length]
     })
     messageTypeStyleMap.value = map
@@ -628,6 +634,9 @@ const loadInitialData = async () => {
     nextTick(() => {
       initGroupStates()
       initSortable()
+      Object.keys(groupStates.value).forEach(key => {
+        groupStates.value[key] = false
+      })
     })
     
   } catch (error: any) {
@@ -653,8 +662,12 @@ const handleSave = async () => {
       ...negativeCommands
     ]
     const payload = sortedCommands.map(({ id, ...rest }) => rest)
-    await http.put('/commands', payload)
-    ElMessage.success('配置保存成功!')
+    const res = await http.put('/commands', {commands:payload})
+    if (res.data.status==="success"){
+      ElMessage.success('配置保存成功!')
+    } else{
+      ElMessage.error('配置保存失败:' + res.data.data)
+    }
   } catch (error: any) {
     ElMessage.error('保存失败: ' + error.message)
   }

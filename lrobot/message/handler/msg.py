@@ -5,6 +5,18 @@ import time
 
 from config import config, loggers
 
+PATTERN_FIELDS = {
+    'text': 'text',
+    'at': 'qq',
+    'rps': 'result',
+    'dice': 'result',
+    'face': 'id',
+    'reply': 'id',
+    'record': 'file',
+    'video': 'file',
+    'file': 'file',
+    'json': 'prompt',
+}
 
 class Msg:
     """消息类"""
@@ -26,13 +38,13 @@ class Msg:
     def __init__(self, platform, event, kind, seq=None, content=None, user=None, group=None):
         """msg 类初始化函数"""
         # 自动生成 num
-        self.num = Msg._generate_num()
+        self.num = Msg._num_generate()
         # 初始化其他属性，统一为字符串
         self.platform = str(platform)
         self.event = str(event)
         self.kind = str(kind)
         self.seq = str(seq) if seq else None
-        self.content = self.content_disjoin(content) if content else None  # 自动转换成 list 格式
+        self.content = self.content_disjoin(content) if content else None  # 自动转换成消息段格式
         self.user = str(user) if user else None
         self.group = str(group) if group else None
         from message.handler.msg_pool import MsgPool
@@ -42,10 +54,10 @@ class Msg:
     def __repr__(self):
         """修改 print 方法"""
         attributes = {k: getattr(self, k) for k in self.__slots__ if getattr(self, k) is not None}
-        return json.dumps(attributes, ensure_ascii=False)
+        return json.dumps(attributes, ensure_ascii=False)[1:-1]
 
     @classmethod
-    def _generate_num(cls):
+    def _num_generate(cls):
         """生成唯一的 num"""
         current_timestamp = int(time.time()) * 1000  # 获取当前时间的时间戳
 
@@ -63,10 +75,10 @@ class Msg:
         """表情添加"""
         emojis = config["emojis"]
         face = emojis.get(face_id)
-        if not face:
+        if not face:  # 不在 emojis.yaml 内
             if not face_text:
                 loggers["message"].error(
-                    f"消息解析出错 : 无法解析的表情 ID -> {face_id}",
+                    f"[消息解析]失败-> 无法解析表情 ID: {face_id}",
                     extra={"event": "消息处理"},
                 )
                 face = "未知表情"
@@ -97,13 +109,13 @@ class Msg:
                 d: f"[转发:{'|'.join(cls.content_join(n.get('message', [])) for n in d.get('content', []))}]" if d.get(
                 "content") else f"[转发:{d.get('id')}]",
             "poke": lambda _: "[戳戳:戳一戳]",
-            "mface": lambda d: f"[动画表情:{d.get('summary', '未知的动画表情')}]",
+            "mface": lambda d: f"[动画表情:{d.get('summary', '未知动画表情')}]",
             "image": lambda d: f"[动画表情:{d['summary']}]" if d.get(
-                "summary") else f"[图片:{d.get('file', '未知的图片')}]",
-            "record": lambda d: f"[语音:{d.get('file', '未知的语音')}]",
-            "video": lambda d: f"[视频:{d.get('file', '未知的视频')}]",
-            "file": lambda d: f"[文件:{d.get('name') or d.get('file', '未知的文件')}]",
-            "json": lambda d: f"[卡片:{d.get('data', {}).get('prompt', '未知的卡片')}]",
+                "summary") else f"[图片:{d.get('file', '未知图片')}]",
+            "record": lambda d: f"[语音:{d.get('file', '未知语音')}]",
+            "video": lambda d: f"[视频:{d.get('file', '未知视频')}]",
+            "file": lambda d: f"[文件:{d.get('name') or d.get('file', '未知文件')}]",
+            "json": lambda d: f"[卡片:{d.get('data', {}).get('prompt', '未知卡片')}]",
             "node": lambda d: f"[节点:{cls.content_join(d.get('content', []))}]"
         }
         return "".join(
@@ -138,9 +150,12 @@ class Msg:
                 out.append(("文本", content[i:]))  # 把剩余当纯文本
                 break
 
-            prefix = content[i + 1: colon] if colon else "文本"
-            value = content[colon + 1: j - 1] if colon else content[i + 1: j - 1]
-            out.append((prefix, value))
+            if colon is None:  # 不是合法的 [prefix:value]
+                out.append(("文本", content[i:j]))
+            else:
+                prefix = content[i + 1: colon]
+                value = content[colon + 1: j - 1]
+                out.append((prefix, value))
             i = j
         return out
 
@@ -210,18 +225,7 @@ class Msg:
         return [handlers.get(p, lambda _: {"type": "text", "data": {"text": f"{p}:{v}"}})(v) for p, v in
                 cls._content_token_match(str(content))]
 
-    PATTERN_FIELDS = {
-        'text': 'text',
-        'at': 'qq',
-        'rps': 'result',
-        'dice': 'result',
-        'face': 'id',
-        'reply': 'id',
-        'record': 'file',
-        'video': 'file',
-        'file': 'file',
-        'json': 'prompt',
-    }
+
 
     @staticmethod
     def _seg_match(content_seg, pattern_seg, strict=False):
@@ -246,15 +250,15 @@ class Msg:
         if content_type == 'image':
             content_summary = content_data.get('summary')
             pattern_summary = pattern_data.get('summary')
-            # 必须两边都有 summary，一边有不行
-            if content_summary is not None or pattern_summary is not None:
-                if content_summary is None or pattern_summary is None:
+            # 必须两边都有 summary
+            if content_summary or pattern_summary:
+                if not content_summary or not pattern_summary:
                     return False
                 return pattern_summary in ('any', content_summary)
             return pattern_data.get('file') in ('any', content_data.get('file'))
 
         # 取出该类型需要比较的字段
-        field = Msg.PATTERN_FIELDS.get(content_type)
+        field = PATTERN_FIELDS.get(content_type)
         if field:
             content_val = content_data.get(field)
             pattern_val = pattern_data.get(field)

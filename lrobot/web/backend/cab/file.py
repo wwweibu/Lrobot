@@ -1,7 +1,9 @@
 """网盘相关操作"""
+
 import os
-import asyncio
+import json
 import shutil
+import asyncio
 import chardet
 import hashlib
 import tempfile
@@ -9,32 +11,33 @@ import mimetypes
 import threading
 import subprocess
 import pandas as pd
-from typing import List
 from pathlib import Path
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from fastapi.responses import FileResponse, StreamingResponse
-from fastapi import UploadFile, File, Request, HTTPException, APIRouter, Form, Depends, Response
+from fastapi import UploadFile, File, Request, Form, Response
 
-from config import path, loggers
-from .cookie import cookie_account_get
+from logic import remove_later
+from config import path, monitor_adapter
+from .base import APIRouter, Depends, R, website_logger, cookie_account_get, Dict, Query
 
-router = APIRouter()
-website_logger = loggers["website"]
 UPLOAD_DIR = path / "storage/file/clouddrive"
 RECYCLE_BIN = path / "storage/file/recycle"
+TEMP_CHUNKS_DIR = RECYCLE_BIN / ".temp_chunks"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 RECYCLE_BIN.mkdir(parents=True, exist_ok=True)
 FILE_INDEX = []  # 全局文件索引
 INDEX_LOCK = threading.Lock()
 
+router = APIRouter()
 
-def rebuild_index_async():
+
+def async_index_build():
     """异步构建索引"""
-    threading.Thread(target=build_index, args=(UPLOAD_DIR,), daemon=True).start()
+    threading.Thread(target=index_build, args=(UPLOAD_DIR,), daemon=True).start()
 
 
-def build_index(base_path: Path):
+def index_build(base_path: Path):
     """构建索引(7k,6s)"""
     with INDEX_LOCK:
         FILE_INDEX.clear()
@@ -43,7 +46,7 @@ def build_index(base_path: Path):
             for root, dirs, files in os.walk(base_path):
                 for name in dirs + files:
                     full_path = Path(root) / name
-                    futures.append(executor.submit(make_item, full_path, base_path))
+                    futures.append(executor.submit(item_make, full_path, base_path))
 
             for f in futures:
                 item = f.result()
@@ -51,7 +54,7 @@ def build_index(base_path: Path):
                     FILE_INDEX.append(item)
 
 
-def make_item(full_path: Path, base_path: Path):
+def item_make(full_path: Path, base_path: Path):
     """返回指定格式"""
     try:
         return {
@@ -65,19 +68,7 @@ def make_item(full_path: Path, base_path: Path):
         return None
 
 
-async def remove_later(path, delay=60):
-    """延迟删除文件"""
-    await asyncio.sleep(delay)
-    try:
-        os.remove(path)
-    except Exception as e:
-        website_logger.info(
-            f"删除文件失败: {path}", extra={"event": "文件删除"}
-        )
-        pass
-
-
-def get_folder_size(folder: Path) -> int:
+def folder_size_get(folder: Path):
     """递归计算文件夹总大小（字节）"""
     total = 0
     for f in folder.rglob("*"):
@@ -88,53 +79,104 @@ def get_folder_size(folder: Path) -> int:
     return total
 
 
-@router.post("/file")
-async def files_upload(
-    files: List[UploadFile] = File(...),
-    paths: str = Form(...),
+@router.post("/file/chunk")
+@monitor_adapter("#内阁_文件上传")
+async def file_chunk_upload(
+        file: UploadFile = File(...),
+        upload_id: str = Form(...),
+        filename: str = Form(...),
+        chunk_index: int = Form(...),
+        total_chunks: int = Form(...),
+        base_path: str = Form(""),
     account: str = Depends(cookie_account_get),
 ):
     """上传文件"""
     if not account:
         return
-    saved_files = []
-    target_dir = UPLOAD_DIR / paths
-    target_dir.mkdir(parents=True, exist_ok=True)
-    for file in files:
-        dest = target_dir / file.filename
-        if dest.exists():
-            raise HTTPException(403, f"文件已存在: {file.filename}")
-        with dest.open("wb") as f:
+
+        # 临时目录：UPLOAD_DIR/.temp_chunks/{upload_id}/
+    temp_dir = TEMP_CHUNKS_DIR / upload_id
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    # 使用固定宽度数字命名，保证排序正确
+    part_name = f"{chunk_index:06d}.part"
+    part_path = temp_dir / part_name
+
+    # 保存分片
+    try:
+        with part_path.open("wb") as f:
             shutil.copyfileobj(file.file, f)
-        saved_files.append(str((Path(paths) / file.filename)))
-        website_logger.info(
-            f"{account} 上传文件: {paths}/{file.filename}", extra={"event": "管理操作"}
-        )
-    rebuild_index_async()
-    return {"uploaded": saved_files}
+    except Exception as e:
+        return R(status="fail", data=f"保存分片失败: {e}")
+
+    # 如果是最后一个分片，进行合并
+    if chunk_index == total_chunks - 1:
+        try:
+            # 检查所有分片是否存在
+            for i in range(total_chunks):
+                p = temp_dir / f"{i:06d}.part"
+                if not p.exists():
+                    return R(status="fail", data=f"缺少分片: {i}")
+
+            # 目标目录
+            target_dir = UPLOAD_DIR / base_path if base_path else UPLOAD_DIR
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest = target_dir / filename
+
+            if dest.exists():
+                # 清理临时分片并返回错误，避免残留
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                return R(status="fail", data=f"文件已存在: {filename}")
+
+            # 合并分片
+            with dest.open("wb") as outfile:
+                for i in range(total_chunks):
+                    part_file = temp_dir / f"{i:06d}.part"
+                    with part_file.open("rb") as pf:
+                        shutil.copyfileobj(pf, outfile)
+
+            # 清理临时分片
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+            saved_files = [str((Path(base_path) / filename)) if base_path else str(Path(filename))]
+            website_logger.info(f"[文件上传]{account}-> {str(Path(base_path) / filename)}",
+                                extra={"event": "网页日志"})
+
+            # 触发索引（保持原有逻辑）
+            async_index_build()
+
+            return R(status="success", data=saved_files)
+        except Exception as e:
+            # 出错时尝试清理临时文件
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return R(status="fail", data=f"合并分片失败: {e}")
+
+    # 非最后分片只返回上传成功
+    return R(status="success", data=f"chunk {chunk_index} uploaded")
 
 
 @router.delete("/file")
-async def files_delete(request: Request, account: str = Depends(cookie_account_get)):
+@monitor_adapter("#内阁_文件删除")
+async def files_delete(data: str = Query(...), account: str = Depends(cookie_account_get)):
     """删除文件"""
     if not account:
         return
-    data = await request.json()
-    path = data["path"].lstrip("/\\")
+    data_dict = json.loads(data)
+    file_path = data_dict["path"].lstrip("/\\")
     try:
-        target_path = UPLOAD_DIR / path
+        target_path = UPLOAD_DIR / file_path
         if target_path == UPLOAD_DIR:
-            raise HTTPException(403, "不能删除根目录")
+            return R(status="fail", data="不能删除根目录")
         resolved_path = target_path.resolve()
         if not resolved_path.is_relative_to(UPLOAD_DIR.resolve()):
-            raise HTTPException(400, "非法路径访问")
+            return R(status="fail", data="非法路径访问")
 
         # 安全验证
-        if ".." in path.split("/"):
-            raise HTTPException(400, "路径包含非法字符")
+        if ".." in file_path.split("/"):
+            return R(status="fail", data="路径包含非法字符")
 
         if not target_path.exists():
-            raise HTTPException(404, "路径不存在")
+            return R(status="fail", data="路径不存在")
 
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         new_name = f"{target_path.name}_{timestamp}"
@@ -144,120 +186,154 @@ async def files_delete(request: Request, account: str = Depends(cookie_account_g
         shutil.move(str(target_path), str(recycle_path))
 
         website_logger.info(
-            f"{account} 删除文件: {str(target_path)}", extra={"event": "管理操作"}
+            f"[文件删除]{account}-> {str(target_path)}", extra={"event": "网页日志"}
         )
 
-        rebuild_index_async()
-
-        return {"status": "success", "deleted_path": str(target_path)}
+        async_index_build()
+        return R(status="success", data=str(target_path))
 
     except PermissionError:
-        raise HTTPException(403, "没有删除权限")
+        return R(status="fail", data="没有删除权限")
     except Exception as e:
-        raise HTTPException(500, f"删除操作失败: {str(e)}")
+        website_logger.error(f"[文件页]删除失败-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+        return R(status="fail", data=f"删除操作失败: {str(e)}")
 
 
-@router.post("/file/folders")
-async def file_folders_upload(
-    files: List[UploadFile] = File(...),
-    paths: List[str] = Form(...),
+@router.post("/file/folders/chunk")
+@monitor_adapter("#内阁_文件夹上传")
+async def file_folders_chunk_upload(
+        file: UploadFile = File(...),
+        upload_id: str = Form(...),
+        filename: str = Form(...),
+        chunk_index: int = Form(...),
+        total_chunks: int = Form(...),
+        base_path: str = Form(""),
+        relative_path: str = Form(...),  # 相对于上传根目录的路径，例如 "dir1/sub/file.txt"
     account: str = Depends(cookie_account_get),
 ):
-    """上传文件夹"""
+    """接收文件夹内单个文件的分片并在接收最后一个分片时合并保存为相对路径文件。"""
     if not account:
         return
-    saved_files = []
-    print(files)
-    print(paths)
 
-    for file, relative_path in zip(files, paths):
-        # 构造完整保存路径
-        dest = UPLOAD_DIR / relative_path
+    temp_dir = TEMP_CHUNKS_DIR / upload_id
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    part_name = f"{chunk_index:06d}.part"
+    part_path = temp_dir / part_name
 
-        # 创建父目录
-        dest.parent.mkdir(parents=True, exist_ok=True)
-
-        # 保存文件
-        with dest.open("wb") as f:
+    try:
+        with part_path.open("wb") as f:
             shutil.copyfileobj(file.file, f)
+    except Exception as e:
+        return R(status="fail", data=f"保存分片失败: {e}")
 
-        saved_files.append(str(relative_path))
+    if chunk_index == total_chunks - 1:
+        try:
+            # 验证分片完整性
+            for i in range(total_chunks):
+                p = temp_dir / f"{i:06d}.part"
+                if not p.exists():
+                    return R(status="fail", data=f"缺少分片: {i}")
 
-        website_logger.info(
-            f"{account} 上传文件夹: {str(relative_path)}", extra={"event": "管理操作"}
-        )
-    rebuild_index_async()
+            # 目标文件路径（包含 base_path + relative_path）
+            full_rel = Path(relative_path)
+            target_dir = (UPLOAD_DIR / base_path / full_rel.parent) if base_path else (UPLOAD_DIR / full_rel.parent)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            dest = (target_dir / full_rel.name)
 
-    return {"uploaded": saved_files}
+            if dest.exists():
+                shutil.rmtree(temp_dir, ignore_errors=True)
+                return R(status="fail", data=f"文件已存在: {relative_path}")
+
+            with dest.open("wb") as outfile:
+                for i in range(total_chunks):
+                    part_file = temp_dir / f"{i:06d}.part"
+                    with part_file.open("rb") as pf:
+                        shutil.copyfileobj(pf, outfile)
+
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+            saved_files = [str((Path(base_path) / relative_path)) if base_path else str(Path(relative_path))]
+            website_logger.info(f"[文件夹上传]{account}-> {saved_files[0]}", extra={"event": "网页日志"})
+
+            async_index_build()
+            return R(status="success", data=saved_files)
+        except Exception as e:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return R(status="fail", data=f"合并分片失败: {e}")
+
+    return R(status="success", data=f"chunk {chunk_index} uploaded")
+
 
 
 @router.post("/file/new_folders")
+@monitor_adapter("#内阁_文件夹新建")
 async def file_folders_create(
-    request: Request, account: str = Depends(cookie_account_get)
+        data: Dict, account: str = Depends(cookie_account_get)
 ):
     """新建文件夹"""
     if not account:
         return
-    data = await request.json()
-    path = data["path"].lstrip("/\\")
-    full_path = UPLOAD_DIR / path
+    file_path = data["path"].lstrip("/\\")
+    full_path = UPLOAD_DIR / file_path
     full_path = full_path.resolve()
     # 防止路径跳出上传目录
     if not str(full_path).startswith(str(UPLOAD_DIR.resolve())):
-        raise HTTPException(status_code=400, detail="Invalid path")
+        return R(status="fail", data="非法路径")
 
     full_path.mkdir(parents=True, exist_ok=True)
     website_logger.info(
-        f"{account} 新建文件夹:{str(full_path)}", extra={"event": "管理操作"}
+        f"[文件夹新建]{account}-> {str(full_path)}", extra={"event": "网页日志"}
     )
-    rebuild_index_async()
-    return {"path": str(full_path)}
+    async_index_build()
+    return R(status="success", data=str(full_path))
 
 
-@router.get("/file/search")
-async def files_search(path: str, keyword: str):
+@router.post("/file/search")
+async def files_search(data: Dict):
     """搜索文件"""
-    if path == "none":
-        path = ""
+    file_path = data["path"]
+    keyword = data["keyword"]
+    if file_path == "none":
+        file_path = ""
     keyword_lower = keyword.lower()
     result = [
         item for item in FILE_INDEX
-        if item["path"].startswith(path)  # 只在 path 子目录下搜索
+        if item["path"].startswith(file_path)  # 只在 path 子目录下搜索
            and keyword_lower in item["name"].lower()
     ]
-    return {"items": result}
+    return R(status="success", data=result)
 
 
 @router.put("/file/rename")
-async def files_rename(request: Request, account: str = Depends(cookie_account_get)):
+@monitor_adapter("#内阁_文件重命名")
+async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     """重命名文件"""
     if not account:
         return
-    data = await request.json()
     old_path = data["old_path"]
     new_path = data["new_path"]
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
 
     if not old_item.exists():
-        raise HTTPException(status_code=404, detail="原文件不存在")
+        return R(status="fail", data="原文件不存在")
     if new_item.exists():
-        raise HTTPException(status_code=409, detail="目标文件已存在")
+        return R(status="fail", data="目标文件已存在")
 
     website_logger.info(
-        f"{account} 重命名文件: {old_item} -> {new_item}", extra={"event": "管理操作"}
+        f"[文件重命名]{account}-> {old_item}: {new_item}", extra={"event": "网页日志"}
     )
     old_item.rename(new_item)
-    rebuild_index_async()
-    return {"new_path": str(new_item)}
+    async_index_build()
+    return R(status="success", data=f"原路径: {old_item} 目标路径: {new_item}")
 
 
 @router.post("/file/move")
-async def files_move(request: Request, account: str = Depends(cookie_account_get)):
+@monitor_adapter("#内阁_文件移动")
+async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     """移动文件"""
     if not account:
         return
-    data = await request.json()
     src_path = data["src_path"]
     dst_path = data["dst_path"]
     src_item = UPLOAD_DIR / src_path
@@ -265,13 +341,14 @@ async def files_move(request: Request, account: str = Depends(cookie_account_get
 
     shutil.move(str(src_item), str(dst_item))
     website_logger.info(
-        f"{account} 移动文件: {str(src_item)} -> {str(dst_item)}",
-        extra={"event": "管理操作"},
+        f"[文件移动]{account}-> {str(src_item)}: {str(dst_item)}",
+        extra={"event": "网页日志"},
     )
-    rebuild_index_async()
-    return {"new_path": str(dst_item)}
+    async_index_build()
+    return R(status="success", data=f"原目录:{src_item} 目标目录: {dst_item}")
 
-def get_unique_pdf_name(doc_path):
+
+def unique_pdf_name_get(doc_path):
     """获取唯一文件名（根据内容生成哈希)"""
     file_hash = hashlib.md5(doc_path.read_bytes()).hexdigest()[:8]
     base_name = doc_path.stem  # 不含后缀的文件名
@@ -279,10 +356,9 @@ def get_unique_pdf_name(doc_path):
 
 
 @router.post("/file/preview")
-async def files_preview(body: dict):
+async def files_preview(data: dict):
     """文件预览"""
-    print(body)
-    file_path = body["path"][0]
+    file_path = data["path"][0]
     full_path = UPLOAD_DIR / file_path
     if not full_path.exists():
         return {"error": "文件不存在"}
@@ -291,6 +367,7 @@ async def files_preview(body: dict):
     mime_type, _ = mimetypes.guess_type(str(full_path))
     mime_type = mime_type or "application/octet-stream"
 
+    # 类型转文本
     if full_path.suffix.lower() in [".asp", ".md", ".cfm", ".inc", ".dat", ".data", ".ini", ".lst", ".obj", ".xml",
                                     ".yaml", ".raw", ".log", ".yml"]:
         mime_type = "text/plain"
@@ -307,7 +384,7 @@ async def files_preview(body: dict):
         "application/wps-office.wps",
         "application/vnd.ms-works",  # .wps
     ]:
-        pdf_filename = get_unique_pdf_name(full_path)
+        pdf_filename = unique_pdf_name_get(full_path)
         pdf_path = RECYCLE_BIN / pdf_filename
 
         if not pdf_path.exists():
@@ -322,13 +399,12 @@ async def files_preview(body: dict):
         generated_pdf = RECYCLE_BIN / full_path.with_suffix(".pdf").name
         if generated_pdf.exists():
             generated_pdf.rename(pdf_path)
-        print("PDF size:", pdf_path.stat().st_size)
         return FileResponse(
             str(pdf_path), media_type="application/pdf", filename=pdf_path.name
         )
 
     if mime_type == "application/vnd.ms-excel":
-        xlsx_filename = get_unique_pdf_name(full_path)
+        xlsx_filename = unique_pdf_name_get(full_path)
         xlsx_path = RECYCLE_BIN / xlsx_filename
         if not xlsx_path.exists():
             df = pd.read_excel(full_path, sheet_name=None)
@@ -342,7 +418,7 @@ async def files_preview(body: dict):
         )
 
     # 文本类：探测编码 → 转 UTF-8
-    if mime_type.startswith("text/") or mime_type == "text/markdown":
+    if mime_type.startswith("text/"):
         raw = await asyncio.to_thread(full_path.read_bytes)
         enc = chardet.detect(raw)["encoding"] or "utf-8"
         try:
@@ -357,9 +433,9 @@ async def files_preview(body: dict):
 
 
 @router.get("/file/stream_video")
-async def files_stream_preview(request: Request, path: str):
+async def files_stream_preview(request: Request, file_path: str = Query(...)):
     """视频流式预览"""
-    full_path = UPLOAD_DIR / path
+    full_path = UPLOAD_DIR / file_path
     if not full_path.exists():
         return {"error": "视频不存在"}
 
@@ -443,19 +519,19 @@ async def files_stream_preview(request: Request, path: str):
             "Content-Range": f"bytes {start}-{end}/{file_size}",
             "Accept-Ranges": "bytes",
             "Content-Length": str(chunk_size),
-            "Content-Type": "video/mp4",  # 可根据后缀动态设置
+            "Content-Type": "video/mp4",
             "Cache-Control": "public, max-age=3600",  # 加快浏览器重复加载
         },
     )
 
 
-@router.get("/file/download/{path:path}")
-async def download_file(path: str):
+@router.get("/file/download/{file_path:path}")
+async def download_file(file_path: str):
     """下载文件"""
-    file_path = (UPLOAD_DIR / path).resolve()
+    file_path = (UPLOAD_DIR / file_path).resolve()
 
     if not str(file_path).startswith(str(UPLOAD_DIR)):
-        raise HTTPException(status_code=403, detail="非法路径")
+        return R(status="fail", data="非法路径")
 
     if file_path.is_file():
         return FileResponse(
@@ -465,12 +541,9 @@ async def download_file(path: str):
         )
 
     elif file_path.is_dir():
-        folder_size = get_folder_size(file_path)
+        folder_size = folder_size_get(file_path)
         if folder_size > 2 * 1024 * 1024 * 1024:
-            raise HTTPException(
-                status_code=400,
-                detail="文件夹总大小大于2GB，请单独下载内容"
-            )
+            return R(status="fail", data="文件夹总大小大于2GB，请单独下载内容")
         tmp_dir = tempfile.gettempdir()
         zip_name = file_path.name + ".zip"
         zip_path = os.path.join(tmp_dir, zip_name)
@@ -487,15 +560,15 @@ async def download_file(path: str):
         )
 
 
-@router.get("/file/{path:path}")
-async def files_get(path: str = ""):
+@router.get("/file/{file_path:path}")
+async def files_get(file_path: str = ""):
     """访问文件夹目录"""
-    if path == "none":
-        path = ""
-    base_path = UPLOAD_DIR / path
+    if file_path == "none":
+        file_path = ""
+    base_path = UPLOAD_DIR / file_path
 
     if not base_path.exists():
-        raise HTTPException(status_code=404, detail="Path not found")
+        return R(status="fail", data="页面不存在")
 
     items = []
     for item in base_path.iterdir():
@@ -508,7 +581,7 @@ async def files_get(path: str = ""):
                 "size": item.stat().st_size if item.is_file() else 0,
             }
         )
-    return {"items": items}
+    return R(status="success", data=items)
 
 
-build_index(UPLOAD_DIR)
+index_build(UPLOAD_DIR)

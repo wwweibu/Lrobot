@@ -1,13 +1,12 @@
 """数据库面板"""
 
 from typing import List
-from fastapi.responses import JSONResponse
-from fastapi import Request, WebSocket, WebSocketDisconnect, APIRouter, Depends
-from .cookie import cookie_account_get
-from config import database_update, database_query, loggers
+from fastapi import WebSocket, WebSocketDisconnect
+
+from config import database_update, database_query, monitor_adapter
+from .base import APIRouter, Depends, R, website_logger, cookie_account_get, Dict
 
 router = APIRouter()
-website_logger = loggers["website"]
 database_connections: List[WebSocket] = []  # 数据库 ws 连接
 
 
@@ -18,62 +17,78 @@ async def database_get():
     query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{db_name}' AND table_type = 'BASE TABLE'"
     result = await database_query(query)
     table_names = [row["TABLE_NAME"] for row in result]
+    if "user_information" in table_names:
+        table_names.remove("user_information")
+        table_names.insert(0, "user_information")
     all_data = {}
     for table in table_names:
         try:
             rows = await database_query(f"SELECT * FROM {table}")
             all_data[table] = rows
         except Exception as e:
-            all_data[table] = {"error": str(e)}
-    return {"tables": table_names, "data": all_data}
+            website_logger.error(f"[数据页]获取错误-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+            return R(status="fail", data=str(e))
+    return R(status="success", data={"tables": table_names, "data": all_data})
 
 
 @router.put("/database")
-async def database_renew(request: Request, account: str = Depends(cookie_account_get)):
+@monitor_adapter("#内阁_数据更新")
+async def database_renew(data: Dict, account: str = Depends(cookie_account_get)):
     """更新数据库"""
     if not account:
         return
-    payload = await request.json()
-    table_name = payload.get("table_name")
-    action = payload.get("action")
+    table_name = data["table_name"]
+    action = data["action"]
 
     if not table_name or not action:
-        return JSONResponse(
-            status_code=400, content={"error": "Missing table_name or action"}
-        )
+        return R(status="fail", data="表名和操作缺失")
 
     if action == "update_cell":
-        row_id = payload.get("row_id")
-        column = payload.get("column")
-        value = payload.get("value")
+        row_id = data["row_id"]
+        column = data["column"]
+        value = data["value"]
         if column == "id":
-            raise Exception("不允许修改主键字段 'id'")
+            return R(status="fail", data="不允许修改id字段")
         query = f"UPDATE {table_name} SET {column} = %s WHERE id = %s"
-        await database_update(query, (value, row_id))
+        try:
+            await database_update(query, (value, row_id))
+        except Exception as e:
+            website_logger.error(f"[数据页]更新错误-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+            return R(status="fail", data=str(e))
         website_logger.info(
-            f"[{account}] 更新数据库: {table_name},{value},{row_id},{column}",
-            extra={"event": "管理操作"},
+            f"[数据库更新]{account}-> {table_name},{value},{row_id},{column}",
+            extra={"event": "网页日志"},
         )
+
+        return R(status="success", data=f"{table_name},{value},{row_id},{column}")
 
     elif action == "add_row":
         query = f"INSERT INTO {table_name} () VALUES ()"
-        await database_update(query)
+        try:
+            await database_update(query)
+        except Exception as e:
+            website_logger.error(f"[数据页]新增行错误-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+            return R(status="fail", data=str(e))
         website_logger.info(
-            f"[{account}] 更新数据库: {table_name},新增行", extra={"event": "管理操作"}
+            f"[数据库更新]{account}-> {table_name},新增行", extra={"event": "网页日志"}
         )
+        return R(status="success", data=f"{table_name}新增行")
 
     elif action == "delete_row":
-        row_id = payload.get("row_id")
+        row_id = data["row_id"]
         query = f"DELETE FROM {table_name} WHERE id = %s"
-        await database_update(query, (row_id,))
+        try:
+            await database_update(query, (row_id,))
+        except Exception as e:
+            website_logger.error(f"[数据页]删除行错误-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+            return R(status="fail", data=str(e))
         website_logger.info(
-            f"[{account}] 更新数据库: {table_name},删除行", extra={"event": "管理操作"}
+            f"[数据库更新]{account}-> {table_name},删除行", extra={"event": "网页日志"}
         )
+        return R(status="success", data=f"{table_name}删除行")
 
     else:
-        return JSONResponse(status_code=400, content={"error": "Unknown action type"})
-
-    return JSONResponse(content={"status": "success"})
+        return R(status="fail", data="未知操作")
 
 
 @router.websocket("/database/ws")
@@ -93,5 +108,8 @@ async def broadcast_db_update():
     for connection in database_connections:
         try:
             await connection.send_text("database_updated")
-        except Exception:
+        except Exception as e:
+            website_logger.error(
+                f"[数据页]ws 连接错误-> {type(e).__name__}: {e}", extra={"event": "网页日志"}
+            )
             database_connections.remove(connection)

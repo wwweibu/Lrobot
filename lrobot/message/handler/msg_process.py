@@ -5,7 +5,7 @@ import traceback
 from config import config, loggers
 from message.handler.msg import Msg
 from message.handler.msg_send import msg_send
-from logic import status_check, user_identify, command
+from logic import status_check, user_identify, command, user_nickname_transform
 
 msg_logger = loggers["message"]
 
@@ -17,21 +17,24 @@ async def msg_process(msg):
     except Exception as e:
         content_str = Msg.content_join(msg.content) or msg.kind
         msg_logger.error(
-            f"⌈{msg.num}⌋出错: '{content_str}' -> {e}",
+            f"[消息处理]错误-> '{content_str}': {e}",
             extra={"event": "消息处理"},
         )
-        loggers["system"].error(traceback.format_exc(), extra={"event": "错误堆栈"})
+        loggers["system"].debug(f"[消息处理]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
+                                extra={"event": "错误堆栈"})
 
 
 async def safe_msg_process(msg: Msg):
     """消息处理"""
-    print(msg)  # 调试用
+    msg_logger.debug(f"{msg}", extra={"event": "消息处理"})
 
     content_str = Msg.content_join(msg.content) or msg.kind
 
     if msg.event == "处理":
+        user_name = await user_nickname_transform(msg.user, msg.platform)
+        user_name = user_name if user_name else msg.user
         msg_logger.info(
-            f"⌈{msg.platform}⌋: {msg.kind} -> {content_str}",
+            f"[{msg.kind}]⌈{msg.platform}⌋处理-> {user_name}: {content_str}",
             extra={"event": "消息处理"},
         )
         for commands in config["commands"]:

@@ -1,11 +1,10 @@
 """WECHAT API 调用"""
 
-import os
 import mimetypes
 from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
-from logic import image_compress, video_compress, record_compress, file_name_overwrite
+from logic import image_compress, video_compress, record_compress, file_download, text_to_image, image_merge
 from config import (
     config,
     future,
@@ -13,6 +12,7 @@ from config import (
     connect,
     database_query,
     database_update,
+    path
 )
 
 base_url = "https://api.weixin.qq.com/cgi-bin/"
@@ -22,30 +22,30 @@ adapter_logger = loggers["adapter"]
 async def request_deal(url, data, tag, files=None):
     """请求统一处理"""
     data["access_token"] = access_tokens["WECHAT"]["token"]
-    client = connect(True)
-    try:
-        response = await client.post(f"{base_url}{url}", params=data, files=files, timeout=60 if files else 15)
-    except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {data}")
+    async with connect(True) as client:
+        try:
+            response = await client.post(f"{base_url}{url}", params=data, files=files, timeout=60 if files else 15)
+        except Exception as e:
+            raise Exception(f"[{tag}]⌈WECHAT⌋请求失败-> {type(e).__name__}: {e} | 数据: {data}")
 
-    if response.status_code != 200:
-        raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {data}"
-        )
-
-    content_type = response.headers.get("Content-Type", "")
-    if "application/json" in content_type or response.text.strip().startswith("{"):
-        json_resp = response.json()
-        if "errcode" in json_resp:
-            errmsg = json_resp.get("errmsg", "未知错误")
+        if response.status_code != 200:
             raise Exception(
-                f"{tag} 请求失败 -> errcode: {json_resp['errcode']} | errmsg: {errmsg} | data: {data}"
+                f"[{tag}]⌈WECHAT⌋请求失败-> {response.status_code}: {response.text} | 数据: {data}"
             )
 
-    adapter_logger.info(
-        f"[WECHAT] {tag} 成功 -> {data} | {response}",
-        extra={"event": "消息发送"},
-    )
+        content_type = response.headers.get("Content-Type", "")
+        if "application/json" in content_type or response.text.strip().startswith("{"):
+            json_resp = response.json()
+            if "errcode" in json_resp:
+                errmsg = json_resp.get("errmsg", "未知错误")
+                raise Exception(
+                    f"[{tag}]⌈WECHAT⌋请求失败-> 返回: {json_resp['errcode']}-{errmsg} | 数据: {data}"
+                )
+
+        adapter_logger.debug(
+            f"[{tag}]⌈WECHAT⌋-> {response} | {data}",
+            extra={"event": "消息发送"},
+        )
     return response
 
 
@@ -60,21 +60,7 @@ async def wechat_dispatch(
     <FromUserName><![CDATA[{config['WECHAT_SELF']}]]></FromUserName>
     <CreateTime>{seq[:-2] if kind.endswith("添加发送") else seq}</CreateTime>"""
 
-    if msg_type == "text":
-        send_content = ""
-        for item in content:
-            if item["type"] == "text":
-                send_content += item.get("data", {}).get("text", "").replace("\n", "。")  # 替换换行符  "\u2028"
-        base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
-        <Content><![CDATA[{send_content}]]></Content>\n"""
-
-    elif msg_type == "image":
-        file = data.get("file", "")
-        media_id = await wechat_file_upload(file, type=msg_type)
-        base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
-        <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
-
-    elif msg_type == "record":
+    if msg_type == "record":
         msg_type = "voice"
         file = data.get("file", "")
         media_id = await wechat_file_upload(file, type=msg_type)
@@ -121,6 +107,51 @@ async def wechat_dispatch(
                     <PicUrl><![CDATA[{picurl}]]></PicUrl>
                     <Url><![CDATA[{url}]]></Url>
                     </item></Articles>\n"""
+
+    else:
+        texts = [item["data"]["text"] for item in content if item["type"] == "text"]
+        images = [item["data"]["file"] for item in content if item["type"] == "image"]
+
+        tmp_files = []
+
+        if texts and images:
+            text_content = "\n\n".join(texts)
+            text_img = f"{path}/storage/file/user/wechat/text_{seq}.jpg"
+            await text_to_image(text_content, text_img)
+            tmp_files.append(text_img)
+            tmp_files.extend(images)
+
+            merged_img = f"{path}/storage/file/user/wechat/merged_{seq}.jpg"
+            await image_merge(tmp_files, merged_img)
+            media_id = await wechat_file_upload(merged_img, type="image")
+            base += f"""<MsgType><![CDATA[image]]></MsgType>
+                    <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+        elif texts:
+            text_content = "\n\n".join(texts)
+            if "\n" in text_content:
+                text_img = f"{path}/storage/file/user/wechat/text_{seq}.jpg"
+                await text_to_image(text_content, text_img)
+                media_id = await wechat_file_upload(text_img, type="image")
+                base += f"""<MsgType><![CDATA[image]]></MsgType>
+                        <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+            else:
+                send_content = text_content
+                base += f"""<MsgType><![CDATA[text]]></MsgType>
+                        <Content><![CDATA[{send_content}]]></Content>\n"""
+        elif images:
+            if len(images) == 1:
+                file = images[0]
+                media_id = await wechat_file_upload(file, type="image")
+                base += f"""<MsgType><![CDATA[image]]></MsgType>
+                            <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+            else:
+                # 多张图，缩放并合并
+                merged_img = f"{path}/storage/file/user/wechat/merged_{seq}.jpg"
+                await image_merge(images, merged_img)
+                media_id = await wechat_file_upload(merged_img, type="image")
+                base += f"""<MsgType><![CDATA[image]]></MsgType>
+                            <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+
     base += "</xml>"
     future.set(seq, base)
 
@@ -153,35 +184,29 @@ async def wechat_file_upload(file, type=None, url=None):
             mime_type,
         )
     }
-    response = await request_deal(url, params, "文件上传", files)
+    response = await request_deal(url, params, "私聊文件上传", files)
     media_id = (
         response.json().get("thumb_media_id")
         if type == "thumb"
         else response.json().get("media_id")
     )
     if not media_id:
-        raise Exception("wechat upload failed")
+        raise Exception("[文件上传]⌈WECHAT⌋请求失败-> 无 media_id")
     query = """
                 INSERT INTO user_media (filepath, media_id)
-                VALUES (%s, %s)
+                VALUES (%s, %s) AS new
                 ON DUPLICATE KEY UPDATE 
-                    media_id = VALUES(media_id),
+                    media_id = new.media_id,
                     wechat = CURRENT_TIMESTAMP
             """
     await database_update(query, (file, media_id))
     return media_id
 
 
-async def wechat_file_download(file, path):
+async def wechat_file_download(num, file, file_path):
     """文件下载"""
     url = "media/get"
     params = {"media_id": file}
-    response = await request_deal(url, params, "文件下载")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    path = file_name_overwrite(path)
-    with open(path, "wb") as f:
-        f.write(response.content)
-    loggers["message"].info(
-        f"⌈文件处理⌋: 文件下载 -> 下载成功 {path}",
-        extra={"event": "消息处理"},
-    )
+    response = await request_deal(url, params, "私聊文件下载")
+    await file_download(file_path, data=response.content)
+    future.set(num, response)

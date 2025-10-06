@@ -3,120 +3,169 @@
 import asyncio
 from config import path, future
 from message.handler.msg import Msg
-from logic import data
+
 
 
 async def test_1(msg: Msg):
     """测试函数"""
-    kind = msg.kind[:2]
-    msg = Msg(
-        platform="LR5921",
-        kind=f"私聊发送",
-        event="发送",
-        content=f"[语音:{path / 'storage/file/command/sparkle_2025-9-9_head.wav'}]",
-        seq=msg.seq,
-        user=msg.user,
-        group=msg.group
-    )
+    from .help import docs_merge
+    text1 = docs_merge("登录页", False)
+    print(text1)
+    print(1)
+    # msg = Msg(
+    #     platform=msg.platform,
+    #     kind=f"私聊发送",
+    #     event="发送",
+    #     content="\n\n".join(text1) + "\n\n" + "\n".join(text2) + "\n\n" + "\n".join(text3),
+    #     seq=msg.seq,
+    #     user=msg.user,
+    #     group=msg.group
+    # )
+    # response = await future.wait(msg.num, "测试超时!")
     #
-    # try:
-    #     _future = future.get(msg.num)
-    #     response = await asyncio.wait_for(_future, timeout=20)
-    #     print(response)
-    # except asyncio.TimeoutError:
-    #     print("111111111")
+    # response = await future.wait(msg.num, "测试超时!")
+    # print(response)
 
-
-# 以下为测试成功但没有使用的功能
-
-
-# elif "我不要看子雨了≧ ﹏ ≦" in msg.content and msg.qq != "2243208053":
-#     await group_photo(msg)
-async def group_photo(msg: Msg):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    absolute_path = os.path.join(script_dir, "../resources/1.jpg")
-    img = Image.open(absolute_path)
-    new_img = Image.new("RGB", (img.width, img.height), (255, 255, 255))
-    new_img.paste(img, (0, 0))
-    draw = ImageDraw.Draw(new_img)
-    # 选择字体（可以根据需要调整路径和大小）
-    font = ImageFont.truetype("STXINGKA.TTF", 240)
-    text = msg.content.replace("我不要看子雨了≧ ﹏ ≦", "").strip()
-    # 计算文本位置
-    bbox = draw.textbbox((0, 0), text, font=font)
-    text_width = bbox[2] - bbox[0]
-    text_x = (img.width - text_width) // 2
-    text_y = 100
-    # 在图片上添加文本
-    draw.text((text_x, text_y), text, fill="white", font=font)
-    new_absolute_path = os.path.join(script_dir, "../resources/2.jpg")
-    new_img.save(new_absolute_path)
-
-    msg.content = [{"type": "image", "data": {"file": new_absolute_path}}]
-    await msg_send(msg)
-
-
-# if 'test' in msg.content
-#     await password_jiemi(msg)
-async def password_jiemi(msg: Msg):
-    if "test1" in msg.content:
-        txt = msg.content.replace("test1", "").strip()
-        msg.content = fence_cipher_2(txt)
-        msg.content += "\n" + fence_cipher_4(txt)
-        await msg_send(msg)
-        return
-
-    txt = msg.content.replace("test", "").strip()
-    results = []
-    for shift in range(1, 26):
-        encrypted = ""
-        for char in txt:
-            if char.isalpha():  # 只加密字母
-                shift_base = ord("A") if char.isupper() else ord("a")
-                encrypted += chr((ord(char) - shift_base + shift) % 26 + shift_base)
-            else:
-                encrypted += char  # 非字母字符不变
-        results.append(encrypted)
-    msg.content = "\n".join(results)  # 合成字符串并以换行符分隔
-    await msg_send(msg)
-
-
-def fence_cipher_2(plain_text):
-    # 去掉空格和标点
-    plain_text = "".join(plain_text.split())
-
-    # 分组
-    groups = [plain_text[i: i + 2] for i in range(0, len(plain_text), 2)]
-
-    # 提取字符
-    result = []
-    for i in range(2):
-        for group in groups:
-            if i < len(group):
-                result.append(group[i])
-
-    return "".join(result)
-
-
-def fence_cipher_4(plain_text):
-    plain_text = "".join(plain_text.split())
-
-    # 创建四个列表
-    list1 = []  # 余1
-    list2 = []  # 余2
-    list3 = []  # 余3
-    list4 = []  # 整除4
-
-    for i, char in enumerate(plain_text):
-        if i % 4 == 0:
-            list1.append(char)  # 余1
-        elif i % 4 == 1:
-            list2.append(char)  # 余2
-        elif i % 4 == 2:
-            list3.append(char)  # 余3
-        else:
-            list4.append(char)  # 整除4
-
-    # 合并结果
-    result = "".join(list1 + list2 + list3 + list4)
-    return result
+# 小型音频识别
+# async def sparkle_record_deal(bv, today):
+#     """获取花火视频并处理"""
+#     today_wav = path / f"storage/file/command/sparkle_{today}.wav"
+#     if today_wav.exists():
+#         return str(today_wav)
+#     # 清理旧文件
+#     for file in (path / "storage/file/command").glob("sparkle_*.wav"):
+#         if file != today_wav:
+#             try:
+#                 file.unlink()
+#             except Exception as e:
+#                 msg_logger.error(
+#                     f"⌈文件处理⌋: 音频转换 -> 删除旧文件失败: {file} - {e}",
+#                     extra={"event": "消息处理"},
+#                 )
+#     # 下载视频
+#     msg = Msg(
+#         platform="BILI",
+#         kind="私聊视频下载",
+#         event="发送",
+#         content=bv,
+#     )
+#     try:
+#         _future = future.get(msg.num)
+#         dash = await asyncio.wait_for(_future, timeout=20)
+#     except asyncio.TimeoutError:
+#         raise Exception("私聊视频下载链接获取超时")
+#
+#     url = dash.get("audio", [])[0].get("baseUrl") if dash.get("audio", []) else None
+#     headers = {
+#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+#                       "(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+#         "Referer": "https://www.bilibili.com"
+#     }
+#     today_m4s = path / f"storage/file/command/sparkle_{today}.m4s"
+#     client = connect()
+#     async with client.stream("GET", url, headers=headers) as r:
+#         if r.status_code != 200:
+#             raise Exception(f"下载失败:{r.status_code}")
+#         with open(today_m4s, "wb") as f:
+#             async for chunk in r.aiter_bytes():
+#                 f.write(chunk)
+#     # 截取视频头部
+#     head_wav = str(today_m4s).replace(".m4s", "_head.wav")
+#     try:
+#         (
+#             ffmpeg
+#             .input(str(today_m4s), t=10)  # 截取前 10 秒
+#             .output(
+#                 head_wav,
+#                 format="wav",  # 指定容器为 wav
+#                 acodec="pcm_s16le",  # 16-bit PCM
+#                 ac=1,  # 单声道
+#                 ar="16000",  # 16kHz 采样率
+#             )
+#             .overwrite_output()
+#             .run(quiet=True, capture_stdout=True, capture_stderr=True)
+#         )
+#     except ffmpeg.Error as e:
+#         err_msg = e.stderr.decode("utf-8", errors="ignore") if e.stderr else str(e)
+#         msg_logger.error(f"⌈文件处理⌋: 音频转换 -> ffmpeg 失败 : {err_msg}", extra={"event": "消息处理"})
+#         raise
+#
+#     # 语音识别
+#     try:
+#         model = Model(str(path / "storage/file/command/vosk-model-small-cn-0.22"))
+#         wf = wave.open(head_wav, "rb")
+#         rec = KaldiRecognizer(model, wf.getframerate())
+#         rec.SetWords(True)
+#
+#         results = []
+#         while True:
+#             data = wf.readframes(4000)
+#             if len(data) == 0:
+#                 break
+#             if rec.AcceptWaveform(data):
+#                 results.append(json.loads(rec.Result()))
+#         results.append(json.loads(rec.FinalResult()))
+#
+#         target_end = None
+#         prev_word = None
+#         for res in results:
+#             if "result" not in res:
+#                 continue
+#             msg_logger.info(f"⌈文件处理⌋: 语音识别 -> 识别分段 : {res}", extra={"event": "消息处理"})
+#             for w in res["result"]:
+#                 word = w["word"]
+#                 # 如果上一个是 "过"，当前是 "呀/啊/牙"
+#                 if prev_word == "过" and any(ch in word for ch in ["呀", "啊", "牙"]):
+#                     target_end = w["end"]
+#                     break
+#                 prev_word = word
+#             if target_end:
+#                 break
+#
+#         if target_end is None:
+#             raise RuntimeError("未找到 '过呀' 相关位置")
+#
+#         msg_logger.info(
+#             f"⌈文件处理⌋: 识别完成 -> '过呀' 结束时间 {target_end:.2f}s",
+#             extra={"event": '消息处理'}
+#         )
+#     except Exception as e:
+#         msg_logger.error(
+#             f"⌈文件处理⌋: 语音识别失败 {e}",
+#             extra={"event": "消息处理"}
+#         )
+#         raise
+#     # 裁剪
+#     try:
+#         (
+#             ffmpeg
+#             .input(head_wav)
+#             .output(
+#                 str(today_wav),
+#                 t=target_end + 0.2,  # 保留“过呀”稍后一点
+#                 acodec="pcm_s16le",
+#                 ac=1,
+#                 ar=16000
+#             )
+#             .overwrite_output()
+#             .run(quiet=True)
+#         )
+#     except ffmpeg.Error as e:
+#         err_msg = e.stderr.decode("utf-8", errors="ignore") if e.stderr else str(e)
+#         msg_logger.error(
+#             f"⌈文件处理⌋: mp3 裁剪失败 : {err_msg}",
+#             extra={"event": "消息处理"}
+#         )
+#         raise
+#
+#     # 清理临时文件
+#     for tmp_file in [today_m4s, head_wav]:
+#         try:
+#             if os.path.exists(tmp_file):
+#                 os.remove(tmp_file)
+#         except Exception as e:
+#             msg_logger.error(
+#                 f"⌈文件处理⌋: 临时文件删除失败 {tmp_file} - {e}",
+#                 extra={"event": "消息处理"},
+#             )
+#     return str(today_wav)

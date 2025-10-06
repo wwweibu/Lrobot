@@ -29,15 +29,16 @@ def set_callback(signature, timestamp, nonce, echostr):
         hashcode = sha1.hexdigest()
 
         if hashcode == signature:  # 比对 signature 与计算出的 hashcode
-            adapter_logger.debug(f"⌈WECHAT⌋ 回调配置成功", extra={"event": "消息接收"})
+            adapter_logger.debug(f"[回调]⌈WECHAT⌋-> 成功: {signature},{timestamp},{nonce},{echostr}",
+                                 extra={"event": "消息接收"})
             return Response(content=echostr, media_type="text/plain")
         else:
             raise Exception(
-                f"回调配置错误 | 数据不完整: signature-{signature} timestamp-{timestamp} nonce-{nonce} echostr-{echostr}"
+                f"[回调配置]⌈WECHAT⌋请求失败-> 数据不完整: signature-{signature} timestamp-{timestamp} nonce-{nonce} echostr-{echostr}"
             )
 
     except Exception as e:
-        raise Exception(f"回调配置错误 | 错误: {e}")
+        raise Exception(f"[回调配置]⌈WECHAT⌋请求失败-> 错误: {type(e).__name__}: {e}")
 
 
 @router.post("/")
@@ -45,20 +46,19 @@ async def wechat_receive(request: Request):
     """接收微信发送的 XML 消息"""
     body = await request.body()
     xml_data = body.decode("utf-8")
-    adapter_logger.debug(f"⌈WECHAT⌋ {xml_data}", extra={"event": "消息接收"})
+    adapter_logger.debug(f"[接收]⌈WECHAT⌋{xml_data}", extra={"event": "消息接收"})
     seq = await wechat_msg_deal(xml_data)
     if not seq:  # 消息重复/取消订阅
-        adapter_logger.info(
-            f"⌈WECHAT⌋ 跳过消息 -> {xml_data}", extra={"event": "消息接收"}
+        adapter_logger.debug(
+            f"⌈WECHAT⌋{xml_data}", extra={"event": "消息去重"}
         )
         return
     try:
-        _future = future.get(seq)
-        response = await asyncio.wait_for(_future, timeout=15)
+        response = await future.wait(seq, timeout=15)
         return response
     except asyncio.TimeoutError:
         adapter_logger.error(
-            f"⌈WECHAT⌋ 消息超时 -> 消息: {xml_data}", extra={"event": "消息接收"}
+            f"⌈WECHAT⌋{xml_data}", extra={"event": "消息超时"}
         )
         return ""
 
@@ -76,9 +76,11 @@ async def wechat_msg_deal(data):
             kind = "私聊添加"
             content = ""
         elif event == "unsubscribe":
+            kind = "私聊删除"
             return ""
         elif event == "VIEW":
-            return ""  # 无法回复
+            kind = "菜单点击"
+            return ""  # 未认证无法回复
         else:
             return ""
     else:
@@ -171,8 +173,10 @@ async def wechat_msg_deal(data):
                     },
                 }
             ]
+        elif msg_type == "file":
+            return  # 无法下载文件
         else:
-            raise Exception(f" 未定义的消息类型 | 消息: {data}")
+            raise Exception(f"[消息接收]⌈WECHAT⌋请求失败-> 未定义的 MsgType: {data}")
 
     Msg(
         platform="WECHAT",

@@ -431,7 +431,7 @@ const fetchFileData = async (path) => {
 // 处理视频文件
 const handleVideoFile = (filename) => {
   fileType.value = 'video/mp4'
-  fileUrl.value = `/hjd/file/stream_video?path=${encodeURIComponent(filename)}`
+  fileUrl.value = `/hjd/file/stream_video?file_path=${encodeURIComponent(filename)}`
 }
 
 // 处理HEIC文件

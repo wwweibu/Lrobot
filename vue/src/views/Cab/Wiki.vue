@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2 使用指南/8功能开发/2页面功能#wiki'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#wiki页'"/>
   <div class="wiki-container">
     <!-- 侧边栏 -->
     <div class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
@@ -280,9 +280,12 @@ const currentPageHtml = computed(() =>
 
 // 加载页面数据
 const loadPages = async () =>{
+  
   const response = await http.get('/wiki')
-  pages.value = response.data
-  orderedPages.value = [...pages.value].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  if (response.data.status === 'success') {
+    pages.value = response.data.data
+    orderedPages.value = [...pages.value].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  }
 }
 
 const toggleSidebar = ()=> {
@@ -362,7 +365,7 @@ const saveGroupEdit = async () => {
       new_group: editingValue.value.trim()
     })
     
-    if (response.data.success) {
+    if (response.data.status==="success") {
       await loadPages()
       // 保持当前选中页面
       if (currentPage.value) {
@@ -373,7 +376,7 @@ const saveGroupEdit = async () => {
       }
       cancelNavEdit()
     } else {
-      alert(response.data.message || '更新失败')
+      alert(response.data.data || '更新失败')
     }
   } catch (error) {
     console.error('更新组名失败:', error)
@@ -390,7 +393,7 @@ const savePageTitleEdit = async () => {
       title: editingValue.value.trim() || null
     })
     
-    if (response.data.success) {
+    if (response.data.status==="success") {
       await loadPages()
       // 保持当前选中页面
       if (currentPage.value) {
@@ -401,7 +404,7 @@ const savePageTitleEdit = async () => {
       }
       cancelNavEdit()
     } else {
-      alert(response.data.message || '更新失败')
+      alert(response.data.data || '更新失败')
     }
   } catch (error) {
     console.error('更新标题失败:', error)
@@ -583,7 +586,7 @@ async function flushSortToBackend () {
   const newOrder = []
 
   Array.from(groupListEl.value?.children || []).forEach(groupEl => {
-    // 主页面（如果你把主页面也放到 nav-items 中，这里可以忽略；否则按之前逻辑）
+    // 主页面
     const mainEl = groupEl.querySelector('.nav-group-title')
     if (mainEl?.dataset.pageId) {
       const id = Number(mainEl.dataset.pageId)
@@ -609,7 +612,7 @@ async function flushSortToBackend () {
 
   orderedPages.value = newOrder
 
-  const payload = newOrder.map((p, idx) => ({ id: p.id, sort: idx + 1, group_name: p.group_name }))
+  const payload = {order:newOrder.map((p, idx) => ({ id: p.id, sort: idx + 1, group_name: p.group_name }))}
   await http.put('/wiki/sort', payload)
   await loadPages()
 }
@@ -666,7 +669,7 @@ function initSubPagesSortable () {
             page.group_name = toGroupName // 先更新本地，避免 UI 卡住
 
             try {
-              // ✅ 调用后端接口：移动页面到新组
+              // 调用后端接口：移动页面到新组
               await http.put('/wiki/move', {
                 id: pageId,
                 new_group: toGroupName
@@ -695,6 +698,9 @@ watch(groupedPages, () => {
 onMounted(async () => {
   await loadPages()
   openGroups.value = groupedPages.value.map(g => g.groupname)
+   if (orderedPages.value.length > 0) {
+    currentPage.value = orderedPages.value[0]
+  }
 
   await nextTick()
 
@@ -1144,6 +1150,9 @@ onBeforeUnmount(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .toolbar-actions{
+    margin-top: 2rem; /* 向下移动 0.5rem，可调整 */
+  }
   .sidebar {
     position: fixed;
     top: 0;

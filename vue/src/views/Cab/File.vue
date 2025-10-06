@@ -1,5 +1,5 @@
 <template> 
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#网盘'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#网盘页'"/>
   <div class="file-manager" @click="closeContextMenu">
     <!-- 面包屑 + 搜索框 容器 -->
     <div class="top-bar">
@@ -86,6 +86,7 @@
         <div @click="startRename">重命名</div>
         <div @click="startMove">移动到...</div>
         <div @click="moveToRoot">移动至根目录</div>
+        <div @click="jumpToDirectory">跳转到目录</div>
         <div @click.stop="handleDelete">删除</div>
       </template>
       <template v-else>
@@ -185,6 +186,26 @@ const iconMap = {
 }
 const folderIcon = '/icons/folder.png'
 
+// 跳转到对应目录
+const jumpToDirectory = () => {
+  const item = contextMenu.value.target
+  if (!item) return
+
+  if (item.is_dir) {
+    // 如果本身是目录，直接进入
+    currentPath.value = item.path
+  } else {
+    // 如果是文件，进入其所在目录
+    const parts = item.path.split('/')
+    parts.pop() // 去掉文件名
+    const dirPath = parts.join('/') || 'none'
+    currentPath.value = dirPath
+  }
+
+  loadData(currentPath.value)
+  contextMenu.value.visible = false
+}
+
 // 统一的交互事件处理函数
 const handleInteraction = (event) => {
   const { type, x, y, target } = event.detail
@@ -253,11 +274,16 @@ const loadData = async (path) => {
   const reqId = ++loadDataReqId
   try {
     const res = await http.get(`/file/${encodeURIComponent(path || 'none')}`,{timeout:15000})
-    if (reqId !== loadDataReqId) return
-    items.value = res.data.items
+    if (res.data.status==="success"){
+      if (reqId !== loadDataReqId) return
+      items.value = res.data.data
+    }else{
+      if (reqId !== loadDataReqId) return
+      alert('无法加载目录:'+ res.data.data)
+    }
   } catch (error) {
     if (reqId !== loadDataReqId) return
-    console.error('Error loading directory:', error)
+    alert('无法加载目录:'+ error)
   }
 }
 
@@ -311,11 +337,16 @@ const startRename = async () => {
   const newName = prompt('输入新名称', item.name)
   if (newName) {
     try {
-      await http.put('/file/rename', {
+      const res = await http.put('/file/rename', {
         old_path: item.path,
         new_path: newName
       })
-      loadData(currentPath.value)
+      if (res.data.status==="success"){
+        loadData(currentPath.value)
+      }
+      else{
+        alert('重命名失败:' + res.data.data||'网络异常，请稍后再试')
+      }
     } catch (error) {
       alert('重命名失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
@@ -327,11 +358,16 @@ const handleDelete = async () => {
   if (!confirm(`确定要永久删除 ${item.name} 吗？`)) return
   
   try {
-    await http.delete('/file', {
-      data: { path: item.path }
+    const res = await http.delete('/file', {
+      params: { data:JSON.stringify({path: item.path })}
     })
-    alert('删除成功')
-    loadData(currentPath.value)
+    if (res.data.status==="success"){
+      alert('删除成功')
+      loadData(currentPath.value)
+    }
+    else {
+      alert('删除失败'+(res.data.data || '网络异常，请稍后再试'))
+    }
   } catch (error) {
     alert(`删除失败: ${error.response?.data?.detail || error.message || '网络异常，请稍后重试'}`)
   } finally {
@@ -342,12 +378,17 @@ const handleDelete = async () => {
 const moveToRoot = async () => {
   const item = contextMenu.value.target
   try {
-    await http.post('/file/move', {
+    const res =await http.post('/file/move', {
       src_path: item.path,
       dst_path: item.name
     })
-    loadData(currentPath.value)
-    alert('移动成功')
+    if (res.data.status==="success"){
+      loadData(currentPath.value)
+      alert('移动成功')
+    }
+    else{
+      alert('移动失败: '+(res.data.data||'网络异常，请稍后重试'))
+    }
   } catch (error) {
     alert('移动失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
   } finally {
@@ -361,13 +402,13 @@ const handleDownload = async () => {
   try {
     const response = await http.get(`/file/download/${encodeURIComponent(item.path)}`, {
       responseType: 'blob',timeout:120000})
-
+    
     const contentType = response.headers['content-type']
     if (contentType && contentType.includes('application/json')) {
       // 说明是后端报错，解析 JSON
       const text = await response.data.text()
-      const errObj = JSON.parse(text)
-      alert('下载失败: ' + (errObj.detail || '未知错误'))
+      const json = JSON.parse(text)
+      alert('下载失败: ' + (json.data || '未知错误'))
       return
     }
     
@@ -388,7 +429,7 @@ const handleDownload = async () => {
         const errObj = JSON.parse(text)
         alert('下载失败: ' + (errObj.detail || '未知错误'))
       } catch (e) {
-        alert('下载失败: ' + error.message)
+        alert('下载失败: ' + error.message + e)
       }
     } else {
       alert('下载失败: ' + error.message)
@@ -427,10 +468,15 @@ const createNewFolder = async () => {
   const folderName = prompt('输入文件夹名称')
   if (folderName) {
     try {
-      await http.post('/file/new_folders', {
+      const res = await http.post('/file/new_folders', {
         path: `${currentPath.value === 'none' ? '' : currentPath.value}/${folderName}`
       })
-      loadData(currentPath.value)
+      if (res.data.status==="success"){
+        loadData(currentPath.value)
+      }
+      else{
+        alert('创建失败'+(res.data.data||'网络异常，请稍后重试'))
+      }
     } catch (error) {
       alert('创建失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
     }
@@ -466,72 +512,144 @@ const triggerFolderUpload = () => {
   folderInput.value.click()
 }
 
-const handleFileUpload = async (e) => {
-  const files = e.target.files
-  if (files.length === 0) return
+const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB
+const RETRY_LIMIT = 3;
+const CHUNK_TIMEOUT = 120000; // 单个 chunk 请求超时（毫秒）
 
-  try {
-    const formData = new FormData()
-    const basePath = currentPath.value === 'none' ? '' : currentPath.value
-    for (let i = 0; i < files.length; i++) {
-      formData.append('files', files[i])
+function generateUploadId() {
+  // 唯一 ID
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function uploadFileInChunks(file, basePath = '', relativePath = null) {
+  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  const uploadId = generateUploadId();
+  const endpoint = relativePath ? '/file/folders/chunk' : '/file/chunk';
+
+  for (let idx = 0; idx < totalChunks; idx++) {
+    const start = idx * CHUNK_SIZE;
+    const end = Math.min(start + CHUNK_SIZE, file.size);
+    const chunkBlob = file.slice(start, end);
+
+    const formData = new FormData();
+    // 字段名与后端保持一致
+    formData.append('file', chunkBlob, file.name);
+    formData.append('upload_id', uploadId);
+    formData.append('filename', file.name);
+    formData.append('chunk_index', String(idx));
+    formData.append('total_chunks', String(totalChunks));
+    formData.append('base_path', basePath); // 可为空字符串
+    if (relativePath) {
+      formData.append('relative_path', relativePath);
     }
-    formData.append('paths', basePath)
-    await http.post('/file', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+
+    let attempt = 0;
+    while (attempt < RETRY_LIMIT) {
+      try {
+        const res = await http.post(endpoint, formData, {
+          timeout: CHUNK_TIMEOUT,
+          // 不手动设置 boundary，axios 会自动处理；但保留原有 header 也可：
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        if (res?.data?.status === 'success') {
+          // 如果是最后一个分片，服务器返回已合并的文件路径数组
+          if (idx === totalChunks - 1) {
+            // 期望 res.data.data 是 saved_files 数组（与后端约定）
+            return res.data.data || [];
+          }
+          // 否则当前分片上传成功，进入下一个分片
+          break;
+        } else {
+          throw new Error(res?.data?.data || '服务器返回上传失败');
+        }
+      } catch (err) {
+        attempt++;
+        if (attempt >= RETRY_LIMIT) {
+          throw err;
+        }
+        // 指数退避（或固定延迟）
+        await sleep(1000 * attempt);
       }
-    })
-    loadData(currentPath.value)
-  } catch (error) {
-    alert('上传失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
-  } finally {
-    e.target.value = ''
+    }
   }
+
+  // 理论上不会到达此处（因为最后一个分片返回了结果）
+  return [];
 }
 
-const handleFolderUpload = async (e) => {
-  const files = e.target.files
-  if (files.length === 0) return
+const handleFileUpload = async (e) => {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
 
-  // 计算总大小
-  let totalSize = 0
-  Array.from(files).forEach(file => {
-    totalSize += file.size
-  })
-
-  if (totalSize > MAX_SIZE) {
-    alert(`上传文件夹总大小不能超过 2GB，当前 ${(totalSize / 1024 / 1024).toFixed(2)}MB`)
-    e.target.value = '' // 清空选择
-    return
-  }
+  const basePath = currentPath.value === 'none' ? '' : currentPath.value;
 
   try {
-    const formData = new FormData()
-    const basePath = currentPath.value === 'none' ? '' : currentPath.value
-    
-    Array.from(files).forEach(file => {
-      const relativePath = file.webkitRelativePath || file.name
-      const fullPath = basePath ? `${basePath}/${relativePath}` : relativePath
-      formData.append('paths', fullPath)
-      formData.append('files', file)
-    })
-    console.log(1234)
+    // 为避免并发过多导致浏览器异常，按文件顺序上传（可按需改为并发）
+    for (const file of files) {
+      // 单个文件大小超过一定阈时仍按分片上传，分片逻辑也适用于小文件
+      await uploadFileInChunks(file, basePath, null);
+    }
 
-    await http.post('/file/folders', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },timeout:60000
-    })
-    
-    loadData(currentPath.value)
-    alert('文件夹上传成功')
+    // 上传完成后刷新目录
+    loadData(currentPath.value);
   } catch (error) {
-    alert('上传失败: ' + (error.response?.data?.detail || error.message || '网络异常，请稍后重试'))
+    console.error('分片上传失败：', error);
+    alert(
+      '上传失败: ' +
+        (error.response?.data?.detail ||
+          error.response?.data ||
+          error.message ||
+          '网络异常，请稍后重试')
+    );
   } finally {
-    e.target.value = ''
+    e.target.value = '';
   }
-}
+};
+
+const MAX_SIZE = 2 * 1024 * 1024 * 1024;
+const handleFolderUpload = async (e) => {
+  const files = Array.from(e.target.files || []);
+  console.log(files)
+  if (files.length === 0) return;
+
+  // 计算总大小并判断限制（保持原有校验逻辑）
+  let totalSize = 0;
+  files.forEach((file) => (totalSize += file.size));
+  if (totalSize > MAX_SIZE) {
+    alert(`上传文件夹总大小不能超过 2GB，当前 ${(totalSize / 1024 / 1024).toFixed(2)}MB`);
+    e.target.value = '';
+    return;
+  }
+
+  const basePath = currentPath.value === 'none' ? '' : currentPath.value;
+
+  // 将文件按顺序上传，每个 file 需要其 webkitRelativePath（或 file.name）
+  try {
+    for (const file of files) {
+      const relativePath = file.webkitRelativePath || file.name;
+      await uploadFileInChunks(file, basePath, relativePath);
+    }
+
+    loadData(currentPath.value);
+    alert('文件夹上传成功');
+  } catch (error) {
+    console.error('分片上传失败：', error);
+    alert(
+      '上传失败: ' +
+        (error.response?.data?.detail ||
+          error.response?.data ||
+          error.message ||
+          '网络异常，请稍后重试')
+    );
+  } finally {
+    e.target.value = '';
+  }
+};
 
 // 时间格式化
 const formatDate = (isoString) => {
@@ -559,14 +677,18 @@ const handleSearch = async () => {
   }
 
   try {
-    const res = await http.get('/file/search', {
-      params: {
+    const res = await http.post('/file/search', 
+      {
         path: currentPath.value,
         keyword
       },
-      timeout: 60000
+      {timeout: 60000
     })
-    items.value = res.data.items
+    if (res.data.status==="success"){
+      items.value = res.data.data
+    }else{
+      alert('搜索失败: ' + (res.data.data||'网络异常，请稍后重试'))
+    }
   } catch (error) {
     alert('搜索失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
   }

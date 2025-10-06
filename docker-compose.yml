@@ -10,6 +10,7 @@ services:
       - ./lrobot/web/frontend:/app/web/frontend  # vue 的打包文件热更新
       - ./config.py:/app/config.py  # 挂载这个为了共享函数而不是热更新
       - ./secret.py:/app/secret.py  # 同上
+      - /var/run/docker.sock:/var/run/docker.sock  # docker 环境
     environment:
       - TZ=Asia/Shanghai  # 时区-上海
       - PYTHONUNBUFFERED=1  # 不使用缓冲
@@ -40,13 +41,23 @@ services:
     volumes:
       - ./config.py:/app/config.py
       - ./storage/yml:/app/storage/yml  # 配置信息
-      - ./storage/lrobot.pem:/app/storage/lrobot.pem  # 密钥
-    restart: always # 自动重启
     environment:
       - TZ=Asia/Shanghai
     depends_on:
       - mongodb
       - mysql
+
+  napcat_log:
+    build: ./napcat_log
+    container_name: napcat_log
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config.py:/app/config.py
+      - ./storage/yml:/app/storage/yml
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - napcat
 
   mongodb:
     image: mongo:4.4

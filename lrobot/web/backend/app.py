@@ -18,16 +18,18 @@ app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
 # 注册 APIRouter
 routers = [
-    admin_router,
     command_router,
     database_router,
     file_router,
-    login_router,
-    user_router,
-    time_router,
-    bubble_router,
-    panel_router,
+    home_router,
+    joke_router,
     log_router,
+    login_router,
+    metrics_router,
+    panel_router,
+    static_router,
+    time_router,
+    user_router,
     wiki_router
 ]
 for router in routers:
@@ -39,10 +41,11 @@ app.add_middleware(GZipMiddleware)
 async def exception_handler(request: Request, exc: Exception):
     """异常捕获"""
     website_logger.error(
-        f"IP: {request.client.host} | 请求路径: {request.url} -> {str(exc)}",
-        extra={"event": "运行日志"},
+        f"{exc} | {request.client.host}: {request.url}",
+        extra={"event": "运行失败"},
     )
-    loggers["system"].error(traceback.format_exc(), extra={"event": "错误堆栈"})
+    loggers["system"].debug(f"[后端运行]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
+                            extra={"event": "错误堆栈"})
     return JSONResponse(status_code=200, content={})
 
 
@@ -105,7 +108,7 @@ async def vue(full_path: str):
 
 async def server_runner():
     """后端启动"""
-    website_logger.info("后台服务启动", extra={"event": "运行日志"})
+    website_logger.info("[网页服务]启动", extra={"event": "网页日志"})
     config = uvicorn.Config(app, host="0.0.0.0", port=5922, log_config=None, proxy_headers=True,
                             forwarded_allow_ips="*")
     server = uvicorn.Server(config)

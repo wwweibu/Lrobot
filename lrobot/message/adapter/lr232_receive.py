@@ -1,6 +1,8 @@
 """LR232 消息接收"""
 
 import re
+import json
+import base64
 import nacl.signing
 import nacl.encoding
 from fastapi import APIRouter
@@ -32,26 +34,45 @@ async def lr232_receive(data: dict):
         plain_token = data.get("plain_token")
         event_ts = data.get("event_ts")
         if not plain_token or not event_ts:
-            raise Exception(f"回调配置错误 -> 数据不完整: {data}")
+            raise Exception(f"[回调配置]⌈LR232⌋请求失败-> 数据不完整: {data}")
         signature = generate_signature(config["LR232_SECRET"], event_ts, plain_token)
-        adapter_logger.debug(f"⌈LR232⌋ 回调配置成功", extra={"event": "消息接收"})
+        adapter_logger.debug(f"[回调]⌈LR232⌋-> 成功: {data}", extra={"event": "消息接收"})
         return {"plain_token": plain_token, "signature": signature}
     elif op == 0:  # qqbot 消息
-        adapter_logger.debug(f"⌈LR232⌋ {data}", extra={"event": "消息接收"})
+        adapter_logger.debug(f"[接收]⌈LR232⌋{data}", extra={"event": "消息接收"})
         await lr232_msg_deal(data)
         return {"op": 12}, 200
     else:
-        raise Exception(f" 不存在 op 码 | 数据: {data}")
+        raise Exception(f"[消息接收]⌈LR232⌋请求失败-> 不存在 op 码: {data}")
 
 
-def _append_text(content_list, text):
+def _text_append(content_list, text):
     """添加文本段落"""
-    text = text.replace(" ", "")  # 去除 @ 后面/默认指令后面跟着的空格
+    text = text.strip()  # 去除 @ 后面/默认指令后面跟着的空格
     if text:
         content_list.append({"type": "text", "data": {"text": text}})
 
 
-def _append_face(content_list, face_type, face_id, ext, raw):
+def ext_summary(ext):
+    """解析 ext 字段"""
+    try:
+        raw = base64.b64decode(ext).decode('utf-8', errors='ignore')
+    except Exception:
+        raw = ext
+
+    if raw.startswith('{'):
+        try:
+            obj = json.loads(raw)
+            text = obj.get('text', '')
+            if text:
+                return text
+        except Exception:
+            pass
+
+    return '[动画表情]'
+
+
+def _face_append(content_list, face_type, face_id, ext):
     """添加表情/动画"""
     if face_type == "3":
         if face_id == "358":
@@ -59,14 +80,13 @@ def _append_face(content_list, face_type, face_id, ext, raw):
         elif face_id == "359":
             content_list.append({"type": "rps", "data": {"result": ''}})
         else:
-            content_list.append({"type": "face", "data": {"id": face_id, "type": face_type, "ext": ext}})
-    elif face_type == "4":
-        content_list.append({"type": "image", "data": {"summary": "[动画表情]", "file": ext}})
+            content_list.append(
+                {"type": "face", "data": {"id": face_id, "type": face_type, "summary": ext_summary(ext)}})
     else:
-        _append_text(content_list, raw)
+        content_list.append({"type": "image", "data": {"summary": ext_summary(ext)}})
 
 
-def _append_attachment(content_list, attachment):
+def _attachment_append(content_list, attachment):
     """添加附件"""
     ATTACHMENT_TYPES = {
         "image/jpeg": "image",
@@ -76,15 +96,20 @@ def _append_attachment(content_list, attachment):
         "voice": "record",
     }
     attachment_type = ATTACHMENT_TYPES.get(attachment.get("content_type"), "file")
-    content_list.append({
-        "type": attachment_type,
-        "data": {
-            "file": attachment.get("filename"),
-            "url": attachment.get("url"),
-            "file_size": attachment.get("size"),
+    data = {
+        "file": attachment.get("filename"),
+        "url": attachment.get("url"),
+        "file_size": attachment.get("size"),
+    }
+
+    if attachment_type in ("image", "video"):
+        data.update({
             "width": attachment.get("width", 0),
             "height": attachment.get("height", 0),
-        }
+        })
+    content_list.append({
+        "type": attachment_type,
+        "data": data
     })
 
 @monitor_adapter("LR232")
@@ -92,16 +117,16 @@ async def lr232_msg_deal(data):
     """消息处理"""
     event_id = data.get("id")  # 事件id
     if not event_id or event_id in cache_5s:
-        adapter_logger.info(
-            f"⌈LR232⌋ 跳过 5 秒内重复消息 -> {data}", extra={"event": "消息接收"}
+        adapter_logger.debug(
+            f"⌈LR232⌋{data}", extra={"event": "消息去重"}
         )
-        return  # 消息去重
+        return
     cache_5s[event_id] = True
 
     t = data.get("t")
     d = data.get("d", {})
     if not t or not d:
-        raise Exception(f"参数不完整 | 数据:{data}")
+        raise Exception(f"[消息接收]⌈LR232⌋请求失败-> 数据不完整: {data}")
     KIND_MAP = {
         "C2C_MESSAGE_CREATE": "私聊接收",
         "FRIEND_ADD": "私聊添加",
@@ -112,7 +137,7 @@ async def lr232_msg_deal(data):
     }
     kind = KIND_MAP.get(t)
     if not kind:
-        raise Exception(f"未定义的消息类型 | 类型: {t} |消息: {data}")
+        raise Exception(f"[消息接收]⌈LR232⌋请求失败-> 未定义的 t: {data}")
     if kind == "私聊添加":  # 其他三种不处理
         Msg(
             platform="LR232",
@@ -129,14 +154,14 @@ async def lr232_msg_deal(data):
 
         for match in FACE_PATTERN.finditer(raw_content):
             start, end = match.span()
-            _append_text(content, raw_content[last_index:start])
-            _append_face(content, *match.groups(), raw=match.group(0))
+            _text_append(content, raw_content[last_index:start])
+            _face_append(content, *match.groups())
             last_index = end
 
-        _append_text(content, raw_content[last_index:])
+        _text_append(content, raw_content[last_index:])
 
         for attachment in d.get("attachments", []) or []:
-            _append_attachment(content, attachment)
+            _attachment_append(content, attachment)
 
         Msg(
             platform="LR232",

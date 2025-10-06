@@ -1,6 +1,5 @@
 """模块重载"""
 
-import os
 import sys
 import importlib
 from pathlib import Path
@@ -14,49 +13,43 @@ class ModuleManager(FileSystemEventHandler):
     def __init__(
             self, module_dir: Path, package_base: str, inject_target=None, ignore_files=None
     ):
-        """
-        :param module_dir: 模块所在目录 Path
-        :param package_base: 包名（如 "logic.command"）
-        :param inject_target: 要注入的命名空间模块（如 sys.modules["logic.command"]）
-        :param ignore_files: 忽略文件名列表
-        """
-        self.module_dir = module_dir
-        self.package_base = package_base
-        self.inject_target = inject_target or sys.modules[package_base]
-        self.ignore_files = set(ignore_files or ["__init__.py"])
-        self._load_all_modules()
+        self.module_dir = module_dir  # 模块所在目录 Path
+        self.package_base = package_base  # 包名,logic.command
+        self.inject_target = inject_target or sys.modules[package_base]  # 命名空间模块 sys.modules["logic.command"]
+        self.ignore_files = set(ignore_files or ["__init__.py"])  # 忽略文件名列表
+        self._all_modules_load()
 
-    def _load_all_modules(self):
+    def _all_modules_load(self):
         for py_file in self.module_dir.glob("*.py"):
             if py_file.name in self.ignore_files:
                 continue
-            self._load_module(py_file.stem)
+            self._module_load(py_file.stem)
 
-    def _load_module(self, stem: str):
+    def _module_load(self, stem: str):
         module_name = f"{self.package_base}.{stem}"
         try:
             module = importlib.import_module(module_name)
-            self._inject_to_namespace(module)
-            loggers["system"].info(f"{module_name}", extra={"event": "模块加载"})
+            self._namespace_inject(module)
+            loggers["system"].debug(f"[加载]-> {module_name}", extra={"event": "模块加载"})
         except Exception as e:
             loggers["system"].error(
-                f"失败: {module_name} -> {e}", extra={"event": "模块加载"}
+                f"[加载]-> {module_name}: {type(e).__name__}: {e}", extra={"event": "模块加载"}
             )
 
-    def _reload_module(self, module_name: str):
+    def _module_reload(self, module_name: str):
         try:
             module = importlib.reload(sys.modules[module_name])
-            self._inject_to_namespace(module)
-            loggers["system"].info(
-                f"模块热重载: {module_name}", extra={"event": "模块加载"}
+            self._namespace_inject(module)
+            loggers["system"].debug(
+                f"[重载]-> {module_name}", extra={"event": "模块加载"}
             )
         except Exception as e:
             loggers["system"].error(
-                f"模块热重载失败: {module_name} -> {e}",
+                f"[重载]-> {module_name}: {type(e).__name__}: {e}",
                 extra={"event": "模块加载"},
             )
 
-    def _inject_to_namespace(self, module):
+    def _namespace_inject(self, module):
         for attr in dir(module):
             if not attr.startswith("_"):
                 setattr(self.inject_target, attr, getattr(module, attr))
@@ -64,15 +57,15 @@ class ModuleManager(FileSystemEventHandler):
     def on_modified(self, event):
         if event.is_directory or not event.src_path.endswith(".py"):
             return
-        filename = os.path.basename(event.src_path)
+        filename = Path(event.src_path).name
         if filename in self.ignore_files:
             return
         stem = Path(filename).stem
         module_name = f"{self.package_base}.{stem}"
         if module_name in sys.modules:
-            self._reload_module(module_name)
+            self._module_reload(module_name)
         else:
-            self._load_module(stem)
+            self._module_load(stem)
 
     def start(self):
         """开启监听"""

@@ -1,5 +1,5 @@
 <template>
-  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/2使用指南/8功能开发/2页面功能#数据库'"/>
+  <Sidebar :githubLink="'http://wwweibu.github.io/Lrobot/docs/1项目总览/3项目功能#数据库页'"/>
   <div class="database-manager">
     <div class="table-tabs">
       <button 
@@ -141,9 +141,14 @@ const calculateColumnWidths = () => {
 };
 
 const init = async () => {
-  const { tables: tablesList, data } = await http.get('/database').then(res => res.data);
+  const res =  await http.get('/database')
+  if (res.data.status!=="success"){
+    alert('数据加载失败: ' +res.data.data||'网络异常，请稍后重试')
+    return
+  }
+  const tablesList = res.data.data.tables;
   tables.value = tablesList;
-  tableDataMap.value = data;
+  tableDataMap.value = res.data.data.data;
   if (tablesList.length > 0 && !currentTable.value) {
     currentTable.value = tablesList[0];
     tableData.value = tableDataMap.value[tablesList[0]] || [];
@@ -153,9 +158,13 @@ const init = async () => {
 };
 
 const updateCurrentTableData = async () => {
-  const { tables: tablesList, data } = await http.get('/database').then(res => res.data);
-  tables.value = tablesList;
-  tableDataMap.value = data;
+  const res =  await http.get('/database')
+  if (res.data.status!=="success"){
+    alert('数据加载失败: ' +res.data.data||'网络异常，请稍后重试')
+    return
+  }
+  tables.value = res.data.data.tables;
+  tableDataMap.value = res.data.data.data;
   if (currentTable.value) {
     tableData.value = tableDataMap.value[currentTable.value] || [];
     await nextTick();
@@ -192,7 +201,7 @@ const startEditing = (rowIndex, column) => {
   });
 };
 
-const saveCell = (event, row, column, rowIndex) => {
+const saveCell = async (event, row, column, rowIndex) => {
   const newValue = event.target.textContent.trim();
   const originalValue = event.target.getAttribute('data-original-value') || '';
   
@@ -202,21 +211,30 @@ const saveCell = (event, row, column, rowIndex) => {
   }
   
   row[column] = newValue;
-  http.put('/database', {
-    table_name: currentTable.value,
-    action: 'update_cell',
-    row_id: row.id,
-    column,
-    value: newValue
-  }).then(() => {
-    ws.send('update');
-    finishEditingWithoutSave(rowIndex, column);
-  }).catch(() => {
-    // 如果保存失败，恢复原值
+  try{
+    const res = await http.put('/database', {
+      table_name: currentTable.value,
+      action: 'update_cell',
+      row_id: row.id,
+      column,
+      value: newValue
+    });
+    if (res.data.status==="success"){
+      ws.send('update');
+      finishEditingWithoutSave(rowIndex, column);
+    }else{
+      alert('更新失败:' + res.data.data||'网络异常，请稍后重试')
+      event.target.textContent = originalValue;
+      row[column] = originalValue;
+      finishEditingWithoutSave(rowIndex, column);
+    };
+  } catch(error){
+    alert('更新失败:' + error)
     event.target.textContent = originalValue;
     row[column] = originalValue;
     finishEditingWithoutSave(rowIndex, column);
-  });
+  }
+  
 };
 
 const finishEditing = (event, row, column, rowIndex) => {
@@ -255,21 +273,27 @@ const insertRowAtEnd = () => {
 };
 
 const saveRow = async (row) => {
-  const response = await http.put('/database', {
+  const res = await http.put('/database', {
     table_name: currentTable.value,
     action: 'add_row',
     new_row: row
   });
-  if (response.data.id) row.id = response.data.id;
+  if (res.data.status!=="success"){
+    alert('保存失败:' + res.data.data||'网络异常，请稍后重试')
+  }
+
   ws.send('update');
 };
 
 const deleteRow = async (id) => {
-  await http.put('/database', {
+  const res = await http.put('/database', {
     table_name: currentTable.value,
     action: 'delete_row',
     row_id: id
   });
+  if (res.data.status!=="success"){
+    alert('保存失败:' + res.data.data||'网络异常，请稍后重试')
+  }
   ws.send('update');
   tableData.value = tableData.value.filter(row => row.id !== id);
 };

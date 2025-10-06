@@ -15,7 +15,6 @@ adapter_logger = loggers["adapter"]
 @router.post("/")
 async def lr5921_receive(data: dict):
     """LR5921 消息接收"""
-    adapter_logger.debug(f"⌈LR5921⌋ {data}", extra={"event": "消息接收"})
     if data.get("post_type") in {"meta_event", "message_sent", "request"}:
         return {"status": "ok"}
     await lr5921_msg_deal(data)
@@ -32,6 +31,9 @@ async def lr5921_msg_deal(data):
     user = data.get("user_id", "")
     group = data.get("group_id", "")
 
+    if group and all(str(group) not in config["public"][category] for category in config["public"]):
+        return  # 不处理未配置的群的消息，若需要接收则删除此两行
+    adapter_logger.debug(f"[接收]⌈LR5921⌋{data}", extra={"event": "消息接收"})  # 若需要显示全部消息则放在 lr5921_receive 下方
     if post_type == "message":
         if not content:
             return  # 对方已接收文件等为空消息
@@ -46,12 +48,7 @@ async def lr5921_msg_deal(data):
                     kind=f"私聊消息获取",
                     seq=seq,
                 )
-                try:
-                    _future = future.get(msg.num)
-                    response = await asyncio.wait_for(_future, timeout=20)
-                except asyncio.TimeoutError:
-                    raise Exception(f"转发消息获取失败 | 消息: {seq} {content}")
-                content = response
+                content = await future.wait(msg.num, f"[消息]转发消息获取超时-> {data}")
             elif msg_type == "json":
                 json_dict = content[0]["data"]
                 if isinstance(json_dict.get("data"), str):
@@ -69,8 +66,7 @@ async def lr5921_msg_deal(data):
                         seq=reply_id,
                     )
                     try:
-                        _future = future.get(msg.num)
-                        response = await asyncio.wait_for(_future, timeout=20)
+                        response = await future.wait(msg.num)
                         content[0]["data"].pop("id", None)  # 删除 id
                         content[0]["data"]["content"] = response  # 添加 content
                     except asyncio.TimeoutError:
@@ -158,7 +154,7 @@ async def lr5921_msg_deal(data):
             elif sub_type == "group_name":  # 群名称修改
                 return
     else:
-        raise Exception(f" 未定义的消息类型 | 消息: {data}")
+        raise Exception(f"[消息接收]⌈LR5921⌋请求失败-> 未定义的 post_type: {data}")
 
     Msg(
         platform="LR5921",

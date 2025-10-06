@@ -1,7 +1,6 @@
 """测试群相关"""
 
 import random
-import asyncio
 
 from message.handler.msg import Msg
 from config import database_update, database_query, future
@@ -9,9 +8,9 @@ from config import database_update, database_query, future
 
 async def firefly_judge(user):
     """判断是否在测试群"""
-    query = "SELECT EXISTS(SELECT 1 FROM user_test WHERE user = %s) AS exists_flag"
-    result = await database_query(query, (user,))
-    return result[0]["exists_flag"] == 1
+    query = "SELECT 1 FROM user_test WHERE user = %s LIMIT 1"
+    result = await database_query(query, (str(user),))
+    return 1 if result else 0
 
 
 async def firefly_update():
@@ -22,12 +21,8 @@ async def firefly_update():
         event="发送",
         group="786159347",
     )
-    try:
-        _future = future.get(msg.num)
-        response = await asyncio.wait_for(_future, timeout=20)
-        user_dict = {item["user_id"]: item.get("nickname") for item in response}
-    except asyncio.TimeoutError:
-        raise Exception(f"测试群列表获取超时")
+    response = await future.wait(msg.num, f"[消息]测试群成员列表获取超时-> {msg.group}")
+    user_dict = {item["user_id"]: item.get("nickname") for item in response}
 
     new_users = set(user_dict.keys())
 
@@ -46,12 +41,12 @@ async def firefly_update():
 
     upsert_query = """
         INSERT INTO user_test (user, nickname)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE nickname = VALUES(nickname)
+        VALUES (%s, %s) AS new
+        ON DUPLICATE KEY UPDATE nickname = new.nickname
     """
     for user in new_users:
         codename = user_dict[user]
-        await database_update(upsert_query, (user, codename))
+        await database_update(upsert_query, (str(user), codename))
 
 
 async def firefly_password_update(user, name):
@@ -59,12 +54,12 @@ async def firefly_password_update(user, name):
     password = random.randint(100000, 999999)
     query = """
            INSERT INTO user_test (user, name, password)
-           VALUES (%s, %s, %s)
+           VALUES (%s, %s, %s) AS new
            ON DUPLICATE KEY UPDATE
-               name = VALUES(name),
-               password = VALUES(password)
+               name = new.name,
+               password = new.password
        """
-    await database_update(query, (user, name, password))
+    await database_update(query, (str(user), name, password))
     return password
 
 

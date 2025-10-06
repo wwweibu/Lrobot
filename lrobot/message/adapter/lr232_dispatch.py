@@ -1,17 +1,23 @@
 """LR232 API 调用"""
 
-import os
 import re
 import json
 import base64
+from pathlib import Path
 from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
 from logic import record_convert, video_compress, image_compress
 from config import loggers, connect, future, database_query, database_update
 
+WHITE_LIST = ["https://whumystery.cn/home", "https://whumystery.cn/cab", "https://whumystery.cn/firefly",
+              "https://whumystery.cn/wiki"]
 adapter_logger = loggers["adapter"]
-
+url_re = re.compile(
+    r"(https?://[^\s，。；：？！、<>\"'）)]+|"
+    r"(?:[a-zA-Z0-9-]+\.)+(?:com|cn|net|org|edu|gov|io|info|xyz|top|cc|tv)"
+    r"(?:/[^\s，。；：？！、<>\"'）)]*)?)"
+)
 
 def data_format(data):
     """转换数据中文件源码"""
@@ -19,31 +25,61 @@ def data_format(data):
         return {**data, "file_data": f"<base64 length={len(data['file_data'])}>"}
     return data
 
+
+def url_format(text):
+    """参考白名单替换网址"""
+    segments = []
+    pos = 0
+    while pos < len(text):
+        # 找到离 pos 最近的白名单出现位置
+        nearest = None
+        nearest_w = None
+        for w in WHITE_LIST:
+            idx = text.find(w, pos)
+            if idx != -1 and (nearest is None or idx < nearest):
+                nearest = idx
+                nearest_w = w
+        if nearest is None:
+            # 没有更多白名单，处理剩余部分
+            part = text[pos:]
+            part = url_re.sub("[网址]", part)
+            segments.append(part)
+            break
+        else:
+            # 处理白名单之前的部分
+            part = text[pos:nearest]
+            part = url_re.sub("[网址]", part)
+            segments.append(part)
+            # 添加白名单本身
+            segments.append(nearest_w)
+            pos = nearest + len(nearest_w)
+    return "".join(segments)
+
 async def request_deal(url, data, tag):
     """请求统一处理"""
     headers = {"Authorization": f"QQBot {access_tokens['LR232']['token']}"}
-    client = connect(True)
     format_data = data_format(data)  # 避免文件数据爆日志
-    try:
-        if tag.endswith("撤回"):
-            response = await client.delete(
-                url, headers=headers, timeout=60.0
+    async with connect(True) as client:
+        try:
+            if tag.endswith("撤回"):
+                response = await client.delete(
+                    url, headers=headers, timeout=60.0
+                )
+            else:
+                response = await client.post(
+                    url, json=data, headers=headers, timeout=60.0
+                )
+        except Exception as e:
+            raise Exception(f"[{tag}]⌈LR232⌋请求失败->  {type(e).__name__}: {e} | 数据: {format_data}")
+        if response.status_code != 200:
+            raise Exception(
+                f"[{tag}]⌈LR232⌋请求失败-> {response.status_code}: {response.text} | 数据:{format_data}"
             )
-        else:
-            response = await client.post(
-                url, json=data, headers=headers, timeout=60.0
-            )
-    except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {format_data}")
-    if response.status_code != 200:
-        raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {format_data}"
+        json_resp = response.json()
+        adapter_logger.debug(
+            f"[{tag}]⌈LR232⌋-> {json_resp} | {format_data}",
+            extra={"event": "消息发送"},
         )
-    json_resp = response.json()
-    adapter_logger.info(
-        f"[LR232] {tag} 成功 -> {format_data} | {json_resp}",
-        extra={"event": "消息发送"},
-    )
     return json_resp
 
 
@@ -71,10 +107,10 @@ async def lr232_dispatch(
 
     seq_list = []
     if text_parts:
-        # 清除网址 .cn
-        content = re.sub(r'\b[^\s/]+\.cn\b', '[网址]', "".join(text_parts), flags=re.IGNORECASE)
+        content = "".join(text_parts)
+
         data = {
-            "content": content,
+            "content": url_format(content),
             "msg_type": 0,
             tag: seq,
             "msg_seq": order
@@ -104,7 +140,7 @@ async def lr232_file_upload(file, type=None, url=None):
         js, t = result[0]["media_json"], result[0]["qq"]
         if js and t and datetime.now() < t + timedelta(hours=1):
             return json.loads(js)
-    file_name = os.path.basename(file)
+    file_name = Path(file).name
     if file_name.endswith((".png", ".jpeg", ".gif", ".jpg")):
         file_type = 1
         file_data = await image_compress(file, target_size_mb=20, return_type=1)
@@ -120,19 +156,19 @@ async def lr232_file_upload(file, type=None, url=None):
         file_path = await record_convert(file)
         file_data = base64.b64encode(open(file_path, "rb").read()).decode("utf-8")
     else:
-        raise Exception(f"文件上传失败 -> 文件类型不支持 | 文件名 :{file_name}")
+        raise Exception(f"[文件上传]⌈LR232⌋请求失败-> {file_name}: 类型不支持")
 
     data = {
         "file_type": file_type,
         "srv_send_msg": False,
         "file_data": file_data,
     }
-    response = await request_deal(url, data, "文件上传")
+    response = await request_deal(url, data, "私聊文件上传")
     query = """
                    INSERT INTO user_media (filepath, media_json)
-                   VALUES (%s, %s)
+                   VALUES (%s, %s) AS new
                    ON DUPLICATE KEY UPDATE 
-                       media_json = VALUES(media_json),
+                       media_json = new.media_json,
                        qq = CURRENT_TIMESTAMP
                """
     await database_update(query, (file, json.dumps(response)))

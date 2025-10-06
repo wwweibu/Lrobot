@@ -37,33 +37,32 @@ async def request_deal(url, method, params, tag, files=None, headers=None):
     """请求统一处理"""
     headers = headers or DEFAULT_HEADERS
     cookies = {"SESSDATA": config["BILI_SESSDATA"]}
-    client = connect()
-    try:
-        if method == "get":
-            response = await client.get(
-                url, headers=headers, params=params, cookies=cookies
-            )
-        else:
-            response = await client.post(
-                url, headers=headers, data=params, files=files, cookies=cookies, timeout=60 if files else 20
+    async with connect() as client:
+        try:
+            if method == "get":
+                response = await client.get(
+                    url, headers=headers, params=params, cookies=cookies
+                )
+            else:
+                response = await client.post(
+                    url, headers=headers, data=params, files=files, cookies=cookies, timeout=60 if files else 20
+                )
+        except Exception as e:
+            raise Exception(f"[{tag}]⌈BILI⌋请求失败->  {type(e).__name__}: {e} | 数据: {params}")
+
+        if response.status_code != 200:
+            raise Exception(
+                f"[{tag}]⌈BILI⌋请求失败-> {response.status_code}: {response.text} | 数据: {params}"
             )
 
-    except Exception as e:
-        raise Exception(f"{tag} 请求异常 ->  {type(e).__name__}: {e} | data: {params}")
+        json_resp = response.json()
+        if json_resp.get("code") != 0:
+            raise Exception(f"[{tag}]⌈BILI⌋请求失败-> 返回: {json_resp} | 数据: {params}")
 
-    if response.status_code != 200:
-        raise Exception(
-            f"{tag} 请求失败 -> [{response.status_code}]{response.text} | data: {params}"
+        adapter_logger.debug(
+            f"[{tag}]⌈BILI⌋-> {json_resp} | {params}",
+            extra={"event": "消息发送"},
         )
-
-    json_resp = response.json()
-    if json_resp.get("code") != 0:
-        raise Exception(f"{tag} 请求失败 -> {json_resp} | data: {params}")
-
-    adapter_logger.info(
-        f"[BILI] {tag} 成功 -> {params} | {json_resp}",
-        extra={"event": "消息发送"},
-    )
     return json_resp
 
 
@@ -116,7 +115,7 @@ async def bili_file_upload(file, type=None, url=None):
     query = "SELECT media_url FROM user_media WHERE filepath = %s"
     result = await database_query(query, (file,))
     if result and result[0]["media_url"]:
-        data = result[0]["media_url"]
+        data = json.loads(result[0]["media_url"])
         return [data["url"], data["h"], data["w"]]
 
     mime_type, _ = mimetypes.guess_type(file)
@@ -133,9 +132,9 @@ async def bili_file_upload(file, type=None, url=None):
     url, h, w = data["image_url"], data["image_height"], data["image_width"]
     query = """
                        INSERT INTO user_media (filepath, media_url)
-                       VALUES (%s, JSON_OBJECT('url', %s, 'h', %s, 'w', %s))
+                       VALUES (%s, JSON_OBJECT('url', %s, 'h', %s, 'w', %s)) AS new
                        ON DUPLICATE KEY UPDATE 
-                           media_url = VALUES(media_url)
+                           media_url = new.media_url
                    """
     await database_update(query, (file, url, h, w))
     return [url, h, w]
@@ -172,7 +171,6 @@ async def bili_nickname(num, user):
     response = await request_deal(url, "get", params, "私聊昵称")
     name = response.get("data", {}).get(user, {}).get("name")
     future.set(num, name)
-    print(response)
 
 
 def sign_data(data):
@@ -186,16 +184,13 @@ def sign_data(data):
             "appkey": "aae92bc66f3edfab",
         }
     )
-    # 按照 key 重排参数
     signed_data = dict(sorted(data.items()))
-    # 签名
     sign = md5(
         (urlencode(signed_data, encoding="utf-8") + "af125a0d5279fd576c1b4418a3e8276d").encode(
             encoding="utf-8"
         )
-    ).hexdigest()
-    # 添加到尾部
-    signed_data.update({"sign": sign})
+    ).hexdigest()  # 签名
+    signed_data.update({"sign": sign})  # 添加到尾部
     return signed_data
 
 
@@ -218,7 +213,7 @@ async def bili_live_start(num):
     future.set(num, [addr, code])  # 推流地址，推流码
 
 
-async def bili_live_title(title, file=None):
+async def bili_live_title(num, title, file=None):
     """私聊直播标题"""
     url = "https://api.live.bilibili.com/xlive/app-blink/v1/preLive/UpdatePreLiveInfo"
     cover = (await bili_file_upload(file))[0] if file else None
@@ -228,10 +223,11 @@ async def bili_live_title(title, file=None):
         "platform": "web",
         "mobi_app": "web",
         "build": "1",
-        "cover": cover,
+        **({"cover": cover} if cover is not None else {}),
         "title": title
     }
     await request_deal(url, "post", params, "私聊直播标题", headers=LIVE_HEADERS)
+    future.set(num, True)
 
 
 async def bili_live_notice(notice):
@@ -259,14 +255,28 @@ async def bili_live_stop():
 
 
 async def bili_user_video(num, mid):
-    """查询用户投稿视频"""
-    url = "https://app.biliapi.com/x/v2/space/archive/cursor"
+    """私聊用户视频"""
+    url = "https://api.bilibili.com/x/series/recArchivesByKeywords"
     params = {
-        "vmid": mid
+        "mid": mid,
+        "keywords": ""
     }
     response = await request_deal(url, "get", params, "私聊用户视频")
-    future.set(num, response.get("data", {}).get("item"))
+    future.set(num, response.get("data", {}).get("archives"))
 
+
+async def bili_user_collection(num, mid, collection, sort):
+    """私聊用户合集（注：可订阅后在空间中查看 id）"""
+    url = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
+    params = {
+        "mid": mid,
+        "season_id": collection,
+        "sort_reverse": sort,
+        "page_num": 1,
+        "page_size": 30
+    }
+    response = await request_deal(url, "get", params, "私聊用户合集")
+    future.set(num, response.get("data", {}).get("archives"))
 
 async def bili_search(num, keyword, type=None):
     """私聊搜索"""

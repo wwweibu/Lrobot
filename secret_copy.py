@@ -7,4 +7,3 @@ def secret(text):
 # print(secret("/lr5921"))
 # print(secret("/wechat"))
 # print(secret("/bili"))
-# print(secret("/qqapp"))

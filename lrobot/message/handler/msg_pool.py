@@ -14,7 +14,7 @@ class MsgPool:
     """消息存储池 + 消息队列"""
 
     _queue = asyncio.Queue()  # 消息队列
-    _seq_index = {}  # seq-num 索引
+    seq_index = {}  # seq-num 索引
 
     @classmethod
     def add(cls, msg: Msg):
@@ -24,12 +24,8 @@ class MsgPool:
         msg_data = {"time": time.time(), **{key: getattr(msg, key) for key in Msg.__slots__}}
         msg_pool[msg.num] = msg_data
         if msg_data.get("seq") is not None:
-            cls._seq_index[msg_data["seq"]] = msg.num
+            cls.seq_index[msg_data["seq"]] = msg.num
         cls._queue.put_nowait(msg)
-        msg_logger.debug(
-            f"⌈{msg.platform}⌋{msg.event}: {msg.kind} -> {content_str}",
-            extra={"event": "消息存储"},
-        )
 
     @classmethod
     def get(cls, num):
@@ -39,7 +35,7 @@ class MsgPool:
     @classmethod
     def seq_get(cls, seq):
         """根据序号获取消息"""
-        num = cls._seq_index.get(seq)
+        num = cls.seq_index.get(seq)
         return msg_pool.get(num) if num else None
 
     @classmethod
@@ -47,8 +43,8 @@ class MsgPool:
         """删除消息"""
         global msg_pool
         msg_data = msg_pool.pop(num, None)
-        if msg_data and msg_data.get("seq") in cls._seq_index:
-            cls._seq_index.pop(msg_data["seq"], None)
+        if msg_data and msg_data.get("seq") in cls.seq_index:
+            cls.seq_index.pop(msg_data["seq"], None)
 
     @classmethod
     async def process(cls):
@@ -72,10 +68,10 @@ class MsgPool:
         for num in to_delete:
             cls.remove(num)
 
-        msg_logger.debug(f"共清理 {len(to_delete)} 条消息", extra={"event": "消息清理"})
+        msg_logger.debug(f"[消息清理]完成-> 共清理 {len(to_delete)} 条消息", extra={"event": "消息处理"})
 
 
 msg_pool = storage.setdefault("msg_pool", {})
 for msg_num, data in msg_pool.items():  # 重新构建索引
     if data.get("seq") is not None:
-        MsgPool._seq_index[data["seq"]] = msg_num
+        MsgPool.seq_index[data["seq"]] = msg_num
