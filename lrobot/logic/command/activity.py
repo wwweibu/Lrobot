@@ -107,7 +107,7 @@ async def activity_hunt_group_set(msg: Msg):
     if len(parts) == 2:
         info = parts[1].strip()
     else:
-        info = f"本群为寻宝{new_id}群"
+        info = f"本群为寻宝{new_id - 1}群"
     group_list["groups"].append({"id": new_id, "info": info})
     group_list["max_id"] = new_id
     await data.system_edit("hunt_group", json.dumps(group_list, ensure_ascii=False))
