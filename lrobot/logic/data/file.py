@@ -46,7 +46,7 @@ async def text_to_image(text, output, font_path=path / "storage/file/command/sim
     img = Image.new("RGB", (int(img_width), int(img_height)), color="white")
     draw = ImageDraw.Draw(img)
 
-    y = 10
+    y = 20
     for line in lines:
         draw.text((10, y), line, font=font, fill="black")
         y += line_height
