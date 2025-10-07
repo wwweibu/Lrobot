@@ -171,7 +171,7 @@ class AutoConfig:
         self._config.clear()
         self._config_sources.clear()
         for config_file in self._config_path.glob("*.yaml"):
-            if config_file.name.endswith("_copy.yaml") or config_file.name == "storage.yaml":
+            if config_file.name.endswith("_copy.yaml") or config_file.name in ["storage.yaml", "agent.yaml"]:
                 continue  # 跳过模板文件
             try:
                 with open(config_file, "r", encoding="utf-8") as f:
