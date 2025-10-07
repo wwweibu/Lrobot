@@ -1,102 +1,109 @@
 <template>
-  <div class="layout1-wrapper" :class="{ 'force-landscape': needRotate }">
-    <div class="layout1-container" ref="containerRef" :style="containerStyle">
-      <div class="case-board" :style="stageStyle">
-        <!-- 顶部栏 -->
-        <header class="case-board__header">
-          <div class="case-board__left">
-            <span class="case-board__icon">{{ headerTip.icon }}</span>
-            <span class="case-board__label">{{ headerTip.text }}</span>
-          </div>
-          <div style="position: relative;">
-            <input
-              class="command-input"
-              type="text"
-              placeholder="WHU Logic&Reasoning"
-              @keyup.enter="handleCommand"
-            />
-            <img 
-              src="/images/home/fire1.png" 
-              class="search-icon" 
-              alt="搜索图标"
-            />
-          </div>
-          <div class="case-board__right">
-            <span class="case-board__status">INVESTIGATING</span>
-            <span class="case-board__pulse"></span>
-          </div>
-        </header>
-        <!-- 地图主体 -->
-        <main class="case-board__body">
-          <div id="map" class="map"></div>
-        </main>
-      
-        <!-- 屏幕固定点层 -->
-        <div class="fixed-markers">
-          <div
-            v-for="p in visiblePoints"
-            :key="p.id"
-            :class="['fixed-marker', `state-${p.state}`]"
-            :style="markerStyle(p)"
-            @click="handleMarkerClick(p)"
-          >
-            <img
-              :src="`images/home/${p.id}.png`"
-              alt=""
-              class="point-icon"
-            />
-          </div>
-        </div>
-        <!-- 连线层 -->
-        <svg class="connection-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <!-- 一条线+两个圆点 -->
-          <g v-for="l in visibleLines" :key="l.id">
-            <!-- 红线 -->
-            <line
-              :x1="l.x1"
-              :y1="l.y1"
-              :x2="l.x2"
-              :y2="l.y2"
-              stroke="#e74c3c"
-              stroke-width="0.1"
-            />
-            <!-- 起点钉子 -->
-            <circle :cx="l.x1" :cy="l.y1" r="0.4" fill="#e74c3c" />
-            <!-- 终点钉子 -->
-            <circle :cx="l.x2" :cy="l.y2" r="0.4" fill="#e74c3c" />
-          </g>
-        </svg>
-      </div>
-      <!-- 案件档案卡片 -->
-      <transition name="case-file">
-        <div v-if="activeCard" class="case-file" @click.stop>
-          <header class="card-header">
-            <div class="case-number">案件编号:{{ activeCard.caseNumber }}</div>
-            <h2 class="card-title">{{ activeCard.title }}</h2>
-          </header>
-          <main class="card-body" ref="cardBody">
-            <p class="card-text">
-              <span v-for="(ch, i) in displayText" :key="i">{{ ch }}</span>
-            </p>
-            <div v-if="activeCard.type === 'question'" class="card-options">
-              <button
-                v-for="opt in activeCard.data.options"
-                :key="opt.value"
-                class="option-btn"
-                @click="handleAnswer(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
-            </div>
-          </main>
-          <footer class="card-footer">
-            {{ activeCard.investigatingOfficer }}
-          </footer>
-          <button class="close-file" @click="closeCaseFile">归档</button>
-        </div>
-      </transition>
-      <audio id="bgm" src="/images/home/audio.mp3" preload="auto" loop muted></audio>
+  <!-- 竖屏提示遮罩 -->
+  <div v-if="isPortrait" class="rotate-tip">
+    <div class="tip-content">
+      <p>📱 请将手机横置</p>
+      <p>横向体验更佳</p>
     </div>
+  </div>
+
+  <!-- 主容器：仅在横屏时显示 -->
+  <div v-else class="layout1-container" ref="containerRef" :style="containerStyle">
+    <div class="case-board" :style="stageStyle">
+      <!-- 顶部栏 -->
+      <header class="case-board__header">
+        <div class="case-board__left">
+          <span class="case-board__icon">{{ headerTip.icon }}</span>
+          <span class="case-board__label">{{ headerTip.text }}</span>
+        </div>
+        <div style="position: relative;">
+          <input
+            class="command-input"
+            type="text"
+            placeholder="WHU Logic&Reasoning"
+            @keyup.enter="handleCommand"
+          />
+          <img 
+            src="/images/home/fire1.png" 
+            class="search-icon" 
+            alt="搜索图标"
+          />
+        </div>
+        <div class="case-board__right">
+          <span class="case-board__status">INVESTIGATING</span>
+          <span class="case-board__pulse"></span>
+        </div>
+      </header>
+
+      <!-- 地图主体 -->
+      <main class="case-board__body">
+        <div id="map" class="map"></div>
+      </main>
+
+      <!-- 屏幕固定点层 -->
+      <div class="fixed-markers">
+        <div
+          v-for="p in visiblePoints"
+          :key="p.id"
+          :class="['fixed-marker', `state-${p.state}`]"
+          :style="markerStyle(p)"
+          @click="handleMarkerClick(p)"
+        >
+          <img
+            :src="`/images/home/${p.id}.png`"
+            alt=""
+            class="point-icon"
+          />
+        </div>
+      </div>
+
+      <!-- 连线层 -->
+      <svg class="connection-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <g v-for="l in visibleLines" :key="l.id">
+          <line
+            :x1="l.x1"
+            :y1="l.y1"
+            :x2="l.x2"
+            :y2="l.y2"
+            stroke="#e74c3c"
+            stroke-width="0.1"
+          />
+          <circle :cx="l.x1" :cy="l.y1" r="0.4" fill="#e74c3c" />
+          <circle :cx="l.x2" :cy="l.y2" r="0.4" fill="#e74c3c" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- 案件档案卡片 -->
+    <transition name="case-file">
+      <div v-if="activeCard" class="case-file" @click.stop>
+        <header class="card-header">
+          <div class="case-number">案件编号：{{ activeCard.caseNumber }}</div>
+          <h2 class="card-title">{{ activeCard.title }}</h2>
+        </header>
+        <main class="card-body" ref="cardBody">
+          <p class="card-text">
+            <span v-for="(ch, i) in displayText" :key="i">{{ ch }}</span>
+          </p>
+          <div v-if="activeCard.type === 'question'" class="card-options">
+            <button
+              v-for="opt in activeCard.data.options"
+              :key="opt.value"
+              class="option-btn"
+              @click="handleAnswer(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </main>
+        <footer class="card-footer">
+          {{ activeCard.investigatingOfficer }}
+        </footer>
+        <button class="close-file" @click="closeCaseFile">归档</button>
+      </div>
+    </transition>
+
+    <audio id="bgm" src="/images/home/audio.mp3" preload="auto" loop muted></audio>
   </div>
 </template>
 
@@ -106,7 +113,89 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { OpenStreetMapProvider } from 'leaflet-geosearch'
 
-// 左上图标
+// 是否为竖屏
+const isPortrait = ref(false)
+
+// ———— 设备方向检测与锁定横屏 ————
+function checkOrientation() {
+  const isVertical = window.innerHeight > window.innerWidth
+  isPortrait.value = isVertical
+
+  // 尝试锁定横屏（仅在支持时）
+  if (window.screen.orientation && window.screen.orientation.lock) {
+    if (!isVertical) {
+      window.screen.orientation.lock('landscape').catch(() => {})
+    } else {
+      window.screen.orientation.unlock()
+    }
+  }
+}
+
+// ———— 视口适配 ————
+const STAGE_RATIO = 16 / 9 // 目标宽高比（横屏）
+
+const containerRef = ref(null)
+const viewport = reactive({
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scale: 1,
+  offsetLeft: 0,
+  offsetTop: 0,
+})
+
+const containerStyle = computed(() => ({
+  width: `${viewport.width}px`,
+  height: `${viewport.height}px`,
+  overflowX: 'auto',
+  overflowY: 'hidden',
+}))
+
+const stageStyle = computed(() => {
+  // 以高度为基准，计算所需宽度
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO)
+  const centered = viewport.width >= expectedWidth
+  return {
+    width: `${expectedWidth}px`,
+    height: `${viewport.height}px`,
+    margin: centered ? '0 auto' : '0',
+  }
+})
+
+function applyViewportSize(vp) {
+  viewport.width = vp.width
+  viewport.height = vp.height
+  viewport.scale = vp.scale ?? 1
+  viewport.offsetLeft = vp.offsetLeft ?? 0
+  viewport.offsetTop = vp.offsetTop ?? 0
+
+  cancelAnimationFrame(applyViewportSize._rafId)
+  applyViewportSize._rafId = requestAnimationFrame(() => {
+    if (map) map.invalidateSize()
+  })
+}
+
+function handleViewportResize() {
+  const vp = window.visualViewport
+    ? {
+        width: window.visualViewport.width,
+        height: window.visualViewport.height,
+        scale: window.visualViewport.scale,
+        offsetLeft: window.visualViewport.offsetLeft,
+        offsetTop: window.visualViewport.offsetTop,
+      }
+    : {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        scale: 1,
+        offsetLeft: 0,
+        offsetTop: 0,
+      }
+
+  applyViewportSize(vp)
+  checkOrientation()
+}
+
+// ———— 数据与逻辑 ————
 const headerTip = computed(() => {
   switch (lineStatus.value) {
     case 'backup': return { icon: '⚠', text: '备用线路' }
@@ -115,7 +204,6 @@ const headerTip = computed(() => {
   }
 })
 
-/* —————————————————— 线索点数据 —————————————————— */
 const points = reactive([
   {
     id: 1,
@@ -129,7 +217,7 @@ const points = reactive([
     title: "协会介绍",
     investigatingOfficer: "小推",
     data: {
-      description: "武汉大学逻辑推理协会(Logic and reasoning association of Wuhan University),简称武大推协,别名神探伽利略,是2013年9月由武汉大学社团联合会以及武汉大学校党委审核通过成立的武汉大学校级学术科技类学生社团。\n社团的宗旨是培养逻辑思维能力,连接学习、实践与兴趣爱好,为广大武大学子提供一个让自己思想畅游的舞台,加强校园文化氛围建设,为广大推理爱好者服务,提高大学生的自身修养,培养逻辑思维能力。\n创立时间:2013.9.1",     
+      description: "武汉大学逻辑推理协会（Logic and reasoning association of Wuhan University），简称武大推协，别名神探伽利略，是2013年9月由武汉大学社团联合会以及武汉大学校党委审核通过成立的武汉大学校级学术科技类学生社团。\n社团的宗旨是培养逻辑思维能力，连接学习、实践与兴趣爱好，为广大武大学子提供一个让自己“思想畅游”的舞台，加强校园文化氛围建设，为广大推理爱好者服务，提高大学生的自身修养，培养逻辑思维能力。\n创立时间:2013.9.1",
     },
   },
   {
@@ -631,10 +719,9 @@ const points = reactive([
 
 const visiblePoints = computed(() => points.filter(p => p.state !== 'locked'))
 
-/* —————————————————— 地图初始化 —————————————————— */
-let map
+// ———— 地图初始化 ————
+let map = null
 
-// 创建绑定点逻辑
 function createImageMarkers(list) {
   list.forEach(([lat, lng, file, caseNo, tit, officer, desc]) => {
     L.marker([lat, lng], {
@@ -657,7 +744,6 @@ function createImageMarkers(list) {
   })
 }
 
-// 防止备用线路地图标点加载不出来
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconUrl: '/images/home/marker-icon.png',
@@ -665,7 +751,6 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: '/images/home/marker-icon.png',
 })
 
-/** ——— 路由与超时设置 ——— */
 const ONLINE_TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 const BACKUP_TILE = '/hjd/map/{z}/{x}/{y}.png'
 const ONLINE_PROVIDER = new OpenStreetMapProvider({ params: { 'accept-language': 'zh-CN' } })
@@ -674,23 +759,17 @@ const BACKUP_PROVIDER = new OpenStreetMapProvider({
   searchUrl: '/hjd/map/search'
 })
 const TEST_QUERY = 'christie'
+
 const tileUrl = ref(ONLINE_TILE)
 const searchProvider = ref(ONLINE_PROVIDER)
 const lineStatus = ref('normal')
-
-function makeTimeout(ms = 5000) {
-  return new Promise((_, reject) =>
-    setTimeout(reject, ms, 'timeout')
-  )
-}
 
 async function singleCheck() {
   try {
     await Promise.race([
       ONLINE_PROVIDER.search({ query: TEST_QUERY }),
-      makeTimeout()
+      new Promise((_, reject) => setTimeout(reject, 5000, 'timeout'))
     ])
-    return
   } catch {
     tileUrl.value = BACKUP_TILE
     searchProvider.value = BACKUP_PROVIDER
@@ -698,125 +777,36 @@ async function singleCheck() {
     try {
       await Promise.race([
         BACKUP_PROVIDER.search({ query: TEST_QUERY }),
-        makeTimeout()
+        new Promise((_, reject) => setTimeout(reject, 5000, 'timeout'))
       ])
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       lineStatus.value = 'failed'
     }
   }
 }
 
-// —— 横屏检测与视口自适应 ——
-const STAGE_RATIO = 16 / 9
-const containerRef = ref(null)
-
-// 当前视口参数
-const viewport = reactive({
-  width: 0,
-  height: 0,
-  scale: 1,
-  offsetLeft: 0,
-  offsetTop: 0,
-})
-
-// 是否需要旋转(竖屏时需要)
-const needRotate = computed(() => viewport.width < viewport.height)
-
-// 外层容器样式
-const containerStyle = computed(() => {
-  if (needRotate.value) {
-    // 竖屏时:容器需要旋转,宽高互换
-    return {
-      width: `${viewport.height}px`,
-      height: `${viewport.width}px`,
-      overflowX: 'auto',
-      overflowY: 'hidden',
-    }
-  } else {
-    // 横屏时:正常显示
-    return {
-      width: '100%',
-      height: `${viewport.height}px`,
-      overflowX: 'auto',
-      overflowY: 'hidden',
-    }
-  }
-})
-
-// 舞台样式
-const stageStyle = computed(() => {
-  const vh = needRotate.value ? viewport.width : viewport.height
-  const vw = needRotate.value ? viewport.height : viewport.width
-  const expectedWidth = Math.round(vh * STAGE_RATIO)
-  const centered = vw >= expectedWidth
-  
-  return {
-    width: expectedWidth + 'px',
-    height: vh + 'px',
-    margin: centered ? '0 auto' : '0',
-  }
-})
-
-// 应用视口尺寸
-function applyViewportSize(vp) {
-  viewport.width = vp.width
-  viewport.height = vp.height
-  viewport.scale = vp.scale ?? 1
-  viewport.offsetLeft = vp.offsetLeft ?? 0
-  viewport.offsetTop = vp.offsetTop ?? 0
-  
-  cancelAnimationFrame(applyViewportSize._rafId)
-  applyViewportSize._rafId = requestAnimationFrame(() => {
-    if (map) map.invalidateSize()
-  })
-}
-
-// 视口变化处理
-function handleViewportResize() {
-  const vp = window.visualViewport
-    ? {
-        width: window.visualViewport.width,
-        height: window.visualViewport.height,
-        scale: window.visualViewport.scale,
-        offsetLeft: window.visualViewport.offsetLeft,
-        offsetTop: window.visualViewport.offsetTop,
-        source: 'viewport',
-      }
-    : {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        scale: 1,
-        offsetLeft: 0,
-        offsetTop: 0,
-        source: 'window',
-      }
-  
-  applyViewportSize(vp)
-}
-
-// 初始化
+// ———— 初始化 ————
 onMounted(async () => {
   await singleCheck()
+
   const center = [30.53999400863865, 114.36068907456229]
   const zoom = 16
-  
-  map = L.map("map", { zoomControl: true, attributionControl: false })
-    .setView(center, zoom)
-  
+
+  map = L.map("map", { zoomControl: true, attributionControl: false }).setView(center, zoom)
+
   L.control.attribution({
     prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119" rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
-  }).addTo(map);
-  
+  }).addTo(map)
+
   map.on('click', (e) => {
-    console.log('点击的经纬度:', e.latlng.lat, e.latlng.lng);
+    console.log('点击的经纬度：', e.latlng.lat, e.latlng.lng)
     closeCaseFile()
-    e.originalEvent.preventDefault();
-  });
-  
+    e.originalEvent.preventDefault()
+  })
+
   L.tileLayer(tileUrl.value, { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map)
-  
-  // 地图绑定点列表
+
   const imagePointList = [
       [51.52375372901273, -0.15847191042499323, 'A2.png',  '221B Baker Street', 'Sherlock Holmes Museum', 'Sir Arthur Conan Doyle', 'If you wish,you can send a letter to 221B Baker Street\nTell the post offic that you want to send a regular letter to London,UK.\n\nWrite on the envelope in English:\n430072(postal code)\nLi Hua\nP.R. China\nHubei Province,Wuhan\nLuoyu Road\n\nMr. SHERLOCK HOLMES\n221b Baker Street\nLondon,NW1 6XE\nUnited Kindom\n\nIt may take about two months to receive a reply.'],
   [-35.31933606329581,139.79998122639623,'A1.png','Answer-14-21', '跟踪调查', '维金斯', '51.52375372901273,-0.15847191042499323\n\n车费三先令六便士'],
@@ -834,103 +824,92 @@ onMounted(async () => {
   [31.3061,121.5034,'A14.png','上海市杨浦区伟德路48号','谜芸馆','时晨','谜芸馆书店是由推理作家时晨创办的推理书店，前身为黄浦区南昌路的孤岛书店。书店主营侦探推理小说，兼售推理评论类书籍、科幻、恐怖、悬疑等类型小说，此外，还有市面上难寻的绝版推理小说。\n这里是上海悬疑推理作家研讨会（参与者有蔡骏、马伯庸、那多等知名悬疑作家）的常驻地，也是本格推理作家俱乐部的基地。\n谜芸馆旨在为推理小说迷提供更专业的阅读和分享空间，也为推广本土推理文化尽一份力。馆内会定期组织推理作家讲座、推理小说读书会、写作研讨班等活动。'],
   [0,0,'A16.png','你好你好','亲爱的','玩的开心么？玩的开心就好','不来局游戏么，一二三木头人哦\n\nwhumystery.cn/AprilFools/2025']
   ]
-  
+
   createImageMarkers(imagePointList)
-  
-  // 巨大花火
+
   L.marker([42, 42], {
     icon: L.icon({
-      iconUrl: `/images/home/A15.png`,
+      iconUrl: '/images/home/A15.png',
       iconSize: [400, 400],
       iconAnchor: [200, 200]
     })
-  })
-    .addTo(map)
-    .on('click', () => {
-      selectPoint({
-        type: 'desc',
-        caseNumber: '锵锵~',
-        title: 'ψ(｀∇´)ψ',
-        investigatingOfficer: '花火大人ᐠ( ᑒ )ᐟ花火大人ᐠ( ᑒ )ᐟ',
-        data: { description: '世界是一个巨大的花火!' }
-      });
+  }).addTo(map).on('click', () => {
+    selectPoint({
+      type: 'desc',
+      caseNumber: '锵锵~',
+      title: 'ψ(｀∇´)ψ',
+      investigatingOfficer: '花火大人ᐠ( ᑒ )ᐟ花火大人ᐠ( ᑒ )ᐟ',
+      data: { description: '世界是一个巨大的花火！' }
     })
-  
-  // 视口监听
+  })
+
+  // 初始尺寸
   handleViewportResize()
+
+  // 监听视口变化
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', handleViewportResize)
-    window.visualViewport.addEventListener('scroll', handleViewportResize)
+  } else {
+    window.addEventListener('resize', handleViewportResize)
   }
-  window.addEventListener('resize', handleViewportResize)
-  window.addEventListener('orientationchange', () => {
-    setTimeout(handleViewportResize, 100)
-  })
-  
+
+  // orientationchange 兼容
+  window.addEventListener('orientationchange', handleViewportResize, false)
+
+  // 延迟补全地图
   nextTick(() => {
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 300);
+    setTimeout(() => map.invalidateSize(), 300)
   })
 })
 
-async function handleCommand(e) {
-  const cmd = e.target.value.trim();
-  if (!cmd) return;
-  
+// ———— 其他逻辑（略作修复）———
+function handleCommand(e) {
+  const cmd = e.target.value.trim()
+  if (!cmd) return
+
   if (cmd === 'APTX4869') {
-    alert('嗯呢嗯呢(恭喜你答对了!)\n嗯呢(花火生产娃娃中5/100;音频挂载1/1)');
-    e.target.value = '';
-    return;
+    alert('嗯呢嗯呢（恭喜你答对了!）\n嗯呢（花火生产娃娃中5/100；音频挂载1/1）')
+    e.target.value = ''
+    return
   }
-  
+
   if (cmd === 'Il aurait suffit') {
-    const bgm = document.getElementById('bgm');
-    bgm.muted = false;
-    bgm.play().catch(() => alert('浏览器禁止自动播放,请更换浏览器'));
-    e.target.value = '';
-    return;
+    const bgm = document.getElementById('bgm')
+    bgm.muted = false
+    bgm.play().catch(() => alert('浏览器禁止自动播放，请更换浏览器'))
+    e.target.value = ''
+    return
   }
-  
-  if (cmd === 'sparkle' || cmd === 'SPARKLE') {
-    map.flyTo([0, 0], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
+
+  if (['sparkle', 'SPARKLE', '花火'].includes(cmd)) {
+    map.flyTo([42, 42], Math.max(map.getZoom(), 16), { duration: 1.5 })
+    e.target.value = ''
+    return
   }
-  
-  if (cmd === '花火') {
-    map.flyTo([42, 42], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
-  }
-  
-  const latlng = cmd.split(',').map(Number);
+
+  const latlng = cmd.split(',').map(Number)
   if (latlng.length === 2 && latlng.every(n => !isNaN(n))) {
-    const [lat, lng] = latlng;
-    map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
+    const [lat, lng] = latlng
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 1.5 })
+    e.target.value = ''
+    return
   }
-  
-  try {
-    const results = await searchProvider.value.search({ query: cmd });
-    console.log(results)
+
+  searchProvider.value.search({ query: cmd }).then(results => {
     if (results && results.length) {
-      const { x: lng, y: lat, label } = results[0];
-      map.flyTo([lat, lng], 16, { duration: 1.5 });
-      L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup();
+      const { x: lng, y: lat, label } = results[0]
+      map.flyTo([lat, lng], 16, { duration: 1.5 })
+      L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup()
     } else {
-      alert('未找到相关地点');
+      alert('未找到相关地点')
     }
-  } catch (e) {
-    console.log(e)
-    alert('搜索失败');
-  } finally {
-    e.target.value = '';
-  }
+  }).catch(() => {
+    alert('搜索失败')
+  }).finally(() => {
+    e.target.value = ''
+  })
 }
 
-/* —————————————————— 固定点计算 —————————————————— */
 function markerStyle(p) {
   return {
     left: `${p.x}%`,
@@ -943,13 +922,11 @@ function handleMarkerClick(point) {
   selectPoint(point)
 }
 
-/* —————————————————— 飞行动画 —————————————————— */
 function flyToPoint(lat, lng) {
   if (!map) return
   map.flyTo([lat, lng], Math.max(map.getZoom(), 18), { duration: 1.8 })
 }
 
-/* —————————————————— 连接线 —————————————————— */
 const visibleLines = computed(() =>
   points
     .filter(p => p.state === 'unlocked' && p.data?.next)
@@ -968,23 +945,6 @@ const visibleLines = computed(() =>
     .filter(Boolean)
 )
 
-function scrollContainerToCenter() {
-  if (!containerRef.value) return
-  const el = containerRef.value
-  const containerWidth = el.clientWidth
-  const containerHeight = el.clientHeight
-  const stageWidth = el.scrollWidth
-  const stageHeight = el.scrollHeight
-  const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
-  const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
-  el.scrollTo({
-    left: scrollLeft,
-    top: scrollTop,
-    behavior: 'smooth',
-  })
-}
-
-/* —————————————————— 卡片逻辑 —————————————————— */
 const activeCard = ref(null)
 const displayText = ref([])
 const cardBody = ref(null)
@@ -1009,9 +969,6 @@ function closeCaseFile() {
   activeCard.value = null
   clearInterval(textInterval)
   displayText.value = []
-  nextTick(() => {
-    scrollContainerToCenter()
-  })
 }
 
 function handleAnswer(choice) {
@@ -1019,7 +976,7 @@ function handleAnswer(choice) {
   const isCorrect = choice === activeCard.value.data.correct || choice === 'D'
   if (isCorrect) {
     const pid = activeCard.value.__pointId
-    const p = points.find((q) => q.id === pid)
+    const p = points.find(q => q.id === pid)
     if (p) {
       p.state = "unlocked"
       const nextId = p.data?.next
@@ -1051,10 +1008,11 @@ function startTyping(text) {
 onUnmounted(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', handleViewportResize)
-    window.visualViewport.removeEventListener('scroll', handleViewportResize)
+  } else {
+    window.removeEventListener('resize', handleViewportResize)
   }
-  window.removeEventListener('resize', handleViewportResize)
   window.removeEventListener('orientationchange', handleViewportResize)
+
   clearInterval(textInterval)
   if (map) {
     map.off()
@@ -1071,28 +1029,32 @@ onUnmounted(() => {
   --bg: #0f1113;
 }
 
-/* 最外层包装器 */
-.layout1-wrapper {
+/* 竖屏提示 */
+.rotate-tip {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  inset: 0;
+  background: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  text-align: center;
+  z-index: 9999;
+  pointer-events: none;
 }
-
-/* 竖屏时强制横屏显示 */
-.layout1-wrapper.force-landscape {
-  transform-origin: top left;
-  transform: rotate(90deg) translateY(-100%);
+.tip-content p {
+  margin: 8px 0;
 }
 
 .layout1-container {
+  width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  position: relative;
 }
 
-/* —— 外壳 —— */
 .case-board {
   display: flex;
   flex-direction: column;
@@ -1119,35 +1081,19 @@ onUnmounted(() => {
   color: #e1e3e6;
 }
 
-.case-board__left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.case-board__icon {
-  font-size: 18px;
-  color: #ffd200;
-}
-
-.case-board__label {
-  font-weight: 600;
-  letter-spacing: .06em;
-  font-size: 15px;
-}
-
+.case-board__left,
 .case-board__right {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  color: #b0b4b8;
-  text-transform: uppercase;
 }
 
+.case-board__icon { font-size: 18px; color: #ffd200; }
+.case-board__label { font-weight: 600; letter-spacing: .06em; font-size: 15px; }
+.case-board__status { font-size: 13px; color: #b0b4b8; text-transform: uppercase; }
+
 .case-board__pulse {
-  width: 10px;
-  height: 10px;
+  width: 10px; height: 10px;
   background: #ff4757;
   border-radius: 50%;
   box-shadow: 0 0 6px var(--danger);
@@ -1155,48 +1101,27 @@ onUnmounted(() => {
 }
 
 @keyframes pulse {
-  0%   { transform: scale(1);   opacity: 1; }
-  50%  { transform: scale(1.3); opacity: 0.6; }
-  100% { transform: scale(1);   opacity: 1; }
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-.case-board__body {
-  flex: 1;
-  overflow: hidden;
-}
-
+.case-board__body { flex: 1; overflow: hidden; }
 #map {
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
   background: #0a0c0d;
-  filter:
-    grayscale(0.6)
-    brightness(0.5)
-    contrast(0.8)
-    hue-rotate(200deg);
+  filter: grayscale(0.6) brightness(0.5) contrast(0.8) hue-rotate(200deg);
 }
 
 #map::after {
   content: '';
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: rgba(15, 20, 28, 0.35);
   pointer-events: none;
 }
 
-/* —— 屏幕固定点 —— */
-.fixed-markers {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 999;
-}
-
-.fixed-marker {
-  position: absolute;
-  pointer-events: auto;
-  cursor: pointer;
-}
+.fixed-markers { position: absolute; inset: 0; pointer-events: none; z-index: 999; }
+.fixed-marker { position: absolute; pointer-events: auto; cursor: pointer; }
 
 .point-icon {
   width: 10vh;
@@ -1204,53 +1129,32 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
-.state-unlocked .point-icon {
-  filter: none;
-}
-
-.state-flashing .point-icon {
-  animation: pulse-flash 3s infinite ease-in-out;
-}
+.state-unlocked .point-icon { filter: none; }
+.state-flashing .point-icon { animation: pulse-flash 3s infinite ease-in-out; }
 
 @keyframes pulse-flash {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.1); }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
 
-/* —— 案件档案卡片 —— */
 .case-file {
-  position: fixed;
-  inset: 0;
-  margin: auto;
-  width: 500px;
-  max-width: 90vw;
+  position: fixed; inset: 0; margin: auto;
+  width: 500px; max-width: 90vw;
   height: 70vh;
   border-radius: 8px;
   background: rgba(20, 20, 20, 0.92);
   color: #f5f5f5;
-  display: flex;
-  flex-direction: column;
+  display: flex; flex-direction: column;
   font-family: "Courier New", monospace;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
   overflow: hidden;
   z-index: 1001;
 }
 
-.card-header {
-  padding: 16px 20px 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.case-number {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-.card-title {
-  margin: 4px 0 0;
-  font-size: 20px;
-}
+.card-header { padding: 16px 20px 8px; border-bottom: 1px solid rgba(255,255,255,.2); }
+.case-number { font-size: 12px; opacity: 0.7; }
+.card-title { margin: 4px 0 0; font-size: 20px; }
 
 .card-body {
   flex: 1;
@@ -1259,39 +1163,13 @@ onUnmounted(() => {
   min-height: 0;
 }
 
-.card-text {
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
+.card-text { white-space: pre-wrap; line-height: 1.6; }
 
-.card-options {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+.card-options { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.option-btn { padding: 10px 16px; border: none; border-radius: 4px; background: rgba(0,0,0,.5); color: #fff; cursor: pointer; }
+.option-btn:hover { background: rgba(255,255,255,.2); }
 
-.option-btn {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  cursor: pointer;
-}
-
-.option-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.card-footer {
-  padding: 23px 20px;
-  font-size: 12px;
-  text-align: right;
-  opacity: 0.7;
-  position: relative;
-}
-
+.card-footer { padding: 23px 20px; font-size: 12px; text-align: right; opacity: 0.7; position: relative; }
 .close-file {
   position: absolute;
   bottom: 16px;
@@ -1308,7 +1186,6 @@ onUnmounted(() => {
 .case-file-leave-active {
   transition: all 0.25s ease;
 }
-
 .case-file-enter-from,
 .case-file-leave-to {
   opacity: 0;
@@ -1316,10 +1193,8 @@ onUnmounted(() => {
 }
 
 .connection-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   pointer-events: none;
   z-index: 1000;
 }
@@ -1334,10 +1209,7 @@ onUnmounted(() => {
   width: 180px;
   text-align: center;
 }
-
-.command-input::placeholder {
-  color: rgba(255,255,255,.6);
-}
+.command-input::placeholder { color: rgba(255,255,255,.6); }
 
 .search-icon {
   position: absolute;
