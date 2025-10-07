@@ -73,7 +73,7 @@
 
     <!-- 案件档案卡片 -->
     <transition name="case-file">
-      <div v-if="activeCard" class="case-file" @click.stop>
+      <div v-if="activeCard" class="case-file" @click.stop :style="caseFileStyle">
         <header class="card-header">
           <div class="case-number">案件编号：{{ activeCard.caseNumber }}</div>
           <h2 class="card-title">{{ activeCard.title }}</h2>
@@ -657,7 +657,7 @@ const points = reactive([
     title: "档案1-4",
     investigatingOfficer: "未知",
     data: {
-      description: "神秘聚会地点。\n除了狼人、染、桌游还有什么？\n当然是一起肝作业和期末周复习啦\n当然，记得拒绝那些找你农的学长~\n\n请聚焦于地图中央（手机按住便签/顶部导航栏左右拖动）（手机有时很难按，多点几次）",     
+      description: "神秘聚会地点。\n除了狼人、染、桌游还有什么？\n当然是一起肝作业和期末周复习啦\n当然，记得拒绝那些找你农的学长~\n\n请聚焦于地图中央",     
     },
   },
 
@@ -670,7 +670,7 @@ const headerTip = computed(() => {
   switch (lineStatus.value) {
     case 'backup': return { icon: '⚠', text: '备用线路' }
     case 'failed': return { icon: 'ヾ(≧へ≦)〃', text: '无法搜索' }
-    default:       return { icon: '⚠', text: '使用电脑获得最佳体验' }
+    default:       return { icon: '⚠', text: '(•_•)° (≧∇≦)ﾉ L•̀ ω •́ '}
   }
 });
 
@@ -750,6 +750,45 @@ const containerStyle = computed(() => ({
   paddingBottom: 'env(safe-area-inset-bottom)',
   paddingTop: 'env(safe-area-inset-top)'
 }));
+
+const caseFileStyle = computed(() => {
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO)
+  const expectedHeight = viewport.height
+
+  // 横屏（视口宽足够），卡片按原先居中显示（不旋转）
+  if (viewport.width >= expectedWidth) {
+    return {
+      position: 'fixed',
+      inset: 'auto',              // 覆盖 CSS 中的 inset:0
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%,-50%)',
+      transformOrigin: 'center center',
+      width: '500px',
+      maxWidth: '90vw',
+      height: '70vh',
+      zIndex: 1001,
+    }
+  }
+
+  // 竖屏（我们把舞台旋转 -90deg），让卡片也旋转并按同样 scale 居中
+  const rotatedWidth = expectedHeight
+  const rotatedHeight = expectedWidth
+  const scale = Math.min(1, viewport.width / rotatedWidth, viewport.height / rotatedHeight)
+
+  return {
+    position: 'fixed',
+    inset: 'auto',               // 覆盖 CSS 中的 inset:0
+    left: '50%',
+    top: '50%',
+    width: '500px',
+    maxWidth: '90vw',
+    height: '70vh',
+    transform: `translate(-50%,-50%) rotate(-90deg) scale(${scale})`,
+    transformOrigin: 'center center',
+    zIndex: 1001,
+  }
+})
 
 const stageStyle = computed(() => {
   // 横屏舞台按视口高度为基准，宽度 = height * ratio
@@ -1252,7 +1291,6 @@ onUnmounted(() => {
 /* 案件卡片（不随舞台旋转） */
 .case-file {
   position: fixed;
-  inset: 0;
   margin: auto;
   width: 500px;
   max-width: 90vw;
