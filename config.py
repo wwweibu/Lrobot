@@ -32,7 +32,7 @@ NAPCAT_PATTERN = re.compile(
 )
 # 颜色设置
 COLORS = {
-    logging.DEBUG: Fore.LIGHTBLACK_EX,  # 灰色
+    logging.DEBUG: Fore.YELLOW,  # 黄色
     logging.INFO: Fore.BLACK,  # 黑色
     logging.WARNING: Fore.RED,  # 红色
     logging.ERROR: Fore.RED,  # 红色

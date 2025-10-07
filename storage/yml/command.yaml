@@ -230,28 +230,6 @@ commands:
   - BILI
   users: []
   groups: []
-- func: 活动_列表
-  function: activity_list
-  set: 活动
-  order: 0
-  content:
-  - /活动
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-  - 内阁
-  - 水群
 - func: 活动_寻宝
   function: activity_hunt_group
   set: 活动

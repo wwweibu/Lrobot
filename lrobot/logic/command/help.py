@@ -61,14 +61,14 @@ def platform_short(platforms):
 def users_short(users, kinds):
     """用户转换"""
     if not users and "私聊接收" in kinds:
-        return "全"
+        return "私"
     return ",".join(users)
 
 
 def groups_short(groups):
     """群聊简称转换"""
     if {"公测群", "水群", "内阁"}.issubset(groups):
-        return "全"
+        return "群"
     filtered = [g for g in groups if g != "内测群"]
     short = ["公测" if g == "公测群" else g for g in filtered]
     return ",".join(sorted(short))
@@ -125,12 +125,12 @@ def docs_merge(filter_set, help_mode=True):
 
         for ue in base["用法"]:
             if manager == "是":
-                t2 = f"⌈{platforms}⌋"
+                t2 = ue
+                t2 += f" ({platforms})"
                 if users:
-                    t2 += f"⌈{users}⌋"
+                    t2 += f"({users})"
                 if groups:
-                    t2 += f"⌈{groups}⌋"
-                t2 += f" {ue}"
+                    t2 += f"({groups})"
                 text2.append(t2)
             else:
                 label_kinds = []
@@ -138,8 +138,8 @@ def docs_merge(filter_set, help_mode=True):
                     label_kinds.append("私")
                 if groups:
                     label_kinds.append("群")
-                label = f"⌈{platforms}⌋" + "".join(f"⌈{k}⌋" for k in label_kinds)
-                t3 = f"{label} {ue}"
+                label = f"({platforms})" + "".join(f"({k})" for k in label_kinds)
+                t3 = f"{ue} {label}"
                 text3.append(t3)
 
     if help_mode:
@@ -185,33 +185,31 @@ async def help_show(msg: Msg):
                 "输入'/留言xxx'\n\n"
                 f"Here is the zeroth {bonus_scene}"
             )
-        elif help_content in ["基础", "入会", "收集表", "游戏", "工具", "订阅", "活动"] or (
-                isCab and help_content in ["系统"]
-        ):
+        elif help_content in ["基础", "入会", "收集表", "游戏", "工具", "订阅", "活动", "系统"]:
             text2, text3 = docs_merge(help_content)
             content = "\n".join(text3)
             if isCab and text2:
                 text2 = '\n'.join(text2)
                 content += f"\n\n{text2}"
         else:
-            content = f"请输入'/帮助,基础'类似格式(入会，收集表，游戏，工具，订阅，活动{'，系统' if isCab else ''})"
+            content = f"请输入'/帮助,基础'类似格式(系统，入会，收集表，游戏，工具，订阅，活动)"
     else:
         cab_web = f"\n内阁页: https://whumystery.cn/{'cab' if msg.platform == 'LR232' else temp_key['uuid']}"
-        cab_prompt = '下方为管理指令,分别是平台、私聊、群聊的可用范围\n' if isCab else ''
+        cab_prompt = '下方为管理指令,括号中分别是平台、私聊、群聊的可用范围\n' if isCab else ''
         content = (
-            "<使用方式>\n"
-            "私聊:直接发送指令\n"
-            "群聊:@机器人并发送\n"
             "<指令列表>\n"
-            "输入'/帮助,基础'等获取详细指令\n"
-            f"指令包括基础、入会、收集表、游戏、工具、订阅、活动{'、系统' if isCab else ''}几类\n"
-            "指令说明中,[]是需要替换的\n"
-            "第一项为平台,全代表四个平台,LR代表两个QQ,232代表LR232,5921代表LR5921,W代表微信,B代表B站\n"
-            "存在'私'则私聊可用；存在'群'则群聊可用\n"
+            "输入'/帮助,基础'等获取指令组详细指令\n"
+            f"指令组包括基础、入会、收集表、游戏、工具、订阅、活动{'、系统' if isCab else ''}\n"
+            "你将看到:'/常见问题,[序号]: 获取对应问题回答 (全)(私)(群)'类似的回答\n"
+            "其中[]里的内容需要替换,例如,此指令为'/常见问题,1'\n"
+            "冒号后面的为解释\n"
+            "第一个括号是平台,全代表四个平台,LR代表两个QQ,232代表LR232,5921代表LR5921,W代表微信,B代表B站\n"
+            "括号存在'私'则私聊可用；存在'群'则群聊可用\n"
             f"{cab_prompt}"
             "<其他>\n"
             "任何指令中英文逗号均通用\n"
             "LR232可输入'/'或点击机器人图标唤出指令面板\n"
+            "LR232在群聊中使用需要先@\n"
             "<平台>\n"
             "LR232:QQ,群管理下方添加\n"
             "LR5921:QQ,群管理中添加(3502644244)\n"

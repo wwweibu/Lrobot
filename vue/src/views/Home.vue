@@ -116,6 +116,14 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { OpenStreetMapProvider } from 'leaflet-geosearch'
 
+/* ---------- 强制横屏工具 ---------- */
+const isMobile = () => /iPhone|iPad|Android/i.test(navigator.userAgent)
+const isPortrait = () => window.matchMedia('(orientation: portrait)').matches
+
+/* 旋转后，逻辑宽高互换 */
+const logicWidth = () => (isMobile() && isPortrait() ? viewport.height : viewport.width)
+const logicHeight = () => (isMobile() && isPortrait() ? viewport.width : viewport.height)
+
 // 左上图标
 const headerTip = computed(() => {
   switch (lineStatus.value) {
@@ -749,7 +757,7 @@ const containerStyle = computed(() => ({
 
 // 舞台样式：宽=视窗高×正常宽高比；高=视窗高；宽屏时水平居中
 const stageStyle = computed(() => {
-  const expectedWidth = Math.round(viewport.height * STAGE_RATIO)
+  const expectedWidth = Math.round(logicHeight() * STAGE_RATIO)
   const centered = viewport.width >= expectedWidth
   return {
     width: expectedWidth + 'px',
@@ -795,6 +803,10 @@ function handleViewportResize() {
 
   // 若你的工程内有 emitEvent，这里照常广播；没有也不会报错
   try { emitEvent && emitEvent('viewportChange', vp) } catch (_) {}
+
+  if (isMobile() && isPortrait()) {
+    ;[vp.width, vp.height] = [vp.height, vp.width]
+  }
 
   // 本页立即应用计算结果
   applyViewportSize(vp)
@@ -1005,8 +1017,14 @@ function scrollContainerToCenter() {
   const stageWidth = el.scrollWidth
   const stageHeight = el.scrollHeight
 
-  const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
-  const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
+  // const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
+  // const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
+  const [cw, ch, sw, sh] = isMobile() && isPortrait()
+    ? [containerHeight, containerWidth, stageHeight, stageWidth]
+    : [containerWidth, containerHeight, stageWidth, stageHeight]
+
+  const scrollLeft = Math.max(0, (sw - cw) / 2)
+  const scrollTop = Math.max(0, (sh - ch) / 2)
 
   el.scrollTo({
     left: scrollLeft,
@@ -1348,5 +1366,17 @@ onUnmounted(() => {
   height: 25px;
   opacity: 0.3;                  /* 降低透明度：0-1 之间 */
   pointer-events: none;          /* 图标不挡点击 */
+}
+
+@media screen and (orientation: portrait) and (max-width: 768px) {
+  .layout1-container {
+    position: fixed;
+    inset: 0;
+    width: 100vh;
+    height: 100vw;
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+    overflow: hidden;
+  }
 }
 </style>

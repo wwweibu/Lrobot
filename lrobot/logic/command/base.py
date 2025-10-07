@@ -164,18 +164,19 @@ async def base_word(msg: Msg):
 @monitor_adapter("/基础_网址")
 async def base_web(msg: Msg):
     """获取网址"""
-    content = ("浏览器操作:\n"
-               "1.添加LR5921\n"
-               "2.访问 whumystery.cn/cmd,输入代号\n"
-               "3.输入对应验证码，等待跳转\n"
-               "4.后续可直接访问 whumystery.cn/cab\n"
-               "微信同样适用此操作\n"
-               "QQ\临时地址:无需登录,无法修改,有效期十分钟\n"
+    content = ("临时网址(有效期10分钟):\n"
                f"主页: whumystery.cn/{temp_key['uuid']}\n"
                f"wiki页: whumystery.cn/{temp_key['uuid']}/wiki\n"
                f"功能页: whumystery.cn/{temp_key['uuid']}/firefly\n"
                f"网盘页: whumystery.cn/{temp_key['uuid']}/file\n"
-               f"时间轴页: whumystery.cn/{temp_key['uuid']}/timeline\n")
+               f"时间轴页: whumystery.cn/{temp_key['uuid']}/timeline\n"
+               "长期使用:"
+               "1.添加LR5921\n"
+               "2.访问 whumystery.cn/cmd,输入代号\n"
+               "3.输入对应验证码，等待跳转\n"
+               "4.下次可直接访问 whumystery.cn/cab\n"
+               "QQ上只能用临时网址,微信上可以登录"
+               )
     Msg(
         platform=msg.platform,
         event="发送",
