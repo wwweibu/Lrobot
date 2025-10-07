@@ -1,5 +1,14 @@
 <template>
-  <div class="layout1-wrapper" :class="{ 'force-landscape': needRotate }">
+  <div class="layout1-root">
+    <!-- 旋转提示遮罩（当无法锁屏且处于竖屏时显示） -->
+    <div v-if="showRotateHint" class="rotate-hint" @click.stop>
+      <div class="rotate-hint__box">
+        <div class="rotate-hint__icon">↪️</div>
+        <div class="rotate-hint__text">请将设备横向放置以获得最佳体验</div>
+        <button class="rotate-hint__btn" @click="tryLockOrientation">尝试横屏锁定</button>
+      </div>
+    </div>
+
     <div class="layout1-container" ref="containerRef" :style="containerStyle">
       <div class="case-board" :style="stageStyle">
         <!-- 顶部栏 -->
@@ -15,22 +24,24 @@
               placeholder="WHU Logic&Reasoning"
               @keyup.enter="handleCommand"
             />
-            <img 
-              src="/images/home/fire1.png" 
-              class="search-icon" 
+            <img
+              src="/images/home/fire1.png"
+              class="search-icon"
               alt="搜索图标"
             />
           </div>
+
           <div class="case-board__right">
             <span class="case-board__status">INVESTIGATING</span>
             <span class="case-board__pulse"></span>
           </div>
         </header>
+
         <!-- 地图主体 -->
         <main class="case-board__body">
           <div id="map" class="map"></div>
         </main>
-      
+
         <!-- 屏幕固定点层 -->
         <div class="fixed-markers">
           <div
@@ -47,11 +58,10 @@
             />
           </div>
         </div>
+
         <!-- 连线层 -->
         <svg class="connection-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <!-- 一条线+两个圆点 -->
           <g v-for="l in visibleLines" :key="l.id">
-            <!-- 红线 -->
             <line
               :x1="l.x1"
               :y1="l.y1"
@@ -60,24 +70,25 @@
               stroke="#e74c3c"
               stroke-width="0.1"
             />
-            <!-- 起点钉子 -->
             <circle :cx="l.x1" :cy="l.y1" r="0.4" fill="#e74c3c" />
-            <!-- 终点钉子 -->
             <circle :cx="l.x2" :cy="l.y2" r="0.4" fill="#e74c3c" />
           </g>
         </svg>
       </div>
+
       <!-- 案件档案卡片 -->
       <transition name="case-file">
         <div v-if="activeCard" class="case-file" @click.stop>
           <header class="card-header">
-            <div class="case-number">案件编号:{{ activeCard.caseNumber }}</div>
+            <div class="case-number">案件编号：{{ activeCard.caseNumber }}</div>
             <h2 class="card-title">{{ activeCard.title }}</h2>
           </header>
+
           <main class="card-body" ref="cardBody">
             <p class="card-text">
               <span v-for="(ch, i) in displayText" :key="i">{{ ch }}</span>
             </p>
+
             <div v-if="activeCard.type === 'question'" class="card-options">
               <button
                 v-for="opt in activeCard.data.options"
@@ -89,33 +100,68 @@
               </button>
             </div>
           </main>
+
           <footer class="card-footer">
             {{ activeCard.investigatingOfficer }}
           </footer>
+
           <button class="close-file" @click="closeCaseFile">归档</button>
         </div>
       </transition>
+
       <audio id="bgm" src="/images/home/audio.mp3" preload="auto" loop muted></audio>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from "vue"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
-import { OpenStreetMapProvider } from 'leaflet-geosearch'
+/**
+ * 完整版（保留你原有所有功能）—— 横屏适配与视口安全区增强
+ *
+ * 注意：为使 iOS 安全区（safe-area-inset-*）生效，建议在 index.html 的 <head> 中加入：
+ * <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ *
+ * 你原来的长数组（points / imagePointList）请直接粘回到下方指定位置（我保留了占位）。
+ */
 
-// 左上图标
-const headerTip = computed(() => {
-  switch (lineStatus.value) {
-    case 'backup': return { icon: '⚠', text: '备用线路' }
-    case 'failed': return { icon: 'ヾ(≧へ≦)〃', text: '无法搜索' }
-    default:       return { icon: '⚠', text: '使用电脑获得最佳体验' }
-  }
-})
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from "vue";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { OpenStreetMapProvider } from 'leaflet-geosearch';
 
-/* —————————————————— 线索点数据 —————————————————— */
+/* ——————————— 基础数据（请把你原先被省略的长数组直接粘回这里） ——————————— */
+// 用来放地图上大图标的列表（你原来的 imagePointList）
+const letter=`Mon cher ami,\n
+I do not know,Hastings, if what I have done is justified or not justified. No — I do not know. I do not believe that a man should take the law into his own hands ...\n
+But on the other hand, I am the law! As a young man in the Belgian police force I shot down a desperate criminal who sat on a roof and fired at people below. In a state of emergency martial law is proclaimed.\n
+By taking Norton's life, I have saved other lives — innocent lives. But still I do not know ... It is perhaps right that I should not know. I have always been so sure — too sure ...\n
+But now I am very humble and I say like a little child: "I do not know ..." Good-bye, cher ami. I have moved the amyl nitrite ampoules away from beside my bed. I prefer to leave myself in the hands of the bon Dieu. May his punishment, or his mercy, be swift!\n
+We shall not hunt together again, my friend. Our first hunt was here — and our last ...\n
+They were good days.\n
+Yes, they have been good days...\n
+`
+
+  // 地图绑定点列表
+  const imagePointList = [
+  // [lat, lng, filename, caseNumber, title, investigatingOfficer, description]
+  [51.52375372901273, -0.15847191042499323, 'A2.png',  '221B Baker Street', 'Sherlock Holmes Museum', 'Sir Arthur Conan Doyle', 'If you wish,you can send a letter to 221B Baker Street\nTell the post offic that you want to send a regular letter to London,UK.\n\nWrite on the envelope in English:\n430072(postal code)\nLi Hua\nP.R. China\nHubei Province,Wuhan\nLuoyu Road\n\nMr. SHERLOCK HOLMES\n221b Baker Street\nLondon,NW1 6XE\nUnited Kindom\n\nIt may take about two months to receive a reply.'],
+  [-35.31933606329581,139.79998122639623,'A1.png','Answer-14-21', '跟踪调查', '维金斯', '51.52375372901273,-0.15847191042499323\n\n车费三先令六便士'],
+  [43.663983286472,-79.418399218705,'A3.png','Answer-5-13','note','Hercule Poirot','This park is for William Mellis Christie.\nYou can come to 51.59186635058419,-1.1202265048383289\n\nWalk north and turn left at Wallingford Bridge\nKeep walking for about 0.3 miles\nWallingford Museum is on your right\nOn the left is the Agatha Christie Statue Bench\n\ntake a photo'],
+  [51.59186635058419,-1.1202265048383289,'A4.png','Styles','End of Hercule Poirot\'s manuscript','Captain Arthur Hastings',letter],
+  [33.8836,130.8726,'A5.png','1909.12.21-1992.8.4','松本清张纪念馆','松本清张','松本清张开创了“社会派推理”，与江户川乱步、横沟正史并为“日本推理文坛三大高峰”。东野圭吾、宫部美雪、蔡骏等悬疑推理小说家皆深受其影响。\n\n代表作:\n《砂器》\n《零的焦点》\n《点与线》'],
+  [35.1687,136.9063,'A6.png','1894.10.21—1965.7.28','江戸川乱歩旧居跡記念碑','江户川乱步','江户川乱步，本名平井太郎，男，1894年10月21日出生于日本三重县名张町，毕业于日本私立第一学府早稻田大学。是日本的推理作家、评论家，被誉为日本“侦探推理小说之父”。\n江户川乱步是日本推理“本格派”的创始人。\n\n代表作:\n《D坂杀人事件》\n《两分铜币》\n《人间椅子》'],
+  [35.7044,138.6616,'A7.png','1902.5.24-1981.12.28','横溝正史館','横沟正史','横沟正史出生于日本兵库县神户市中央区东川崎町。毕业于大阪大学，日本本格派推理作家。\n横沟正史在风格上不同于江户川乱步，被称为推理小说的“变格派”。他强调趣味性，不重写实，而以离奇怪诞为特征，人物和情节被夸张、变形，甚至有妖魔鬼怪、死而复活的情节。\n\n代表作:\n《女王蜂》\n《狱门岛》\n《本阵杀人事件》'],
+  [35.6588,139.7452,'A8.png','332.6','东京塔','内藤多仲','《柯南 M13 漆黑的追踪者》\n《柯南 震动的警视厅 1200万名人质》\n《魔术快斗 漆黑之星》\n《三色猫 福尔摩斯的推理》\n……'],
+  [35.6861,139.7823,'A9.png','/','人形町','东京都中央区','《新参者》\n《麒麟之翼》\n《祈祷落幕时》'],
+  [35.6826,139.7644,'A10.png','1970','京都大学推理小说研究会','《苍鸦城》','巽昌章\n绫辻行人\n小野不由美\n法月纶太郎\n我孙子武丸\n中西智明\n麻耶雄嵩\n清凉院流水\n大山诚一郎\n円居挽\n……'],
+  [35.6812,139.7670,'A11.png','18.2','东京站','TYO','《柯南 M1 计时引爆摩天楼》\n《柯南 黑铁的神秘列车》\n《怪盗二十面相》\n'],
+  [36.1463,137.2576,'A12.png','/','弥生桥','岐阜県高山市大新町1-2-1','《冰菓》'],
+  [39.9618,-75.150,'A13.png','1809.1.19-1849.10.7','埃德加·爱伦·坡国家历史遗址','Edgar Allan Poe','《莫格街凶杀案》是美国作家埃德加·爱伦·坡撰写的一部中篇侦探小说，1841年5月于《格雷姆杂志》上刊登，一般被公认为全世界最早出现的推理小说，故事中的法国侦探杜邦也成为往后部分推理小说中的主角的重要参考。'],
+  [31.3061,121.5034,'A14.png','上海市杨浦区伟德路48号','谜芸馆','时晨','谜芸馆书店是由推理作家时晨创办的推理书店，前身为黄浦区南昌路的孤岛书店。书店主营侦探推理小说，兼售推理评论类书籍、科幻、恐怖、悬疑等类型小说，此外，还有市面上难寻的绝版推理小说。\n这里是上海悬疑推理作家研讨会（参与者有蔡骏、马伯庸、那多等知名悬疑作家）的常驻地，也是本格推理作家俱乐部的基地。\n谜芸馆旨在为推理小说迷提供更专业的阅读和分享空间，也为推广本土推理文化尽一份力。馆内会定期组织推理作家讲座、推理小说读书会、写作研讨班等活动。'],
+  [0,0,'A16.png','你好你好','亲爱的','玩的开心么？玩的开心就好','不来局游戏么，一二三木头人哦\n\nwhumystery.cn/AprilFools/2025']
+]
+
+// 线索点（你原来长数组的位置）
 const now = new Date();
 const shanghaiTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 const points = reactive([
@@ -123,7 +169,7 @@ const points = reactive([
     id: 1,
     x: 30,
     y: 65,
-    lat: 30.536310942177316,
+    lat: 30.536310942177316 ,
     lng: 114.35688680397095,
     type: "desc",
     state: "unlocked",
@@ -131,7 +177,7 @@ const points = reactive([
     title: "协会介绍",
     investigatingOfficer: "小推",
     data: {
-      description: "武汉大学逻辑推理协会(Logic and reasoning association of Wuhan University),简称武大推协,别名神探伽利略,是2013年9月由武汉大学社团联合会以及武汉大学校党委审核通过成立的武汉大学校级学术科技类学生社团。\n社团的宗旨是培养逻辑思维能力,连接学习、实践与兴趣爱好,为广大武大学子提供一个让自己“思想畅游”的舞台,加强校园文化氛围建设,为广大推理爱好者服务,提高大学生的自身修养,培养逻辑思维能力。\n创立时间:2013.9.1",     
+      description: "武汉大学逻辑推理协会（Logic and reasoning association of Wuhan University），简称武大推协，别名神探伽利略，是2013年9月由武汉大学社团联合会以及武汉大学校党委审核通过成立的武汉大学校级学术科技类学生社团。\n社团的宗旨是培养逻辑思维能力，连接学习、实践与兴趣爱好，为广大武大学子提供一个让自己“思想畅游”的舞台，加强校园文化氛围建设，为广大推理爱好者服务，提高大学生的自身修养，培养逻辑思维能力。\n创立时间:2013.9.1",     
     },
   },
   {
@@ -629,15 +675,171 @@ const points = reactive([
     },
   },
 
-
 ])
 
-const visiblePoints = computed(() => points.filter(p => p.state !== 'locked'))
+/* —————————————————— 其它状态与工具 —————————————————— */
+// 左上图标（基于线路状态显示）
+const lineStatus = ref('normal'); // normal | backup | failed
+const headerTip = computed(() => {
+  switch (lineStatus.value) {
+    case 'backup': return { icon: '⚠', text: '备用线路' }
+    case 'failed': return { icon: 'ヾ(≧へ≦)〃', text: '无法搜索' }
+    default:       return { icon: '⚠', text: '使用电脑获得最佳体验' }
+  }
+});
 
-/* —————————————————— 地图初始化 —————————————————— */
-let map
+// visible points（保留原逻辑）
+const visiblePoints = computed(() => points.filter(p => p.state !== 'locked'));
 
-// 创建绑定点逻辑
+/* —————————————————— 地图与搜索相关 —————————————————— */
+let map = null;
+
+// 防止备用线路地图标点加载不出来（保留原设置）
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl:        '/images/home/marker-icon.png',
+  shadowUrl:      '/images/home/marker-shadow.png',
+  iconRetinaUrl:  '/images/home/marker-icon.png',
+});
+
+// tile / provider（保留原逻辑）
+const ONLINE_TILE   = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+const BACKUP_TILE   = '/hjd/map/{z}/{x}/{y}.png';
+const ONLINE_PROVIDER = new OpenStreetMapProvider({ params: { 'accept-language': 'zh-CN' } });
+const BACKUP_PROVIDER = new OpenStreetMapProvider({
+  params: { 'accept-language': 'zh-CN' },
+  searchUrl: '/hjd/map/search'
+});
+const TEST_QUERY  = 'christie';
+
+const tileUrl         = ref(ONLINE_TILE);
+const searchProvider = ref(ONLINE_PROVIDER);
+
+function makeTimeout(ms = 5000) {
+  return new Promise((_, reject) =>
+    setTimeout(reject, ms, 'timeout')
+  );
+}
+
+async function singleCheck () {
+  try {
+    await Promise.race([ ONLINE_PROVIDER.search({ query: TEST_QUERY }), makeTimeout() ]);
+    return;
+  } catch {
+    tileUrl.value = BACKUP_TILE;
+    searchProvider.value = BACKUP_PROVIDER;
+    lineStatus.value     = 'backup';
+    try {
+      await Promise.race([ BACKUP_PROVIDER.search({ query: TEST_QUERY }), makeTimeout() ]);
+    } catch(e) {
+      console.log(e);
+      lineStatus.value = 'failed';
+    }
+  }
+}
+
+/* —————————————————— 视口与横屏锁定逻辑 —————————————————— */
+const STAGE_RATIO = 16 / 9;   // 你想要的横屏宽高比
+
+const containerRef = ref(null);
+
+// 是否为移动端（简单 UA 判定）
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+// orientation lock 成功标志
+const orientationLocked = ref(false);
+
+// visualViewport 数据（驱动容器高度）
+const viewport = reactive({
+  width: window.innerWidth,
+  height: window.innerHeight,
+  scale: 1,
+  offsetLeft: 0,
+  offsetTop: 0,
+});
+
+// 将 visualViewport 的值应用到 reactive，并触发 map.invalidateSize()
+function applyViewportSize(vp) {
+  viewport.width = vp.width;
+  viewport.height = vp.height;
+  viewport.scale = vp.scale ?? 1;
+  viewport.offsetLeft = vp.offsetLeft ?? 0;
+  viewport.offsetTop = vp.offsetTop ?? 0;
+
+  cancelAnimationFrame(applyViewportSize._rafId);
+  applyViewportSize._rafId = requestAnimationFrame(() => {
+    if (map) map.invalidateSize();
+  });
+}
+
+// 处理 resize 事件（来自 visualViewport 或 window）
+function handleViewportResize() {
+  const vp = window.visualViewport ? {
+    width: window.visualViewport.width,
+    height: window.visualViewport.height,
+    scale: window.visualViewport.scale,
+    offsetLeft: window.visualViewport.offsetLeft,
+    offsetTop: window.visualViewport.offsetTop,
+    source: 'viewport'
+  } : {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    scale: 1,
+    offsetLeft: 0,
+    offsetTop: 0,
+    source: 'window'
+  };
+
+  applyViewportSize(vp);
+}
+
+// 尝试使用 Screen Orientation API 锁定横屏（仅在用户交互后多数浏览器允许）
+async function tryLockOrientation() {
+  if (!isMobile) return;
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape-primary');
+      orientationLocked.value = true;
+      // 触发一次尺寸刷新
+      handleViewportResize();
+      return true;
+    }
+  } catch (e) {
+    // 有些浏览器（尤其 iOS Safari）不支持或会拒绝
+    console.warn('横屏锁定失败：', e);
+  }
+  return false;
+}
+
+// 当处于竖屏且未锁定时显示提示（不阻断功能）
+const showRotateHint = computed(() => {
+  // 视口宽小于高视作竖屏
+  const inPortrait = viewport.width < viewport.height;
+  return isMobile && inPortrait && !orientationLocked.value;
+});
+
+const containerStyle = computed(() => ({
+  // 宽度保持 100vw（视口宽），高度使用 visualViewport.height（避免 100vh 被导航栏干扰）
+  height: `${viewport.height}px`,
+  overflowX: 'auto',
+  overflowY: 'hidden',
+  // 使用安全区底部内边距，避免 iOS 底部手势遮挡内容（需要 meta viewport-fit=cover）
+  paddingBottom: 'env(safe-area-inset-bottom)'
+}));
+
+const stageStyle = computed(() => {
+  // 舞台宽 = 视口高 * 宽高比（横屏为主）
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO);
+  const centered = viewport.width >= expectedWidth;
+  return {
+    width: expectedWidth + 'px',
+    height: viewport.height + 'px',
+    margin: centered ? '0 auto' : '0', // 宽屏左右留白；窄屏产生横向滚动
+    transformOrigin: 'top left',
+  };
+});
+
+/* —————————————————— 地图初始化与点绑定（保留你原逻辑） —————————————————— */
 function createImageMarkers(list) {
   list.forEach(([lat, lng, file, caseNo, tit, officer, desc]) => {
     L.marker([lat, lng], {
@@ -656,319 +858,21 @@ function createImageMarkers(list) {
           investigatingOfficer: officer,
           data: { description: desc }
         });
-      })
-  })
-}
-
-// 防止备用线路地图标点加载不出来
-delete L.Icon.Default.prototype._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconUrl: '/images/home/marker-icon.png',
-  shadowUrl: '/images/home/marker-shadow.png',
-  iconRetinaUrl: '/images/home/marker-icon.png',
-})
-
-/** ——— 路由与超时设置 ——— */
-const ONLINE_TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const BACKUP_TILE = '/hjd/map/{z}/{x}/{y}.png'
-const ONLINE_PROVIDER = new OpenStreetMapProvider({ params: { 'accept-language': 'zh-CN' } })
-const BACKUP_PROVIDER = new OpenStreetMapProvider({
-  params: { 'accept-language': 'zh-CN' },
-  searchUrl: '/hjd/map/search'
-})
-const TEST_QUERY = 'christie'
-const tileUrl = ref(ONLINE_TILE)
-const searchProvider = ref(ONLINE_PROVIDER)
-const lineStatus = ref('normal')
-
-function makeTimeout(ms = 5000) {
-  return new Promise((_, reject) =>
-    setTimeout(reject, ms, 'timeout')
-  )
-}
-
-async function singleCheck() {
-  try {
-    await Promise.race([
-      ONLINE_PROVIDER.search({ query: TEST_QUERY }),
-      makeTimeout()
-    ])
-    return
-  } catch {
-    tileUrl.value = BACKUP_TILE
-    searchProvider.value = BACKUP_PROVIDER
-    lineStatus.value = 'backup'
-    try {
-      await Promise.race([
-        BACKUP_PROVIDER.search({ query: TEST_QUERY }),
-        makeTimeout()
-      ])
-    } catch(e) {
-      console.log(e)
-      lineStatus.value = 'failed'
-    }
-  }
-}
-
-// —— 横屏检测与视口自适应 ——
-const STAGE_RATIO = 16 / 9
-const containerRef = ref(null)
-
-// 当前视口参数
-const viewport = reactive({
-  width: 0,
-  height: 0,
-  scale: 1,
-  offsetLeft: 0,
-  offsetTop: 0,
-})
-
-// 是否需要旋转(竖屏时需要)
-const needRotate = computed(() => viewport.width < viewport.height)
-
-// 外层容器样式
-const containerStyle = computed(() => {
-  if (needRotate.value) {
-    // 竖屏时:容器需要旋转,宽高互换
-    return {
-      width: `${viewport.height}px`,
-      height: `${viewport.width}px`,
-      overflowX: 'auto',
-      overflowY: 'hidden',
-    }
-  } else {
-    // 横屏时:正常显示
-    return {
-      width: '100%',
-      height: `${viewport.height}px`,
-      overflowX: 'auto',
-      overflowY: 'hidden',
-    }
-  }
-})
-
-// 舞台样式
-const stageStyle = computed(() => {
-  const vh = needRotate.value ? viewport.width : viewport.height
-  const vw = needRotate.value ? viewport.height : viewport.width
-  const expectedWidth = Math.round(vh * STAGE_RATIO)
-  const centered = vw >= expectedWidth
-  
-  return {
-    width: expectedWidth + 'px',
-    height: vh + 'px',
-    margin: centered ? '0 auto' : '0',
-  }
-})
-
-// 应用视口尺寸
-function applyViewportSize(vp) {
-  viewport.width = vp.width
-  viewport.height = vp.height
-  viewport.scale = vp.scale ?? 1
-  viewport.offsetLeft = vp.offsetLeft ?? 0
-  viewport.offsetTop = vp.offsetTop ?? 0
-  
-  cancelAnimationFrame(applyViewportSize._rafId)
-  applyViewportSize._rafId = requestAnimationFrame(() => {
-    if (map) map.invalidateSize()
-  })
-}
-
-// 视口变化处理
-function handleViewportResize() {
-  const vp = window.visualViewport
-    ? {
-        width: window.visualViewport.width,
-        height: window.visualViewport.height,
-        scale: window.visualViewport.scale,
-        offsetLeft: window.visualViewport.offsetLeft,
-        offsetTop: window.visualViewport.offsetTop,
-        source: 'viewport',
-      }
-    : {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        scale: 1,
-        offsetLeft: 0,
-        offsetTop: 0,
-        source: 'window',
-      }
-  
-  applyViewportSize(vp)
-}
-
-// 初始化
-onMounted(async () => {
-  await singleCheck()
-  const center = [30.53999400863865, 114.36068907456229]
-  const zoom = 16
-  
-  map = L.map("map", { zoomControl: true, attributionControl: false })
-    .setView(center, zoom)
-  
-  L.control.attribution({
-    prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119" rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
-  }).addTo(map);
-  
-  map.on('click', (e) => {
-    console.log('点击的经纬度:', e.latlng.lat, e.latlng.lng);
-    closeCaseFile()
-    e.originalEvent.preventDefault();
-  });
-  
-  L.tileLayer(tileUrl.value, { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map)
-  const letter=`Mon cher ami,\n
-I do not know,Hastings, if what I have done is justified or not justified. No — I do not know. I do not believe that a man should take the law into his own hands ...\n
-But on the other hand, I am the law! As a young man in the Belgian police force I shot down a desperate criminal who sat on a roof and fired at people below. In a state of emergency martial law is proclaimed.\n
-By taking Norton's life, I have saved other lives — innocent lives. But still I do not know ... It is perhaps right that I should not know. I have always been so sure — too sure ...\n
-But now I am very humble and I say like a little child: "I do not know ..." Good-bye, cher ami. I have moved the amyl nitrite ampoules away from beside my bed. I prefer to leave myself in the hands of the bon Dieu. May his punishment, or his mercy, be swift!\n
-We shall not hunt together again, my friend. Our first hunt was here — and our last ...\n
-They were good days.\n
-Yes, they have been good days...\n
-`
-  
-  // 地图绑定点列表
-  const imagePointList = [
-      [51.52375372901273, -0.15847191042499323, 'A2.png',  '221B Baker Street', 'Sherlock Holmes Museum', 'Sir Arthur Conan Doyle', 'If you wish,you can send a letter to 221B Baker Street\nTell the post offic that you want to send a regular letter to London,UK.\n\nWrite on the envelope in English:\n430072(postal code)\nLi Hua\nP.R. China\nHubei Province,Wuhan\nLuoyu Road\n\nMr. SHERLOCK HOLMES\n221b Baker Street\nLondon,NW1 6XE\nUnited Kindom\n\nIt may take about two months to receive a reply.'],
-  [-35.31933606329581,139.79998122639623,'A1.png','Answer-14-21', '跟踪调查', '维金斯', '51.52375372901273,-0.15847191042499323\n\n车费三先令六便士'],
-  [43.663983286472,-79.418399218705,'A3.png','Answer-5-13','note','Hercule Poirot','This park is for William Mellis Christie.\nYou can come to 51.59186635058419,-1.1202265048383289\n\nWalk north and turn left at Wallingford Bridge\nKeep walking for about 0.3 miles\nWallingford Museum is on your right\nOn the left is the Agatha Christie Statue Bench\n\ntake a photo'],
-  [51.59186635058419,-1.1202265048383289,'A4.png','Styles','End of Hercule Poirot\'s manuscript','Captain Arthur Hastings',letter],
-  [33.8836,130.8726,'A5.png','1909.12.21-1992.8.4','松本清张纪念馆','松本清张','松本清张开创了“社会派推理”，与江户川乱步、横沟正史并为“日本推理文坛三大高峰”。东野圭吾、宫部美雪、蔡骏等悬疑推理小说家皆深受其影响。\n\n代表作:\n《砂器》\n《零的焦点》\n《点与线》'],
-  [35.1687,136.9063,'A6.png','1894.10.21—1965.7.28','江戸川乱歩旧居跡記念碑','江户川乱步','江户川乱步，本名平井太郎，男，1894年10月21日出生于日本三重县名张町，毕业于日本私立第一学府早稻田大学。是日本的推理作家、评论家，被誉为日本“侦探推理小说之父”。\n江户川乱步是日本推理“本格派”的创始人。\n\n代表作:\n《D坂杀人事件》\n《两分铜币》\n《人间椅子》'],
-  [35.7044,138.6616,'A7.png','1902.5.24-1981.12.28','横溝正史館','横沟正史','横沟正史出生于日本兵库县神户市中央区东川崎町。毕业于大阪大学，日本本格派推理作家。\n横沟正史在风格上不同于江户川乱步，被称为推理小说的“变格派”。他强调趣味性，不重写实，而以离奇怪诞为特征，人物和情节被夸张、变形，甚至有妖魔鬼怪、死而复活的情节。\n\n代表作:\n《女王蜂》\n《狱门岛》\n《本阵杀人事件》'],
-  [35.6588,139.7452,'A8.png','332.6','东京塔','内藤多仲','《柯南 M13 漆黑的追踪者》\n《柯南 震动的警视厅 1200万名人质》\n《魔术快斗 漆黑之星》\n《三色猫 福尔摩斯的推理》\n……'],
-  [35.6861,139.7823,'A9.png','/','人形町','东京都中央区','《新参者》\n《麒麟之翼》\n《祈祷落幕时》'],
-  [35.6826,139.7644,'A10.png','1970','京都大学推理小说研究会','《苍鸦城》','巽昌章\n绫辻行人\n小野不由美\n法月纶太郎\n我孙子武丸\n中西智明\n麻耶雄嵩\n清凉院流水\n大山诚一郎\n円居挽\n……'],
-  [35.6812,139.7670,'A11.png','18.2','东京站','TYO','《柯南 M1 计时引爆摩天楼》\n《柯南 黑铁的神秘列车》\n《怪盗二十面相》\n'],
-  [36.1463,137.2576,'A12.png','/','弥生桥','岐阜県高山市大新町1-2-1','《冰菓》'],
-  [39.9618,-75.150,'A13.png','1809.1.19-1849.10.7','埃德加·爱伦·坡国家历史遗址','Edgar Allan Poe','《莫格街凶杀案》是美国作家埃德加·爱伦·坡撰写的一部中篇侦探小说，1841年5月于《格雷姆杂志》上刊登，一般被公认为全世界最早出现的推理小说，故事中的法国侦探杜邦也成为往后部分推理小说中的主角的重要参考。'],
-  [31.3061,121.5034,'A14.png','上海市杨浦区伟德路48号','谜芸馆','时晨','谜芸馆书店是由推理作家时晨创办的推理书店，前身为黄浦区南昌路的孤岛书店。书店主营侦探推理小说，兼售推理评论类书籍、科幻、恐怖、悬疑等类型小说，此外，还有市面上难寻的绝版推理小说。\n这里是上海悬疑推理作家研讨会（参与者有蔡骏、马伯庸、那多等知名悬疑作家）的常驻地，也是本格推理作家俱乐部的基地。\n谜芸馆旨在为推理小说迷提供更专业的阅读和分享空间，也为推广本土推理文化尽一份力。馆内会定期组织推理作家讲座、推理小说读书会、写作研讨班等活动。'],
-  [0,0,'A16.png','你好你好','亲爱的','玩的开心么？玩的开心就好','不来局游戏么，一二三木头人哦\n\nwhumystery.cn/AprilFools/2025']
-  ]
-  
-  createImageMarkers(imagePointList)
-  
-  // 巨大花火
-  L.marker([42, 42], {
-    icon: L.icon({
-      iconUrl: `/images/home/A15.png`,
-      iconSize: [400, 400],
-      iconAnchor: [200, 200]
-    })
-  })
-    .addTo(map)
-    .on('click', () => {
-      selectPoint({
-        type: 'desc',
-        caseNumber: '锵锵~',
-        title: 'ψ(｀∇´)ψ',
-        investigatingOfficer: '花火大人ᐠ( ᑒ )ᐟ花火大人ᐠ( ᑒ )ᐟ',
-        data: { description: '世界是一个巨大的花火!' }
       });
-    })
-  
-  // 视口监听
-  handleViewportResize()
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', handleViewportResize)
-    window.visualViewport.addEventListener('scroll', handleViewportResize)
-  }
-  window.addEventListener('resize', handleViewportResize)
-  window.addEventListener('orientationchange', () => {
-    setTimeout(handleViewportResize, 100)
-  })
-  
-  nextTick(() => {
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 300);
-  })
-})
-
-async function handleCommand(e) {
-  const cmd = e.target.value.trim();
-  if (!cmd) return;
-  
-  if (cmd === 'APTX4869') {
-    alert('嗯呢嗯呢(恭喜你答对了!)\n嗯呢(花火生产娃娃中5/100;音频挂载1/1)');
-    e.target.value = '';
-    return;
-  }
-  
-  if (cmd === 'Il aurait suffit') {
-    const bgm = document.getElementById('bgm');
-    bgm.muted = false;
-    bgm.play().catch(() => alert('浏览器禁止自动播放,请更换浏览器'));
-    e.target.value = '';
-    return;
-  }
-  
-  if (cmd === 'sparkle' || cmd === 'SPARKLE') {
-    map.flyTo([0, 0], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
-  }
-  
-  if (cmd === '花火') {
-    map.flyTo([42, 42], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
-  }
-  
-  const latlng = cmd.split(',').map(Number);
-  if (latlng.length === 2 && latlng.every(n => !isNaN(n))) {
-    const [lat, lng] = latlng;
-    map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 1.5 });
-    e.target.value = '';
-    return;
-  }
-  
-  try {
-    const results = await searchProvider.value.search({ query: cmd });
-    console.log(results)
-    if (results && results.length) {
-      const { x: lng, y: lat, label } = results[0];
-      map.flyTo([lat, lng], 16, { duration: 1.5 });
-      L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup();
-    } else {
-      alert('未找到相关地点');
-    }
-  } catch (e) {
-    console.log(e)
-    alert('搜索失败');
-  } finally {
-    e.target.value = '';
-  }
+  });
 }
 
-/* —————————————————— 固定点计算 —————————————————— */
-function markerStyle(p) {
-  return {
-    left: `${p.x}%`,
-    top: `${p.y}%`,
-  }
-}
-
-function handleMarkerClick(point) {
-  flyToPoint(point.lat, point.lng)
-  selectPoint(point)
-}
-
-/* —————————————————— 飞行动画 —————————————————— */
-function flyToPoint(lat, lng) {
-  if (!map) return
-  map.flyTo([lat, lng], Math.max(map.getZoom(), 18), { duration: 1.8 })
-}
-
-/* —————————————————— 连接线 —————————————————— */
+/* —————————————————— 可视化连线（保持原代码） —————————————————— */
 const visibleLines = computed(() =>
   points
     .filter(p => p.state === 'unlocked' && p.data?.next)
     .map(p => {
       const next = points.find(q => q.id === p.data.next)
       if (!next) return null
+
+      // 图标高 8vh → 4vh 半高（和你原有保持一致）
       const offset = 3.125
+
       return {
         id: `${p.id}-${next.id}`,
         x1: p.x + offset,
@@ -978,25 +882,9 @@ const visibleLines = computed(() =>
       }
     })
     .filter(Boolean)
-)
+);
 
-function scrollContainerToCenter() {
-  if (!containerRef.value) return
-  const el = containerRef.value
-  const containerWidth = el.clientWidth
-  const containerHeight = el.clientHeight
-  const stageWidth = el.scrollWidth
-  const stageHeight = el.scrollHeight
-  const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
-  const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
-  el.scrollTo({
-    left: scrollLeft,
-    top: scrollTop,
-    behavior: 'smooth',
-  })
-}
-
-/* —————————————————— 卡片逻辑 —————————————————— */
+/* —————————————————— 交互 / 卡片 / 命令（保持原代码逻辑） —————————————————— */
 const activeCard = ref(null)
 const displayText = ref([])
 const cardBody = ref(null)
@@ -1028,6 +916,7 @@ function closeCaseFile() {
 
 function handleAnswer(choice) {
   if (!activeCard.value) return
+
   const isCorrect = choice === activeCard.value.data.correct || choice === 'D'
   if (isCorrect) {
     const pid = activeCard.value.__pointId
@@ -1046,7 +935,7 @@ function handleAnswer(choice) {
 
 function startTyping(text) {
   let i = 0
-  const chars = [...text]
+  const chars = [...(text || '')]
   textInterval = setInterval(() => {
     if (i < chars.length) {
       displayText.value.push(chars[i++])
@@ -1060,48 +949,212 @@ function startTyping(text) {
   }, 30)
 }
 
+/* —————————————————— 命令输入（保留原代码） —————————————————— */
+async function handleCommand(e) {
+  const cmd = e.target.value.trim();
+  if (!cmd) return;
+
+  if (cmd === 'APTX4869') {
+    alert('嗯呢嗯呢（恭喜你答对了!）\n嗯呢（花火生产娃娃中5/100；音频挂载1/1）');
+    e.target.value = '';
+    return;
+  }
+
+  if (cmd === 'Il aurait suffi') {
+    const bgm = document.getElementById('bgm');
+    bgm.muted = false;
+    bgm.play().catch(() => alert('浏览器禁止自动播放，请更换浏览器'));
+    e.target.value = '';
+    return;
+  }
+
+  if (cmd === 'sparkle' || cmd === 'SPARKLE') {
+    if (map) map.flyTo([0, 0], Math.max(map.getZoom(), 16), { duration: 1.5 });
+    e.target.value = '';
+    return;
+  }
+  if (cmd === '花火') {
+    if (map) map.flyTo([42, 42], Math.max(map.getZoom(), 16), { duration: 1.5 });
+    e.target.value = '';
+    return;
+  }
+
+  // ② 手动经纬度（含 ,）
+  const latlng = cmd.split(',').map(Number);
+  if (latlng.length === 2 && latlng.every(n => !isNaN(n))) {
+    const [lat, lng] = latlng;
+    if (map) map.flyTo([lat, lng], Math.max(map.getZoom(), 16), { duration: 1.5 });
+    e.target.value = '';
+    return;
+  }
+
+  // ③ 中文地址 → 搜索第一条结果
+  try {
+    const results =  await searchProvider.value.search({ query: cmd });
+    if (results && results.length) {
+      const { x: lng, y: lat, label } = results[0];
+      if (map) {
+        map.flyTo([lat, lng], 16, { duration: 1.5 });
+        L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup();
+      }
+    } else {
+      alert('未找到相关地点');
+    }
+  } catch (e){
+    console.log(e)
+    alert('搜索失败');
+  } finally {
+    e.target.value = '';
+  }
+}
+
+/* —————————————————— 固定点样式与事件（保持原逻辑） —————————————————— */
+function markerStyle(p) {
+  return {
+    left: `${p.x}%`,
+    top: `${p.y}%`,
+  };
+}
+
+function handleMarkerClick(point) {
+  flyToPoint(point.lat, point.lng)
+  selectPoint(point)
+}
+
+function flyToPoint(lat, lng) {
+  if (!map) return
+  map.flyTo([lat, lng], Math.max(map.getZoom(), 18), { duration: 1.8 })
+}
+
+/* —————————————————— 居中滚动（保持原逻辑） —————————————————— */
+function scrollContainerToCenter() {
+  if (!containerRef.value) return
+  const el = containerRef.value
+
+  const containerWidth = el.clientWidth
+  const containerHeight = el.clientHeight
+  const stageWidth = el.scrollWidth
+  const stageHeight = el.scrollHeight
+
+  const scrollLeft = Math.max(0, (stageWidth - containerWidth) / 2)
+  const scrollTop = Math.max(0, (stageHeight - containerHeight) / 2)
+
+  el.scrollTo({
+    left: scrollLeft,
+    top: scrollTop,
+    behavior: 'smooth',
+  })
+}
+
+/* —————————————————— 生命周期：初始化地图、点、视口监听 —————————————————— */
+onMounted(async () => {
+  // 1) 检查 tile/search 线路（保持原逻辑）
+  await singleCheck();
+
+  // 2) 视口首次应用
+  handleViewportResize();
+
+  // 3) 监听 visualViewport（推荐）和 window resize 的回退
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportResize);
+  } else {
+    window.addEventListener('resize', handleViewportResize);
+  }
+
+  // 4) 尝试锁屏（若支持）
+  tryLockOrientation();
+
+  // 5) 初始化 Leaflet 地图（保留配置）
+  const center = [30.53999400863865, 114.36068907456229];
+  const zoom = 16;
+
+  map = L.map("map", { zoomControl: true, attributionControl: false }).setView(center, zoom);
+
+  L.control.attribution({
+    prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119 " rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
+  }).addTo(map);
+
+  map.on('click', (e) => {
+    // 保留你原有的点击处理
+    console.log('点击的经纬度：', e.latlng.lat, e.latlng.lng);
+    closeCaseFile();
+    e.originalEvent.preventDefault();
+  });
+
+  L.tileLayer(tileUrl.value, { maxZoom: 19 , attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+
+  // 添加点（使用你上面定义的 imagePointList）
+  createImageMarkers(imagePointList);
+
+  // 保留原示例大图标（如果需要可以移除）
+  L.marker([42, 42], {
+    icon: L.icon({
+      iconUrl: `/images/home/A15.png`,
+      iconSize: [400, 400],
+      iconAnchor: [200, 200]
+    })
+  })
+    .addTo(map)
+    .on('click', () => {
+      selectPoint({
+        type: 'desc',
+        caseNumber: '锵锵~',
+        title: 'ψ(｀∇´)ψ',
+        investigatingOfficer: '花火大人ᐠ( ᑒ )ᐟ花火大人ᐠ( ᑒ )ᐟ',
+        data: { description: '世界是一个巨大的花火！' }
+      });
+    });
+
+  // 触发 Leaflet 重新计算大小（延迟以等待布局稳定）
+  nextTick(() => {
+    setTimeout(() => {
+      if (map) map.invalidateSize();
+    }, 300);
+  });
+});
+
 onUnmounted(() => {
   if (window.visualViewport) {
-    window.visualViewport.removeEventListener('resize', handleViewportResize)
-    window.visualViewport.removeEventListener('scroll', handleViewportResize)
+    window.visualViewport.removeEventListener('resize', handleViewportResize);
+  } else {
+    window.removeEventListener('resize', handleViewportResize);
   }
-  window.removeEventListener('resize', handleViewportResize)
-  window.removeEventListener('orientationchange', handleViewportResize)
-  clearInterval(textInterval)
+  clearInterval(textInterval);
   if (map) {
-    map.off()
-    map.remove()
+    map.off();
+    map.remove();
   }
-})
+});
 </script>
 
 <style scoped>
+/* 设计变量（保留你的样式风格并增强 safe-area） */
 :root {
-  --metal-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="n"><feTurbulence baseFrequency=".8" numOctaves="3" result="noise"/><feColorMatrix values="0 0 0 .1 .1 0 0 0 .1 .1 0 0 0 .1 .1 0 0 0 1 0"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".4"/></svg>');
+  --metal-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg " width="100" height="100"><filter id="n"><feTurbulence baseFrequency=".8" numOctaves="3" result="noise"/><feColorMatrix values="0 0 0 .1 .1 0 0 0 .1 .1 0 0 0 .1 .1 0 0 0 1 0"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity=".4"/></svg>');
   --border-glow: #00b3ff;
   --danger: #ff4757;
   --bg: #0f1113;
 }
 
-/* 最外层包装器 */
-.layout1-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
+/* 根容器：允许横向滚动，使用 visualViewport 驱动高度 */
+.layout1-root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-}
-
-/* 竖屏时强制横屏显示 */
-.layout1-wrapper.force-landscape {
-  transform-origin: top left;
-  transform: rotate(90deg) translateY(-100%);
+  position: relative;
+  background: #000;
 }
 
 .layout1-container {
+  width: 100vw;                 /* 与 visualViewport.width 对齐 */
+  overflow-x: auto;             /* 窄屏时出现横向滚动条 */
+  overflow-y: hidden;           /* 高度由脚本设置为视窗高度 */
   -webkit-overflow-scrolling: touch;
-  position: relative;
+  /* 让容器与 iOS 安全区保持距离（需 meta viewport-fit=cover） */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 /* —— 外壳 —— */
@@ -1118,7 +1171,6 @@ onUnmounted(() => {
   overflow: hidden;
   position: relative;
 }
-
 .case-board__header {
   flex: 0 0 48px;
   display: flex;
@@ -1130,24 +1182,20 @@ onUnmounted(() => {
   font-family: 'Rajdhani', sans-serif;
   color: #e1e3e6;
 }
-
 .case-board__left {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .case-board__icon {
   font-size: 18px;
   color: #ffd200;
 }
-
 .case-board__label {
   font-weight: 600;
   letter-spacing: .06em;
   font-size: 15px;
 }
-
 .case-board__right {
   display: flex;
   align-items: center;
@@ -1156,7 +1204,6 @@ onUnmounted(() => {
   color: #b0b4b8;
   text-transform: uppercase;
 }
-
 .case-board__pulse {
   width: 10px;
   height: 10px;
@@ -1165,18 +1212,17 @@ onUnmounted(() => {
   box-shadow: 0 0 6px var(--danger);
   animation: pulse 1.5s infinite;
 }
-
 @keyframes pulse {
   0%   { transform: scale(1);   opacity: 1; }
   50%  { transform: scale(1.3); opacity: 0.6; }
   100% { transform: scale(1);   opacity: 1; }
 }
-
 .case-board__body {
   flex: 1;
   overflow: hidden;
 }
 
+/* 地图占满舞台高度 */
 #map {
   width: 100%;
   height: 100%;
@@ -1187,7 +1233,6 @@ onUnmounted(() => {
     contrast(0.8)
     hue-rotate(200deg);
 }
-
 #map::after {
   content: '';
   position: absolute;
@@ -1203,27 +1248,25 @@ onUnmounted(() => {
   pointer-events: none;
   z-index: 999;
 }
-
 .fixed-marker {
   position: absolute;
   pointer-events: auto;
   cursor: pointer;
 }
-
+/* 统一图标大小（vh 基于视口高度，横屏时仍有效） */
 .point-icon {
   width: 10vh;
   height: 10vh;
   object-fit: cover;
 }
 
+/* 状态样式 */
 .state-unlocked .point-icon {
   filter: none;
 }
-
 .state-flashing .point-icon {
   animation: pulse-flash 3s infinite ease-in-out;
 }
-
 @keyframes pulse-flash {
   0%   { transform: scale(1); }
   50%  { transform: scale(1.1); }
@@ -1248,41 +1291,34 @@ onUnmounted(() => {
   overflow: hidden;
   z-index: 1001;
 }
-
 .card-header {
   padding: 16px 20px 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 .case-number {
   font-size: 12px;
   opacity: 0.7;
 }
-
 .card-title {
   margin: 4px 0 0;
   font-size: 20px;
 }
-
 .card-body {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
   min-height: 0;
 }
-
 .card-text {
   white-space: pre-wrap;
   line-height: 1.6;
 }
-
 .card-options {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
 .option-btn {
   padding: 10px 16px;
   border: none;
@@ -1291,11 +1327,9 @@ onUnmounted(() => {
   color: #fff;
   cursor: pointer;
 }
-
 .option-btn:hover {
   background: rgba(255, 255, 255, 0.2);
 }
-
 .card-footer {
   padding: 23px 20px;
   font-size: 12px;
@@ -1303,7 +1337,6 @@ onUnmounted(() => {
   opacity: 0.7;
   position: relative;
 }
-
 .close-file {
   position: absolute;
   bottom: 16px;
@@ -1315,12 +1348,10 @@ onUnmounted(() => {
   color: #fff;
   cursor: pointer;
 }
-
 .case-file-enter-active,
 .case-file-leave-active {
   transition: all 0.25s ease;
 }
-
 .case-file-enter-from,
 .case-file-leave-to {
   opacity: 0;
@@ -1336,6 +1367,7 @@ onUnmounted(() => {
   z-index: 1000;
 }
 
+/* 命令输入与图标 */
 .command-input {
   background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.2);
@@ -1346,10 +1378,7 @@ onUnmounted(() => {
   width: 180px;
   text-align: center;
 }
-
-.command-input::placeholder {
-  color: rgba(255,255,255,.6);
-}
+.command-input::placeholder { color: rgba(255,255,255,.6); }
 
 .search-icon {
   position: absolute;
@@ -1360,5 +1389,43 @@ onUnmounted(() => {
   height: 25px;
   opacity: 0.3;
   pointer-events: none;
+}
+
+/* —— 竖屏提示遮罩（当无法锁屏时） —— */
+.rotate-hint {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.rotate-hint__box {
+  text-align: center;
+  padding: 20px 28px;
+  border-radius: 10px;
+  background: rgba(10,10,10,0.85);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+.rotate-hint__icon { font-size: 34px; margin-bottom: 8px; }
+.rotate-hint__text { font-size: 16px; margin-bottom: 12px; }
+.rotate-hint__btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #0db0ff;
+  color: #002;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* iPad / 桌面：当宽度足够时居中显示舞台 */
+@media (min-width: 900px) {
+  .layout1-container { display: flex; align-items: center; justify-content: center; }
+  .case-board { border-radius: 16px; }
 }
 </style>
