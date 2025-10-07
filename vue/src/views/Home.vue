@@ -203,7 +203,8 @@ const headerTip = computed(() => {
     default:       return { icon: '⚠', text: '使用电脑获得最佳体验' }
   }
 })
-
+const now = new Date();
+const shanghaiTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 const points = reactive([
   {
     id: 1,
