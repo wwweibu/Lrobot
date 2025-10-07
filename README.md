@@ -108,6 +108,7 @@
 |                                       组件                                       |     用途     |          原始许可证           |
 |:------------------------------------------------------------------------------:|:----------:|:------------------------:|
 |                [NapCatQQ](https://github.com/NapNeko/NapCatQQ)                 | 获取Docker镜像 | [自定义非商业协议](#NapCat许可证声明) |
+|                 [mihomo](https://github.com/MetaCubeX/mihomo)                  | 获取Docker镜像 |           MIT            |
 | [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect) |  API调用参数   |       CC BY-NC 4.0       |
 |  [bilibili_live_tool](https://github.com/chenxi-Eumenides/bilibili_live_tool)  |   参考加密方式   |         MPL-2.0          |
 |              [docusaurus](https://github.com/facebook/docusaurus)              |    文档网站    |      MIT, CC-BY-4.0      |

@@ -25,7 +25,7 @@ async def merge_img():
         info = g["info"]
 
         text_img_path = path / f"storage/file/command/hunt/tmp_text_{gid}.jpg"
-        await data.text_to_image(f"群{gid}: {info}", text_img_path, 30)
+        await data.text_to_image(f"群{gid}: {info}", text_img_path, font_size=30)
 
         qr_img_path = path / f"storage/file/command/hunt/{gid}.jpg"
         if not qr_img_path.exists():
