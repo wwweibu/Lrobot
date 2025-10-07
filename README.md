@@ -74,7 +74,7 @@
 4. 启动 napcat 服务
     - `docker compose up --build -d napcat`（linux 需要加 sudo，下同）
     - 访问[网址](http://127.0.0.1:6099/webui?token=napcat)进行登录或者扫码登录(位置:storage/napcat/cache)
-    - 在页面中配置 HTTP 服务器，`启用-开启Debug-port:5921`
+    - 在页面中配置 HTTP 服务器，`启用-开启Debug-主机:0.0.0.0-port:5921`
     - 配置 HTTP 客户端，`启用-开启 Debug-URL:http://lrobot:5922/LR5921/ (配置了 secret 记得改成加密后的路径)-上报自身消息`
     - 并在`其他配置-登录配置`里填写当前 QQ 以便快速登录
 5. 启动数据库服务

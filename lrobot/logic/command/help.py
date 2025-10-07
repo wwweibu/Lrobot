@@ -79,6 +79,8 @@ def docs_merge(filter_set, help_mode=True):
     docs = help_txt_load()
     text1, text2, text3 = {}, [], []
     for func_name, base in docs.items():
+        if func_name == "check_restart" and not config["SERVER_IP"]:
+            continue  # 非容器环境跳过此命令
         cmd = next((c for c in config["commands"] if c["function"] == func_name), None)
 
         group_set = base.get("分组", cmd["set"] if cmd else None)
