@@ -361,10 +361,18 @@ def file_hash_get(file):
 
 
 @asynccontextmanager
-async def connect(use_proxy=False, proxy_url="socks5://command:5923"):
+async def connect(use_proxy=False, use_agent=False):
     """代理/不代理连接"""
-    if config["SERVER_IP"] and config["SERVER_USERNAME"] and use_proxy:
-        transport = AsyncProxyTransport.from_url(proxy_url)
+    if use_agent:
+        try:
+            import socket
+            with socket.create_connection(("mihomo", 7891), timeout=1):
+                transport = AsyncProxyTransport.from_url("socks5://mihomo:7891")
+                client = httpx.AsyncClient(transport=transport)
+        except OSError:
+            client = httpx.AsyncClient()
+    elif config["SERVER_IP"] and config["SERVER_USERNAME"] and use_proxy:
+        transport = AsyncProxyTransport.from_url("socks5://command:5923")
         client = httpx.AsyncClient(transport=transport)
     else:
         client = httpx.AsyncClient()

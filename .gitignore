@@ -3,12 +3,14 @@
 /command/lrobot.pem
 
 /secret.py
+/storage/yml/agent.yaml
 /storage/yml/secret.yaml
 /storage/yml/storage.yaml
 /storage/yml/user.yaml
 
 /storage/data/backup
 /storage/data/map
+/storage/data/mihomo
 /storage/data/mongodb
 /storage/data/mysql
 /storage/data/napcat

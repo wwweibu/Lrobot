@@ -1,13 +1,12 @@
 """主页"""
 
 import os
-import httpx
 
 from .base import APIRouter, Query, Response, website_logger, HTTPException
 from config import connect, path
 
 router = APIRouter()
-proxy = "http://host.docker.internal:7890"  # 替换为对应服务端口
+
 
 @router.get("/map/search")
 async def home_search(q: str = Query(...)):
@@ -19,7 +18,7 @@ async def home_search(q: str = Query(...)):
         "limit": 5,
         "accept-language": "zh-CN"
     }
-    async with httpx.AsyncClient(proxies=proxy, timeout=10) as client:
+    async with connect(use_agent=True) as client:
         try:
             r = await client.get("https://nominatim.openstreetmap.org/search", params=params)
             return r.json()
@@ -42,7 +41,7 @@ async def home_map_get(z: int, x: int, y: int):
         return Response(content=data, media_type="image/png")
 
     url = f"https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    async with connect() as client:
+    async with connect(use_agent=True) as client:
         try:
             r = await client.get(url)
             data = r.content
