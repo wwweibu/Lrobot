@@ -10,7 +10,8 @@
 
 /storage/data/backup
 /storage/data/map
-/storage/data/mihomo
+/storage/data/mihomo/cache.db
+/storage/data/mihomo/config.yaml
 /storage/data/mongodb
 /storage/data/mysql
 /storage/data/napcat
