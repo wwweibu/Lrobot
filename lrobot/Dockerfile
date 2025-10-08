@@ -30,11 +30,15 @@ RUN mkdir -p /etc/apt/keyrings && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN python -m pip install --upgrade pip && \
+RUN pip install --no-cache-dir \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --timeout 120 --retries 10 \
+    -r requirements.txt \
+    || \
     pip install --no-cache-dir \
-        -i https://pypi.tuna.tsinghua.edu.cn/simple \
-        --timeout 120 --retries 10 \
-        -r requirements.txt
+    -i https://pypi.douban.com/simple/ \
+    --timeout 120 --retries 10 \
+    -r requirements.txt
 
 # 拷贝主控文件
 COPY main.py .
