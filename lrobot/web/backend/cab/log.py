@@ -22,6 +22,7 @@ async def log_get(data: Dict):
         keyword = data.get("keyword", "")
         regex_pattern = data.get("regex", "")
         start_time = data.get("start_time")
+        print(start_time)
         end_time = data.get("end_time")
         query = {}
 

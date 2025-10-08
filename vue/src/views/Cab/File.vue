@@ -127,21 +127,33 @@ const sortOrder = ref('desc')
 
 // 排序后的文件列表
 const sortedItems = computed(() => {
-  return [...items.value].sort((a, b) => {
+  // 先分离文件夹和文件
+  const folders = items.value.filter(item => item.is_dir)
+  const files   = items.value.filter(item => !item.is_dir)
+
+  // 排序函数
+  const sortFn = (a, b) => {
     let compareValue = 0
-    
+
     if (sortBy.value === 'name') {
-      compareValue = a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
-    } 
-    else if (sortBy.value === 'modified') {
+      compareValue = a.name.localeCompare(b.name, undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
+    } else if (sortBy.value === 'modified') {
       compareValue = new Date(a.modified) - new Date(b.modified)
-    }
-    else if (sortBy.value === 'size') {
+    } else if (sortBy.value === 'size') {
       compareValue = a.size - b.size
     }
-    
+
     return sortOrder.value === 'asc' ? compareValue : -compareValue
-  })
+  }
+
+  // 分别排序后合并
+  folders.sort(sortFn)
+  files.sort(sortFn)
+
+  return [...folders, ...files]
 })
 
 // 切换排序顺序

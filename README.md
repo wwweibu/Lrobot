@@ -55,40 +55,37 @@
 - ~*可以猜猜为什么叫这个名*~
 - 项目文档地址 https://wwweibu.github.io/Lrobot
 - 项目架构
-![架构](./storage/file/firefly/project.png)
+  - 方案 B
+  ![方案B](./storage/file/firefly/project1.png)
+  - 方案 A
+  ![方案A](./storage/file/firefly/project2.png)
 
 ---
 
 ## 快速开始
-#### 准备工作
-1. 准备一台可以长期运行项目的电脑(长期运行=不断电+不自动关机+网络稳定)
-2. 安装好 docker 环境
+> 方案 A，[教程](https://wwweibu.github.io/Lrobot/docs/1项目总览/1快速开始)里有更详细的步骤说明及方案 B
+1. 服务器上配置 nginx,将 storage/nginx.conf 作为 nginx 配置文件
+2. 服务器安装好 docker 环境
 3. 注册并配置各平台信息
-4. 在服务器上配置 nginx，将 storage/nginx.conf 作为 nginx 配置文件
-5. [教程](https://wwweibu.github.io/Lrobot/docs/1项目总览/1快速开始)里有更详细的步骤说明
-
-#### 项目启动
-1. 下载项目 `git clone https://github.com/wwweibu/Lrobot.git`
-2. 将 storage/yml 文件夹中含 copy 后缀的文件重命名去掉 copy(其中 secret.yaml 需要根据文件中的配置提示配置各平台参数，并配置服务器和域名)
-3. 打开命令行进入项目目录`cd Lrobot`（注意里面还有一个 lrobot 文件夹，进入的是外面的）
-4. 启动 napcat 服务
-    - `docker compose up --build -d napcat`（linux 需要加 sudo，下同）
-    - 访问[网址](http://127.0.0.1:6099/webui?token=napcat)进行登录或者扫码登录(位置:storage/napcat/cache)
-    - 在页面中配置 HTTP 服务器，`启用-开启Debug-主机:0.0.0.0-port:5921`
+4. 下载并进入项目 `git clone https://github.com/wwweibu/Lrobot.git` `cd Lrobot`
+5. 将 storage/yml 文件夹中含 copy 后缀的文件重命名去掉 copy(其中 secret.yaml 需要根据文件中的配置提示配置各平台参数)
+6. 启动 napcat 服务
+    - `docker compose up --build -d napcat`(linux 需要加 sudo，下同)
+    - 访问`http://服务器ip:6099/webui`进行登录,napcat 日志中获取密码，扫码登录 qq
+    - 配置 HTTP 服务器，`启用-开启Debug-主机:0.0.0.0-port:5921`
     - 配置 HTTP 客户端，`启用-开启 Debug-URL:http://lrobot:5922/LR5921/ (配置了 secret 记得改成加密后的路径)-上报自身消息`
-    - 并在`其他配置-登录配置`里填写当前 QQ 以便快速登录
-5. 启动数据库服务
+    - `其他配置-登录配置`里填写当前 QQ
+7. 启动 mihomo 服务
+   - 编辑`storage/yml/agent_copy.yaml`为 agent.yaml，保留前几行，后面使用对应的 mihomo 代理配置
+   - `docker compose up --build -d mihomo`启动服务
+8. 启动数据库服务
     - `docker compose up --build -d mysql`
     - `docker compose up --build -d mongodb` 
-6. 启动服务器连接与转发
-    - `docker compose up --build -d command`
-7. 启动 lrobot 主服务
+9. 启动 napcat 监听服务
+   - `docker compose up --build -d napcat_log`
+10. 启动 lrobot 主服务
     - `docker compose up --build -d lrobot`
     - 需安装 libreoffice，预计 10 分钟
-    - 遇到报错大概率是网络问题，直接重试
-8. 启动 napcat 监听服务
-    - `docker compose up --build -d napcat_log`
-9. 配置各平台回调地址
 
 ---
 
