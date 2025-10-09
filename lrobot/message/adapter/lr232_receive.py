@@ -144,7 +144,7 @@ def _faces_merge(content_list):
     else:  # 数量不等，即表情+图片，全部保留为图片
         content_list[:] = [
             c for c in content_list
-            if not (c.get("type") == "image" and c["data"].get("summary") == "动画表情")
+            if not (c.get("type") == "image" and c["data"].get("summary") == "[动画表情]")
         ]
 
 @monitor_adapter("LR232")
