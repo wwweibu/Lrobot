@@ -169,7 +169,7 @@ class Msg:
             return {"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
                                               "emoji_package_id": emoji_package_id}}
         else:
-            return {"type": "image", "data": {"summary": summary}, "file": name}
+            return {"type": "image", "data": {"summary": summary, "file": name}}
 
 
     @classmethod
