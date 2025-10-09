@@ -93,7 +93,7 @@ class Msg:
 
     @classmethod
     def content_join(cls, content):
-        """消息字段打印"""
+        """消息段->字符串"""
         if not content:
             return ""
         handlers = {
@@ -168,10 +168,13 @@ class Msg:
             key, emoji_id, emoji_package_id = raw.split("|")
             return {"type": "mface", "data": {"summary": summary, "key": key, "emoji_id": emoji_id,
                                               "emoji_package_id": emoji_package_id}}
+        else:
+            return {"type": "image", "data": {"summary": summary}, "file": name}
+
 
     @classmethod
     def content_disjoin(cls, content):
-        """将字符串内容解析为消息字段"""
+        """字符串->消息段"""
         if isinstance(content, list):
             return content
         handlers = {
@@ -184,7 +187,7 @@ class Msg:
             },
             "at": lambda v: {"type": "at", "data": {"qq": v}},
             "猜拳": lambda v: {"type": "rps", "data": {"result": {"布": "1", "剪刀": "2", "石头": "3"}.get(v, "any")}},
-            "骰子": lambda v: {"type": "dice", "data": {"result": v if v in "123456" else "any"}},
+            "骰子": lambda v: {"type": "dice", "data": {"result": v if v in ["1", "2", "3", "4", "5", "6"] else "any"}},
             "回复": lambda v: {"type": "reply", "data": {"id": v}},
             "戳戳": lambda _: {"type": "poke", "data": {"type": "1", "id": "1"}},
             "动画表情": lambda v: (
