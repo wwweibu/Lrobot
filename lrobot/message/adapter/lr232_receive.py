@@ -117,7 +117,7 @@ def _faces_merge(content_list):
     """合并或过滤动画表情与图片"""
     # 找出动画表情和文件图片
     face6_idx = [i for i, c in enumerate(content_list)
-                 if c.get("type") == "image" and c["data"].get("summary") == "动画表情"]
+                 if c.get("type") == "image" and c["data"].get("summary") == "[动画表情]"]
     image_idx = [i for i, c in enumerate(content_list)
                  if c.get("type") == "image" and "file" in c["data"]]
 
