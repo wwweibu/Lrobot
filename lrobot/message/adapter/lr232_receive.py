@@ -198,6 +198,8 @@ async def lr232_msg_deal(data):
         for attachment in d.get("attachments", []) or []:
             _attachment_append(content, attachment)
 
+        _faces_merge(content)
+
         Msg(
             platform="LR232",
             kind=kind,
