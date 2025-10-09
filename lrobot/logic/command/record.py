@@ -120,18 +120,23 @@ async def record_write(msg: Msg):
     current_record = next((r for r in data_json if r["id"] == record_id), None)
     if not current_record:
         return
-    codename = await data.user_codename_qq_change(msg.user)
-    if codename:
-        name = codename
+    if msg.event == "发送":
+        user = config["LR5921_ID"]
+        name = "LR5921"
     else:
-        nickname = await data.user_nickname_transform(msg.user, "LR5921")
-        if nickname:
-            name = nickname
+        user = msg.user
+        codename = await data.user_codename_qq_change(user)
+        if codename:
+            name = codename
         else:
-            name = msg.user
+            nickname = await data.user_nickname_transform(user, "LR5921")
+            if nickname:
+                name = nickname
+            else:
+                name = user
     message_entry = {
         "seq": msg.seq,
-        "user": msg.user,
+        "user": user,
         "name": name,
         "content": Msg.content_join(msg.content),
         "time": datetime.now().isoformat()

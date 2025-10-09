@@ -12,6 +12,7 @@ import hashlib
 import logging
 import aiomysql
 import datetime
+import platform
 import traceback
 from pathlib import Path
 import motor.motor_asyncio
@@ -22,6 +23,7 @@ from contextlib import asynccontextmanager
 from httpx_socks import AsyncProxyTransport
 from concurrent.futures import ProcessPoolExecutor
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers.inotify import InotifyObserver
 from watchdog.observers.polling import PollingObserver
 
 # 颜色匹配
@@ -475,7 +477,11 @@ def scheduler_add(func, *args, interval=None, at_time=None, count=None, at_once=
 
 async def config_watcher():
     """开启配置自动更新"""
-    observer = PollingObserver()
+    system = platform.system().lower()
+    if system == "linux":
+        observer = InotifyObserver()
+    else:
+        observer = PollingObserver()
     observer.schedule(AutoConfigHandler(), str(path / "storage/yml"), recursive=False)
     observer.start()
 

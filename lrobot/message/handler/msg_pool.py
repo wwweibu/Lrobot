@@ -20,7 +20,6 @@ class MsgPool:
     def add(cls, msg: Msg):
         """添加消息到池"""
         global msg_pool  # num-msg_data  消息池
-        content_str = Msg.content_join(msg.content) or msg.kind
         msg_data = {"time": time.time(), **{key: getattr(msg, key) for key in Msg.__slots__}}
         msg_pool[msg.num] = msg_data
         if msg_data.get("seq") is not None:
