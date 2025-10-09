@@ -1,10 +1,12 @@
 """WECHAT API 调用"""
 
+import asyncio
 import mimetypes
 from datetime import datetime, timedelta
 
 from .acess_token import access_tokens
-from logic import image_compress, video_compress, record_compress, file_download, text_to_image, image_merge
+from logic import image_compress, video_compress, record_compress, file_download, text_to_image, image_merge, \
+    remove_later
 from config import (
     config,
     future,
@@ -126,6 +128,8 @@ async def wechat_dispatch(
             media_id = await wechat_file_upload(merged_img, type="image")
             base += f"""<MsgType><![CDATA[image]]></MsgType>
                     <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+            asyncio.create_task(remove_later(text_img))
+            asyncio.create_task(remove_later(merged_img))
         elif texts:
             text_content = "\n\n".join(texts)
             if "\n" in text_content:
@@ -134,6 +138,7 @@ async def wechat_dispatch(
                 media_id = await wechat_file_upload(text_img, type="image")
                 base += f"""<MsgType><![CDATA[image]]></MsgType>
                         <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+                asyncio.create_task(remove_later(text_img))
             else:
                 send_content = text_content
                 base += f"""<MsgType><![CDATA[text]]></MsgType>
@@ -151,6 +156,7 @@ async def wechat_dispatch(
                 media_id = await wechat_file_upload(merged_img, type="image")
                 base += f"""<MsgType><![CDATA[image]]></MsgType>
                             <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
+                asyncio.create_task(remove_later(merged_img))
 
     base += "</xml>"
     future.set(seq, base)

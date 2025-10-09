@@ -131,8 +131,11 @@ async def file_download(file_path, url=None, data=None):
 async def remove_later(file_path, delay=60):
     """延迟删除文件"""
     await asyncio.sleep(delay)
+    file_path = Path(file_path)
     try:
-        Path(file_path).unlink()
+        if file_path.exists():
+            file_path.unlink()
+            msg_logger.debug(f"[文件删除]已删除临时文件-> {file_path}", extra={"event": "文件处理"})
     except Exception as e:
         msg_logger.error(
             f"[文件删除]延迟删除失败-> {file_path}: {type(e).__name__}: {e}", extra={"event": "文件处理"}

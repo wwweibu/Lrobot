@@ -37,7 +37,7 @@ async def lr5921_msg_deal(data):
     if post_type == "message":
         if not content:
             return  # 对方已接收文件等为空消息
-        if str(user) in config["private"]["LR232"]:
+        if str(user) == config["LR232_QQ"]:
             kind = "系统消息"
         else:
             msg_type = content[0].get("type", "")
@@ -71,7 +71,7 @@ async def lr5921_msg_deal(data):
                         content[0]["data"]["content"] = response  # 添加 content
                     except asyncio.TimeoutError:
                         content[0]["data"]["content"] = None
-            if {"type": "at", "data": {"qq": "3889270613"}} in content:
+            if {"type": "at", "data": {"qq": config["LR232_QQ"]}} in content:
                 kind = "系统消息"
             kind += "接收"
     elif post_type == "notice":

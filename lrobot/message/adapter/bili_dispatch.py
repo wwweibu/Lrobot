@@ -268,6 +268,8 @@ async def bili_user_video(num, mid):
 async def bili_user_collection(num, mid, collection, sort):
     """私聊用户合集（注：可订阅后在空间中查看 id）"""
     url = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
+    if sort not in ["true", "false"]:
+        sort = "true"
     params = {
         "mid": mid,
         "season_id": collection,

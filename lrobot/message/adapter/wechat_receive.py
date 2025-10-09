@@ -102,7 +102,6 @@ async def wechat_msg_deal(data):
             # 表情匹配，支持 [xxx] 和 /:xxx 两种形式
             for match in pattern.finditer(raw_content):
                 start, end = match.span()
-                emoji_raw = match.group()
 
                 # 前面的纯文本部分
                 if start > last_index:
