@@ -112,6 +112,41 @@ def _attachment_append(content_list, attachment):
         "data": data
     })
 
+
+def _faces_merge(content_list):
+    """合并或过滤动画表情与图片"""
+    # 找出动画表情和文件图片
+    face6_idx = [i for i, c in enumerate(content_list)
+                 if c.get("type") == "image" and c["data"].get("summary") == "动画表情"]
+    image_idx = [i for i, c in enumerate(content_list)
+                 if c.get("type") == "image" and "file" in c["data"]]
+
+    # 一一合并
+    if len(face6_idx) == len(image_idx) and face6_idx:
+        for f_i, img_i in zip(face6_idx, image_idx):
+            face_item = content_list[f_i]
+            image_item = content_list[img_i]
+            merged = {
+                "type": "image",
+                "data": {
+                    "summary": face_item["data"].get("summary", "[动画表情]"),
+                    "file": image_item["data"].get("file"),
+                    "url": image_item["data"].get("url"),
+                    "file_size": image_item["data"].get("file_size"),
+                    "width": image_item["data"].get("width"),
+                    "height": image_item["data"].get("height"),
+                }
+            }
+            content_list[f_i] = merged  # 原位替换 face
+        for i in sorted(image_idx, reverse=True):
+            del content_list[i]
+
+    else:  # 数量不等，即表情+图片，全部保留为图片
+        content_list[:] = [
+            c for c in content_list
+            if not (c.get("type") == "image" and c["data"].get("summary") == "动画表情")
+        ]
+
 @monitor_adapter("LR232")
 async def lr232_msg_deal(data):
     """消息处理"""

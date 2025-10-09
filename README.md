@@ -142,3 +142,4 @@ Copyright © 2024 Mlikiowa
 - 对于 **bilibili-API-collect**，本项目仅引用了其中公开的接口地址、参数和返回结构等信息，未包含原仓库的文字性文档内容。但因其原始仓库采用 CC BY-NC 4.0 协议，相关信息的使用需遵守该协议的要求
 
 详见 [LICENSE](LICENSE) 文件
+

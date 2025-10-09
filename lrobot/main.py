@@ -36,7 +36,6 @@ async def start():
         await mysql_init()
         await mongo_indexes_create()  # mongodb 建立索引
         await remind_load()  # 加载待办等待
-        await subscribe_up_init()  # 轮询 up 更新
     except Exception as e:
         loggers["system"].error(f"[初始化]失败-> {type(e).__name__}: {e}", extra={"event": "运行失败"})
 
@@ -77,6 +76,7 @@ async def BILI_init():
     """BILI 初始化函数"""
     scheduler_add(bili_receive, 60, interval=60, at_once=True)  # 推荐刷新间隔 20
     scheduler_add(bili_fan_get, interval=300)  # 检测粉丝
+    await subscribe_up_init()  # 轮询 up 更新
 
 def tasks_set():
     """生成任务列表"""
