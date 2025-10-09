@@ -12,7 +12,7 @@ async def test_1(msg: Msg):
         platform=msg.platform,
         kind=f"私聊发送",
         event="发送",
-        content=f"[表情:你好呀|{path / 'storage/file/command/download.gif'}]",
+        content=f"[动画表情:你好呀|{path / 'storage/file/command/download.gif'}]",
         seq=msg.seq,
         user=msg.user,
         group=msg.group
