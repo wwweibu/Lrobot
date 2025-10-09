@@ -1,7 +1,5 @@
 """消息发送"""
 
-import re
-
 from message.adapter import *
 from message.handler.msg import Msg
 from logic import user_nickname_transform
@@ -12,8 +10,7 @@ msg_logger = loggers["message"]
 async def msg_send(msg: Msg):
     """消息发送分配器"""
     content_str = Msg.content_join(msg.content) or msg.kind
-    user_name = await user_nickname_transform(msg.user, msg.platform, True)
-    user_name = user_name if user_name else msg.user
+    user_name = await user_nickname_transform(msg.user, msg.platform, True) or msg.user
     msg_logger.info(
         f"[{msg.kind}]⌈{msg.platform}⌋发送-> {user_name}: {content_str}",
         extra={"event": "消息处理"},
@@ -37,7 +34,7 @@ async def msg_send(msg: Msg):
         elif msg.platform == "BILI":
             await bili_msg_get(msg.seq, user=msg.user)
     elif msg.kind.endswith("文件上传"):
-        file = msg.content[0].get("data", "").get("file")
+        file = msg.content[0]["data"]["file"]
         if msg.platform == "LR232":
             url = f"https://api.sgroup.qq.com/v2/users/{msg.user if msg.kind.startswith('私聊') else msg.group}/files"
             await lr232_file_upload(file, url=url)
@@ -49,8 +46,8 @@ async def msg_send(msg: Msg):
                 msg_type = "voice"
             await wechat_file_upload(file, msg_type)
     elif msg.kind.endswith("文件下载"):
-        file = msg.content[0]["data"].get("file")
-        file_path = msg.content[0]["data"].get("file_path")
+        file = msg.content[0]["data"]["file"]
+        file_path = msg.content[0]["data"]["file_path"]
         if msg.platform == "LR5921":
             await lr5921_file_download(msg.num, file, file_path)
         elif msg.platform == "WECHAT":
@@ -108,17 +105,15 @@ async def msg_send(msg: Msg):
             status = content_str.split("|")
             if status[0] == "自定义" and len(status) >= 3:
                 await lr5921_status(emoji=status[1], word=status[2])
-            elif len(status) >= 2:
+            else:
                 await lr5921_status(status[0], status[1])
         elif msg.kind.endswith("成员"):
             await lr5921_member(msg.num, msg.group)
         elif msg.kind.endswith("签到"):
-            if msg.group:
-                await lr5921_sign_in(msg.group)
+            await lr5921_sign_in(msg.group)
         elif msg.kind.endswith("回应"):
             await lr5921_echo(msg.seq, content_str)
         elif msg.kind.endswith("精华"):
             await lr5921_essence(msg.seq, content_str)
         elif msg.kind.endswith("头衔"):
-            if msg.group:
-                await lr5921_title(msg.user, msg.group, content_str)
+            await lr5921_title(msg.user, msg.group, content_str)

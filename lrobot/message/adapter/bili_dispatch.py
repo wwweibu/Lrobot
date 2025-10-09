@@ -1,10 +1,10 @@
 """BILI API 调用"""
 
-import os
 import json
 import time
 import mimetypes
 from hashlib import md5
+from pathlib import Path
 from urllib.parse import urlencode
 
 from logic import image_compress
@@ -125,7 +125,7 @@ async def bili_file_upload(file, type=None, url=None):
               "biz": "im"}
     file_data = await image_compress(file, 30)
     files = {
-        "file_up": (os.path.basename(file), file_data, mime_type)
+        "file_up": (Path(file).name, file_data, mime_type)
     }
     response = await request_deal(url, "post", params, "私聊文件上传", files)
     data = response["data"]

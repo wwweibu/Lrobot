@@ -31,8 +31,7 @@ async def safe_msg_process(msg: Msg):
     content_str = Msg.content_join(msg.content) or msg.kind
     await record_write(msg)
     if msg.event == "处理":
-        user_name = await user_nickname_transform(msg.user, msg.platform)
-        user_name = user_name if user_name else msg.user
+        user_name = await user_nickname_transform(msg.user, msg.platform) or msg.user
         msg_logger.info(
             f"[{msg.kind}]⌈{msg.platform}⌋处理-> {user_name}: {content_str}",
             extra={"event": "消息处理"},

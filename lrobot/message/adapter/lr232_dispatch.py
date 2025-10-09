@@ -19,13 +19,6 @@ url_re = re.compile(
     r"(?:/[^\s，。；：？！、<>\"'）)]*)?)"
 )
 
-def data_format(data):
-    """转换数据中文件源码"""
-    if "file_data" in data:
-        return {**data, "file_data": f"<base64 length={len(data['file_data'])}>"}
-    return data
-
-
 def url_format(text):
     """参考白名单替换网址"""
     segments = []
@@ -58,16 +51,20 @@ def url_format(text):
 async def request_deal(url, data, tag):
     """请求统一处理"""
     headers = {"Authorization": f"QQBot {access_tokens['LR232']['token']}"}
-    format_data = data_format(data)  # 避免文件数据爆日志
+    timeout = 15
+    format_data = data
+    if "file_data" in data:  # 避免文件数据爆日志
+        format_data = {**data, "file_data": f"<base64 length={len(data['file_data'])}>"}
+        timeout = 60
     async with connect(True) as client:
         try:
             if tag.endswith("撤回"):
                 response = await client.delete(
-                    url, headers=headers, timeout=60.0
+                    url, headers=headers, timeout=timeout
                 )
             else:
                 response = await client.post(
-                    url, json=data, headers=headers, timeout=60.0
+                    url, json=data, headers=headers, timeout=timeout
                 )
         except Exception as e:
             raise Exception(f"[{tag}]⌈LR232⌋请求失败->  {type(e).__name__}: {e} | 数据: {format_data}")
@@ -126,7 +123,7 @@ async def lr232_dispatch(
             "msg_seq": order,
             "media": media
         }
-        order += 1
+        order += 1  # TODO 判断大于 5？
         response = await request_deal(url, data, "私聊发送")
         seq_list.append(response.get("id"))
     future.set(num, seq_list)

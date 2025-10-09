@@ -84,12 +84,20 @@ async def lr5921_msg_get(seq, num=None, user=None):
     data = await request_deal(url, data, "私聊消息获取")
     message_list = data.get("data", {}).get("message", [])
     for message in message_list:
+        if message.get("type", "") == "reply":
+            nested_id = message["data"].get("id")
+            if nested_id:
+                real = await lr5921_msg_get(nested_id)
+                message["data"].pop("id", None)
+                message["data"]["content"] = real or []
         if message.get("type", "") == "json" and isinstance(message["data"]["data"], str):
             try:  # 转换 json 字符串
                 message["data"]["data"] = json.loads(message["data"]["data"])
             except json.JSONDecodeError:
                 pass
-    future.set(num, message_list)
+    if num:
+        future.set(num, message_list)
+    return message_list
 
 
 async def lr5921_file_download(num, file, file_path):
