@@ -157,7 +157,13 @@ class Msg:
                 value = content[colon + 1: j - 1]
                 out.append((prefix, value))
             i = j
-        return out
+        merged = []
+        for seg_type, seg_value in out:
+            if merged and seg_type == '文本' and merged[-1][0] == '文本':
+                merged[-1] = ('文本', merged[-1][1] + seg_value)
+            else:
+                merged.append((seg_type, seg_value))
+        return merged
 
     @staticmethod
     def _face_disjoin(value):
@@ -232,10 +238,7 @@ class Msg:
 
     @staticmethod
     def _seg_match(content_seg, pattern_seg, strict=False):
-        """
-        单段匹配/相等核心逻辑
-        strict=True 表示“相等”模式，不支持子串；False 表示“包含”模式，支持子串
-        """
+        """单段匹配/相等，True 相等，不支持子串；False 包含，支持子串"""
         content_type = content_seg['type']
 
         # 不支持/不匹配的段直接 False
@@ -267,7 +270,7 @@ class Msg:
             pattern_val = pattern_data.get(field)
 
             # 通配
-            if pattern_val == 'any':
+            if pattern_val == 'any' and content_type != 'text':
                 return True
 
             # 严格相等 / 子串包含
