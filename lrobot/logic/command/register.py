@@ -57,7 +57,7 @@ async def register_first(msg: Msg):
             "复制并编辑以下内容(到*结束):\n"
             "姓名:张三,代号:自己取,性别:男,年级:25/25研/25博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*\n"
         )
-        await data.status_add(msg.user, "入会", "1")
+        await data.status_add(msg.user, msg.platform, "入会", "1")
     if msg.platform == "WECHAT":
         content = content.replace("\n", "...")
     Msg(
@@ -74,7 +74,7 @@ async def register_first(msg: Msg):
 @monitor_adapter("/入会_填写信息")
 async def register_second(msg: Msg):
     """入会接收信息"""
-    info = await data.status_check(msg.user, "入会")
+    info = await data.status_check(msg.user, msg.platform, "入会")
     if info != "1":
         return f"入会状态错误-{info}"
     content = Msg.content_join(msg.content).rstrip("*")
@@ -121,7 +121,7 @@ async def register_second(msg: Msg):
     content = info + "\n\n现在请扫描二维码缴纳20会费\n请在同平台发送付款截图\n截图将由管理员核对"
     content += f"[图片:{path / 'storage/file/command/money.jpg'}]"
 
-    await data.status_add(msg.user, "入会", "2")
+    await data.status_add(msg.user, msg.platform, "入会", "2")
     Msg(
         platform=msg.platform,
         event="发送",
@@ -143,7 +143,7 @@ async def register_second(msg: Msg):
 @monitor_adapter("/入会_接收付款截图")
 async def register_third(msg: Msg):
     """入会接收图片"""
-    info = await data.status_check(msg.user, "入会")
+    info = await data.status_check(msg.user, msg.platform, "入会")
     if info != "2":
         return "未进入第三阶段"
     file_path = path / f"storage/file/user/{msg.user}/{msg.content[0]['data']['file']}"
@@ -161,7 +161,7 @@ async def register_third(msg: Msg):
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     user_data = register_list[msg.user]
     await data.user_register(user_data)
-    await data.status_delete(msg.user, "入会")
+    await data.status_delete(msg.user, msg.platform, "入会")
     content = "入会成功，请添加小推qq'1326016706'，发送暗号'玩耍地'"
     Msg(
         platform=msg.platform,

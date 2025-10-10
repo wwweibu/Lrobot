@@ -112,7 +112,7 @@ async def activity_hunt_group_set(msg: Msg):
     group_list["max_id"] = new_id
     await data.system_edit("hunt_group", json.dumps(group_list, ensure_ascii=False))
     content = f"设置成功，本群为 {new_id} 群，请上传二维码"
-    await data.status_add(msg.user, "寻宝添加群", new_id)
+    await data.status_add(msg.user, msg.platform, "寻宝添加群", new_id)
     Msg(
         platform=msg.platform,
         event="发送",
@@ -127,7 +127,7 @@ async def activity_hunt_group_set(msg: Msg):
 @monitor_adapter("/活动_寻宝_群上传")
 async def activity_hunt_group_upload(msg: Msg):
     """寻宝群上传"""
-    group_id = await data.status_check(msg.user, "寻宝添加群")
+    group_id = await data.status_check(msg.user, msg.platform, "寻宝添加群")
     file_path = path / f"storage/file/command/hunt/{group_id}.jpg"
     file_url = msg.content[0]['data'].get('url')
     if file_url:
@@ -142,7 +142,7 @@ async def activity_hunt_group_upload(msg: Msg):
         )
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     await merge_img()
-    await data.status_delete(msg.user, "寻宝添加群")
+    await data.status_delete(msg.user, msg.platform, "寻宝添加群")
     content = "添加成功"
     Msg(
         platform=msg.platform,
@@ -292,7 +292,7 @@ async def activity_hunt_problem(msg: Msg):
 @monitor_adapter("/活动_日记_开始")
 async def activity_diary_start(msg: Msg):
     """日记开始答题"""
-    await data.status_add(msg.user, "日记", 1)
+    await data.status_add(msg.user, msg.platform, "日记", 1)
     content = f"[图片:{path}/storage/file/command/diary/1.png]"
     content += ("所有答案的形式均为小写英文字母/数字/中文\n"
                 "且中间无空格\n"
@@ -315,7 +315,7 @@ async def activity_diary_start(msg: Msg):
 @monitor_adapter("/活动_日记_提示")
 async def activity_diary_prompt(msg: Msg):
     """日记提示"""
-    id = await data.status_check(msg.user, "日记")
+    id = await data.status_check(msg.user, msg.platform, "日记")
     try:
         id = int(id)
     except (ValueError, TypeError):
@@ -351,7 +351,7 @@ async def activity_diary_prompt(msg: Msg):
 
 async def activity_diary_answer(msg: Msg):
     """日记答题"""
-    id = await data.status_check(msg.user, "日记")
+    id = await data.status_check(msg.user, msg.platform, "日记")
     try:
         id = int(id)
     except (ValueError, TypeError):
@@ -370,9 +370,9 @@ async def activity_diary_answer(msg: Msg):
     user_answer = Msg.content_join(msg.content).strip()
     if user_answer == correct_answer:
         if id == 16:
-            await data.status_delete(msg.user, "日记")
+            await data.status_delete(msg.user, msg.platform, "日记")
         else:
-            await data.status_add(msg.user, "日记", id + 1)
+            await data.status_add(msg.user, msg.platform, "日记", id + 1)
         await activity_diary_answer_write(msg, id)
         return True
     return False

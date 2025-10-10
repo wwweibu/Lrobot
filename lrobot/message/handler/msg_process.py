@@ -53,7 +53,7 @@ async def safe_msg_process(msg: Msg):
             # 如果待匹配状态为空，则用户任意状态都可以匹配
             # 如果待匹配状态不为空，则用户状态必须包含系统状态
             if commands["state"]:
-                states = await status_check(msg.user if msg.user else "system")
+                states = await status_check(msg.user, msg.platform)
                 if not any(state in states for state in commands["state"]):
                     continue
 

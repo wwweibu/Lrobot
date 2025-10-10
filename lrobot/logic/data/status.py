@@ -5,226 +5,161 @@ import json
 from config import database_query, database_update
 
 
-async def status_check(user=None, status=None):
-    """查找状态,
-    填写用户，返回状态列表或状态对应的信息
-    只填状态，返回该状态的用户
-    """
-    if user:
-        user = str(user)
-        result = await database_query(
-            "SELECT status, information FROM user_status WHERE user = %s", (user,)
-        )
-
-        if not result:
-            return []
-
-        current_status = json.loads(result[0]["status"]) if result[0]["status"] else []
-        current_info = (
-            json.loads(result[0]["information"]) if result[0]["information"] else []
-        )
-
-        if status is None:
-            return current_status  # 只查询状态列表
-
-        if status in current_status:
-            index = current_status.index(status)
-            return current_info[index]  # 返回对应的信息
-
-        return None  # 状态不存在
-    else:
-        query = "SELECT user, status FROM user_status"
-        result = await database_query(query)
-
-        matched_users = []
-        for row in result:
-            status_list = json.loads(row["status"]) if row["status"] else []
-
-            if status is None:
-                matched_users.append(row["user"])  # 全部用户
-            elif status in status_list:
-                matched_users.append(row["user"])  # 匹配状态的用户
-
-        return matched_users
+async def id_get(platform, platform_id):
+    """查或新建用户"""
+    platform = platform.lower()
+    rows = await database_query(f"SELECT id FROM user_platform WHERE {platform} = %s LIMIT 1", (platform_id,))
+    if rows:
+        return int(rows[0]["id"])
+    sql = f"INSERT INTO user_platform ({platform}) VALUES (%s)"
+    new_id = await database_update(sql, (platform_id,))
+    return int(new_id)
 
 
-async def status_add(user, status, information="无信息"):
-    """添加用户状态，自动同步到各平台"""
-    user = str(user)
-    if status == "qq":
-        await status_edit(user, status, information)
-        return
-    elif status in ["LR232", "WECHAT", "BILI", "QQAPP"]:
-        await status_edit(user, status, information)
+async def status_check(user, platform, status=None):
+    """查找用户状态，返回状态列表或对应状态信息"""
+    if user is None:
+        return {} if status is None else None
+    user_id = await id_get(platform, user)
 
-        def extract_base_and_merged(result):
-            """分离绑定状态与其他状态"""
-            base_sta, base_inf, merged_sta, merged_inf = [], [], [], []
-            if result:
-                s_list = json.loads(result[0]["status"]) or []
-                i_list = json.loads(result[0]["information"]) or []
-                for s, i in zip(s_list, i_list):
-                    if s in ["qq", "LR232", "WECHAT", "BILI", "QQAPP"]:
-                        base_sta.append(s)
-                        base_inf.append(i)
-                    else:
-                        merged_sta.append(s)
-                        merged_inf.append(i)
-            return base_sta, base_inf, merged_sta, merged_inf
-
-        # 此处进行平台绑定状态合并
-        qq_result = await database_query(
-            "SELECT status, information FROM user_status WHERE user = %s", (user,)
-        )
-        platform_result = await database_query(
-            "SELECT status, information FROM user_status WHERE user = %s", (str(information),)
-        )
-
-        # 分离绑定状态与普通状态
-        qq_status, qq_info, status_1, info_1 = extract_base_and_merged(qq_result)
-        platform_status, platform_info, status_2, info_2 = extract_base_and_merged(platform_result)
-
-        # 合并普通状态
-        for s1, i1 in zip(status_2, info_2):
-            if s1 not in status_1:
-                status_1.append(s1)
-                info_1.append(i1)
-
-        # 合并普通状态信息(均为数字则取大的)
-        for s2, i2 in zip(status_2, info_2):
+    if status is None:
+        rows = await database_query("SELECT status, info FROM user_status WHERE user_id = %s", (user_id,))
+        out = {}
+        for r in rows:
             try:
-                val_2 = float(i2)
-                idx = status_1.index(s2)
-                i1 = info_1[idx]
-                val_1 = float(i1)
-                if val_2 > val_1:
-                    info_1[idx] = i2
-            except (ValueError, TypeError):
-                continue
-
-        write_data = [
-            (user, qq_status, qq_info),
-            (str(information), platform_status, platform_info),
-        ]
-
-        for idx, platform in enumerate(qq_status):
-            # 已绑定平台同步绑定状态
-            write_data.append((qq_info[idx], platform_status, platform_info))
-
-        # 写入，绑定状态（base）+基础状态（status_1）
-        for u, base_status, base_info in write_data:
-            final_status = base_status + status_1
-            final_info = base_info + info_1
-
-            await database_update(
-                """
-                INSERT INTO user_status (user, status, information)
-                VALUES (%s, %s, %s) AS new
-                ON DUPLICATE KEY UPDATE
-                    status = new.status,
-                    information = new.information
-                """,
-                (
-                    u,
-                    json.dumps(final_status),
-                    json.dumps(final_info),
-                ),
-            )
-
-        return
-
-    qq = await status_check(user, "qq")
-    if not qq:  # 不存在 qq 状态，则为 LR5921 或其他未绑定账号
-        qq = user
-    bind_list = [qq]
-    for platform in ["LR232", "WECHAT", "BILI", "QQAPP"]:
-        bind_id = await status_check(qq, platform)
-        if bind_id:
-            bind_list.append(bind_id)
-    for bind_source in bind_list:
-        await status_edit(bind_source, status, information)
+                out[r["status"]] = json.loads(r["info"]) if r["info"] else None
+            except Exception:
+                out[r["status"]] = r["info"]
+        return out
+    rows = await database_query("SELECT info FROM user_status WHERE user_id = %s AND status = %s LIMIT 1",
+                                (user_id, status))
+    if not rows:
+        return None
+    try:
+        return json.loads(rows[0]["info"]) if rows[0]["info"] else None
+    except Exception:
+        return rows[0]["info"]
 
 
-async def status_delete(user, status):
-    """删除状态，自动同步到各平台"""
-    user = str(user)
-    if status in ["LR232", "WECHAT", "BILI", "QQAPP"]:
-        bind_user = await status_check(user, status)
-        await status_edit(user, status, None)
-        await status_edit(bind_user, "qq", None)
-        return
-    elif status == "qq":
-        bind_user = await status_check(user, status)
-        for platform in ["LR232", "WECHAT", "BILI", "QQAPP"]:
-            bind_id = await status_check(bind_user, platform)
-            if bind_id == user:
-                await status_edit(bind_user, platform, None)
+async def status_user_check(platform, status):
+    """查找某个状态在某个平台上的所有用户"""
+    rows = await database_query("SELECT DISTINCT user_id FROM user_status WHERE status = %s", (status,))
+    user_ids = [int(r["user_id"]) for r in rows]
+    if not user_ids:
+        return []
 
-    qq = await status_check(user, "qq")
-    if not qq:
-        qq = user
-    bind_list = [qq]
-    for platform in ["LR232", "WECHAT", "BILI", "QQAPP"]:
-        bind_id = await status_check(qq, platform)
-        if bind_id:
-            bind_list.append(bind_id)
-    for bind_source in bind_list:
-        await status_edit(bind_source, status, None)
+    platform = platform.lower()
+    placeholders = ",".join(["%s"] * len(user_ids))
+    q = f"SELECT id, {platform} FROM user_platform WHERE id IN ({placeholders})"
+    rows = await database_query(q, tuple(user_ids))
+    return [
+        {"user_id": int(r["id"]), "platform_id": r[platform]}
+        for r in rows if r.get(platform)
+    ]
 
 
-async def status_edit(user, status, information=None):
-    """添加/更新/删除用户状态"""
-    if not user:
-        return
-    user = str(user)
-    result = await database_query(
-        "SELECT status, information FROM user_status WHERE user = %s", (user,)
+async def status_add(user, platform, status, info=None):
+    """插入或更新状态"""
+    user_id = await id_get(platform, user)
+    info_json = json.dumps(info) if info else None
+    await database_update(
+        "INSERT INTO user_status (user_id, status, info) VALUES (%s, %s, %s) "
+        "ON DUPLICATE KEY UPDATE info = VALUES(info)",
+        (user_id, status, info_json),
     )
 
-    if result:
-        current_status = json.loads(result[0]["status"]) if result[0]["status"] else []
-        current_info = (
-            json.loads(result[0]["information"]) if result[0]["information"] else []
-        )
-        if len(current_status) != len(current_info):
-            min_len = min(len(current_status), len(current_info))
-            current_status = current_status[:min_len]
-            current_info = current_info[:min_len]
-    else:
-        current_status, current_info = [], []
 
-    if information is None:
-        # 删除
-        if status in current_status:
-            index = current_status.index(status)
-            current_status.pop(index)
-            current_info.pop(index)
-        else:
-            return
-    else:
-        # 添加/更新
-        if status in current_status:
-            index = current_status.index(status)
-            current_info[index] = information
-        else:
-            current_status.append(status)
-            current_info.append(information)
+async def status_delete(user, platform, status):
+    """删除某用户某平台的某状态"""
+    user_id = await id_get(platform, user)
+    await database_update("DELETE FROM user_status WHERE user_id = %s AND status = %s", (user_id, status))
+    rows = await database_query("SELECT 1 FROM user_status WHERE user_id = %s LIMIT 1", (user_id,))
+    if not rows:  # 该用户无状态
+        await database_update("DELETE FROM user_platform WHERE id = %s", (user_id,))
 
-    # 更新数据库
-    if current_status:
-        await database_update(
-            """
-            INSERT INTO user_status (user, status, information)
-            VALUES (%s, %s, %s) AS new
-            ON DUPLICATE KEY UPDATE
-                status = new.status,
-                information = new.information
-            """,
-            (
-                user,
-                json.dumps(current_status),
-                json.dumps(current_info),
-            ),
+
+def info_merge(info1, info2):
+    """合并 info"""
+    if info1 is None and info2 is None:
+        return None
+    if info1 is None:
+        return info2
+    if info2 is None:
+        return info1
+    try:
+        v1 = float(info1)
+        v2 = float(info2)
+        return v1 if v1 >= v2 else v2
+    except Exception:
+        return info1
+
+
+async def status_platform_bind(qq, platform, platform_id):
+    """绑定平台"""
+    if platform == "LR5921":
+        return "绑定失败:平台错误"
+
+    target_id = await id_get("LR5921", qq)
+    source_id = await id_get(platform, platform_id)
+    if target_id == source_id:
+        return "绑定失败:已绑定"
+
+    rows = await database_query(
+        "SELECT * FROM user_platform WHERE id IN (%s, %s)",
+        (target_id, source_id)
+    )
+    if len(rows) < 2:
+        return "绑定失败:系统异常"
+
+    # 合并平台
+    row_target = next(r for r in rows if r["id"] == target_id)
+    row_source = next(r for r in rows if r["id"] == source_id)
+
+    for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
+        if row_target.get(bind_platform) and row_source.get(bind_platform):
+            raise f"绑定失败:{bind_platform}已绑定{row_source[bind_platform]}"
+    updates = []
+    params = []
+    for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
+        if not row_target.get(bind_platform) and row_source.get(bind_platform):
+            updates.append(f"{bind_platform} = %s")
+            params.append(row_source[bind_platform])
+    if updates:
+        sql = f"UPDATE user_platform SET {', '.join(updates)} WHERE id = %s"
+        params.append(target_id)
+        await database_update(sql, tuple(params))
+
+    # 合并状态
+    source_status_list = await database_query("SELECT status, info FROM user_status WHERE user_id = %s", (source_id,))
+    for r in source_status_list:
+        source_status = r["status"]
+        source_info = r["info"]
+        target_rows = await database_query(
+            "SELECT info FROM user_status WHERE user_id = %s AND status = %s LIMIT 1",
+            (target_id, source_status)
         )
-    else:  # 如果状态已清空，删除记录
-        await database_update("DELETE FROM user_status WHERE user = %s", (user,))
+        if target_rows:
+            merged_info = info_merge(target_rows[0]["info"], source_info)
+            await database_update(
+                "UPDATE user_status SET info = %s WHERE user_id = %s AND status = %s",
+                (merged_info, target_id, source_status)
+            )
+        else:
+            await database_update(
+                "INSERT INTO user_status (user_id, status, info) VALUES (%s, %s, %s)",
+                (target_id, source_status, source_info)
+            )
+
+    await database_update("DELETE FROM user_platform WHERE id = %s", (source_id,))
+    await database_update("DELETE FROM user_status WHERE user_id = %s", (source_id,))
+
+    return "绑定成功"
+
+
+async def status_lr5921_get(user, platform):
+    """查找是否有 lr5921 平台"""
+    platform = platform.lower()
+    rows = await database_query(f"SELECT lr5921 FROM user_platform WHERE {platform} = %s LIMIT 1", (user,))
+    if not rows:
+        return None
+    return rows[0].get("lr5921")

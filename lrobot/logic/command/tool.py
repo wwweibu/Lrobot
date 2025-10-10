@@ -13,7 +13,7 @@ from config import database_update, monitor_adapter, path, future, config
 @monitor_adapter("/工具_设置待办")
 async def tool_pending(msg: Msg):
     """设置待办"""
-    user = await data.user_qq_transform(msg.user, msg.platform)
+    user = await data.status_lr5921_get(msg.user, msg.platform)
     if not user:
         content = "用户错误，必须为 LR5921 或者使用绑定了 LR5921 的平台"
     else:
@@ -446,7 +446,7 @@ async def tool_live_start(msg: Msg):
         )
         addr, code = await future.wait(msg1.num, "[消息]直播推流获取超时")
 
-        await data.status_add(msg.user, "直播", parts[1])
+        await data.status_add(msg.user, msg.platform, "直播", parts[1])
         content = f"推流地址:{addr}\n推流码:{code}\n如需更改直播间封面则直接发送图片,无需更改则回复'否'"
     else:
         content = "格式错误，请使用'/直播,读书会'类似格式"
@@ -465,7 +465,7 @@ async def tool_live_start(msg: Msg):
 @monitor_adapter("/工具_直播设置")
 async def tool_live_set(msg: Msg):
     """B 站设置直播"""
-    title = await data.status_check(msg.user, "直播")
+    title = await data.status_check(msg.user, msg.platform, "直播")
     if msg.content[0].get("type") == "text":
         content = title
     else:
@@ -492,7 +492,7 @@ async def tool_live_set(msg: Msg):
 
     await future.wait(msg1.num, "[消息]直播标题设置超时")
 
-    await data.status_delete(msg.user, "直播")
+    await data.status_delete(msg.user, msg.platform, "直播")
     content = "设置成功"
     Msg(
         platform=msg.platform,
@@ -515,7 +515,7 @@ async def tool_live_close(msg: Msg):
         kind=f"私聊直播关闭",
     )
     content = "关闭成功"
-    await data.status_delete(msg.user, "直播")
+    await data.status_delete(msg.user, msg.platform, "直播")
     Msg(
         platform=msg.platform,
         event="发送",
@@ -557,7 +557,7 @@ async def tool_live_notice(msg: Msg):
 @monitor_adapter("/工具_wiki上传")
 async def tool_wiki_1(msg: Msg):
     """wiki 上传图片"""
-    await data.status_add(msg.user, "wiki")
+    await data.status_add(msg.user, msg.platform, "wiki")
     content = "请上传图片"
     Msg(
         platform=msg.platform,
@@ -594,7 +594,7 @@ async def tool_wiki_2(msg: Msg):
         )
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     content = f"https://whumystery.cn/hjd/static/wiki/{next_number}.png"
-    await data.status_delete(msg.user, "wiki")
+    await data.status_delete(msg.user, msg.platform, "wiki")
     Msg(
         platform=msg.platform,
         event="发送",

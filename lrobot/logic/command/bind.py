@@ -14,7 +14,7 @@ bind_list = storage.setdefault("bind_list", {})
 @monitor_adapter("/系统_绑定")
 async def bind_platform(msg: Msg):
     """平台绑定 qq"""
-    info = await data.status_check(msg.user, "qq")
+    info = await data.status_lr5921_get(msg.user, msg.platform)
     if info:
         content = f"当前平台已绑定 QQ: {info}"
     else:
@@ -43,13 +43,7 @@ async def bind_qq(msg: Msg):
     for user, (code, expire_time, platform) in list(bind_list.items()):
         if Msg.content_pattern_contains(msg.content, str(code)) and time.time() < expire_time:
             del bind_list[user]
-            info = await data.status_check(msg.user, platform)
-            if info:
-                content = f"当前 QQ 已绑定平台: {info}"
-            else:
-                await data.status_add(user, "qq", msg.user)
-                await data.status_add(msg.user, platform, user)
-                content = "绑定成功"
+            content = await data.status_platform_bind(msg.user, platform, user)
             break
     Msg(
         platform=msg.platform,

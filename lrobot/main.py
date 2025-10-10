@@ -35,7 +35,6 @@ async def start():
         future.init(loop)  # future 管理器记录主循环
         await mysql_init()
         await mongo_indexes_create()  # mongodb 建立索引
-        await remind_load()  # 加载待办等待
     except Exception as e:
         loggers["system"].error(f"[初始化]失败-> {type(e).__name__}: {e}", extra={"event": "运行失败"})
 
@@ -65,6 +64,7 @@ async def LR232_init():
 async def LR5921_init():
     """LR5921 初始化函数"""
     app.include_router(LR5921_router, prefix=secret("/LR5921"))
+    await remind_load()  # 加载待办等待
 
 
 async def WECHAT_init():

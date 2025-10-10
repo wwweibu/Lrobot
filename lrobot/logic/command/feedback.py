@@ -19,7 +19,7 @@ async def feedback_list(msg: Msg):
             question = await data.feedback_start(id)
             if question:
                 content = question
-                await data.status_add(msg.user, "收集", f"{id}_1")
+                await data.status_add(msg.user, msg.platform, "收集", f"{id}_1")
             else:
                 content = "序号错误"
         except ValueError:
@@ -44,17 +44,17 @@ async def feedback_list(msg: Msg):
 async def feedback_write(msg: Msg):
     """收集表填写"""
     answer = Msg.content_join(msg.content)
-    info = await data.status_check(msg.user, "收集")
+    info = await data.status_check(msg.user, msg.platform, "收集")
     id, num = map(int, info.split("_"))
     user_name = await data.user_nickname_transform(msg.user, msg.platform)
     user_name = user_name if user_name else msg.user
     question = await data.feedback_write(id, num, user_name, answer)
     if question:
         content = question
-        await data.status_add(msg.user, "收集", f"{id}_{num + 1}")
+        await data.status_add(msg.user, msg.platform, "收集", f"{id}_{num + 1}")
     else:
         content = "填写完成！感谢您的支持！"
-        await data.status_delete(msg.user, "收集")
+        await data.status_delete(msg.user, msg.platform, "收集")
     Msg(
         platform=msg.platform,
         event="发送",

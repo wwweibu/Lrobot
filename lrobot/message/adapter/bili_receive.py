@@ -7,7 +7,7 @@ import time
 from message.handler.msg import Msg
 from .bili_dispatch import request_deal
 from config import config, loggers, monitor_adapter
-from logic import status_add, status_delete, status_check
+from logic import status_add, status_delete, status_user_check
 
 adapter_logger = loggers["adapter"]
 
@@ -168,7 +168,7 @@ async def bili_fan_get():
     }
     response = await request_deal(url, "get", params, "私聊粉丝获取")
     fan_list = response["data"]["list"]
-    fan_users = await status_check(status="fan")
+    fan_users = await status_user_check("BILI", "fan")
     fan_set = {str(item["mid"]) for item in fan_list}
     old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)
     old_fan_index = None
@@ -185,6 +185,6 @@ async def bili_fan_get():
                     event="处理",
                     user=fan_list[i]["mid"]
                 )
-        await status_delete(old_fan, "fan")
+        await status_delete(old_fan, "BILI", "fan")
     new_fan = fan_list[0]["mid"]
-    await status_add(new_fan, "fan")
+    await status_add(new_fan, "BILI", "fan")

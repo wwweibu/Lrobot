@@ -107,9 +107,9 @@ async def game_idiom(msg: Msg):
 async def game_idiom_start(msg: Msg):
     """成语接龙开始"""
     if "严格" in Msg.content_join(msg.content):
-        await data.status_add(msg.user, "成语", "同字")
+        await data.status_add(msg.user, msg.platform, "成语", "同字")
     else:
-        await data.status_add(msg.user, "成语", "同音")
+        await data.status_add(msg.user, msg.platform, "成语", "同音")
     content = "现在你可以输入任意内容，系统将自动进行接龙。输入'/成语接龙结束'退出此状态"
     Msg(
         platform=msg.platform,
@@ -126,7 +126,7 @@ async def game_idiom_start(msg: Msg):
 @monitor_adapter("/游戏_接龙")
 async def game_idiom_chain(msg: Msg):
     """成语接龙"""
-    info = await data.status_check(msg.user, "成语")
+    info = await data.status_check(msg.user, msg.platform, "成语")
     idiom = Msg.content_join(msg.content)
     if info == "同字":
         options = [option for option in idiom_index.index if option[0] == idiom[-1] and option != idiom]
@@ -151,7 +151,7 @@ async def game_idiom_chain(msg: Msg):
 @monitor_adapter("/游戏_接龙_退出")
 async def game_idiom_end(msg: Msg):
     """成语接龙退出"""
-    await data.status_delete(msg.user, "成语")
+    await data.status_delete(msg.user, msg.platform, "成语")
     content = "退出成功"
     Msg(
         platform=msg.platform,

@@ -3,7 +3,7 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from .status import status_check
+from .status import status_check, status_lr5921_get
 from .firefly import firefly_judge
 from message.handler.msg import Msg
 from config import config, future, database_query, database_update
@@ -11,11 +11,9 @@ from config import config, future, database_query, database_update
 
 async def user_identify(user, platform):
     """确认用户身份，未认证/社员/用户组"""
-    if platform != "LR5921":
-        information = await status_check(user, "qq")
-        if not information:
-            return []
-        user = information
+    qq = user if platform == "LR5921" else await status_lr5921_get(user, platform)
+    if not qq:
+        return []
 
     result = []
     for identity, numbers in config["private"].items():
@@ -44,7 +42,7 @@ async def user_member_judge(qq):
 
 async def user_nickname_transform(user, platform, is_send=None):
     """用户昵称转换"""
-    qq = await user_qq_transform(user, platform)
+    qq = await status_lr5921_get(user, platform)
     if not qq:
         return None
     query = "SELECT nickname, created_at FROM user_nickname WHERE user = %s LIMIT 1"
@@ -101,15 +99,6 @@ async def user_codename_qq_change(user):
     result = await database_query(query_code, (user,))
     if result:
         return result[0]["codename"]
-    return None
-
-async def user_qq_transform(user, platform):
-    """转换为 QQ 号"""
-    if platform == "LR5921":
-        return user
-    information = await status_check(user, "qq")
-    if information:
-        return information
     return None
 
 
