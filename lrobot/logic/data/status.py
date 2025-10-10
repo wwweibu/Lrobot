@@ -125,6 +125,7 @@ async def status_platform_bind(qq, platform, platform_id):
             updates.append(f"{bind_platform} = %s")
             params.append(row_source[bind_platform])
     if updates:
+        await database_update("DELETE FROM user_platform WHERE id = %s", (source_id,))
         sql = f"UPDATE user_platform SET {', '.join(updates)} WHERE id = %s"
         params.append(target_id)
         await database_update(sql, tuple(params))
@@ -150,7 +151,6 @@ async def status_platform_bind(qq, platform, platform_id):
                 (target_id, source_status, source_info)
             )
 
-    await database_update("DELETE FROM user_platform WHERE id = %s", (source_id,))
     await database_update("DELETE FROM user_status WHERE user_id = %s", (source_id,))
 
     return "绑定成功"
