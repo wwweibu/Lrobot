@@ -94,15 +94,10 @@ async def status_platform_bind(qq, platform, platform_id):
     if target_id == source_id:
         return "绑定失败:已绑定"
 
-    rows = await database_query(
-        "SELECT * FROM user_platform WHERE id IN (%s, %s)",
-        (target_id, source_id)
-    )
-    if len(rows) < 2:
-        return "绑定失败:系统异常"
-
-    row_target = next(r for r in rows if r["id"] == target_id)
-    row_source = next(r for r in rows if r["id"] == source_id)
+    row_target_list = await database_query("SELECT * FROM user_platform WHERE id = %s LIMIT 1", (target_id,))
+    row_source_list = await database_query("SELECT * FROM user_platform WHERE id = %s LIMIT 1", (source_id,))
+    row_target = row_target_list[0]
+    row_source = row_source_list[0]
 
     for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
         if row_target.get(bind_platform) and row_source.get(bind_platform):

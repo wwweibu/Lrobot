@@ -168,8 +168,11 @@ async def bili_fan_get():
     }
     response = await request_deal(url, "get", params, "私聊粉丝获取")
     fan_list = response["data"]["list"]
+    print(fan_list)
     fan_users = await status_user_check("BILI", "fan")
+    print(fan_users)
     fan_set = {str(item["mid"]) for item in fan_list}
+    print(fan_set)
     old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)
     old_fan_index = None
     if old_fan:  # 之前记录最新粉丝时不发送消息
