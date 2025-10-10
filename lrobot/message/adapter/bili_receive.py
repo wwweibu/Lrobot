@@ -173,11 +173,12 @@ async def bili_fan_get():
     print(fan_users)
     fan_set = {str(item["mid"]) for item in fan_list}
     print(fan_set)
-    old_fan = next((uid for uid in fan_users if str(uid) in fan_set), None)
+    old_fan = next((uid for uid in fan_users if uid in fan_set), None)
+    print("old_fan", old_fan)
     old_fan_index = None
     if old_fan:  # 之前记录最新粉丝时不发送消息
         for idx, item in enumerate(fan_list):
-            if str(item["mid"]) == str(old_fan):
+            if item["mid"] == old_fan:
                 old_fan_index = idx
                 break
         if old_fan_index is not None and old_fan_index > 0:
