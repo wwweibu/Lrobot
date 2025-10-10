@@ -47,7 +47,7 @@ async def status_user_check(platform, status):
     placeholders = ",".join(["%s"] * len(user_ids))
     q = f"SELECT id, {platform} FROM user_platform WHERE id IN ({placeholders})"
     rows = await database_query(q, tuple(user_ids))
-    return [r["id"] for r in rows if r.get(platform)]
+    return [r[platform] for r in rows if r.get(platform)]
 
 
 
@@ -66,9 +66,6 @@ async def status_delete(user, platform, status):
     """删除某用户某平台的某状态"""
     user_id = await id_get(platform, user)
     await database_update("DELETE FROM user_status WHERE user_id = %s AND status = %s", (user_id, status))
-    rows = await database_query("SELECT 1 FROM user_status WHERE user_id = %s LIMIT 1", (user_id,))
-    if not rows:  # 该用户无状态
-        await database_update("DELETE FROM user_platform WHERE id = %s", (user_id,))
 
 
 def info_merge(info1, info2):
