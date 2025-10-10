@@ -47,10 +47,8 @@ async def status_user_check(platform, status):
     placeholders = ",".join(["%s"] * len(user_ids))
     q = f"SELECT id, {platform} FROM user_platform WHERE id IN ({placeholders})"
     rows = await database_query(q, tuple(user_ids))
-    return [
-        {"user_id": int(r["id"]), "platform_id": r[platform]}
-        for r in rows if r.get(platform)
-    ]
+    return [int(r["id"]) for r in rows if r.get(platform)]
+
 
 
 async def status_add(user, platform, status, info=None):
