@@ -117,7 +117,7 @@ async def status_platform_bind(qq, platform, platform_id):
 
     for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
         if row_target.get(bind_platform) and row_source.get(bind_platform):
-            raise f"绑定失败:{bind_platform}已绑定{row_source[bind_platform]}"
+            return f"绑定失败:{bind_platform}已绑定{row_source[bind_platform]}"
     updates = []
     params = []
     for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
