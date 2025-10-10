@@ -111,25 +111,13 @@ async def status_platform_bind(qq, platform, platform_id):
     if len(rows) < 2:
         return "绑定失败:系统异常"
 
-    # 合并平台
     row_target = next(r for r in rows if r["id"] == target_id)
     row_source = next(r for r in rows if r["id"] == source_id)
 
     for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
         if row_target.get(bind_platform) and row_source.get(bind_platform):
             return f"绑定失败:{bind_platform}已绑定{row_source[bind_platform]}"
-    updates = []
-    params = []
-    for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
-        if not row_target.get(bind_platform) and row_source.get(bind_platform):
-            updates.append(f"{bind_platform} = %s")
-            params.append(row_source[bind_platform])
-    if updates:
-        await database_update("DELETE FROM user_platform WHERE id = %s", (source_id,))
-        sql = f"UPDATE user_platform SET {', '.join(updates)} WHERE id = %s"
-        params.append(target_id)
-        await database_update(sql, tuple(params))
-
+    
     # 合并状态
     source_status_list = await database_query("SELECT status, info FROM user_status WHERE user_id = %s", (source_id,))
     for r in source_status_list:
@@ -151,7 +139,20 @@ async def status_platform_bind(qq, platform, platform_id):
                 (target_id, source_status, source_info)
             )
 
+    await database_update("DELETE FROM user_platform WHERE id = %s", (source_id,))
     await database_update("DELETE FROM user_status WHERE user_id = %s", (source_id,))
+
+    # 合并平台
+    updates = []
+    params = []
+    for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
+        if not row_target.get(bind_platform) and row_source.get(bind_platform):
+            updates.append(f"{bind_platform} = %s")
+            params.append(row_source[bind_platform])
+    if updates:
+        sql = f"UPDATE user_platform SET {', '.join(updates)} WHERE id = %s"
+        params.append(target_id)
+        await database_update(sql, tuple(params))
 
     return "绑定成功"
 
