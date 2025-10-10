@@ -168,17 +168,15 @@ async def bili_fan_get():
     }
     response = await request_deal(url, "get", params, "私聊粉丝获取")
     fan_list = response["data"]["list"]
-    print(fan_list)
     fan_users = await status_user_check("BILI", "fan")
-    print(fan_users)
+    if fan_users:
+        await status_delete(fan_users[0], "BILI", "fan")
     fan_set = {str(item["mid"]) for item in fan_list}
-    print(fan_set)
     old_fan = next((uid for uid in fan_users if uid in fan_set), None)
-    print("old_fan", old_fan)
     old_fan_index = None
     if old_fan:  # 之前记录最新粉丝时不发送消息
         for idx, item in enumerate(fan_list):
-            if item["mid"] == old_fan:
+            if str(item["mid"]) == str(old_fan):
                 old_fan_index = idx
                 break
         if old_fan_index is not None and old_fan_index > 0:
@@ -189,6 +187,5 @@ async def bili_fan_get():
                     event="处理",
                     user=fan_list[i]["mid"]
                 )
-        await status_delete(old_fan, "BILI", "fan")
     new_fan = fan_list[0]["mid"]
     await status_add(new_fan, "BILI", "fan")
