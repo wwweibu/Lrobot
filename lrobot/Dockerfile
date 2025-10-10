@@ -2,10 +2,23 @@ FROM docker.m.daocloud.io/library/python:3.11-slim
 
 WORKDIR /app
 
-# 覆盖写入中科大源
-RUN echo 'deb https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware' > /etc/apt/sources.list && \
-    echo 'deb https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware' >> /etc/apt/sources.list && \
-    echo 'deb https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware' >> /etc/apt/sources.list
+# 多源配置
+RUN set -eux; \
+    echo "配置多源列表..." > /etc/apt/sources.list && \
+    cat > /etc/apt/sources.list <<'EOF'
+deb https://mirrors.ustc.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+deb https://mirrors.ustc.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
+
+deb https://mirrors.aliyun.com/debian/ trixie main contrib non-free non-free-firmware
+deb https://mirrors.aliyun.com/debian/ trixie-updates main contrib non-free non-free-firmware
+deb https://mirrors.aliyun.com/debian-security/ trixie-security main contrib non-free non-free-firmware
+
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ trixie main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ trixie-updates main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian-security/ trixie-security main contrib non-free non-free-firmware
+EOF
+
 
 # 安装系统依赖
 RUN apt-get update && \
@@ -30,15 +43,11 @@ RUN mkdir -p /etc/apt/keyrings && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --timeout 120 --retries 10 \
-    -r requirements.txt \
-    || \
-    pip install --no-cache-dir \
-    -i https://pypi.douban.com/simple/ \
-    --timeout 120 --retries 10 \
-    -r requirements.txt
+RUN pip config set global.timeout 120; \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt \
+    || pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt \
+    || pip install --no-cache-dir -i https://pypi.douban.com/simple/ -r requirements.txt \
+    || pip install --no-cache-dir -i https://pypi.org/simple/ -r requirements.txt
 
 # 拷贝主控文件
 COPY main.py .
