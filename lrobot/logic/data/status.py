@@ -24,13 +24,8 @@ async def status_check(user, platform, status=None):
 
     if status is None:
         rows = await database_query("SELECT status, info FROM user_status WHERE user_id = %s", (user_id,))
-        out = {}
-        for r in rows:
-            try:
-                out[r["status"]] = json.loads(r["info"]) if r["info"] else None
-            except Exception:
-                out[r["status"]] = r["info"]
-        return out
+        return [r["status"] for r in rows if "status" in r]
+
     rows = await database_query("SELECT info FROM user_status WHERE user_id = %s AND status = %s LIMIT 1",
                                 (user_id, status))
     if not rows:
@@ -61,7 +56,7 @@ async def status_user_check(platform, status):
 async def status_add(user, platform, status, info=None):
     """插入或更新状态"""
     user_id = await id_get(platform, user)
-    info_json = json.dumps(info) if info else None
+    info_json = json.dumps(info) if info is not None else None
     await database_update(
         "INSERT INTO user_status (user_id, status, info) VALUES (%s, %s, %s) "
         "ON DUPLICATE KEY UPDATE info = VALUES(info)",
@@ -87,9 +82,9 @@ def info_merge(info1, info2):
     if info2 is None:
         return info1
     try:
-        v1 = float(info1)
-        v2 = float(info2)
-        return v1 if v1 >= v2 else v2
+        v1 = int(info1)
+        v2 = int(info2)
+        return json.dumps(max(v1, v2))
     except Exception:
         return info1
 
@@ -117,7 +112,7 @@ async def status_platform_bind(qq, platform, platform_id):
     for bind_platform in ["lr5921", "lr232", "wechat", "bili"]:
         if row_target.get(bind_platform) and row_source.get(bind_platform):
             return f"绑定失败:{bind_platform}已绑定{row_source[bind_platform]}"
-    
+
     # 合并状态
     source_status_list = await database_query("SELECT status, info FROM user_status WHERE user_id = %s", (source_id,))
     for r in source_status_list:

@@ -32,7 +32,7 @@ async def merge_img():
             continue
 
         merged_single_path = path / f"storage/file/command/hunt/tmp_merge_{gid}.jpg"
-        await data.image_merge([text_img_path, qr_img_path], merged_single_path, direction="vertical")
+        await data.image_merge([qr_img_path, text_img_path], merged_single_path, direction="vertical")
 
         temp_images.append(merged_single_path)
 
