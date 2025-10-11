@@ -11,10 +11,11 @@ from message.handler.msg import Msg
 async def material_add(msg: Msg):
     """更新物资"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
-    while len(parts) < 3:
-        parts.append("")
-    await data.material_add(parts[1].strip(), parts[2].strip())
-    content = "更新成功"
+    if len(parts) == 3:
+        await data.material_add(parts[1].strip(), parts[2].strip())
+        content = "更新成功"
+    else:
+        content = "更新失败，请使用'/物资,物资,备注'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
