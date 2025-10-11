@@ -20,5 +20,5 @@ from .firefly import firefly_password_get
 from .backup import backup_mysql, backup_mongo
 from .user import user_codename_change, user_identify, user_nickname_transform
 from .status import status_check, status_add, status_delete, status_user_check
-from .file import record_convert, image_compress, record_compress, video_compress, file_download, file_name_overwrite, \
+from .file import record_convert, image_compress, record_compress, video_compress, file_download, \
     remove_later, image_merge, text_to_image
