@@ -70,7 +70,7 @@ async def activity_hunt_group(msg: Msg):
             for g in group_list.get("groups", []):
                 gid = g["id"]
                 info = g["info"]
-                text_node = f"[节点:3502644244|LR5921|群{gid}:{info}]"
+                text_node = f"[节点:3502644244|LR5921|{gid}:{info}]"
                 img_path = path / f"storage/file/command/hunt/{gid}.jpg"
                 img_node = f"[节点:3889270613|LR232|[图片:{img_path}]]"
 
@@ -107,7 +107,7 @@ async def activity_hunt_group_set(msg: Msg):
     if len(parts) == 2:
         info = parts[1].strip()
     else:
-        info = f"本群为寻宝{new_id - 1}群"
+        info = f"寻宝组队群，可自行加入"
     group_list["groups"].append({"id": new_id, "info": info})
     group_list["max_id"] = new_id
     await data.system_edit("hunt_group", json.dumps(group_list, ensure_ascii=False))
