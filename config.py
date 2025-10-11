@@ -479,11 +479,16 @@ async def config_watcher():
     """开启配置自动更新"""
     system = platform.system().lower()
     if system == "linux":
-        observer = InotifyObserver()
+        observer1 = InotifyObserver()
+        observer2 = PollingObserver(timeout=3)
     else:
-        observer = PollingObserver()
-    observer.schedule(AutoConfigHandler(), str(path / "storage/yml"), recursive=False)
-    observer.start()
+        observer1 = PollingObserver()
+        observer2 = None
+    observer1.schedule(AutoConfigHandler(), str(path / "storage/yml"), recursive=False)
+    observer1.start()
+    if observer2:
+        observer2.schedule(AutoConfigHandler(), str(path / "storage/yml"), recursive=False)
+        observer2.start()
 
     try:
         await asyncio.Event().wait()
