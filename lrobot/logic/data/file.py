@@ -24,26 +24,38 @@ process_pool = ProcessPoolExecutor()
 msg_logger = loggers["message"]
 
 
-async def text_to_image(text, output, font_path=path / "storage/file/command/simsun.ttc", font_size=24, line_width=40):
-    """文字转图片"""
-    wrapper = textwrap.TextWrapper(
-        width=line_width,
-        replace_whitespace=False,  # 不折叠空白，保留行内空格
-        drop_whitespace=False,  # 不丢弃行首/行尾空白
-        break_long_words=True,  # 中文/长词可拆分
-        break_on_hyphens=False
-    )
-
+def text_wrap(draw, text, font, max_width):
+    """转换文字"""
     lines = []
-    for para in text.splitlines():
-        lines.extend(wrapper.wrap(para) or [""])
+    for paragraph in text.splitlines():
+        if not paragraph:
+            lines.append("")  # 保留空行
+            continue
+        line = ""
+        for ch in paragraph:
+            # 动态测量当前行宽
+            if draw.textlength(line + ch, font=font) <= max_width:
+                line += ch
+            else:
+                lines.append(line)
+                line = ch
+        if line:
+            lines.append(line)
+    return lines
+
+
+async def text_to_image(text, output, font_path=path / "storage/file/command/simsun.ttc", font_size=24, max_width=800):
+    """文字转图片"""
     font = ImageFont.truetype(font_path, font_size)
+
+    tmp_img = Image.new("RGB", (10, 10))
+    draw = ImageDraw.Draw(tmp_img)
+    lines = text_wrap(draw, text, font, max_width=max_width - 40)
     # 计算图片大小
     line_height = font.getbbox("A")[3] - font.getbbox("A")[1] + 20  # 行高（含间距）
-    img_width = max(font.getlength(line) for line in lines) + 40  # 预留边距
     img_height = line_height * len(lines) + 40
 
-    img = Image.new("RGB", (int(img_width), int(img_height)), color="white")
+    img = Image.new("RGB", (max_width, int(img_height)), color="white")
     draw = ImageDraw.Draw(img)
 
     y = 20
