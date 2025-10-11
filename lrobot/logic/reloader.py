@@ -1,10 +1,13 @@
 """模块重载"""
 
 import sys
+import platform
 import importlib
 from pathlib import Path
 from watchdog.events import FileSystemEventHandler
+from watchdog.observers.inotify import InotifyObserver
 from watchdog.observers.polling import PollingObserver
+
 
 from config import loggers
 
@@ -70,6 +73,10 @@ class ModuleManager(FileSystemEventHandler):
 
     def start(self):
         """开启监听"""
-        observer = PollingObserver()
+        system = platform.system().lower()
+        if system == "linux":
+            observer = InotifyObserver()
+        else:
+            observer = PollingObserver()
         observer.schedule(self, str(self.module_dir), recursive=False)
         observer.start()
