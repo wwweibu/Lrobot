@@ -3,9 +3,9 @@
 import asyncio
 from datetime import datetime, timedelta
 
-from .status import status_check, status_lr5921_get
 from .firefly import firefly_judge
 from message.handler.msg import Msg
+from .status import status_lr5921_get
 from config import config, future, database_query, database_update
 
 
@@ -54,7 +54,16 @@ async def user_nickname_transform(user, platform, is_send=None):
             return nickname
     if is_send:  # 发送不能调用 user_nickname_get
         return None
-    nickname = await user_nickname_get(qq)
+    msg = Msg(
+        platform="LR5921",
+        event="发送",
+        kind="私聊昵称",
+        user=qq
+    )
+    try:
+        nickname = await future.wait(msg.num)
+    except asyncio.TimeoutError:
+        return None
     if not nickname:
         return None
     update_sql = """
@@ -67,21 +76,6 @@ async def user_nickname_transform(user, platform, is_send=None):
     await database_update(update_sql, (qq, nickname))
 
     return nickname
-
-
-async def user_nickname_get(user):
-    """获取用户昵称"""
-    msg = Msg(
-        platform="LR5921",
-        event="发送",
-        kind="私聊昵称",
-        user=user
-    )
-    try:
-        response = await future.wait(msg.num)
-        return response
-    except asyncio.TimeoutError:
-        return None
 
 
 async def user_codename_change(codename):

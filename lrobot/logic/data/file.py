@@ -39,16 +39,16 @@ async def text_to_image(text, output, font_path=path / "storage/file/command/sim
         lines.extend(wrapper.wrap(para) or [""])
     font = ImageFont.truetype(font_path, font_size)
     # 计算图片大小
-    line_height = font.getbbox("A")[3] - font.getbbox("A")[1] + 10  # 行高（含间距）
-    img_width = max(font.getlength(line) for line in lines) + 20  # 预留边距
-    img_height = line_height * len(lines) + 20
+    line_height = font.getbbox("A")[3] - font.getbbox("A")[1] + 20  # 行高（含间距）
+    img_width = max(font.getlength(line) for line in lines) + 40  # 预留边距
+    img_height = line_height * len(lines) + 40
 
     img = Image.new("RGB", (int(img_width), int(img_height)), color="white")
     draw = ImageDraw.Draw(img)
 
     y = 20
     for line in lines:
-        draw.text((10, y), line, font=font, fill="black")
+        draw.text((20, y), line, font=font, fill="black")
         y += line_height
     Path(output).parent.mkdir(parents=True, exist_ok=True)
     img.save(output)
