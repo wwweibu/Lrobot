@@ -194,31 +194,30 @@ async def help_show(msg: Msg):
                 text2 = '\n'.join(text2)
                 content += f"\n\n{text2}"
         else:
-            content = f"请输入'/帮助,基础'类似格式(系统，入会，收集表，游戏，工具，订阅，活动)"
+            content = f"请输入'/帮助,基础'类似格式(入会，收集表，游戏，工具，订阅，活动，系统)"
     else:
-        cab_web = f"\n内阁页: https://whumystery.cn/{'cab' if msg.platform == 'LR232' else temp_key['uuid']}"
+        cab_web = f"内阁页: https://whumystery.cn/{'cab' if msg.platform == 'LR232' else temp_key['uuid']}\n"
         cab_prompt = '下方为管理指令,括号中分别是平台、私聊、群聊的可用范围\n' if isCab else ''
         content = (
-            "<指令列表>\n"
-            "输入'/帮助,基础'等获取指令组详细指令\n"
-            f"指令组包括基础、入会、收集表、游戏、工具、订阅、活动、系统\n"
+            "<指令>\n"
+            "输入'/帮助,基础'(入会、收集表、游戏、工具、订阅、活动、系统)获取指令组详细指令\n"
             "你将看到:'/常见问题,[序号]: 获取对应问题回答 (全)(私)(群)'类似的回答\n"
-            "其中[]里的内容需要替换,例如,此指令为'/常见问题,1'\n"
-            "冒号后面的为解释\n"
+            "前面是用法,[]需要替换,例如,'/常见问题,1'\n"
+            "后面的为解释,指令的功能\n"
             "第一个括号是平台,全代表四个平台,LR代表两个QQ,232代表LR232,5921代表LR5921,W代表微信,B代表B站\n"
             "括号存在'私'则私聊可用；存在'群'则群聊可用\n"
             f"{cab_prompt}"
-            "<其他>\n"
-            "任何指令中英文逗号均通用\n"
-            "LR232可输入'/'或点击机器人图标唤出指令面板\n"
-            "LR232在群聊中使用需要先@\n"
             "<平台>\n"
             "LR232:QQ,群管理下方添加\n"
             "LR5921:QQ,群管理中添加(3502644244)\n"
             "BILI:B站,武大推协\n"
             "WECHAT:微信公众号,武大推协\n"
-            "网站: https://whumystery.cn/home"
+            "网站: https://whumystery.cn/home\n"
             f"{cab_web if isCab else ''}"
+            "<其他>\n"
+            "任何指令中英文逗号均通用\n"
+            "LR232可输入'/'或点击机器人图标唤出指令面板\n"
+            "LR232在群聊中使用需要先@"
         )
     Msg(
         platform=msg.platform,
