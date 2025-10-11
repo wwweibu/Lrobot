@@ -3,7 +3,7 @@
 import random
 
 from message.handler.msg import Msg
-from config import database_update, database_query, future
+from config import database_update, database_query, future, config
 
 
 async def firefly_judge(user):
@@ -19,7 +19,7 @@ async def firefly_update():
         platform="LR5921",
         kind="群聊成员",
         event="发送",
-        group="786159347",
+        group=config["public"]["公测群"][0],
     )
     response = await future.wait(msg.num, f"[消息]测试群成员列表获取超时-> {msg.group}")
     user_dict = {item["user_id"]: item.get("nickname") for item in response}
