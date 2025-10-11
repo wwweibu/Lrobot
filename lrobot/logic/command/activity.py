@@ -270,7 +270,7 @@ async def activity_hunt_problem(msg: Msg):
                     content = f"未找到 ID 为 {ans_id} 的答案"
                 else:
                     answer_text = answers[ans_id - 1]
-                    img_path = path / f"storage/file/command/hunt/answer_{ans_id}.jpg"
+                    img_path = path / f"storage/file/command/hunt/answer_{ans_id}.png"
 
                     if img_path.exists():
                         content = f"{answer_text}[图片:{img_path}]"
