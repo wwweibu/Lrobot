@@ -3,7 +3,7 @@
 import httpx
 import docker
 
-from config import loggers
+from config import loggers, config
 from message.handler.msg import Msg
 
 COMMAND_CONTAINER = "command"
@@ -37,6 +37,8 @@ async def check_net():
 
 async def check_restart(msg: Msg):
     """重启容器"""
+    if not config["SERVER_IP"]:
+        return
     client = docker.from_env()
     container = client.containers.get("command")
     container.restart()
