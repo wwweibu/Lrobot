@@ -197,7 +197,7 @@ async def help_show(msg: Msg):
             content = f"请输入'/帮助,基础'类似格式(入会，收集表，游戏，工具，订阅，活动，系统)"
     else:
         cab_web = f"内阁页: https://whumystery.cn/{'cab' if msg.platform == 'LR232' else temp_key['uuid']}\n"
-        cab_prompt = '下方为管理指令,括号中分别是平台、私聊、群聊的可用范围\n' if isCab else ''
+        cab_prompt = '空行下方为管理指令,括号中分别是平台、私聊、群聊的可用范围\n' if isCab else ''
         content = (
             "<指令>\n"
             "输入'/帮助,基础'(入会、收集表、游戏、工具、订阅、活动、系统)获取指令组详细指令\n"

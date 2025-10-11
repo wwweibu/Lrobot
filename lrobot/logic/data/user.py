@@ -17,7 +17,7 @@ async def user_identify(user, platform):
 
     result = []
     for identity, numbers in config["private"].items():
-        if user in numbers:
+        if qq in numbers:
             result.append(identity)
     # 如果匹配到任意一个身份，则添加 "内阁"
     if result:
