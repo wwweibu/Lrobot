@@ -163,6 +163,8 @@ async def base_web(msg: Msg):
                "4.下次可直接访问 whumystery.cn/cab\n"
                "QQ上只能用临时网址,微信上可以登录"
                )
+    if msg.platform == "WECHAT":
+        content.replace("\n", "    ")
     Msg(
         platform=msg.platform,
         event="发送",
