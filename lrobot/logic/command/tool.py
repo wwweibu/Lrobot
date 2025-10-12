@@ -307,7 +307,7 @@ def bacon_decode(code):
     for i in range(0, len(filtered), 5):
         group = filtered[i:i + 5]
         result.append(REVERSE_BACON_FULL.get(group, '?'))
-    return ''.join(result)
+    return ' / '.join(result)
 
 
 @monitor_adapter("/工具_培根加密")
@@ -317,7 +317,7 @@ async def tool_bacon_encrypt(msg: Msg):
 
     if len(parts) != 2:
         table = "\n".join(
-            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+            f"{k} → {v}" for k, v in sorted(BACON_FULL.items())
         )
         content = f"请使用'/培根加密,ab'\n\n{table}"
     else:
@@ -345,7 +345,7 @@ async def tool_bacon_decrypt(msg: Msg):
 
     if len(parts) != 2:
         table = "\n".join(
-            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+            f"{k} → {v}" for k, v in sorted(BACON_FULL.items())
         )
         content = f"请使用'/培根解密,AAAAABAAAA'\n\n{table}"
     else:
