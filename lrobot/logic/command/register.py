@@ -8,7 +8,6 @@ from config import path, storage, monitor_adapter, future, config
 
 PATTERN = re.compile(
     r'^[\s\S]*?'
-    r'(?=姓名[：:])'
     r"姓名[：:](?P<name>[^，,]+)[，,]"
     r"代号[：:](?P<codename>[^，,]+)[，,]"
     r"性别[：:](?P<gender>[^，,]+)[，,]"
@@ -18,7 +17,9 @@ PATTERN = re.compile(
     r"电话[：:](?P<phone>[^，,]+)[，,]"
     r"qq[：:](?P<qq>[^，,]+)[，,]"
     r"政治面貌[：:](?P<political_status>[^，,]+)[，,]"
-    r"籍贯[：:](?P<hometown>[^，,]+)$"
+    r"籍贯[：:](?P<hometown>[\u4e00-\u9fff]+)"
+    r"[^\\u4e00-\\u9fff]*"
+    r"[\s\S]*?$"
 )
 
 VALIDATION = {
