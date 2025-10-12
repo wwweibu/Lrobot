@@ -65,7 +65,7 @@ async def wechat_dispatch(
     if msg_type == "record":
         msg_type = "voice"
         file = data.get("file", "")
-        media_id = await wechat_file_upload(file, type=msg_type)
+        media_id = await wechat_file_upload(file, type=msg_type, record=True)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Voice><MediaId><![CDATA[{media_id}]]></MediaId></Voice>\n"""
 
@@ -73,7 +73,7 @@ async def wechat_dispatch(
         file = data.get("file", "")
         title = data.get("title", "")
         desc = data.get("description", "")
-        media_id = await wechat_file_upload(file, type=msg_type)
+        media_id = await wechat_file_upload(file, type=msg_type, record=True)
         base += f"""<MsgType><![CDATA[{msg_type}]]></MsgType>
         <Video><MediaId><![CDATA[{media_id}]]></MediaId>
         <Title><![CDATA[{title}]]></Title>
@@ -146,7 +146,7 @@ async def wechat_dispatch(
         elif images:
             if len(images) == 1:
                 file = images[0]
-                media_id = await wechat_file_upload(file, type="image")
+                media_id = await wechat_file_upload(file, type="image", record=True)
                 base += f"""<MsgType><![CDATA[image]]></MsgType>
                             <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
             else:
@@ -162,14 +162,15 @@ async def wechat_dispatch(
     future.set(seq, base)
 
 
-async def wechat_file_upload(file, type=None, url=None):
+async def wechat_file_upload(file, type=None, url=None, record=False):
     """文件上传"""
-    query = "SELECT media_id, wechat FROM user_media WHERE filepath = %s"
-    result = await database_query(query, (file,))
-    if result:
-        media_id, t = result[0]["media_id"], result[0]["wechat"]
-        if media_id and t and datetime.now() < t + timedelta(days=3):
-            return media_id
+    if record:
+        query = "SELECT media_id, wechat FROM user_media WHERE filepath = %s"
+        result = await database_query(query, (file,))
+        if result:
+            media_id, t = result[0]["media_id"], result[0]["wechat"]
+            if media_id and t and datetime.now() < t + timedelta(days=3):
+                return media_id
 
     url = "media/upload"
     params = {"type": type}
@@ -198,14 +199,15 @@ async def wechat_file_upload(file, type=None, url=None):
     )
     if not media_id:
         raise Exception("[文件上传]⌈WECHAT⌋请求失败-> 无 media_id")
-    query = """
-                INSERT INTO user_media (filepath, media_id)
-                VALUES (%s, %s) AS new
-                ON DUPLICATE KEY UPDATE 
-                    media_id = new.media_id,
-                    wechat = CURRENT_TIMESTAMP
-            """
-    await database_update(query, (file, media_id))
+    if record:
+        query = """
+                    INSERT INTO user_media (filepath, media_id)
+                    VALUES (%s, %s) AS new
+                    ON DUPLICATE KEY UPDATE 
+                        media_id = new.media_id,
+                        wechat = CURRENT_TIMESTAMP
+                """
+        await database_update(query, (file, media_id))
     return media_id
 
 

@@ -7,8 +7,8 @@ from hashlib import md5
 from pathlib import Path
 from urllib.parse import urlencode
 
-from logic import image_compress
-from config import config, loggers, connect, future, database_query, database_update
+from logic import image_compress, text_to_image
+from config import config, loggers, connect, future, database_query, database_update, path
 
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -91,6 +91,13 @@ async def bili_dispatch(
         "csrf": config["BILI_JCT"],
     }
     seq = []
+    content = "".join(content_parts)
+    if len(content) > 400:  # 过长转图片
+        text_img = f"{path}/storage/file/user/bili/text_{seq}.jpg"
+        await text_to_image(content, text_img)
+        content_parts = []
+        image_parts.insert(0, {"file": text_img, "is_text": True})
+
     if content_parts:  # 文本合并发送
         params = base_params.copy()
         params["msg[msg_type]"] = 1
@@ -102,7 +109,10 @@ async def bili_dispatch(
     for file in image_parts:  # 逐一发送图片
         params = base_params.copy()
         params["msg[msg_type]"] = 2
-        file_data = await bili_file_upload(file)
+        if isinstance(file, dict) and file.get("is_text"):
+            file_data = await bili_file_upload(file["file"], record=True)
+        else:
+            file_data = await bili_file_upload(file)
         params["msg[content]"] = json.dumps(
             {"url": file_data[0], "height": file_data[1], "width": file_data[2]})
         response = await request_deal(url, "post", params, "私聊发送")
@@ -110,13 +120,14 @@ async def bili_dispatch(
     future.set(num, seq)
 
 
-async def bili_file_upload(file, type=None, url=None):
+async def bili_file_upload(file, type=None, url=None, record=True):
     """文件上传"""
-    query = "SELECT media_url FROM user_media WHERE filepath = %s"
-    result = await database_query(query, (file,))
-    if result and result[0]["media_url"]:
-        data = json.loads(result[0]["media_url"])
-        return [data["url"], data["h"], data["w"]]
+    if record:
+        query = "SELECT media_url FROM user_media WHERE filepath = %s"
+        result = await database_query(query, (file,))
+        if result and result[0]["media_url"]:
+            data = json.loads(result[0]["media_url"])
+            return [data["url"], data["h"], data["w"]]
 
     mime_type, _ = mimetypes.guess_type(file)
     url = "https://api.bilibili.com/x/dynamic/feed/draw/upload_bfs"
@@ -130,13 +141,14 @@ async def bili_file_upload(file, type=None, url=None):
     response = await request_deal(url, "post", params, "私聊文件上传", files)
     data = response["data"]
     url, h, w = data["image_url"], data["image_height"], data["image_width"]
-    query = """
-                       INSERT INTO user_media (filepath, media_url)
-                       VALUES (%s, JSON_OBJECT('url', %s, 'h', %s, 'w', %s)) AS new
-                       ON DUPLICATE KEY UPDATE 
-                           media_url = new.media_url
-                   """
-    await database_update(query, (file, url, h, w))
+    if record:
+        query = """
+                           INSERT INTO user_media (filepath, media_url)
+                           VALUES (%s, JSON_OBJECT('url', %s, 'h', %s, 'w', %s)) AS new
+                           ON DUPLICATE KEY UPDATE 
+                               media_url = new.media_url
+                    """
+        await database_update(query, (file, url, h, w))
     return [url, h, w]
 
 

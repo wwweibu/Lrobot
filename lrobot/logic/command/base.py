@@ -29,7 +29,7 @@ async def base_question(msg: Msg):
             else:
                 content = f"未找到序号 {num} 对应的问题，请输入 1~{len(qa_pairs)} 之间的数字。"
         except ValueError:
-            content = "格式错误，请输入'/常见问题,序号'"
+            content = "格式错误，请输入'/常见问题,1'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
