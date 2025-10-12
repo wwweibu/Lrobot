@@ -7,7 +7,7 @@ from datetime import datetime
 
 from logic import data
 from message.handler.msg import Msg
-from config import database_update, monitor_adapter, path, future, config
+from config import database_update, monitor_adapter, path, future
 
 
 @monitor_adapter("/工具_设置待办")

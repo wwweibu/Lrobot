@@ -17,7 +17,7 @@ async def remind_send(id, target_time, content, user):
                 platform="LR5921",
                 event="发送",
                 kind="私聊发送",
-                content=content,
+                content=f"小推提醒您，{content}",
                 user=user,
             )
             sql = "DELETE FROM system_remind WHERE id = %s"
