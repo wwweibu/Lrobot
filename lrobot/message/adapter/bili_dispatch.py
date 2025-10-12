@@ -92,7 +92,7 @@ async def bili_dispatch(
     }
     seq = []
     content = "".join(content_parts)
-    if len(content) > 400:  # 过长转图片
+    if len(content) > 450:  # 过长转图片
         text_img = f"{path}/storage/file/user/bili/text_{seq}.jpg"
         await text_to_image(content, text_img)
         content_parts = []

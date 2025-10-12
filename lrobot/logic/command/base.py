@@ -156,7 +156,7 @@ async def base_web(msg: Msg):
                f"功能页: whumystery.cn/{temp_key['uuid']}/firefly\n"
                f"网盘页: whumystery.cn/{temp_key['uuid']}/file\n"
                f"时间轴页: whumystery.cn/{temp_key['uuid']}/timeline\n"
-               "长期使用:"
+               "长期使用:\n"
                "1.添加LR5921\n"
                "2.访问 whumystery.cn/cmd,输入代号\n"
                "3.输入对应验证码，等待跳转\n"
