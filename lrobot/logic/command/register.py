@@ -7,6 +7,8 @@ from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
 PATTERN = re.compile(
+    r'^[\s\S]*?'
+    r'(?=姓名[：:])'
     r"姓名[：:](?P<name>[^，,]+)[，,]"
     r"代号[：:](?P<codename>[^，,]+)[，,]"
     r"性别[：:](?P<gender>[^，,]+)[，,]"
