@@ -142,7 +142,7 @@ async def base_word(msg: Msg):
         event="发送",
         kind="私聊发送",
         content=content,
-        user=config["微部"][0],
+        user=config["private"]["微部"][0],
     )
     return content
 
@@ -198,7 +198,7 @@ async def base_unknown(msg: Msg):
             platform="LR5921",
             event="发送",
             kind="私聊发送",
-            user=config["微部"][0],
+            user=config["private"]["微部"][0],
             content=content
         )
     return content
