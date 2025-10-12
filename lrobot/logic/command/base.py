@@ -164,7 +164,7 @@ async def base_web(msg: Msg):
                "QQ上只能用临时网址,微信上可以登录"
                )
     if msg.platform == "WECHAT":
-        content.replace("\n", "    ")
+        content = content.replace("\n", "    ")
     Msg(
         platform=msg.platform,
         event="发送",
