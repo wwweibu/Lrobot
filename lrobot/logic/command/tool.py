@@ -294,7 +294,7 @@ def bacon_encode(text):
     for ch in text.upper():
         if ch in BACON_FULL:
             result.append(BACON_FULL[ch])
-    return " ".join(result) if result else "无可加密字母"
+    return " / ".join(result) if result else "无可加密字母"
 
 
 def bacon_decode(code):
@@ -316,12 +316,15 @@ async def tool_bacon_encrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用：/培根加密,文本"
+        table = "\n".join(
+            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+        )
+        content = f"请使用'/培根加密,ab'\n\n{table}"
     else:
         text = parts[1].strip()
 
         result = bacon_encode(text)
-        content = f"培根加密结果:\n{result}"
+        content = f"培根加密结果: {result}"
 
     Msg(
         platform=msg.platform,
@@ -341,12 +344,15 @@ async def tool_bacon_decrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用：/培根解密,文本"
+        table = "\n".join(
+            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+        )
+        content = f"请使用'/培根解密,AAAAABAAAA'\n\n{table}"
     else:
         text = parts[1].strip()
 
         result = bacon_decode(text)
-        content = f"培根解密结果:\n{result}"
+        content = f"培根解密结果: {result}"
 
     Msg(
         platform=msg.platform,
