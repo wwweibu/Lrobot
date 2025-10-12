@@ -180,6 +180,13 @@ async def register_third(msg: Msg):
         await data.user_register(user_data)
         await data.status_delete(msg.user, msg.platform, "入会")
         content = "入会成功，请添加小推qq'1326016706'，发送暗号'玩耍地'"
+        Msg(
+            platform="LR5921",
+            event="发送",
+            kind="私聊发送",
+            user=config["private"]["微部"][0],
+            content=f"[图片:{file_path}]"
+        )
     Msg(
         platform=msg.platform,
         event="发送",
@@ -187,13 +194,6 @@ async def register_third(msg: Msg):
         seq=msg.seq,
         content=content,
         user=msg.user,
-    )
-    Msg(
-        platform="LR5921",
-        event="发送",
-        kind="私聊发送",
-        user=config["private"]["微部"][0],
-        content=f"[图片:{file_path}]"
     )
     return content
 
