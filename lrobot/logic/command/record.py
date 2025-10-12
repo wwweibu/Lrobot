@@ -179,6 +179,8 @@ async def record_export(msg: Msg):
                     target_record = next((r for r in data_json if r["id"] == record_id), None)
                     if not target_record:
                         content = f"群 {group} 不存在记录 ID={record_id}"
+                    elif not target_record.get("messages"):
+                        content = f"群 {group} 的记录 ID={record_id} 中没有消息，无法导出"
                     else:
                         mode = parts[3].strip() if len(parts) >= 4 else None
                         if mode is None:
