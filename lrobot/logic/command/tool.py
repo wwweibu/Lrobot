@@ -199,7 +199,7 @@ def morse_encode(text):
             result.append(MORSE_CODE_DICT[ch])
         else:
             result.append('?')  # 未知字符
-    return "|".join(result)
+    return " / ".join(result)
 
 
 def morse_decode(code):
@@ -218,7 +218,7 @@ def morse_decode(code):
             result.append(reverse_dict[p])
         else:
             result.append('?')  # 无法识别
-    return '|'.join(result).replace('  ', ' ')  # 合并多余空格
+    return ' / '.join(result).replace('  ', ' ')  # 合并多余空格
 
 
 @monitor_adapter("/工具_摩斯加密")
