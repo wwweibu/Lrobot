@@ -155,8 +155,8 @@ async def tool_vigenere(msg: Msg):
 
             content = (
                 f"密钥: {key}\n\n"
-                f"加密结果:\n{encrypted}\n\n"
-                f"解密结果:\n{decrypted}"
+                f"加密结果: {encrypted}\n\n"
+                f"解密结果: {decrypted}"
             )
 
     # 返回消息
