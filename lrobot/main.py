@@ -74,7 +74,7 @@ async def WECHAT_init():
 
 async def BILI_init():
     """BILI 初始化函数"""
-    scheduler_add(bili_receive, 60, interval=60, at_once=True)  # 推荐刷新间隔 20
+    scheduler_add(bili_receive, 30, interval=30, at_once=True)  # 推荐刷新间隔 20
     scheduler_add(bili_fan_get, interval=300)  # 检测粉丝
     await subscribe_up_init()  # 轮询 up 更新
 
