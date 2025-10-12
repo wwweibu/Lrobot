@@ -73,15 +73,9 @@ const handleKeydown = (e) => {
 }
 
 const handleInput = (e) => {
-  if (isComposing.value) return
-
-  // 清理所有 HTML 标签，只保留纯文本
-  const text = e.target.textContent || ''
-  const plainText = text.replace(/<[^>]+>/g, '') // 移除标签
-  currentInput.value = plainText
-
-  // 立即同步回 DOM，避免残留 HTML
-  e.target.textContent = currentInput.value
+  if (!isComposing.value) {
+    currentInput.value = e.target.textContent
+  }
 }
 
 const handleCompositionStart = () => {

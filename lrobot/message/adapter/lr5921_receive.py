@@ -31,8 +31,8 @@ async def lr5921_msg_deal(data):
     user = data.get("user_id", "")
     group = data.get("group_id", "")
 
-    if group and all(str(group) not in config["public"][category] for category in config["public"]):
-        return  # 不处理未配置的群的消息，若需要接收则删除此两行
+    # if group and all(str(group) not in config["public"][category] for category in config["public"]):
+    # return  # 不处理未配置的群的消息，若需要接收则删除此两行
     adapter_logger.debug(f"[接收]⌈LR5921⌋{data}", extra={"event": "消息接收"})  # 若需要显示全部消息则放在 lr5921_receive 下方
     if post_type == "message":
         if not content:
