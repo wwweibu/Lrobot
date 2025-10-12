@@ -19,5 +19,5 @@ app.mount("#app");
 
 // 消除后端计数
 setTimeout(() => {
-  fetch("/joke", { method: "PUT" }).catch(() => {});
+  fetch("/hjd/joke", { method: "PUT" }).catch(() => {});
 }, 500);
