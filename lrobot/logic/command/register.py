@@ -4,7 +4,7 @@ import re
 
 from logic import data
 from message.handler.msg import Msg
-from config import path, storage, monitor_adapter, future
+from config import path, storage, monitor_adapter, future, config
 
 PATTERN = re.compile(
     r"姓名:(?P<name>[^，,]+)[，,]"
@@ -134,7 +134,7 @@ async def register_second(msg: Msg):
         platform="LR5921",
         event="发送",
         kind="私聊发送",
-        user="663748426",
+        user=config["微部"][0],
         content=info
     )
     return content
@@ -175,7 +175,7 @@ async def register_third(msg: Msg):
         platform="LR5921",
         event="发送",
         kind="私聊发送",
-        user="663748426",
+        user=config["微部"][0],
         content=f"[图片:{file_path}]"
     )
     return content

@@ -5,7 +5,7 @@ import re
 from logic import data
 from message.handler.msg import Msg
 from .activity import activity_diary_answer
-from config import path, temp_key, monitor_adapter, database_update
+from config import path, temp_key, monitor_adapter, config
 
 
 @monitor_adapter("/基础_问题")
@@ -141,7 +141,7 @@ async def base_word(msg: Msg):
         event="发送",
         kind="私聊发送",
         content=content,
-        user="663748426",
+        user=config["微部"][0],
     )
     return content
 
@@ -197,7 +197,7 @@ async def base_unknown(msg: Msg):
             platform="LR5921",
             event="发送",
             kind="私聊发送",
-            user="663748426",
+            user=config["微部"][0],
             content=content
         )
     return content

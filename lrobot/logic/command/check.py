@@ -31,7 +31,7 @@ async def check_net():
             event="发送",
             kind="私聊发送",
             content=content,
-            user="663748426",
+            user=config["微部"][0],
         )
 
 
