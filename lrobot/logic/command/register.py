@@ -117,7 +117,7 @@ async def register_second(msg: Msg):
             return content
     result = await data.user_member_judge(user_data["qq"])
     if result:
-        content = f"当前qq已注册，请确认输入正确\n如有问题请联系管理员"
+        content = f"当前qq已注册，请确认输入正确\n如有问题请联系小推"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -200,7 +200,7 @@ async def register_official(msg: Msg):
     content = content.rstrip('*')
     match = PATTERN.fullmatch(content)
     if not match:
-        content = "信息缺少"
+        content = "信息缺少，请检查是否保留了所有的逗号，以及所有的填写项，禁止替换顺序"
         Msg(
             platform=msg.platform,
             event="发送",
