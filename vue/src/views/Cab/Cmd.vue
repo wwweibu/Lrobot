@@ -118,13 +118,16 @@ const handleCompositionStart = () => {
 }
 
 const handleCompositionEnd = (e) => {
-  isComposing.value = false
-  
   // 组合输入结束后更新内容
   nextTick(() => {
     const text = inputArea.value?.textContent || ''
     currentInput.value = text
     updateInputArea()
+    
+    // 延迟设置 isComposing 为 false，防止紧接着的 Enter 事件触发命令执行
+    setTimeout(() => {
+      isComposing.value = false
+    }, 50)
   })
 }
 
@@ -136,7 +139,15 @@ const handlePaste = (e) => {
 }
 
 const executeCommand = async () => {
-  if (isProcessing.value) return
+  // 防止重复执行
+  if (isProcessing.value) {
+    return
+  }
+  
+  // 防止在组合输入时执行
+  if (isComposing.value) {
+    return
+  }
   
   const command = currentInput.value.trim()
   
@@ -149,32 +160,38 @@ const executeCommand = async () => {
     return
   }
   
+  // 立即设置处理标志并清空输入，防止重复触发
   isProcessing.value = true
+  const commandToExecute = command
+  currentInput.value = ''
+  updateInputArea()
   
   // 添加命令行到历史
-  terminalLines.value.push(`${prompt.value}${command}`)
+  terminalLines.value.push(`${prompt.value}${commandToExecute}`)
   
   // 如果不是成功状态,显示错误信息
   if (validationStep.value !== 'success') {
-    terminalLines.value.push(`无法将"${command}"识别为内部或外部命令,可操作程序或批处理文件。`)
+    terminalLines.value.push(`无法将"${commandToExecute}"识别为内部或外部命令,可操作程序或批处理文件。`)
   }
   
   // 根据当前步骤处理命令
-  switch (validationStep.value) {
-    case 'account':
-      await handleAccountValidation(command)
-      break
-    case 'password':
-      await handlePasswordValidation(command)
-      break
+  try {
+    switch (validationStep.value) {
+      case 'account':
+        await handleAccountValidation(commandToExecute)
+        break
+      case 'password':
+        await handlePasswordValidation(commandToExecute)
+        break
+    }
+  } finally {
+    scrollToBottom()
+    
+    // 延迟释放处理标志，确保所有相关事件都处理完毕
+    setTimeout(() => {
+      isProcessing.value = false
+    }, 100)
   }
-  
-  // 清空输入
-  currentInput.value = ''
-  updateInputArea()
-  scrollToBottom()
-  
-  isProcessing.value = false
 }
 
 const handleAccountValidation = async (account) => {
