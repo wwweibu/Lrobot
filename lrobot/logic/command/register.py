@@ -186,7 +186,9 @@ async def register_third(msg: Msg):
 @monitor_adapter("/入会_小推填写")
 async def register_official(msg: Msg):
     """小推入会"""
-    content = Msg.content_join(msg.content).rstrip("*")
+    content = Msg.content_join(msg.content)
+    content = re.sub(r'\s+', '', content)
+    content = content.rstrip('*')
     match = PATTERN.fullmatch(content)
     if not match:
         content = "信息缺少"
