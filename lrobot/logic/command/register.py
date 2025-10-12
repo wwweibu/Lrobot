@@ -174,9 +174,12 @@ async def register_third(msg: Msg):
         )
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     user_data = register_list[msg.user]
-    await data.user_register(user_data)
-    await data.status_delete(msg.user, msg.platform, "入会")
-    content = "入会成功，请添加小推qq'1326016706'，发送暗号'玩耍地'"
+    if not user_data:
+        content = "请使用发送付款截图的平台进行入会"
+    else:
+        await data.user_register(user_data)
+        await data.status_delete(msg.user, msg.platform, "入会")
+        content = "入会成功，请添加小推qq'1326016706'，发送暗号'玩耍地'"
     Msg(
         platform=msg.platform,
         event="发送",
