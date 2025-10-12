@@ -135,7 +135,17 @@ async def base_book_change(msg: Msg):
 @monitor_adapter("/基础_留言")
 async def base_word(msg: Msg):
     """留言"""
-    content = ("来自" + msg.user + "的留言--" + Msg.content_join(msg.content)).replace("[", "").replace("]", "")
+    user = msg.user
+    codename = await data.user_codename_qq_change(user)
+    if codename:
+        name = codename
+    else:
+        nickname = await data.user_nickname_transform(user, "LR5921")
+        if nickname:
+            name = nickname
+        else:
+            name = user
+    content = ("来自" + name + "的留言--" + Msg.content_join(msg.content)).replace("[", "").replace("]", "")
     Msg(
         platform="LR5921",
         event="发送",

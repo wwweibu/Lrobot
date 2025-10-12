@@ -68,11 +68,11 @@ async def record_delete(msg: Msg):
     """结束记录指定群"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
     if len(parts) < 2:
-        content = "格式错误，请使用 /结束记录,水群/玩耍地"
+        content = "格式错误，请使用'/结束记录,水群/玩耍地'"
     else:
         group = parts[1].strip()
         if group not in config["public"]:
-            content = "格式错误，请使用 /记录,水群/玩耍地"
+            content = "格式错误，请使用'/结束记录,水群/玩耍地'"
         else:
             group_id = config["public"][group][0]
             if group_id not in recording_groups:
