@@ -112,6 +112,7 @@ async def vue(full_path: str, request: Request):
         return FileResponse(filepath)
     if ip != "222.20.193.18":
         ip_cache[ip] = ip_cache.get(ip, 0) + 1
+        print(ip_cache)
 
         if ip_cache[ip] >= 10:
             await ip_ban(ip)

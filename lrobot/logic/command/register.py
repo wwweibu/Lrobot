@@ -76,7 +76,16 @@ async def register_second(msg: Msg):
     """入会接收信息"""
     info = await data.status_check(msg.user, msg.platform, "入会")
     if info != "1":
-        return f"入会状态错误-{info}"
+        content = "您已填写过信息，请发送截图。如有问题请联系小推"
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind="私聊发送",
+            seq=msg.seq,
+            user=msg.user,
+            content=content
+        )
+        return content
     content = Msg.content_join(msg.content)
     content = re.sub(r'\s+', '', content)
     content = content.rstrip('*')
