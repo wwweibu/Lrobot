@@ -105,7 +105,7 @@ async def vue(full_path: str, request: Request):
     ip = request.client.host
     if ip != "222.20.193.18":  # 武汉大学 ip
         if await ip_check(ip):
-            return FileResponse("/dev/null")
+            return Response(status_code=418, content="I'm a teapot")
         ip_cache[ip] = ip_cache.get(ip, 0) + 1
 
         if ip_cache[ip] > 10:
