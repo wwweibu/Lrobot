@@ -106,17 +106,19 @@ async def vue(full_path: str, request: Request):
     if ip != "222.20.193.18":  # 武汉大学 ip
         if await ip_check(ip):
             return Response(status_code=418, content="I'm a teapot")
+    dist_path = path / "web/frontend/dist"
+    filepath = dist_path / full_path
+    if filepath.exists():
+        return FileResponse(filepath)
+    if ip != "222.20.193.18":
         ip_cache[ip] = ip_cache.get(ip, 0) + 1
 
         if ip_cache[ip] >= 10:
             await ip_ban(ip)
             ip_cache[ip] = 0
-            return FileResponse("/dev/null")
-        print(ip_cache)
+            return Response(status_code=418, content="I'm a teapot")
 
-    dist_path = path / "web/frontend/dist"
-    filepath = dist_path / full_path
-    return FileResponse(filepath) if filepath.exists() else FileResponse(dist_path / "index.html")
+    return FileResponse(dist_path / "index.html")
 
 
 async def server_runner():
