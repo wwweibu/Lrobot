@@ -12,7 +12,7 @@
           {{ prompt }}
           <span
             ref="inputArea" 
-            contenteditable="plaintext-only" 
+            contenteditable="true" 
             @input="handleInput" 
             @keydown="handleKeydown" 
             @focus="handleFocus" 
@@ -23,7 +23,7 @@
             @compositionend="handleCompositionEnd"
             class="input-area"
           ></span>
-          <span ref="cursor" class="cursor"></span>
+          <span v-if="!isMobile" ref="cursor" class="cursor"></span>
         </div>
       </div>
     </div>
@@ -34,6 +34,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { http } from '../../api'
 
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 const terminalContent = ref(null)
 const inputLine = ref(null)
 const inputArea = ref(null)
@@ -60,9 +61,11 @@ const handleKeydown = (e) => {
     e.preventDefault()
   }
 
-  if (key === 'Enter' && !isControlKey && !isComposing.value) {
+  if ((key === 'Enter' || e.keyCode === 13 || e.keyCode === 229) && !isControlKey) {
     e.preventDefault()
+    if (!isComposing.value) {
     executeCommand()
+  }
   }
 
   if (key === 'Backspace' && !isControlKey) {
@@ -84,8 +87,13 @@ const handleCompositionStart = () => {
 
 const handleCompositionEnd = (e) => {
   isComposing.value = false
-  currentInput.value = e.target.textContent
+  currentInput.value = e.target.textContent.trim()
   updateInputArea()
+
+  if (currentInput.value.includes('\n')) {
+    currentInput.value = currentInput.value.replace(/\n/g, '')
+    executeCommand()
+  }
 }
 
 const handlePaste = () => {
@@ -122,13 +130,8 @@ const executeCommand = async () => {
   }
 
   currentInput.value = ''
-  updateInputArea()
-
-  nextTick(() => {
-    if (terminalContent.value) {
-      terminalContent.value.scrollTop = terminalContent.value.scrollHeight
-    }
-  })
+  inputArea.value.textContent = ''
+  await nextTick(setCaretToEnd)
 }
 
 const handleAccountValidation = async (account) => {
@@ -285,6 +288,8 @@ onMounted(() => {
   min-width: 1ch;
   min-height: 1em;
   display: inline-block;
+  white-space: pre;
+  overflow-wrap: normal;
 }
 
 .cursor {
