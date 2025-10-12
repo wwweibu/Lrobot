@@ -50,21 +50,41 @@ const successMessage = '认证通过,系统已解锁'
 const isComposing = ref(false)
 const isProcessing = ref(false)
 
+const sanitizeInput = (text) => {
+  // 只保留可见字符：中文、英文、数字、常用符号
+  // 移除所有不可见字符（换行、制表符、零宽字符等）
+  return text.replace(/[\x00-\x1F\x7F-\x9F\u200B-\u200D\uFEFF]/g, '')
+}
+
 const handleBeforeInput = (e) => {
+  // 阻止所有默认行为，完全手动控制
+  e.preventDefault()
+  
   // 在组合输入时允许正常输入
   if (isComposing.value) {
+    // 即使在组合输入，也要过滤不可见字符
+    if (e.inputType === 'insertText' && e.data) {
+      const sanitized = sanitizeInput(e.data)
+      if (sanitized) {
+        document.execCommand('insertText', false, sanitized)
+      }
+    }
     return
   }
   
   // 对于非组合输入,手动更新内容
   if (e.inputType === 'insertText' && e.data) {
-    e.preventDefault()
-    currentInput.value += e.data
-    updateInputArea()
+    const sanitized = sanitizeInput(e.data)
+    if (sanitized) {
+      currentInput.value += sanitized
+      updateInputArea()
+    }
   } else if (e.inputType === 'deleteContentBackward') {
-    e.preventDefault()
     currentInput.value = currentInput.value.slice(0, -1)
     updateInputArea()
+  } else if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') {
+    // 明确阻止换行符插入
+    return
   }
 }
 
@@ -121,7 +141,9 @@ const handleCompositionEnd = (e) => {
   // 组合输入结束后更新内容
   nextTick(() => {
     const text = inputArea.value?.textContent || ''
-    currentInput.value = text
+    // 清理所有不可见字符
+    const sanitized = sanitizeInput(text)
+    currentInput.value = sanitized
     updateInputArea()
     
     // 延迟设置 isComposing 为 false，防止紧接着的 Enter 事件触发命令执行
@@ -134,7 +156,9 @@ const handleCompositionEnd = (e) => {
 const handlePaste = (e) => {
   e.preventDefault()
   const text = e.clipboardData?.getData('text/plain') || ''
-  currentInput.value += text
+  // 过滤不可见字符
+  const sanitized = sanitizeInput(text)
+  currentInput.value += sanitized
   updateInputArea()
 }
 
@@ -230,6 +254,12 @@ const handlePasswordValidation = async (password) => {
 const updateInputArea = () => {
   const el = inputArea.value
   if (!el) return
+  
+  // 确保内容中没有不可见字符
+  const sanitized = sanitizeInput(currentInput.value)
+  if (sanitized !== currentInput.value) {
+    currentInput.value = sanitized
+  }
   
   el.textContent = currentInput.value
   
@@ -366,8 +396,9 @@ onMounted(() => {
   min-width: 1ch;
   min-height: 1em;
   display: inline-block;
-  white-space: pre-wrap;
-  word-break: break-word;
+  white-space: nowrap; /* 强制单行，防止换行 */
+  overflow: hidden; /* 隐藏溢出 */
+  word-break: normal;
 }
 
 /* 隐藏contenteditable在某些浏览器上的默认样式 */
