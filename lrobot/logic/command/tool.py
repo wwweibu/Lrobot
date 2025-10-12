@@ -227,7 +227,10 @@ async def tool_morse_encrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用'/摩斯加密,ab'类似格式"
+        table = "\n".join(
+            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+        )
+        content = f"格式错误，请使用'/摩斯加密,ab'类似格式\n\n{table}"
     else:
         text = parts[1].strip()
 
@@ -251,7 +254,10 @@ async def tool_morse_decrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用'/摩斯解密,-.-'类似格式，注意是英文句号"
+        table = "\n".join(
+            f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
+        )
+        content = f"格式错误，请使用'/摩斯解密,-.-'类似格式，注意是英文句号\n\n{table}"
     else:
         text = parts[1].strip()
 
