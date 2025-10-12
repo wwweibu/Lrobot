@@ -396,7 +396,7 @@ def frequency_decrypt(ciphertext, freq_table):
             result.append(c)
 
     mapping_str = ", ".join([f"{k}->{v}" for k, v in mapping.items()])
-    return f"{''.join(result)}\n\n推测映射：{mapping_str}"
+    return f"{''.join(result)}\n\n推测映射: {mapping_str}"
 
 
 @monitor_adapter("/工具_频率解密")
@@ -460,7 +460,7 @@ async def tool_live_start(msg: Msg):
         await data.status_add(msg.user, msg.platform, "直播", parts[1])
         content = f"推流地址:{addr}\n推流码:{code}\n如需更改直播间封面则直接发送图片,无需更改则回复'否'"
     else:
-        content = "格式错误，请使用'/直播,读书会'类似格式"
+        content = "格式错误,请使用'/直播,读书会'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
