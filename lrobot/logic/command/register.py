@@ -77,7 +77,6 @@ async def register_second(msg: Msg):
     info = await data.status_check(msg.user, msg.platform, "入会")
     if info != "1":
         return f"入会状态错误-{info}"
-    print(msg.content)
     content = Msg.content_join(msg.content)
     content = re.sub(r'\s+', '', content)
     content = content.rstrip('*')
