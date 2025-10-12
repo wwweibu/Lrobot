@@ -7,16 +7,16 @@ from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
 PATTERN = re.compile(
-    r"姓名:(?P<name>[^，,]+)[，,]"
-    r"代号:(?P<codename>[^，,]+)[，,]"
-    r"性别:(?P<gender>[^，,]+)[，,]"
-    r"年级:(?P<grade>[^，,]+)[，,]"
-    r"专业:(?P<major>[^，,]+)[，,]"
-    r"学号:(?P<student_id>[^，,]+)[，,]"
-    r"电话:(?P<phone>[^，,]+)[，,]"
-    r"qq:(?P<qq>[^，,]+)[，,]"
-    r"政治面貌:(?P<political_status>[^，,]+)[，,]"
-    r"籍贯:(?P<hometown>[^，,]+)$"
+    r"姓名[：:](?P<name>[^，,]+)[，,]"
+    r"代号[：:](?P<codename>[^，,]+)[，,]"
+    r"性别[：:](?P<gender>[^，,]+)[，,]"
+    r"年级[：:](?P<grade>[^，,]+)[，,]"
+    r"专业[：:](?P<major>[^，,]+)[，,]"
+    r"学号[：:](?P<student_id>[^，,]+)[，,]"
+    r"电话[：:](?P<phone>[^，,]+)[，,]"
+    r"qq[：:](?P<qq>[^，,]+)[，,]"
+    r"政治面貌[：:](?P<political_status>[^，,]+)[，,]"
+    r"籍贯[：:](?P<hometown>[^，,]+)$"
 )
 
 VALIDATION = {
