@@ -107,10 +107,11 @@ async def game_idiom(msg: Msg):
 async def game_idiom_start(msg: Msg):
     """成语接龙开始"""
     if "严格" in Msg.content_join(msg.content):
-        await data.status_add(msg.user, msg.platform, "成语", "同字")
+        info = "同字"
     else:
-        await data.status_add(msg.user, msg.platform, "成语", "同音")
-    content = "现在你可以输入任意内容，系统将自动进行接龙。输入'/成语接龙结束'退出此状态"
+        info = "同音"
+    await data.status_add(msg.user, msg.platform, "成语", info)
+    content = f"现在你可以输入任意内容，系统将自动进行{info}接龙。输入'/成语接龙结束'退出此状态"
     Msg(
         platform=msg.platform,
         event="发送",

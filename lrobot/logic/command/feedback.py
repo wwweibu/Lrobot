@@ -21,7 +21,7 @@ async def feedback_list(msg: Msg):
                 content = question
                 await data.status_add(msg.user, msg.platform, "收集", f"{id}_1")
             else:
-                content = "序号错误"
+                content = "序号错误，请输入'/收集表'获取到的序号"
         except ValueError:
             content = "序号错误，请输入'/收集表,1'类似格式"
     else:
