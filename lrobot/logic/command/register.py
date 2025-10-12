@@ -173,7 +173,7 @@ async def register_third(msg: Msg):
             content=msg.content
         )
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
-    user_data = register_list[msg.user]
+    user_data = register_list.get(msg.user, "")
     if not user_data:
         content = "请使用发送付款截图的平台进行入会"
     else:
