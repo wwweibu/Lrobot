@@ -102,8 +102,6 @@ async def base_activity_change(msg: Msg):
 async def base_book(msg: Msg):
     """推荐书单"""
     content = await data.system_get("book")
-    if msg.platform in ["WECHAT", "BILI"]:
-        content = f"[图片:{path / 'storage/file/command/book.png'}]"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -122,19 +120,6 @@ async def base_book_change(msg: Msg):
     content = Msg.content_join(msg.content)
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
     await data.system_edit("book", parts[1].strip())
-    book_path = path / "storage/file/command/book.png"
-    await data.text_to_image(parts[1].strip(), book_path)
-    await database_update(
-        "DELETE FROM user_media WHERE filepath = %s",
-        (book_path,)
-    )
-    for platform in ["WECHAT", "BILI"]:
-        Msg(
-            platform=platform,
-            event="发送",
-            kind="私聊发送",
-            content=f"[图片:{book_path}]",
-        )
     Msg(
         platform=msg.platform,
         event="发送",
