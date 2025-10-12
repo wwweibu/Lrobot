@@ -87,7 +87,7 @@ async def tool_caesar(msg: Msg):
         try:
             shift = int(parts[2].strip())
         except ValueError:
-            content = "位移应为整数,请使用:'/凯撒,abc'或'/凯撒,abc,3'类似格式"
+            content = "位移应为整数,请使用'/凯撒,abc','/凯撒,abc,3'类似格式"
         else:
             decoded = "".join(
                 caesar_shift(ch, shift)
@@ -142,13 +142,13 @@ async def tool_vigenere(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
 
     if len(parts) != 3:
-        content = "格式错误，请使用：/维吉尼亚,密钥,密文"
+        content = "格式错误,请使用'/维吉尼亚,abc,abcedf'(密钥,密文)"
     else:
         key = parts[1].strip()
         text = parts[2].strip()
 
         if not key.isalpha():
-            content = "密钥必须只包含字母"
+            content = "密钥必须仅包含字母"
         else:
             encrypted = vigenere_transform(text, key, encrypt=True)
             decrypted = vigenere_transform(text, key, encrypt=False)
