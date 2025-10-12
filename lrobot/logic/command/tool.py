@@ -93,7 +93,7 @@ async def tool_caesar(msg: Msg):
                 caesar_shift(ch, shift)
                 for ch in text
             )
-            content = f"解密 {shift}:\n{decoded}"
+            content = f"解密 {shift}: {decoded}"
     else:
         content = "请使用:'/凯撒,abc'或'/凯撒,abc,3'类似格式"
 
