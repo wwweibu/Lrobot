@@ -129,7 +129,7 @@ async def lr232_dispatch(
     future.set(num, seq_list)
 
 
-async def lr232_file_upload(file, type=None, url=None):
+async def lr232_file_upload(file, type=None, url=None, record=False):
     """文件上传"""
     query = "SELECT media_json, qq FROM user_media WHERE filepath = %s"
     result = await database_query(query, (file,))
