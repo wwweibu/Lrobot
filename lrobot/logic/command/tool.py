@@ -228,12 +228,12 @@ async def tool_morse_encrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用：/摩斯加密,文本"
+        content = "格式错误，请使用'/摩斯加密,ab'类似格式"
     else:
         text = parts[1].strip()
 
         result = morse_encode(text)
-        content = f"摩斯加密结果:\n{result}"
+        content = f"摩斯加密结果: {result}"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -252,12 +252,12 @@ async def tool_morse_decrypt(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
 
     if len(parts) != 2:
-        content = "格式错误，请使用：/摩斯解密,文本"
+        content = "格式错误，请使用'/摩斯解密,-.-'类似格式，注意是英文句号"
     else:
         text = parts[1].strip()
 
         result = morse_decode(text)
-        content = f"摩斯解密结果:\n{result}"
+        content = f"摩斯解密结果: {result}"
     Msg(
         platform=msg.platform,
         event="发送",
