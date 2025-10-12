@@ -110,9 +110,9 @@ async def bili_dispatch(
         params = base_params.copy()
         params["msg[msg_type]"] = 2
         if isinstance(file, dict) and file.get("is_text"):
-            file_data = await bili_file_upload(file["file"], record=True)
+            file_data = await bili_file_upload(file["file"])
         else:
-            file_data = await bili_file_upload(file)
+            file_data = await bili_file_upload(file, record=True)
         params["msg[content]"] = json.dumps(
             {"url": file_data[0], "height": file_data[1], "width": file_data[2]})
         response = await request_deal(url, "post", params, "私聊发送")
@@ -120,7 +120,7 @@ async def bili_dispatch(
     future.set(num, seq)
 
 
-async def bili_file_upload(file, type=None, url=None, record=True):
+async def bili_file_upload(file, type=None, url=None, record=False):
     """文件上传"""
     if record:
         query = "SELECT media_url FROM user_media WHERE filepath = %s"
