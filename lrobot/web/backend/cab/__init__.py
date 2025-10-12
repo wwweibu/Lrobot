@@ -4,7 +4,7 @@ from .command import router as command_router
 from .database import router as database_router
 from .file import router as file_router
 from .home import router as home_router
-from .joke import router as joke_router
+from .joke import router as joke_router, ip_cache
 from .log import router as log_router
 from .login import router as login_router
 from .metrics import router as metrics_router

@@ -7,6 +7,7 @@ import "element-plus/dist/index.css";
 
 import registerInteractions from './layout.js'
 
+
 const app = createApp(App);
 
 app.use(router).use(ElementPlus);
@@ -15,3 +16,8 @@ app.use(router).use(ElementPlus);
 registerInteractions(app)
 
 app.mount("#app");
+
+// 消除后端计数
+setTimeout(() => {
+  fetch("/joke", { method: "PUT" }).catch(() => {});
+}, 500);

@@ -13,7 +13,7 @@ manager = ModuleManager(
 manager.start()
 
 # 静态引入，用于非 command 模块
-from .ip import ip_check
+from .ip import ip_check, ip_ban
 from .remind import remind_load
 from .subscribe import subscribe_up_init
 from .firefly import firefly_password_get

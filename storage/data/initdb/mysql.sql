@@ -32,7 +32,7 @@ CREATE TABLE `system_command` (
   `send_content` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1231 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `system_data` (
   `text` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=99170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=99470 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,7 +66,7 @@ CREATE TABLE `system_feedback` (
   `period` timestamp NULL DEFAULT NULL,
   `seq` int DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -78,11 +78,11 @@ DROP TABLE IF EXISTS `system_ip`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `system_ip` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `ip` text,
-  `count` int DEFAULT NULL,
-  `first_time` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `ip` varchar(45) DEFAULT NULL,
+  `time` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ip` (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +265,28 @@ CREATE TABLE `user_nickname` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user` (`user`)
-) ENGINE=InnoDB AUTO_INCREMENT=609 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=610 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_platform`
+--
+
+DROP TABLE IF EXISTS `user_platform`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_platform` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `lr5921` varchar(128) DEFAULT NULL,
+  `lr232` varchar(128) DEFAULT NULL,
+  `wechat` varchar(128) DEFAULT NULL,
+  `bili` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_lr5921` (`lr5921`),
+  UNIQUE KEY `ux_lr232` (`lr232`),
+  UNIQUE KEY `ux_wechat` (`wechat`),
+  UNIQUE KEY `ux_bili` (`bili`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,12 +298,14 @@ DROP TABLE IF EXISTS `user_status`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_status` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `user` varchar(255) DEFAULT NULL,
-  `status` text,
-  `information` text,
+  `user_id` int DEFAULT NULL,
+  `status` varchar(64) DEFAULT NULL,
+  `info` json DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `user` (`user`)
-) ENGINE=InnoDB AUTO_INCREMENT=15096 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `ux_user_status` (`user_id`,`status`),
+  KEY `ix_status` (`status`),
+  CONSTRAINT `fk_user_status_user` FOREIGN KEY (`user_id`) REFERENCES `user_platform` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -329,7 +352,7 @@ CREATE TABLE `user_test` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-10-06 10:41:11
+-- Dump completed on 2025-10-13  1:01:08
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19-11.8.3-MariaDB, for debian-linux-gnu (x86_64)
 --
@@ -398,4 +421,4 @@ commit;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
--- Dump completed on 2025-10-06 10:41:11
+-- Dump completed on 2025-10-13  1:01:08

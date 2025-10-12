@@ -9,6 +9,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 from web.backend.cab import *
+from logic import ip_check, ip_ban
 from config import path, loggers, temp_key
 
 
@@ -99,8 +100,19 @@ async def rotator():
     temp_key["uuid"] = uuid.uuid4().hex
 
 @app.get("/{full_path:path}")
-async def vue(full_path: str):
+async def vue(full_path: str, request: Request):
     """vue 挂载"""
+    ip = request.client.host
+    if ip != "222.20.193.18":  # 武汉大学 ip
+        if await ip_check(ip):
+            return FileResponse("/dev/null")
+        ip_cache[ip] = ip_cache.get(ip, 0) + 1
+
+        if ip_cache[ip] > 10:
+            await ip_ban(ip)
+            ip_cache[ip] = 0
+            return FileResponse("/dev/null")
+
     dist_path = path / "web/frontend/dist"
     filepath = dist_path / full_path
     return FileResponse(filepath) if filepath.exists() else FileResponse(dist_path / "index.html")
