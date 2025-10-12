@@ -60,7 +60,7 @@ async def register_first(msg: Msg):
             "复制并编辑以下内容(到*结束):\n"
             "姓名:张三,代号:自己取,性别:男,年级:25/25研/25博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*\n"
         )
-        await data.status_add(msg.user, msg.platform, "入会", "1")
+        await data.status_add(msg.user, msg.platform, "入会", 1)
     if msg.platform == "WECHAT":
         content = content.replace("\n", "...")
     Msg(
@@ -78,7 +78,7 @@ async def register_first(msg: Msg):
 async def register_second(msg: Msg):
     """入会接收信息"""
     info = await data.status_check(msg.user, msg.platform, "入会")
-    if info != "1":
+    if str(info) != "1":
         content = "您已填写过信息，请发送截图。如有问题请联系小推"
         Msg(
             platform=msg.platform,
@@ -135,7 +135,7 @@ async def register_second(msg: Msg):
     content = info + "\n\n现在请扫描二维码缴纳20会费\n请在同平台发送付款截图\n截图将由管理员核对"
     content += f"[图片:{path / 'storage/file/command/money.jpg'}]"
 
-    await data.status_add(msg.user, msg.platform, "入会", "2")
+    await data.status_add(msg.user, msg.platform, "入会", 2)
     Msg(
         platform=msg.platform,
         event="发送",
@@ -158,7 +158,7 @@ async def register_second(msg: Msg):
 async def register_third(msg: Msg):
     """入会接收图片"""
     info = await data.status_check(msg.user, msg.platform, "入会")
-    if info != "2":
+    if str(info) != "2":
         return "未进入第三阶段"
     file_path = path / f"storage/file/user/{msg.user}/{msg.content[0]['data']['file']}"
     file_url = msg.content[0]['data'].get('url')
