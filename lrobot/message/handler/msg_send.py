@@ -1,8 +1,9 @@
 """消息发送"""
 
+from logic import user_name
 from message.adapter import *
 from message.handler.msg import Msg
-from logic import user_nickname_transform
+
 
 msg_logger = loggers["message"]
 
@@ -10,9 +11,9 @@ msg_logger = loggers["message"]
 async def msg_send(msg: Msg):
     """消息发送分配器"""
     content_str = Msg.content_join(msg.content) or msg.kind
-    user_name = await user_nickname_transform(msg.user, msg.platform, True) or msg.user
+    name = await user_name(msg.user, msg.platform, True)
     msg_logger.info(
-        f"[{msg.kind}]⌈{msg.platform}⌋发送-> {user_name}: {content_str}",
+        f"[{msg.kind}]⌈{msg.platform}⌋发送-> {name}: {content_str}",
         extra={"event": "消息处理"},
     )
     if msg.kind.endswith("发送"):

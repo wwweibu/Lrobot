@@ -144,6 +144,8 @@ async def status_platform_bind(qq, platform, platform_id):
 
 async def status_lr5921_get(user, platform):
     """查找是否有 lr5921 平台"""
+    if platform == "LR5921":
+        return user
     platform = platform.lower()
     rows = await database_query(f"SELECT lr5921 FROM user_platform WHERE {platform} = %s LIMIT 1", (user,))
     if not rows:

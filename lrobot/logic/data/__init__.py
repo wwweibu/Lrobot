@@ -18,7 +18,7 @@ from .remind import remind_load
 from .subscribe import subscribe_up_init
 from .firefly import firefly_password_get
 from .backup import backup_mysql, backup_mongo
-from .user import user_codename_change, user_identify, user_nickname_transform
+from .user import user_codename_change, user_identify, user_name
 from .status import status_check, status_add, status_delete, status_user_check
 from .file import record_convert, image_compress, record_compress, video_compress, file_download, \
     remove_later, image_merge, text_to_image

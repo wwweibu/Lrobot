@@ -11,7 +11,7 @@ from config import config, future, database_query, database_update
 
 async def user_identify(user, platform):
     """确认用户身份，未认证/社员/用户组"""
-    qq = user if platform == "LR5921" else await status_lr5921_get(user, platform)
+    qq = await status_lr5921_get(user, platform)
     if not qq:
         return []
 
@@ -94,6 +94,20 @@ async def user_codename_qq_change(user):
     if result:
         return result[0]["codename"]
     return None
+
+
+async def user_name(user, platform, is_send=None):
+    """转换用户，代号>昵称>qq>原 id"""
+    qq = await status_lr5921_get(user, platform)
+    if not qq:
+        return user
+    name = await user_codename_qq_change(qq)
+    if name:
+        return name
+    name = await user_nickname_transform(user, platform, is_send)
+    if name:
+        return name
+    return user
 
 
 async def user_register(user_data):

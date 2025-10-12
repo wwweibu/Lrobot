@@ -125,15 +125,7 @@ async def record_write(msg: Msg):
         name = "LR5921"
     else:
         user = msg.user
-        codename = await data.user_codename_qq_change(user)
-        if codename:
-            name = codename
-        else:
-            nickname = await data.user_nickname_transform(user, "LR5921")
-            if nickname:
-                name = nickname
-            else:
-                name = user
+        name = await data.user_name(user, "LR5921")
     message_entry = {
         "seq": msg.seq,
         "user": user,
