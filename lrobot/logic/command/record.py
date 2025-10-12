@@ -31,6 +31,18 @@ async def record_add(msg: Msg):
             group_id = config["public"][group][0]
 
             file_path = record_path / f"{group_id}.json"
+            if group_id in recording_groups:  # 结束其他记录中的记录
+                old_record_id = recording_groups[group_id]
+                if file_path.exists():
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data_json = json.load(f)
+                    for r in data_json:
+                        if r["id"] == old_record_id and r["end_time"] is None:
+                            r["end_time"] = datetime.now().isoformat()
+                            break
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        json.dump(data_json, f, ensure_ascii=False, indent=2)
+                del recording_groups[group_id]
             if file_path.exists():
                 with open(file_path, "r", encoding="utf-8") as f:
                     data_json = json.load(f)
