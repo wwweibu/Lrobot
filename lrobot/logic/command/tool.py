@@ -147,7 +147,7 @@ async def tool_vigenere(msg: Msg):
         key = parts[1].strip()
         text = parts[2].strip()
 
-        if not key.isalpha():
+        if not re.fullmatch(r"[A-Za-z]+", key):
             content = "密钥必须仅包含字母"
         else:
             encrypted = vigenere_transform(text, key, encrypt=True)
