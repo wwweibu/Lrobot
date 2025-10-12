@@ -417,7 +417,7 @@ async def tool_freq_decrypt(msg: Msg):
         if not freq_table:
             freq_table = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
     else:
-        content = "格式错误，请使用：\n/频率解密,密文\n或\n/频率解密,频率表,密文"
+        content = "格式错误，请使用'/频率解密,密文'或'/频率解密,频率表,密文'\n\n默认频率表:ETAOINSHRDLCUMWFGYPBVKJXQZ"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -431,7 +431,7 @@ async def tool_freq_decrypt(msg: Msg):
 
     # 调用解密逻辑
     result = frequency_decrypt(ciphertext, freq_table)
-    content = f"频率分析解密结果：\n{result}"
+    content = f"频率分析解密结果: {result}"
 
     Msg(
         platform=msg.platform,
