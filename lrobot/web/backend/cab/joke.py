@@ -2,12 +2,12 @@
 
 from cachetools import TTLCache
 
-from logic import ip_check, ip_ban
+from logic import ip_ban
 from config import database_update, database_query, monitor_adapter
 from .base import APIRouter, Depends, R, website_logger, Dict, ip_get, Request
 
 router = APIRouter()
-ip_cache = TTLCache(maxsize=20000, ttl=60)
+ip_cache = TTLCache(maxsize=20000, ttl=10)
 
 @router.post("/joke")
 @monitor_adapter("#活动_笑话添加")
@@ -27,7 +27,6 @@ async def joke_get(ip=Depends(ip_get)):
     """返回笑话"""
     if ip != "222.20.193.18":  # 武汉大学 ip
         ip_cache[ip] = ip_cache.get(ip, 0) + 1
-        print(ip_cache)
         if ip_cache[ip] >= 10:
             await ip_ban(ip)
             ip_cache[ip] = 0
@@ -45,5 +44,4 @@ async def joke_put(ip=Depends(ip_get)):
     """前端心跳，用于清除短期计数"""
     if ip in ip_cache:
         ip_cache[ip] = max(ip_cache[ip] - 1, 0)
-    print(ip_cache)
     return R(status="success")
