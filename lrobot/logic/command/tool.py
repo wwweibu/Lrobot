@@ -87,7 +87,7 @@ async def tool_caesar(msg: Msg):
         try:
             shift = int(parts[2].strip())
         except ValueError:
-            content = "位移应为整数"
+            content = "位移应为整数,请使用:'/凯撒,abc'或'/凯撒,abc,3'类似格式"
         else:
             decoded = "".join(
                 caesar_shift(ch, shift)
@@ -95,7 +95,7 @@ async def tool_caesar(msg: Msg):
             )
             content = f"解密 {shift}:\n{decoded}"
     else:
-        content = "格式错误，请使用：\n/凯撒,文本\n或\n/凯撒,文本,位移数字"
+        content = "请使用:'/凯撒,abc'或'/凯撒,abc,3'类似格式"
 
     Msg(
         platform=msg.platform,
