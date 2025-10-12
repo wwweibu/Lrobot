@@ -108,10 +108,11 @@ async def vue(full_path: str, request: Request):
             return Response(status_code=418, content="I'm a teapot")
         ip_cache[ip] = ip_cache.get(ip, 0) + 1
 
-        if ip_cache[ip] > 10:
+        if ip_cache[ip] >= 10:
             await ip_ban(ip)
             ip_cache[ip] = 0
             return FileResponse("/dev/null")
+        print(ip_cache)
 
     dist_path = path / "web/frontend/dist"
     filepath = dist_path / full_path
