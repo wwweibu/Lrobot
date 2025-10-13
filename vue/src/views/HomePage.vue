@@ -4,7 +4,7 @@
 
     <!-- 顶部唯一标题 -->
     <header class="top-bar">
-      <h1 class="main-title">武汉大学 · 逻辑推理协会</h1>
+      <h1 class="main-title">logic & reasoning</h1>
     </header>
 
     <!-- 3D 轮盘 -->
@@ -52,16 +52,144 @@
 import { ref, reactive } from 'vue'
 
 /* ===== 数据 ===== */
-const cards = reactive(
-  [...Array(15)].map((_, i) => ({
-    id: i + 1,
-    title: '档案 · ' + (i + 1),
-    desc: '血迹、密码与谎言交织的夜晚。',
-    img: `https://picsum.photos/400/600?random=${i + 1}`,
-    cipher: ['CAESAR-3', 'VIGENERE', 'BLOOD TYPE', 'FINGERPRINT', 'MIRROR'][i % 5],
-    clue: ['钥匙在灯下', '时间被拨快', '凶手重返现场', '遗书是伪造的', '窗户从内部上锁'][i % 5],
-    flipped: false
-  }))
+const cards = reactive([
+    {
+        id:1,
+        title:'社团简介',
+        desc:'武汉大学逻辑推理协会是校级学术科技类社团，以培养逻辑思维、服务推理爱好者为宗旨。现有社员超过1000人，常年开展原创密室、校园寻宝等特色活动，与多所高校推理协会保持交流合作。',
+        img:'/images/homepage/1.png',
+        cipher:'CAESAR-3',
+        clue:'钥匙在灯下',
+        flipped: false
+    },
+    {
+        id:2,
+        title:'加入我们',
+        desc:'欢迎加入推协招新群708346432！期待与热爱推理的你相遇，共同探索逻辑的奥秘。',
+        img:'/images/homepage/2.jpg',
+        cipher:'VIGENERE',
+        clue:'时间被拨快',
+        flipped: false
+    },
+    {
+        id:3,
+        title:'联系方式',
+        desc:'QQ:WHU逻辑推理协会(1326016706)\n邮箱:1326016706@qq.com\n微信公众号:武大推协\nB站:武大推协\n豆瓣:whu推理协会\n小红书:武大推协',
+        img:'/images/homepage/3.jpg',
+        cipher:'BLOOD TYPE',
+        clue:'凶手重返现场',
+        flipped: false
+    },
+    {
+        id:4,
+        title:'原创密室',
+        desc:'体验推协原创密室——从密码锁到机关陷阱，从剧情脚本到场景布置，原创的密室体验，烧脑解密的同时，带给你武大推协的独家回忆。',
+        img:'/images/homepage/4.png',
+        cipher:'FINGERPRINT',
+        clue:'遗书是伪造的',
+        flipped: false
+    },
+    {
+        id:5,
+        title:'校园寻宝',
+        desc:'让珞珈山变身超大推理现场！樱花大道的树影、老斋舍的石阶都藏着密码，跟着线索拆解藏头诗、破译摩斯电码，在打卡地标时解锁校园神秘彩蛋～',
+        img:'/images/homepage/5.jpg',
+        cipher:'MIRROR',
+        clue:'窗户从内部上锁',
+        flipped: false
+    },
+    {
+        id:6,
+        title:'特工逃生路',
+        desc:'十道谜题暗藏杀机，每一步选择都可能出局。人群中潜伏着知晓答案的卧底，考验你的特工天赋与推理能力。',
+        img:'/images/homepage/6.jpg',
+        cipher:'CAESAR-3',
+        clue:'钥匙在灯下',
+        flipped: false
+    },
+    {
+        id:7,
+        title:'征文邀请赛',
+        desc:'跨校联动的武汉高校推理征文赛，与中南财大、湖大的同好切磋文笔，展现你的创作才华。',
+        img:'/images/homepage/7.jpg',
+        cipher:'VIGENERE',
+        clue:'时间被拨快',
+        flipped: false
+    },
+    {
+        id:8,
+        title:'BBS',
+        desc:'全国高校BBS侦探推理大赛，高手过招的舞台，与其他推协一决高下。',
+        img:'/images/homepage/8.jpg',
+        cipher:'BLOOD TYPE',
+        clue:'凶手重返现场',
+        flipped: false
+    },
+    {
+        id:9,
+        title:'读书会',
+        desc:'拆解推理小说里的谜题，分析伏线与逻辑推导，探讨创作风格流派。B站直播同步进行，共享思维碰撞。',
+        img:'/images/homepage/9.jpg',
+        cipher:'FINGERPRINT',
+        clue:'遗书是伪造的',
+        flipped: false
+    },
+    {
+        id:10,
+        title:'社刊',
+        desc:'《夜行》收录优秀原创推理小说和评论，是推理迷的灵感营地。无论写作、阅读或创意碰撞，社刊《夜行》都能让人收获满满的推理乐趣。',
+        img:'/images/homepage/10.png',
+        cipher:'MIRROR',
+        clue:'窗户从内部上锁',
+        flipped: false
+    },
+    {
+        id:11,
+        title:'谋杀之谜',
+        desc:'线下剧本杀社交推理盛宴。化身剧中人，在DM引导下寻找破绽、隐藏身份，搜证环节反转不断。',
+        img:'/images/homepage/11.jpg',
+        cipher:'CAESAR-3',
+        clue:'钥匙在灯下',
+        flipped: false
+    },
+    {
+        id:12,
+        title:'血字',
+        desc:'线上发布诡异血字指示，社员需凭借线索探寻真相，避开死路，找到生路，体验紧张刺激的推理过程。',
+        img:'/images/homepage/12.jpg',
+        cipher:'VIGENERE',
+        clue:'时间被拨快',
+        flipped: false
+    },
+    {
+        id:13,
+        title:'文字博弈',
+        desc:'逻辑与口才的线上交锋，屏幕后的脑力对决，带给社员紧张刺激的推理体验。',
+        img:'/images/homepage/13.jpg',
+        cipher:'BLOOD TYPE',
+        clue:'凶手重返现场',
+        flipped: false
+    },
+    {
+        id:14,
+        title:'日常活动',
+        desc:'剧本杀、血字等小型活动每周1-2场，读书会、观影等大型活动每月1-2场。入会即可参与，无强制要求。',
+        img:'/images/homepage/14.jpg',
+        cipher:'FINGERPRINT',
+        clue:'遗书是伪造的',
+        flipped: false
+    },
+        {
+        id:15,
+        title:'内阁',
+        desc:'除了以上活动，你也可以选择加入推协内阁（推协工作组），和一群志同道合的朋友共同参与管理推协事务，学习新技能，一起成长。',
+        img:'/images/homepage/15.png',
+        cipher:'MIRROR',
+        clue:'窗户从内部上锁',
+        flipped: false
+    },
+
+]
 )
 
 const yAngle = ref(0)
@@ -95,9 +223,9 @@ function onTouchEnd(e) {
 <style>
 /* ===== 可调尺寸全部放这里 ===== */
 :root {
-  --card-width:  260px;   /* 想再大就 300 */
-  --card-height: 380px;   /* 想再长就 420 */
-  --radius:      720px;   /* 已测不重叠 */
+  --card-width:  360px;   /* 想再大就 300 */
+  --card-height: 480px;   /* 想再长就 420 */
+  --radius:      920px;   /* 已测不重叠 */
 }
 </style>
 
