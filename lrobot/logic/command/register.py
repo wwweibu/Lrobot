@@ -11,7 +11,7 @@ FIELD_PATTERNS = {
     "codename": r"代号[：:]?(?P<codename>[^，,]+)",
     "gender": r"性别[：:]?(?P<gender>男|女)",
     "grade": r"年级[：:]?(?P<grade>\d{2}(研|博)?)",
-    "major": r"专业[：:](?P<major>[^，,]+)",
+    "major": r"专业[：:]?(?P<major>[^，,]+)",
     "student_id": r"学号[：:]?(?P<student_id>20\d{11})",
     "phone": r"电话[：:]?(?P<phone>1\d{10})",
     "qq": r"qq[：:]?(?P<qq>\d{5,12})",
