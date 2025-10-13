@@ -47,7 +47,7 @@ async def feedback_write(msg: Msg):
     info = await data.status_check(msg.user, msg.platform, "收集")
     id, num = map(int, info.split("_"))
     user_name = await data.user_name(msg.user, msg.platform)
-    question = await data.feedback_write(id, num, user_name, answer.restrip('[', '').restrip(']', ''))
+    question = await data.feedback_write(id, num, user_name, answer.replace('[', '').replace(']', ''))
 
     if question:
         content = question
