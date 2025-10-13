@@ -18,7 +18,7 @@ PATTERN = re.compile(
     r"qq[：:](?P<qq>[^，,]+)[，,]"
     r"政治面貌[：:](?P<political_status>[^，,]+)[，,]"
     r"籍贯[：:](?P<hometown>[\u4e00-\u9fff]+)"
-    r"[^\\u4e00-\\u9fff]*"
+    r"[^\u4e00-\u9fff]*"
     r"[\s\S]*?$"
 )
 
