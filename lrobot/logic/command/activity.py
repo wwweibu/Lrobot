@@ -8,6 +8,111 @@ from message.handler.msg import Msg
 from config import monitor_adapter, path, future, database_update
 
 
+@monitor_adapter("/活动_日记_开始")
+async def activity_diary_start(msg: Msg):
+    """日记开始答题"""
+    await data.status_add(msg.user, msg.platform, "日记", 1)
+    content = f"[图片:{path}/storage/file/command/diary/1.png]"
+    content += ("所有答案的形式均为小写英文字母/数字/中文\n"
+                "且中间无空格\n"
+                "输入'航海日记提示'获取当前题目的提示\n"
+                "可在绑定的多平台同步答题\n"
+                "不要过于依赖提示哦＞﹏＜")
+
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        content=content,
+        seq=msg.seq,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_日记_提示")
+async def activity_diary_prompt(msg: Msg):
+    """日记提示"""
+    id = await data.status_check(msg.user, msg.platform, "日记")
+    try:
+        id = int(id)
+    except (ValueError, TypeError):
+        content = "日记 ID 错误"
+    else:
+        diary_file = path / "storage/file/command/diary/answer.txt"
+        if not diary_file.exists():
+            content = "日记题目文件不存在"
+        else:
+            lines = diary_file.read_text(encoding="utf-8").splitlines()
+            # 去除空行，保证每两行一组
+            lines = [l.strip() for l in lines if l.strip()]
+            # 按两行一组（提示, 答案）
+            groups = [(lines[i], lines[i + 1]) for i in range(0, len(lines), 2)]
+
+            if id < 1 or id > len(groups):
+                content = f"未找到 ID 为 {id} 的日记题目"
+            else:
+                prompt = groups[id - 1][0]
+                content = f"提示: {prompt}"
+
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+async def activity_diary_answer(msg: Msg):
+    """日记答题"""
+    id = await data.status_check(msg.user, msg.platform, "日记")
+    try:
+        id = int(id)
+    except (ValueError, TypeError):
+        return False
+    diary_file = path / "storage/file/command/diary/answer.txt"
+    if not diary_file.exists():
+        return False
+
+    lines = diary_file.read_text(encoding="utf-8").splitlines()
+    lines = [l.strip() for l in lines if l.strip()]
+    groups = [(lines[i], lines[i + 1]) for i in range(0, len(lines), 2)]
+
+    if id < 1 or id > len(groups):
+        return False
+    correct_answer = groups[id - 1][1].strip()
+    user_answer = Msg.content_join(msg.content).strip()
+    if user_answer == correct_answer:
+        if id == 16:
+            await data.status_delete(msg.user, msg.platform, "日记")
+        else:
+            await data.status_add(msg.user, msg.platform, "日记", id + 1)
+        await activity_diary_answer_write(msg, id)
+        return True
+    return False
+
+
+@monitor_adapter("/活动_日记_答题")
+async def activity_diary_answer_write(msg: Msg, id):
+    """日记答题记录"""
+    content = f"[图片:{path}/storage/file/command/diary/{id + 1}.png]"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
 async def merge_img():
     """生成合并后的寻宝群总图"""
     group_data = await data.system_get("hunt_group")
@@ -289,106 +394,3 @@ async def activity_hunt_problem(msg: Msg):
     return content
 
 
-@monitor_adapter("/活动_日记_开始")
-async def activity_diary_start(msg: Msg):
-    """日记开始答题"""
-    await data.status_add(msg.user, msg.platform, "日记", 1)
-    content = f"[图片:{path}/storage/file/command/diary/1.png]"
-    content += ("所有答案的形式均为小写英文字母/数字/中文\n"
-                "且中间无空格\n"
-                "输入'航海日记提示'获取当前题目的提示\n"
-                "可在绑定的多平台同步答题\n"
-                "不要过于依赖提示哦＞﹏＜")
-
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        content=content,
-        seq=msg.seq,
-        user=msg.user,
-        group=msg.group,
-    )
-    return content
-
-
-@monitor_adapter("/活动_日记_提示")
-async def activity_diary_prompt(msg: Msg):
-    """日记提示"""
-    id = await data.status_check(msg.user, msg.platform, "日记")
-    try:
-        id = int(id)
-    except (ValueError, TypeError):
-        content = "日记 ID 错误"
-    else:
-        diary_file = path / "storage/file/command/diary/answer.txt"
-        if not diary_file.exists():
-            content = "日记题目文件不存在"
-        else:
-            lines = diary_file.read_text(encoding="utf-8").splitlines()
-            # 去除空行，保证每两行一组
-            lines = [l.strip() for l in lines if l.strip()]
-            # 按两行一组（提示, 答案）
-            groups = [(lines[i], lines[i + 1]) for i in range(0, len(lines), 2)]
-
-            if id < 1 or id > len(groups):
-                content = f"未找到 ID 为 {id} 的日记题目"
-            else:
-                prompt = groups[id - 1][0]
-                content = f"提示: {prompt}"
-
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-    return content
-
-
-async def activity_diary_answer(msg: Msg):
-    """日记答题"""
-    id = await data.status_check(msg.user, msg.platform, "日记")
-    try:
-        id = int(id)
-    except (ValueError, TypeError):
-        return False
-    diary_file = path / "storage/file/command/diary/answer.txt"
-    if not diary_file.exists():
-        return False
-
-    lines = diary_file.read_text(encoding="utf-8").splitlines()
-    lines = [l.strip() for l in lines if l.strip()]
-    groups = [(lines[i], lines[i + 1]) for i in range(0, len(lines), 2)]
-
-    if id < 1 or id > len(groups):
-        return False
-    correct_answer = groups[id - 1][1].strip()
-    user_answer = Msg.content_join(msg.content).strip()
-    if user_answer == correct_answer:
-        if id == 16:
-            await data.status_delete(msg.user, msg.platform, "日记")
-        else:
-            await data.status_add(msg.user, msg.platform, "日记", id + 1)
-        await activity_diary_answer_write(msg, id)
-        return True
-    return False
-
-
-@monitor_adapter("/活动_日记_答题")
-async def activity_diary_answer_write(msg: Msg, id):
-    """日记答题记录"""
-    content = f"[图片:{path}/storage/file/command/diary/{id + 1}.png]"
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content=content,
-        user=msg.user,
-        group=msg.group,
-    )
-    return content

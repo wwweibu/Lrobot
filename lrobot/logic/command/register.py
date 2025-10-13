@@ -6,30 +6,17 @@ from logic import data
 from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
-PATTERN = re.compile(
-    r'^[\s\S]*?'
-    r"姓名[：:](?P<name>[^，,]+)[，,]"
-    r"代号[：:](?P<codename>[^，,]+)[，,]"
-    r"性别[：:](?P<gender>[^，,]+)[，,]"
-    r"年级[：:](?P<grade>[^，,]+)[，,]"
-    r"专业[：:](?P<major>[^，,]+)[，,]"
-    r"学号[：:](?P<student_id>[^，,]+)[，,]"
-    r"电话[：:](?P<phone>[^，,]+)[，,]"
-    r"qq[：:](?P<qq>[^，,]+)[，,]"
-    r"政治面貌[：:](?P<political_status>[^，,]+)[，,]"
-    r"籍贯[：:](?P<hometown>[\u4e00-\u9fff]+)"
-    r"[^\u4e00-\u9fff]*"
-    r"[\s\S]*?$"
-)
-
-VALIDATION = {
-    "gender": lambda v: v in ("男", "女"),
-    "grade": lambda v: re.fullmatch(r"\d{2}(研|博)?", v),
-    "student_id": lambda v: re.fullmatch(r"20\d{11}", v),
-    "phone": lambda v: re.fullmatch(r"1\d{10}", v),
-    "qq": lambda v: re.fullmatch(r"\d{5,12}", v),
-    "political_status": lambda v: v in ("群众", "团员", "党员"),
-    "hometown": lambda v: len(v) >= 2 and all("\u4e00" <= ch <= "\u9fff" for ch in v.strip()),
+FIELD_PATTERNS = {
+    "name": r"姓名[：:]?(?P<name>[^，,]+)",
+    "codename": r"代号[：:]?(?P<codename>[^，,]+)",
+    "gender": r"性别[：:]?(?P<gender>男|女)",
+    "grade": r"年级[：:]?(?P<grade>\d{2}(研|博)?)",
+    "major": r"专业[：:](?P<major>[^，,]+)",
+    "student_id": r"学号[：:]?(?P<student_id>20\d{11})",
+    "phone": r"电话[：:]?(?P<phone>1\d{10})",
+    "qq": r"qq[：:]?(?P<qq>\d{5,12})",
+    "political_status": r"政治面貌[：:]?(?P<political_status>群众|团员|党员)",
+    "hometown": r"籍贯[：:]?(?P<hometown>[\u4e00-\u9fff]{2,})",
 }
 
 PATTERN_KEY = {
@@ -92,32 +79,25 @@ async def register_second(msg: Msg):
     content = Msg.content_join(msg.content)
     content = re.sub(r'\s+', '', content)
     content = content.rstrip('*')
-    match = PATTERN.fullmatch(content)
-    if not match:
-        content = "信息缺少，请检查是否保留了所有的逗号，以及所有的填写项，禁止替换顺序"
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind="私聊发送",
-            seq=msg.seq,
-            user=msg.user,
-            content=content
-        )
-        return content
-    user_data = match.groupdict()
-    for field, validator in VALIDATION.items():
-        value = user_data.get(field, "")
-        if not validator(value):
-            content = f"信息'{PATTERN_KEY[field]}'格式错误"
+    user_data = {}
+    for key, pattern in FIELD_PATTERNS.items():
+        match = re.search(pattern, content, re.IGNORECASE)
+        field_name = PATTERN_KEY[key]
+        if not match:
+            content_msg = f"信息缺少或格式错误: {field_name}"
             Msg(
                 platform=msg.platform,
                 event="发送",
                 kind="私聊发送",
                 seq=msg.seq,
+                content=content_msg,
                 user=msg.user,
-                content=content
             )
-            return content
+            return content_msg
+
+        value = match.group(key).strip()
+        user_data[key] = value
+
     result = await data.user_member_judge(user_data["qq"])
     if result:
         content = f"当前qq已注册，请确认输入正确\n如有问题请联系小推"
@@ -204,32 +184,26 @@ async def register_official(msg: Msg):
     content = Msg.content_join(msg.content)
     content = re.sub(r'\s+', '', content)
     content = content.rstrip('*')
-    match = PATTERN.fullmatch(content)
-    if not match:
-        content = "信息缺少，请检查是否保留了所有的逗号，以及所有的填写项，禁止替换顺序"
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind="私聊发送",
-            seq=msg.seq,
-            content=content,
-            user=msg.user,
-        )
-        return content
-    user_data = match.groupdict()
-    for field, validator in VALIDATION.items():
-        value = user_data.get(field, "")
-        if not validator(value):
-            content = f"信息'{PATTERN_KEY[field]}'格式错误"
+    user_data = {}
+
+    for key, pattern in FIELD_PATTERNS.items():
+        match = re.search(pattern, content, re.IGNORECASE)
+        field_name = PATTERN_KEY[key]
+        if not match:
+            content_msg = f"信息缺少或格式错误: {field_name}"
             Msg(
                 platform=msg.platform,
                 event="发送",
                 kind="私聊发送",
                 seq=msg.seq,
+                content=content_msg,
                 user=msg.user,
-                content=content
             )
-            return content
+            return content_msg
+
+        value = match.group(key).strip()
+        user_data[key] = value
+
     result = await data.user_member_judge(user_data["qq"])
     if result:
         content = f"当前qq已注册，请确认输入正确"
