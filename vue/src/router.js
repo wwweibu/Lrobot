@@ -15,6 +15,7 @@ import User from './views/Cab/User.vue';
 import Fools1 from './views/Event/Fools1.vue';
 import Fools2 from './views/Event/Fools2.vue'
 import Test from './views/Test/Test.vue';
+import HomePage from './views/HomePage.vue';
 
 const routes = [
   {
@@ -25,6 +26,11 @@ const routes = [
   {
     path: '/home',
     redirect: '/'
+  },
+  {
+    path: '/homepage',
+    name: 'HomePage',
+    component: HomePage
   },
   {
     path: "/cmd",
