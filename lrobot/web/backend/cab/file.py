@@ -338,14 +338,20 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     dst_path = data["dst_path"]
     src_item = UPLOAD_DIR / src_path
     dst_item = UPLOAD_DIR / dst_path
+    if not src_item.exists():
+        return R(status="fail", data=f"源文件不存在: {src_item}")
 
-    shutil.move(str(src_item), str(dst_item))
-    website_logger.info(
-        f"[文件移动]{account}-> {str(src_item)}: {str(dst_item)}",
-        extra={"event": "网页日志"},
-    )
-    async_index_build()
-    return R(status="success", data=f"原目录:{src_item} 目标目录: {dst_item}")
+    dst_item.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        shutil.move(str(src_item), str(dst_item))
+        website_logger.info(
+            f"[文件移动]{account}-> {str(src_item)}: {str(dst_item)}",
+            extra={"event": "网页日志"},
+        )
+        async_index_build()
+        return R(status="success", data=f"原目录:{src_item} 目标目录: {dst_item}")
+    except Exception as e:
+        return R(status="fail", data=f"文件移动失败: {e}")
 
 
 def unique_pdf_name_get(doc_path):
