@@ -131,7 +131,7 @@ Yes, they have been good days...\n
   // 地图绑定点列表
   const imagePointList = [
   // [lat, lng, filename, caseNumber, title, investigatingOfficer, description]
-  [51.52375372901273, -0.15847191042499323, 'A2.png',  '221B Baker Street', 'Sherlock Holmes Museum', 'Sir Arthur Conan Doyle', 'If you wish,you can send a letter to 221B Baker Street\nTell the post offic that you want to send a regular letter to London,UK.\n\nWrite on the envelope in English:\n430072(postal code)\nLi Hua\nP.R. China\nHubei Province,Wuhan\nLuoyu Road\n\nMr. SHERLOCK HOLMES\n221b Baker Street\nLondon,NW1 6XE\nUnited Kindom\n\nIt may take about two months to receive a reply.'],
+  [51.52375372901273, -0.15847191042499323, 'A2.png',  '221B Baker Street', 'Sherlock Holmes Museum', 'Sir Arthur Conan Doyle', 'If you wish,you can send a letter to 221B Baker Street\nTell the post office that you want to send a regular letter to London,UK.\n\nWrite on the envelope in English:\n430072(postal code)\nLi Hua\nP.R. China\nHubei Province,Wuhan\nLuoyu Road\n\nMr. SHERLOCK HOLMES\n221b Baker Street\nLondon,NW1 6XE\nUnited Kindom\n\nIt may take about two months to receive a reply.'],
   [-35.31933606329581,139.79998122639623,'A1.png','Answer-14-21', '跟踪调查', '维金斯', '51.52375372901273,-0.15847191042499323\n\n车费三先令六便士'],
   [43.663983286472,-79.418399218705,'A3.png','Answer-5-13','note','Hercule Poirot','This park is for William Mellis Christie.\nYou can come to 51.59186635058419,-1.1202265048383289\n\nWalk north and turn left at Wallingford Bridge\nKeep walking for about 0.3 miles\nWallingford Museum is on your right\nOn the left is the Agatha Christie Statue Bench\n\ntake a photo'],
   [51.59186635058419,-1.1202265048383289,'A4.png','Styles','End of Hercule Poirot\'s manuscript','Captain Arthur Hastings',letter],
@@ -208,7 +208,7 @@ const points = reactive([
     title: "最新活动",
     investigatingOfficer: "前线记者:小推",
     data: {
-      description: "【小推讯】2025年8月底，武汉大学逻辑推理协会将于25推协七大离奇事件（上集）——消失的小推举办以“消失的小推”为主题的盛大活动。\n本次活动旨在消失小推，吸引了来自全国各地的专家学者、行业代表及媒体人士共350余人参与，现场气氛热烈，反响积极。\n活动开幕式上，群主发表了致辞，强调大家需要玩的开心。\n随后，多位群内领袖（管理员）展开深入探讨，分享前沿观点与实践经验。\n此外，活动现场还设置了数位嫌疑人，进一步丰富了活动内容。\n据悉，本次侦探扮演活动是重要的活动，不仅为协会内各成员提供了交流合作的平台，也为推动小推的安全性保障注入了新动力。\n主办方表示，未来将继续深化离奇事件的产生，助力各位侦探的现场实践。",     
+      description: "【小推讯】2025年8月底，武汉大学逻辑推理协会将于25推协七大离奇事件（上集）——消失的小推举办以“消失的小推”为主题的盛大活动。\n本次活动旨在消失小推，吸引了来自全国各地的专家学者、行业代表及媒体人士500余多参与，现场气氛热烈，反响积极。\n活动开幕式上，群主发表了致辞，强调大家需要玩的开心。\n随后，多位群内领袖（管理员）展开深入探讨，分享前沿观点与实践经验。\n此外，活动现场还设置了数位嫌疑人，进一步丰富了活动内容。\n据悉，本次侦探扮演活动是重要的活动，不仅为协会内各成员提供了交流合作的平台，也为推动小推的安全性保障注入了新动力。\n主办方表示，未来将继续深化离奇事件的产生，助力各位侦探的现场实践。",     
     },
   },
   {
@@ -277,7 +277,7 @@ const points = reactive([
         { value: "A", label: "香辣鸡" },
         { value: "B", label: "麻辣鸭" },
         { value: "C", label: "豆腐鱼头" },
-        { value: "D", label: "铁盘装的是绿豆汤，你咂咂嘴" },
+        { value: "D", label: "铁碗装的是绿豆汤，你咂咂嘴" },
       ],
       next:8
     },
@@ -414,7 +414,7 @@ const points = reactive([
     title: "抓捕行动方案",
     investigatingOfficer: "？",
     data: {
-      description: "根据嫌疑人A、B的证词及相关痕迹、物证分析所形成的完整证据链，锁定东湖某处发现的嫌疑人D\n\n画像分析：\n其团伙共8人，代号均为1位且均与地名有关\n前4人代号为字母，后4人代号为数字\n\n额外说明：2号所在地为两字；5号所在地存在相似地点，为较小地点\n\nCa：\n我确信根据已知线索能确认其手下八人代号\n可惜这里空白的地方太小，写不下",     
+      description: "根据嫌疑人A、B的证词及相关痕迹、物证分析所形成的完整证据链，锁定东湖某处发现的嫌疑人D\n\n画像分析：\n其团伙共8人，代号均为1位且均与地名有关\n前4人代号为大写字母，后4人代号为数字\n\n额外说明：2号所在地为两字；5号所在地存在相似地点，为较小地点\n\nCa：\n我确信根据已知线索能确认其手下八人代号\n可惜这里空白的地方太小，写不下",     
     },
   },
   {
@@ -1105,6 +1105,7 @@ onMounted(async () => {
 
   map = L.map("map", { zoomControl: true, attributionControl: false,})
     .setView(center, zoom)
+  map.getContainer().classList.add('portrait-mode');
 
   L.control.attribution({
     prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119 " rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
@@ -1149,6 +1150,30 @@ onMounted(async () => {
   });
 });
 
+// 缓存原版
+const _getMousePosition = L.DomEvent.getMousePosition;
+
+// 重写
+L.DomEvent.getMousePosition = function (e, container, scale = 1) {
+  // 先拿原始坐标
+  const p = _getMousePosition.call(this, e, container, scale);
+
+  // 如果处于竖屏且地图容器带 .portrait-mode
+  if (window.matchMedia('(orientation: portrait)').matches &&
+      container?.classList?.contains('portrait-mode')) {
+    // 容器中心
+    const rect = container.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    // 相对中心
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    // 顺时针 90° 旋转
+    p.x = cx + dy;
+    p.y = cy - dx;
+  }
+  return p;
+};
 onUnmounted(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', handleViewportResize);
