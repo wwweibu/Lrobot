@@ -373,7 +373,7 @@ const fetchData = async () => {
           fail,
           avgTime,
           successPercentage: total > 0 ? ((success / total) * 100).toFixed(2) : 0,
-          failPercentage: total > 0 ? ((fail / total) * 100).toFixed(2) : 0,
+          failPercentage: 100 - ((success / total) * 100).toFixed(2),
           successColor: '#4CAF50',
           failColor: '#F44336'
         }
@@ -397,7 +397,7 @@ const fetchData = async () => {
           fail,
           avgTime,
           successPercentage: total > 0 ? ((success / total) * 100).toFixed(2) : 0,
-          failPercentage: total > 0 ? ((fail / total) * 100).toFixed(2) : 0,
+          failPercentage: 100 - ((success / total) * 100).toFixed(2),
           successColor: '#2196F3',
           failColor: '#FF9800'
         }
