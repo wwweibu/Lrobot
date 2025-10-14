@@ -29,7 +29,7 @@
 
       <!-- 地图主体 -->
       <main class="case-board__body">
-        <div id="map" class="map"></div>
+        <div id="map" class="map" :style="mapInnerStyle"></div>
       </main>
     
       <!-- 屏幕固定点层 -->
@@ -828,7 +828,56 @@ const stageStyle = computed(() => {
     transformOrigin: 'center center',
   };
 });
+// 计算舞台在竖屏模式下的 scale 与是否旋转（与 stageStyle 里同样逻辑保持一致）
+const isStageRotated = computed(() => {
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO);
+  return viewport.width < expectedWidth;
+});
 
+const stageRotationInfo = computed(() => {
+  // 与 stageStyle 中使用的同一份计算，避免不一致
+  const expectedWidth = Math.round(viewport.height * STAGE_RATIO);
+  const expectedHeight = viewport.height;
+
+  if (viewport.width >= expectedWidth) {
+    return { rotated: false, scale: 1, expectedWidth, expectedHeight, rotatedWidth: expectedWidth, rotatedHeight: expectedHeight };
+  }
+
+  const rotatedWidth = expectedHeight;   // 旋转后横向占用
+  const rotatedHeight = expectedWidth;   // 旋转后纵向占用
+  const scale = Math.min(1, viewport.width / rotatedWidth, viewport.height / rotatedHeight);
+  return { rotated: true, scale, expectedWidth, expectedHeight, rotatedWidth, rotatedHeight };
+});
+
+// 给地图容器应用“反向变换”——只在舞台被旋转时使用
+const mapInnerStyle = computed(() => {
+  const info = stageRotationInfo.value;
+  // 未旋转时保持 100%（不干预）
+  if (!info.rotated) {
+    return {
+      width: '100%',
+      height: '100%',
+      transform: 'none',
+      transformOrigin: 'center center',
+    };
+  }
+
+  // 舞台被 rotate(-90deg) + scale(s)，我们需要对地图做 rotate(+90deg) 并按 scale 反向缩放
+  // 反向 scale = 1 / s，这样视觉上地图看起来尺寸一致，且 Leaflet 交互方向未被改变
+  const invScale = info.scale === 0 ? 1 : 1 / info.scale;
+
+  // 我们把地图设置为与舞台“未旋转前”的实际像素尺寸，以避免 Leaflet 内部尺寸混乱
+  // 注意：这里宽高使用旋转前的 expectedWidth/expectedHeight（px），但因为容器会被旋转/缩放，
+  // 所以视觉上依旧铺满舞台。
+  return {
+    width: `${info.expectedWidth}px`,   // 原舞台期望宽（px）
+    height: `${info.expectedHeight}px`, // 原舞台期望高（px）
+    transform: `rotate(90deg) scale(${invScale})`,
+    transformOrigin: 'center center',
+    // 保证地图接受触摸手势
+    touchAction: 'auto',
+  };
+});
 function applyViewportSize(vp) {
   viewport.width = vp.width;
   viewport.height = vp.height;
@@ -1105,54 +1154,6 @@ onMounted(async () => {
 
   map = L.map("map", { zoomControl: true, attributionControl: false,})
     .setView(center, zoom)
-
-  // 竖屏检测
-  const isPortrait = () => window.matchMedia('(orientation: portrait)').matches;
-  
-  // 监听 touchmove，在捕获阶段把坐标改掉
-  function fixTouchDirection(e) {
-    if (!isPortrait() || e.type !== 'touchmove') return;
-  
-    const t = e.touches[0];
-    if (!t) return;
-  
-    const rect = mapContainer.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-  
-    // 顺时针 90° 旋转
-    const dx = t.clientX - cx;
-    const dy = t.clientY - cy;
-    const rotatedX = cx + dy;
-    const rotatedY = cy - dx;
-  
-    // 构造一个新触摸对象，把坐标写进去
-    const hackedTouch = new Touch({
-      identifier: t.identifier,
-      target: t.target,
-      clientX: rotatedX,
-      clientY: rotatedY,
-      screenX: t.screenX,
-      screenY: t.screenY,
-      pageX: rotatedX + window.scrollX,
-      pageY: rotatedY + window.scrollY,
-      radiusX: t.radiusX,
-      radiusY: t.radiusY,
-      rotationAngle: t.rotationAngle,
-      force: t.force,
-    });
-  
-    // 替换掉事件的 touches
-    Object.defineProperty(e, 'touches', {
-      value: [hackedTouch],
-      writable: true,
-      configurable: true,
-    });
-  }
-  
-  // 在捕获阶段拦截 touchmove
-  mapContainer.addEventListener('touchmove', fixTouchDirection, { passive: false, capture: true });
-
 
   L.control.attribution({
     prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119 " rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
