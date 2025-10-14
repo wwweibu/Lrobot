@@ -498,7 +498,7 @@ const createNewFolder = async () => {
 // 移动功能
 const startMove = async () => {
   const item = contextMenu.value.target
-  const targetPath = prompt('输入目标文件夹路径', currentPath.value)
+  const targetPath = prompt('输入目标文件夹路径，如活动/2025.7会议', currentPath.value)
   if (targetPath) {
     try {
       await http.post('/file/move', {

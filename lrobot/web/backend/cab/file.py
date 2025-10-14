@@ -340,6 +340,8 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     dst_item = UPLOAD_DIR / dst_path
     if not src_item.exists():
         return R(status="fail", data=f"源文件不存在: {src_item}")
+    if dst_item.exists():
+        return R(status="fail", data=f"目标文件已存在: {dst_item}")
 
     dst_item.parent.mkdir(parents=True, exist_ok=True)
     try:
