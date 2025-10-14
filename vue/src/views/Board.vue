@@ -1128,8 +1128,8 @@ onMounted(async () => {
         // 旋转 -90° 的坐标系补偿（相当于把手势坐标旋转 90°）
         // 即屏幕上向上滑 → 地图右移，屏幕上向右滑 → 地图下移
         const rotatedDelta = {
-          x: deltaY,
-          y: -deltaX,
+          x: -deltaY,
+          y: deltaX,
         };
   
         // 替换事件中的坐标点
