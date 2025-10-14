@@ -1105,9 +1105,54 @@ onMounted(async () => {
 
   map = L.map("map", { zoomControl: true, attributionControl: false,})
     .setView(center, zoom)
-  // 旋转手机事件
-  const container = map.getContainer();
-  container.classList.toggle('portrait-mode', window.matchMedia('(orientation: portrait)').matches)
+
+  // 竖屏检测
+  const isPortrait = () => window.matchMedia('(orientation: portrait)').matches;
+  
+  // 监听 touchmove，在捕获阶段把坐标改掉
+  function fixTouchDirection(e) {
+    if (!isPortrait() || e.type !== 'touchmove') return;
+  
+    const t = e.touches[0];
+    if (!t) return;
+  
+    const rect = mapContainer.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+  
+    // 顺时针 90° 旋转
+    const dx = t.clientX - cx;
+    const dy = t.clientY - cy;
+    const rotatedX = cx + dy;
+    const rotatedY = cy - dx;
+  
+    // 构造一个新触摸对象，把坐标写进去
+    const hackedTouch = new Touch({
+      identifier: t.identifier,
+      target: t.target,
+      clientX: rotatedX,
+      clientY: rotatedY,
+      screenX: t.screenX,
+      screenY: t.screenY,
+      pageX: rotatedX + window.scrollX,
+      pageY: rotatedY + window.scrollY,
+      radiusX: t.radiusX,
+      radiusY: t.radiusY,
+      rotationAngle: t.rotationAngle,
+      force: t.force,
+    });
+  
+    // 替换掉事件的 touches
+    Object.defineProperty(e, 'touches', {
+      value: [hackedTouch],
+      writable: true,
+      configurable: true,
+    });
+  }
+  
+  // 在捕获阶段拦截 touchmove
+  mapContainer.addEventListener('touchmove', fixTouchDirection, { passive: false, capture: true });
+
 
   L.control.attribution({
     prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119 " rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
@@ -1152,26 +1197,6 @@ onMounted(async () => {
   });
 });
 
-// 旋转手机
-const _getTouch = L.DomEvent.getTouch;
-L.DomEvent.getTouch = function (e, containerArg) {
-  const p = _getTouch.call(this, e, containerArg);
-  if (!p) return p;
-
-  // 仅竖屏 + 仅容器带标记类
-  if (window.matchMedia('(orientation: portrait)').matches &&
-      containerArg === container) {
-    const rect = container.getBoundingClientRect();
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const dx = p.x - cx;
-    const dy = p.y - cy;
-    // 顺时针 90°
-    p.x = cx + dy;
-    p.y = cy - dx;
-  }
-  return p;
-};
 onUnmounted(() => {
   if (window.visualViewport) {
     window.visualViewport.removeEventListener('resize', handleViewportResize);
