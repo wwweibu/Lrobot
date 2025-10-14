@@ -274,6 +274,8 @@ async def file_folders_create(
     if not account:
         return
     file_path = data["path"].lstrip("/\\")
+    if file_path == "none":
+        file_path = ""
     full_path = UPLOAD_DIR / file_path
     full_path = full_path.resolve()
     # 防止路径跳出上传目录
@@ -311,7 +313,11 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     if not account:
         return
     old_path = data["old_path"]
+    if old_path == "none":
+        old_path = ""
     new_path = data["new_path"]
+    if new_path == "none":
+        new_path = ""
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
 
@@ -335,7 +341,11 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     if not account:
         return
     src_path = data["src_path"]
+    if src_path == "none":
+        src_path = ""
     dst_path = data["dst_path"]
+    if dst_path == "none":
+        dst_path = ""
     src_item = UPLOAD_DIR / src_path
     dst_item = UPLOAD_DIR / dst_path
     if not src_item.exists():
