@@ -1105,7 +1105,9 @@ onMounted(async () => {
 
   map = L.map("map", { zoomControl: true, attributionControl: false,})
     .setView(center, zoom)
-  map.getContainer().classList.add('portrait-mode');
+  // 旋转手机事件
+  const container = map.getContainer();
+  container.classList.toggle('portrait-mode', window.matchMedia('(orientation: portrait)').matches)
 
   L.control.attribution({
     prefix: ' <img src="/images/home/备案图标.png" alt="备案图标" style="width:16px;height:16px;vertical-align:middle;margin-right:4px;" /><a href="https://beian.mps.gov.cn/#/query/webSearch?code=36011102001119 " rel="noreferrer" target="_blank">赣公网安备36011102001119号</a> | Q:1326016706'
@@ -1150,25 +1152,21 @@ onMounted(async () => {
   });
 });
 
-// 缓存原版
-const _getMousePosition = L.DomEvent.getMousePosition;
+// 旋转手机
+const _getTouch = L.DomEvent.getTouch;
+L.DomEvent.getTouch = function (e, containerArg) {
+  const p = _getTouch.call(this, e, containerArg);
+  if (!p) return p;
 
-// 重写
-L.DomEvent.getMousePosition = function (e, container, scale = 1) {
-  // 先拿原始坐标
-  const p = _getMousePosition.call(this, e, container, scale);
-
-  // 如果处于竖屏且地图容器带 .portrait-mode
+  // 仅竖屏 + 仅容器带标记类
   if (window.matchMedia('(orientation: portrait)').matches &&
-      container?.classList?.contains('portrait-mode')) {
-    // 容器中心
+      containerArg === container) {
     const rect = container.getBoundingClientRect();
     const cx = rect.width / 2;
     const cy = rect.height / 2;
-    // 相对中心
     const dx = p.x - cx;
     const dy = p.y - cy;
-    // 顺时针 90° 旋转
+    // 顺时针 90°
     p.x = cx + dy;
     p.y = cy - dx;
   }
