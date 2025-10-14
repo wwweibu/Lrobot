@@ -49,8 +49,8 @@
                     :stroke="platform.failColor"
                     stroke-width="6"
                     :stroke-dasharray="`${platform.failPercentage * 1.571} 157.1`"
-                    :stroke-dashoffset="-(platform.successPercentage * 2.199)"
-                    transform="rotate(-90 40 40)"
+                    :stroke-dashoffset="0"
+                    transform="rotate(-90 40 40) scale(1,-1) translate(0,-80)"
                   />
                   <!-- 中心总数 -->
                   <text x="40" y="45" text-anchor="middle" class="total-text">
@@ -88,8 +88,8 @@
                     :stroke="command.failColor"
                     stroke-width="6"
                     :stroke-dasharray="`${command.failPercentage * 1.571} 157.1`"
-                    :stroke-dashoffset="-(command.successPercentage * 2.199)"
-                    transform="rotate(-90 40 40)"
+                    :stroke-dashoffset="0"
+                    transform="rotate(-90 40 40) scale(1,-1) translate(0,-80)"
                   />
                   <text x="40" y="45" text-anchor="middle" class="total-text">
                     {{ command.total }}
