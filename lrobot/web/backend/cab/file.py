@@ -1,25 +1,27 @@
 """网盘相关操作"""
 
-import os
+import io
 import json
 import shutil
 import asyncio
 import chardet
 import hashlib
-import tempfile
+import zipfile
 import mimetypes
 import threading
 import subprocess
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
+from urllib.parse import quote
+from typing import AsyncIterator
 from concurrent.futures import ThreadPoolExecutor
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from fastapi import UploadFile, File, Request, Form, Response
 
-from logic import remove_later
 from config import path, monitor_adapter
 from .base import APIRouter, Depends, R, website_logger, cookie_account_get, Dict, Query
+
 
 UPLOAD_DIR = path / "storage/file/clouddrive"
 RECYCLE_BIN = path / "storage/file/recycle"
@@ -43,10 +45,8 @@ def index_build(base_path: Path):
         FILE_INDEX.clear()
         with ThreadPoolExecutor(max_workers=8) as executor:
             futures = []
-            for root, dirs, files in os.walk(base_path):
-                for name in dirs + files:
-                    full_path = Path(root) / name
-                    futures.append(executor.submit(item_make, full_path, base_path))
+            for item_path in base_path.rglob('*'):
+                futures.append(executor.submit(item_make, item_path, base_path))
 
             for f in futures:
                 item = f.result()
@@ -94,7 +94,7 @@ async def file_chunk_upload(
     if not account:
         return
 
-        # 临时目录：UPLOAD_DIR/.temp_chunks/{upload_id}/
+    # 临时目录：UPLOAD_DIR/.temp_chunks/{upload_id}/
     temp_dir = TEMP_CHUNKS_DIR / upload_id
     temp_dir.mkdir(parents=True, exist_ok=True)
 
@@ -267,9 +267,7 @@ async def file_folders_chunk_upload(
 
 @router.post("/file/new_folders")
 @monitor_adapter("#内阁_文件夹新建")
-async def file_folders_create(
-        data: Dict, account: str = Depends(cookie_account_get)
-):
+async def file_folders_create(data: Dict, account: str = Depends(cookie_account_get)):
     """新建文件夹"""
     if not account:
         return
@@ -318,6 +316,11 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     new_path = data["new_path"]
     if new_path == "none":
         new_path = ""
+    if not new_path:
+        return R(status="fail", data="新名称不能为空")
+
+    if any(c in new_path for c in ["/", "\\", ".."]):
+        return R(status="fail", data="新名称不能包含路径符号")
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
 
@@ -498,7 +501,7 @@ async def files_stream_preview(request: Request, file_path: str = Query(...)):
             filename=mp4_path.name,
         )
 
-    file_size = os.path.getsize(full_path)
+    file_size = full_path.stat().st_size
     range_header = request.headers.get("range")
 
     start = 0
@@ -543,40 +546,81 @@ async def files_stream_preview(request: Request, file_path: str = Query(...)):
     )
 
 
+async def file_iterator(file_path: Path, chunk_size: int = 1024 * 1024) -> AsyncIterator[bytes]:
+    """流式读取文件，每次读取 chunk_size 字节"""
+    with open(file_path, 'rb') as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+
+def zip_directory_generator(directory_path: Path, chunk_size: int = 64 * 1024):
+    """使用生成器流式压缩文件夹"""
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for file_path in directory_path.rglob('*'):
+            if file_path.is_file():
+                arcname = file_path.relative_to(directory_path)
+                with open(file_path, 'rb') as f:
+                    info = zipfile.ZipInfo.from_file(file_path, arcname)
+                    with zip_file.open(info, 'w') as dest:
+                        while chunk := f.read(chunk_size):
+                            dest.write(chunk)
+    zip_buffer.seek(0)
+    while chunk := zip_buffer.read(chunk_size):
+        yield chunk
+
+
 @router.get("/file/download/{file_path:path}")
 async def download_file(file_path: str):
-    """下载文件"""
+    """流式下载文件或文件夹"""
     file_path = (UPLOAD_DIR / file_path).resolve()
 
+    # 安全检查
     if not str(file_path).startswith(str(UPLOAD_DIR)):
         return R(status="fail", data="非法路径")
 
+    # 文件/文件夹不存在
+    if not file_path.exists():
+        return R(status="fail", data="文件不存在")
+
+    # 如果是文件，直接流式返回
     if file_path.is_file():
-        return FileResponse(
-            path=file_path,
-            filename=file_path.name,
-            media_type="application/octet-stream"
+        return StreamingResponse(
+            file_iterator(file_path),
+            media_type="application/octet-stream",
+            headers={
+                "Content-Disposition": f'attachment; filename="{quote(file_path.name)}"',
+                "Content-Length": str(file_path.stat().st_size),
+                "Cache-Control": "no-cache",
+                "X-Content-Type-Options": "nosniff"
+            }
         )
 
+    # 如果是文件夹，检查大小
     elif file_path.is_dir():
         folder_size = folder_size_get(file_path)
-        if folder_size > 2 * 1024 * 1024 * 1024:
+
+        if folder_size > 2 * 1024 * 1024 * 1024:  # 2GB
             return R(status="fail", data="文件夹总大小大于2GB，请单独下载内容")
-        tmp_dir = tempfile.gettempdir()
-        zip_name = file_path.name + ".zip"
-        zip_path = os.path.join(tmp_dir, zip_name)
 
-        shutil.make_archive(base_name=os.path.join(tmp_dir, file_path.name),
-                            format='zip',
-                            root_dir=file_path)
-        asyncio.create_task(remove_later(zip_path))
+        # 流式压缩并返回
+        zip_filename = f"{file_path.name}.zip"
 
-        return FileResponse(
-            path=zip_path,
-            filename=zip_name,
-            media_type="application/zip"
+        return StreamingResponse(
+            zip_directory_generator(file_path),
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f'attachment; filename="{quote(zip_filename)}"',
+                "Cache-Control": "no-cache",
+                "X-Content-Type-Options": "nosniff"
+            }
         )
 
+    else:
+        return R(status="fail", data="文件不存在")
 
 @router.get("/file/{file_path:path}")
 async def files_get(file_path: str = ""):

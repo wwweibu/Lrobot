@@ -22,6 +22,16 @@ async def msg_process(msg):
         )
         loggers["system"].debug(f"[消息处理]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
                                 extra={"event": "错误堆栈"})
+        if msg.event == "处理":
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=e,
+                user=msg.user,
+                group=msg.group,
+            )
 
 
 async def safe_msg_process(msg: Msg):
