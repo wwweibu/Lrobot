@@ -623,41 +623,6 @@ async def download_file(file_path: str):
         return R(status="fail", data="文件不存在")
 
 
-@router.get("/file/download1/{file_path:path}")
-async def download_file1(file_path: str):
-    """下载文件1"""
-    file_path = (UPLOAD_DIR / file_path).resolve()
-
-    if not str(file_path).startswith(str(UPLOAD_DIR)):
-        return R(status="fail", data="非法路径")
-
-    if file_path.is_file():
-        return FileResponse(
-            path=file_path,
-            filename=file_path.name,
-            media_type="application/octet-stream"
-        )
-
-    elif file_path.is_dir():
-        folder_size = folder_size_get(file_path)
-        if folder_size > 2 * 1024 * 1024 * 1024:
-            return R(status="fail", data="文件夹总大小大于2GB，请单独下载内容")
-        tmp_dir = tempfile.gettempdir()
-        zip_name = file_path.name + ".zip"
-        zip_path = os.path.join(tmp_dir, zip_name)
-
-        shutil.make_archive(base_name=os.path.join(tmp_dir, file_path.name),
-                            format='zip',
-                            root_dir=file_path)
-        asyncio.create_task(remove_later(zip_path))
-
-        return FileResponse(
-            path=zip_path,
-            filename=zip_name,
-            media_type="application/zip"
-        )
-
-
 @router.get("/file/{file_path:path}")
 async def files_get(file_path: str = ""):
     """访问文件夹目录"""

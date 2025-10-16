@@ -409,7 +409,7 @@ const moveToRoot = async () => {
 }
 
 // 下载逻辑
-const handleDownload1 = async () => {
+const handleDownload = async () => {
   const item = contextMenu.value.target
   const downloadUrl = `${window.location.origin}/hjd/file/download/${encodeURIComponent(item.path)}`
 
@@ -420,47 +420,6 @@ const handleDownload1 = async () => {
   } catch (err) {
     const msg = err?.response?.data?.data || err?.message || '网络异常，请稍后重试'
     alert('下载失败: ' + msg)
-  }
-}
-
-const handleDownload = async () => {
-  const item = contextMenu.value.target
-  try {
-    const response = await http.get(`/file/download/${encodeURIComponent(item.path)}`, {
-      responseType: 'blob',timeout:120000})
-    
-    const contentType = response.headers['content-type']
-    if (contentType && contentType.includes('application/json')) {
-      // 说明是后端报错，解析 JSON
-      const text = await response.data.text()
-      const json = JSON.parse(text)
-      alert('下载失败: ' + (json.data || '未知错误'))
-      return
-    }
-    
-    const url = window.URL.createObjectURL(new Blob([response.data]))
-    const link = document.createElement('a')
-    link.href = url
-    let filename = item.name
-    if (item.is_dir) filename += '.zip'
-    link.setAttribute('download', filename)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    if (error.response && error.response.data) {
-      try {
-        const text = await error.response.data.text()
-        const errObj = JSON.parse(text)
-        alert('下载失败: ' + (errObj.detail || '未知错误'))
-      } catch (e) {
-        alert('下载失败: ' + error.message + e)
-      }
-    } else {
-      alert('下载失败: ' + error.message)
-    }
-
   }
 }
 
