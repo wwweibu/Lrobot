@@ -86,9 +86,6 @@ def path_check(file_path, base_path=UPLOAD_DIR):
     except Exception as e:
         return f"路径格式错误: {e}"
 
-    if file_path.is_absolute():
-        return "不允许绝对路径"
-
     resolved_path = (base_path / file_path).resolve()
     if not resolved_path.is_relative_to(base_path):
         return "路径超出允许范围"
