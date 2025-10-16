@@ -91,7 +91,6 @@ def path_check(file_path, base_path=UPLOAD_DIR):
     resolved_path = (base_path / file_path).resolve()
     if not resolved_path.is_relative_to(base_path):
         return "路径超出允许范围"
-    resolved_path.mkdir(parents=True, exist_ok=True)
     return "路径正确"
 
 @router.post("/file/chunk")
@@ -138,6 +137,7 @@ async def file_chunk_upload(
 
             # 目标目录
             target_dir = UPLOAD_DIR / base_path if base_path else UPLOAD_DIR
+            target_dir.mkdir(parents=True, exist_ok=True)
             dest = target_dir / filename
 
             if dest.exists():
@@ -296,6 +296,7 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     if check != "路径正确":
         return R(status="fail", data=check)
     full_path = UPLOAD_DIR / file_path
+    full_path.mkdir(parents=True, exist_ok=True)
     website_logger.info(
         f"[文件夹新建]{account}-> {str(full_path)}", extra={"event": "网页日志"}
     )
@@ -306,7 +307,7 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
 @router.post("/file/search")
 async def files_search(data: Dict):
     """搜索文件"""
-    file_path = data["path"].lstrip("/\\")
+    file_path = data["path"]
     keyword = data["keyword"]
     if file_path == "none":
         file_path = ""
@@ -325,10 +326,10 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     """重命名文件"""
     if not account:
         return
-    old_path = data["old_path"].lstrip("/\\")
+    old_path = data["old_path"]
     if old_path == "none":
         old_path = ""
-    new_path = data["new_path"].lstrip("/\\")
+    new_path = data["new_path"]
     if new_path == "none":
         new_path = ""
     if not new_path:
@@ -339,7 +340,8 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     check2 = path_check(new_path)
     if check2 != "路径正确":
         return R(status="fail", data=check2)
-
+    if any(c in new_path for c in ["/", "\\", ".."]):
+        return R(status="fail", data="新名称不能包含路径符号")
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
 
@@ -362,10 +364,10 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     """移动文件"""
     if not account:
         return
-    src_path = data["src_path"].lstrip("/\\")
+    src_path = data["src_path"]
     if src_path == "none":
         src_path = ""
-    dst_path = data["dst_path"].lstrip("/\\")
+    dst_path = data["dst_path"]
     if dst_path == "none":
         dst_path = ""
     check1 = path_check(src_path)
@@ -381,7 +383,7 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
         return R(status="fail", data=f"源文件不存在: {src_item}")
     if dst_item.exists():
         return R(status="fail", data=f"目标文件已存在: {dst_item}")
-
+    dst_item.parent.mkdir(parents=True, exist_ok=True)
     try:
         shutil.move(str(src_item), str(dst_item))
         website_logger.info(
@@ -404,7 +406,7 @@ def unique_pdf_name_get(doc_path):
 @router.post("/file/preview")
 async def files_preview(data: dict):
     """文件预览"""
-    file_path = data["path"][0].lstrip("/\\")
+    file_path = data["path"][0]
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -484,7 +486,6 @@ async def files_preview(data: dict):
 @router.get("/file/stream_video")
 async def files_stream_preview(request: Request, file_path: str = Query(...)):
     """视频流式预览"""
-    file_path = file_path.lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -608,7 +609,6 @@ def zip_directory_generator(directory_path: Path, chunk_size: int = 64 * 1024):
 @router.get("/file/download/{file_path:path}")
 async def download_file(file_path: str):
     """流式下载文件或文件夹"""
-    file_path = file_path.lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -658,7 +658,6 @@ async def download_file(file_path: str):
 @router.get("/file/{file_path:path}")
 async def files_get(file_path: str = ""):
     """访问文件夹目录"""
-    file_path = file_path.lstrip("/\\")
     if file_path == "none":
         file_path = ""
     check = path_check(file_path)
