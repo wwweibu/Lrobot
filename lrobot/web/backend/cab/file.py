@@ -296,8 +296,6 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     if file_path == "none":
         file_path = ""
     full_path = UPLOAD_DIR / file_path
-    if full_path.exists():
-        return R(status="fail", data="文件夹已存在")
     try:
         full_path.mkdir(parents=True, exist_ok=False)
     except Exception as e:
