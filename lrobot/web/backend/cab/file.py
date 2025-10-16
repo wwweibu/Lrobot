@@ -11,10 +11,10 @@ import mimetypes
 import threading
 import subprocess
 import pandas as pd
-from pathlib import Path
 from datetime import datetime
 from urllib.parse import quote
 from typing import AsyncIterator
+from pathlib import Path, PurePosixPath
 from concurrent.futures import ThreadPoolExecutor
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi import UploadFile, File, Request, Form, Response
@@ -79,6 +79,22 @@ def folder_size_get(folder: Path):
     return total
 
 
+def path_check(file_path, base_path=UPLOAD_DIR):
+    """路径合法性检查"""
+    try:
+        file_path = PurePosixPath(file_path)
+    except Exception as e:
+        return f"路径格式错误: {e}"
+
+    if file_path.is_absolute():
+        return "不允许绝对路径"
+
+    resolved_path = (base_path / file_path).resolve()
+    if not resolved_path.is_relative_to(base_path):
+        return "路径超出允许范围"
+    resolved_path.mkdir(parents=True, exist_ok=True)
+    return "路径正确"
+
 @router.post("/file/chunk")
 @monitor_adapter("#内阁_文件上传")
 async def file_chunk_upload(
@@ -93,6 +109,10 @@ async def file_chunk_upload(
     """上传文件"""
     if not account:
         return
+
+    check = path_check(base_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
 
     # 临时目录：UPLOAD_DIR/.temp_chunks/{upload_id}/
     temp_dir = TEMP_CHUNKS_DIR / upload_id
@@ -120,7 +140,6 @@ async def file_chunk_upload(
 
             # 目标目录
             target_dir = UPLOAD_DIR / base_path if base_path else UPLOAD_DIR
-            target_dir.mkdir(parents=True, exist_ok=True)
             dest = target_dir / filename
 
             if dest.exists():
@@ -155,50 +174,6 @@ async def file_chunk_upload(
     return R(status="success", data=f"chunk {chunk_index} uploaded")
 
 
-@router.delete("/file")
-@monitor_adapter("#内阁_文件删除")
-async def files_delete(data: str = Query(...), account: str = Depends(cookie_account_get)):
-    """删除文件"""
-    if not account:
-        return
-    data_dict = json.loads(data)
-    file_path = data_dict["path"].lstrip("/\\")
-    try:
-        target_path = UPLOAD_DIR / file_path
-        if target_path == UPLOAD_DIR:
-            return R(status="fail", data="不能删除根目录")
-        resolved_path = target_path.resolve()
-        if not resolved_path.is_relative_to(UPLOAD_DIR.resolve()):
-            return R(status="fail", data="非法路径访问")
-
-        # 安全验证
-        if ".." in file_path.split("/"):
-            return R(status="fail", data="路径包含非法字符")
-
-        if not target_path.exists():
-            return R(status="fail", data="路径不存在")
-
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        new_name = f"{target_path.name}_{timestamp}"
-
-        recycle_path = RECYCLE_BIN / new_name
-
-        shutil.move(str(target_path), str(recycle_path))
-
-        website_logger.info(
-            f"[文件删除]{account}-> {str(target_path)}", extra={"event": "网页日志"}
-        )
-
-        async_index_build()
-        return R(status="success", data=str(target_path))
-
-    except PermissionError:
-        return R(status="fail", data="没有删除权限")
-    except Exception as e:
-        website_logger.error(f"[文件页]删除失败-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
-        return R(status="fail", data=f"删除操作失败: {str(e)}")
-
-
 @router.post("/file/folders/chunk")
 @monitor_adapter("#内阁_文件夹上传")
 async def file_folders_chunk_upload(
@@ -209,11 +184,18 @@ async def file_folders_chunk_upload(
         total_chunks: int = Form(...),
         base_path: str = Form(""),
         relative_path: str = Form(...),  # 相对于上传根目录的路径，例如 "dir1/sub/file.txt"
-    account: str = Depends(cookie_account_get),
+        account: str = Depends(cookie_account_get),
 ):
     """接收文件夹内单个文件的分片并在接收最后一个分片时合并保存为相对路径文件。"""
     if not account:
         return
+
+    check1 = path_check(base_path)
+    if check1 != "路径正确":
+        return R(status="fail", data=check1)
+    check2 = path_check(relative_path)
+    if check2 != "路径正确":
+        return R(status="fail", data=check2)
 
     temp_dir = TEMP_CHUNKS_DIR / upload_id
     temp_dir.mkdir(parents=True, exist_ok=True)
@@ -263,6 +245,45 @@ async def file_folders_chunk_upload(
 
     return R(status="success", data=f"chunk {chunk_index} uploaded")
 
+@router.delete("/file")
+@monitor_adapter("#内阁_文件删除")
+async def files_delete(data: str = Query(...), account: str = Depends(cookie_account_get)):
+    """删除文件"""
+    if not account:
+        return
+    data_dict = json.loads(data)
+    file_path = data_dict["path"]
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
+
+    try:
+        target_path = UPLOAD_DIR / file_path
+        if target_path == UPLOAD_DIR:
+            return R(status="fail", data="不能删除根目录")
+
+        if not target_path.exists():
+            return R(status="fail", data="路径不存在")
+
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        new_name = f"{target_path.name}_{timestamp}"
+
+        recycle_path = RECYCLE_BIN / new_name
+
+        shutil.move(str(target_path), str(recycle_path))
+
+        website_logger.info(
+            f"[文件删除]{account}-> {str(target_path)}", extra={"event": "网页日志"}
+        )
+
+        async_index_build()
+        return R(status="success", data=str(target_path))
+
+    except PermissionError:
+        return R(status="fail", data="没有删除权限")
+    except Exception as e:
+        website_logger.error(f"[文件页]删除失败-> {type(e).__name__}: {e}", extra={"event": "网页日志"})
+        return R(status="fail", data=f"删除操作失败: {str(e)}")
 
 
 @router.post("/file/new_folders")
@@ -271,16 +292,20 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     """新建文件夹"""
     if not account:
         return
-    file_path = data["path"].lstrip("/\\")
+    file_path = data["path"]
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
     if file_path == "none":
         file_path = ""
     full_path = UPLOAD_DIR / file_path
-    full_path = full_path.resolve()
-    # 防止路径跳出上传目录
-    if not str(full_path).startswith(str(UPLOAD_DIR.resolve())):
-        return R(status="fail", data="非法路径")
+    if full_path.exists():
+        return R(status="fail", data="文件夹已存在")
+    try:
+        full_path.mkdir(parents=True, exist_ok=False)
+    except Exception as e:
+        return R(status="fail", data=f"文件夹创建失败: {e}")
 
-    full_path.mkdir(parents=True, exist_ok=True)
     website_logger.info(
         f"[文件夹新建]{account}-> {str(full_path)}", extra={"event": "网页日志"}
     )
@@ -318,9 +343,13 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
         new_path = ""
     if not new_path:
         return R(status="fail", data="新名称不能为空")
+    check1 = path_check(old_path)
+    if check1 != "路径正确":
+        return R(status="fail", data=check1)
+    check2 = path_check(new_path)
+    if check2 != "路径正确":
+        return R(status="fail", data=check2)
 
-    if any(c in new_path for c in ["/", "\\", ".."]):
-        return R(status="fail", data="新名称不能包含路径符号")
     old_item = UPLOAD_DIR / old_path
     new_item = old_item.with_name(new_path)
 
@@ -349,6 +378,13 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     dst_path = data["dst_path"]
     if dst_path == "none":
         dst_path = ""
+    check1 = path_check(src_path)
+    if check1 != "路径正确":
+        return R(status="fail", data=check1)
+    check2 = path_check(dst_path)
+    if check2 != "路径正确":
+        return R(status="fail", data=check2)
+
     src_item = UPLOAD_DIR / src_path
     dst_item = UPLOAD_DIR / dst_path
     if not src_item.exists():
@@ -356,7 +392,6 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     if dst_item.exists():
         return R(status="fail", data=f"目标文件已存在: {dst_item}")
 
-    dst_item.parent.mkdir(parents=True, exist_ok=True)
     try:
         shutil.move(str(src_item), str(dst_item))
         website_logger.info(
@@ -380,6 +415,9 @@ def unique_pdf_name_get(doc_path):
 async def files_preview(data: dict):
     """文件预览"""
     file_path = data["path"][0]
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
     full_path = UPLOAD_DIR / file_path
     if not full_path.exists():
         return {"error": "文件不存在"}
@@ -456,6 +494,9 @@ async def files_preview(data: dict):
 @router.get("/file/stream_video")
 async def files_stream_preview(request: Request, file_path: str = Query(...)):
     """视频流式预览"""
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
     full_path = UPLOAD_DIR / file_path
     if not full_path.exists():
         return {"error": "视频不存在"}
@@ -576,11 +617,10 @@ def zip_directory_generator(directory_path: Path, chunk_size: int = 64 * 1024):
 @router.get("/file/download/{file_path:path}")
 async def download_file(file_path: str):
     """流式下载文件或文件夹"""
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
     file_path = (UPLOAD_DIR / file_path).resolve()
-
-    # 安全检查
-    if not str(file_path).startswith(str(UPLOAD_DIR)):
-        return R(status="fail", data="非法路径")
 
     # 文件/文件夹不存在
     if not file_path.exists():
@@ -628,6 +668,9 @@ async def files_get(file_path: str = ""):
     """访问文件夹目录"""
     if file_path == "none":
         file_path = ""
+    check = path_check(file_path)
+    if check != "路径正确":
+        return R(status="fail", data=check)
     base_path = UPLOAD_DIR / file_path
 
     if not base_path.exists():
