@@ -85,6 +85,8 @@ def path_check(file_path, base_path=UPLOAD_DIR):
         file_path = PurePosixPath(file_path)
     except Exception as e:
         return f"路径格式错误: {e}"
+    if file_path.is_absolute():
+        return "不允许绝对路径"
 
     resolved_path = (base_path / file_path).resolve()
     if not resolved_path.is_relative_to(base_path):
@@ -106,7 +108,7 @@ async def file_chunk_upload(
     """上传文件"""
     if not account:
         return
-
+    base_path = base_path.lstrip("/\\")
     check = path_check(base_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -186,7 +188,8 @@ async def file_folders_chunk_upload(
     """接收文件夹内单个文件的分片并在接收最后一个分片时合并保存为相对路径文件。"""
     if not account:
         return
-
+    base_path = base_path.lstrip("/\\")
+    relative_path = relative_path.lstrip("/\\")
     check1 = path_check(base_path)
     if check1 != "路径正确":
         return R(status="fail", data=check1)
@@ -249,7 +252,7 @@ async def files_delete(data: str = Query(...), account: str = Depends(cookie_acc
     if not account:
         return
     data_dict = json.loads(data)
-    file_path = data_dict["path"]
+    file_path = data_dict["path"].lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -289,7 +292,7 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     """新建文件夹"""
     if not account:
         return
-    file_path = data["path"]
+    file_path = data["path"].lstrip("/\\")
     if file_path == "none":
         return R(status="fail", data=f"禁止创建名称为 none 的文件夹")
     check = path_check(file_path)
@@ -306,7 +309,7 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
 @router.post("/file/search")
 async def files_search(data: Dict):
     """搜索文件"""
-    file_path = data["path"]
+    file_path = data["path"].lstrip("/\\")
     keyword = data["keyword"]
     if file_path == "none":
         file_path = ""
@@ -325,10 +328,10 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     """重命名文件"""
     if not account:
         return
-    old_path = data["old_path"]
+    old_path = data["old_path"].lstrip("/\\")
     if old_path == "none":
         old_path = ""
-    new_path = data["new_path"]
+    new_path = data["new_path"].lstrip("/\\")
     if new_path == "none":
         new_path = ""
     if not new_path:
@@ -362,10 +365,10 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     """移动文件"""
     if not account:
         return
-    src_path = data["src_path"]
+    src_path = data["src_path"].lstrip("/\\")
     if src_path == "none":
         src_path = ""
-    dst_path = data["dst_path"]
+    dst_path = data["dst_path"].lstrip("/\\")
     if dst_path == "none":
         dst_path = ""
     check1 = path_check(src_path)
@@ -404,7 +407,7 @@ def unique_pdf_name_get(doc_path):
 @router.post("/file/preview")
 async def files_preview(data: dict):
     """文件预览"""
-    file_path = data["path"][0]
+    file_path = data["path"][0].lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -484,6 +487,7 @@ async def files_preview(data: dict):
 @router.get("/file/stream_video")
 async def files_stream_preview(request: Request, file_path: str = Query(...)):
     """视频流式预览"""
+    file_path = file_path.lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -607,6 +611,7 @@ def zip_directory_generator(directory_path: Path, chunk_size: int = 64 * 1024):
 @router.get("/file/download/{file_path:path}")
 async def download_file(file_path: str):
     """流式下载文件或文件夹"""
+    file_path = file_path.lstrip("/\\")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -656,6 +661,7 @@ async def download_file(file_path: str):
 @router.get("/file/{file_path:path}")
 async def files_get(file_path: str = ""):
     """访问文件夹目录"""
+    file_path = file_path.lstrip("/\\")
     if file_path == "none":
         file_path = ""
     check = path_check(file_path)
