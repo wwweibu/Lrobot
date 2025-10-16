@@ -290,17 +290,12 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     if not account:
         return
     file_path = data["path"]
+    if file_path == "none":
+        return R(status="fail", data=f"禁止创建名称为 none 的文件夹")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
-    if file_path == "none":
-        file_path = ""
     full_path = UPLOAD_DIR / file_path
-    try:
-        full_path.mkdir(parents=True, exist_ok=False)
-    except Exception as e:
-        return R(status="fail", data=f"文件夹创建失败: {e}")
-
     website_logger.info(
         f"[文件夹新建]{account}-> {str(full_path)}", extra={"event": "网页日志"}
     )
