@@ -108,7 +108,6 @@ async def file_chunk_upload(
     """上传文件"""
     if not account:
         return
-    base_path = base_path.lstrip("/\\")
     check = path_check(base_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -188,8 +187,6 @@ async def file_folders_chunk_upload(
     """接收文件夹内单个文件的分片并在接收最后一个分片时合并保存为相对路径文件。"""
     if not account:
         return
-    base_path = base_path.lstrip("/\\")
-    relative_path = relative_path.lstrip("/\\")
     check1 = path_check(base_path)
     if check1 != "路径正确":
         return R(status="fail", data=check1)
