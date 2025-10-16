@@ -426,8 +426,8 @@ const handleDownload1 = async () => {
 const handleDownload = async () => {
   const item = contextMenu.value.target
   try {
-    const response = await http.get(`/file/download1/${encodeURIComponent(item.path)}`, {
-      responseType: 'blob',timeout:360000})
+    const response = await http.get(`/file/download/${encodeURIComponent(item.path)}`, {
+      responseType: 'blob',timeout:120000})
     
     const contentType = response.headers['content-type']
     if (contentType && contentType.includes('application/json')) {
@@ -464,6 +464,50 @@ const handleDownload = async () => {
   }
 }
 
+// 拖拽功能
+const handleDragStart = (item) => {
+  draggingItem.value = item
+}
+
+const handleDragOver = (e) => {
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
+}
+
+const handleDrop = async (target) => {
+  if (draggingItem.value && target.is_dir) {
+    try {
+      await http.post('/file/move', {
+        src_path: draggingItem.value.path,
+        dst_path: `${target.path}/${draggingItem.value.name}`
+      })
+      loadData(currentPath.value)
+    } catch (error) {
+      alert('移动失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
+    }
+  }
+  draggingItem.value = null
+}
+
+// 新建文件夹
+const createNewFolder = async () => {
+  const folderName = prompt('输入文件夹名称')
+  if (folderName) {
+    try {
+      const res = await http.post('/file/new_folders', {
+        path: `${currentPath.value === 'none' ? '' : currentPath.value}/${folderName}`
+      })
+      if (res.data.status==="success"){
+        loadData(currentPath.value)
+      }
+      else{
+        alert('创建失败'+(res.data.data||'网络异常，请稍后重试'))
+      }
+    } catch (error) {
+      alert('创建失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
+    }
+  }
+}
 
 // 移动功能
 const startMove = async () => {
