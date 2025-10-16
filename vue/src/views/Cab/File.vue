@@ -427,7 +427,7 @@ const handleDownload = async () => {
   const item = contextMenu.value.target
   try {
     const response = await http.get(`/file/download1/${encodeURIComponent(item.path)}`, {
-      responseType: 'blob',timeout:120000})
+      responseType: 'blob',timeout:360000})
     
     const contentType = response.headers['content-type']
     if (contentType && contentType.includes('application/json')) {

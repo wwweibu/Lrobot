@@ -241,6 +241,7 @@
           <el-radio-group v-model="formData.judge">
             <el-radio :value="'equal'">完全匹配</el-radio>
             <el-radio :value="'contains'">包含匹配</el-radio>
+            <el-radio :value="'function'">函数匹配</el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -349,7 +350,7 @@ interface Command {
   set: string
   order: number
   content: string[]
-  judge: 'equal' | 'contains'
+  judge: 'equal' | 'contains' | 'function'
   kind: string[]
   state: string[]
   platforms: string[]
@@ -458,7 +459,8 @@ const formRules = reactive<FormRules>({
 // 样式映射
 const judgeMap = {
   equal: '完全匹配',
-  contains: '包含匹配'
+  contains: '包含匹配',
+  function: '函数匹配'
 }
 
 const tagColorTypes = ['success', 'warning', 'danger', 'info', 'primary']
