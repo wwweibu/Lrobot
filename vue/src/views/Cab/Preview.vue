@@ -415,16 +415,25 @@ const zoomOut = async () => {
 
 // 获取文件数据
 const fetchFileData = async (path) => {
-  path = path.path
-  const res = await http.post('/file/preview', { path }, { 
-    responseType: 'blob', 
-    timeout: 60000 
-  })
-  
-  fileBlob.value = res.data
-  fileType.value = res.headers['content-type']
-  fileUrl.value = URL.createObjectURL(fileBlob.value)
-  
+  try {
+    path = path.path
+    const res = await http.post('/file/preview', { path }, { 
+      responseType: 'blob', 
+      timeout: 60000 
+      })
+    const contentType = res.headers['content-type']
+    if (contentType.includes('application/json')) {
+      const text = await res.data.text()
+      const json = JSON.parse(text)
+      throw new Error(json.data || '服务器返回错误')
+    }
+    fileBlob.value = res.data
+    fileType.value = res.headers['content-type']
+    fileUrl.value = URL.createObjectURL(fileBlob.value)
+  }  catch (err) {
+    console.error('文件加载失败:', err)
+    alert(err.message || '文件加载失败，请稍后再试')
+  }
   console.log('File type:', fileType.value)
 }
 

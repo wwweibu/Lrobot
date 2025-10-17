@@ -452,6 +452,8 @@ async def files_preview(data: dict):
             if result.stderr:
                 website_logger.error(f"[文件转换]soffice 错误-> 错误: {result.stderr}",
                                      extra={"event": "文件处理"})
+                website_logger.debug(f"[文件转换]soffice 日志-> 日志: {result.stdout}",
+                                     extra={"event": "文件处理"})
         generated_pdf = RECYCLE_BIN / full_path.with_suffix(".pdf").name
         if generated_pdf.exists():
             generated_pdf.rename(pdf_path)

@@ -49,7 +49,10 @@ async def exception_handler(request: Request, exc: Exception):
     loggers["system"].debug(f"[后端运行]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
                             extra={"event": "错误堆栈"})
     if request.url.path.startswith("/hjd"):
-        return R(status="fail", data=f"服务器异常: {exc}")
+        return JSONResponse(
+            status_code=200,
+            content=R(status="fail", data=f"服务器异常: {exc}").model_dump()
+        )
     return JSONResponse(status_code=200, content={})
 
 
