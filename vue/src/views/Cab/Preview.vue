@@ -164,7 +164,10 @@
 
     <!-- Unsupported file type message -->
     <template v-else>
-      <p>请稍等……</p>
+      <p v-if="!previewFailed">请稍等……</p>
+      <p v-else>该内容不支持预览</p>
+      <p></p>
+      <p></p>
       <p>支持asp,avi,bmp,cfm,css,csv,dat,data,doc,docx,epub</p>
       <p>f4v,gif,html,ico,inc,ini,jpeg,jpg,js,log,lst,m4a</p>  
       <p>m4v,md,mkv,mov,mp3,mp4,obj,ogg,pdf,png,ppt,pptm</p>
@@ -746,7 +749,7 @@ const handleEpubClick = (event) => {
     console.log('点击中间区域，不翻页')
   }
 }
-
+const previewFailed = ref(false)  //处理超时
 // 主处理函数
 const processFile = async () => {
   if (isPdf.value) {
@@ -764,7 +767,9 @@ const processFile = async () => {
   } else if (isEpub.value) {
     await handleEpubFile()
   } else {
-    alert('当前文件类型暂不支持在线预览，请下载查看')
+    setTimeout(() => {
+      previewFailed.value = true
+    }, 5000)
   }
 }
 
