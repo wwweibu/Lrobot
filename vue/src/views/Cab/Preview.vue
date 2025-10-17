@@ -165,7 +165,7 @@
     <!-- Unsupported file type message -->
     <template v-else>
       <p v-if="!previewFailed">请稍等……</p>
-      <p v-else>该内容不支持预览</p>
+      <p v-else>该内容不支持预览，请下载后查看</p>
       <p></p>
       <p></p>
       <p>支持asp,avi,bmp,cfm,css,csv,dat,data,doc,docx,epub</p>

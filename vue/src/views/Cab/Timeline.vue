@@ -75,7 +75,7 @@
               <div class="pin-head"></div>
               <div class="pin-needle"></div>
             </div>
-            <div class="node-connector"></div>
+            <!-- div class="node-connector"></div -->
   
             <div class="node-content" @click.stop>
               <button class="content-close" @click.stop="activeNodeId = null" aria-label="关闭">×</button>
@@ -634,13 +634,13 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 1024px) {
-  .timeline-wrapper { height: 380px; }
+  .timeline-wrapper { height: 480px; }
   .node-content { width: 240px; }
 }
 @media (max-width: 768px) {
   .topbar { grid-template-columns: 1fr; gap: 8px; }
   .controls { justify-content: flex-start; }
-  .timeline-wrapper { height: 360px; }
+  .timeline-wrapper { height: 460px; }
   .tick-label { font-size: 11px; }
   .node-content { width: min(78vw, 300px); }
   .control-btn, .scale-indicator { padding: 8px 10px; }
@@ -648,7 +648,7 @@ onBeforeUnmount(() => {
 @media (max-width: 480px) {
   .page-title { font-size: 18px; }
   .date-range { font-size: 12px; }
-  .timeline-wrapper { height: 340px; }
+  .timeline-wrapper { height: 440px; }
   .tick-line { height: 24px; }
   .tick-line.major { height: 30px; }
 }
