@@ -1,6 +1,6 @@
 """主页"""
 
-import os
+from pathlib import Path
 
 from .base import APIRouter, Query, Response, website_logger, HTTPException
 from config import connect, path
@@ -31,11 +31,11 @@ async def home_search(q: str = Query(...)):
 async def home_map_get(z: int, x: int, y: int):
     """请求 OSM 地图"""
     CACHE_DIR = f"{path}/storage/data/map"
-    cache_path = os.path.join(CACHE_DIR, str(z), str(x))
-    os.makedirs(cache_path, exist_ok=True)
-    file_path = os.path.join(cache_path, f"{y}.png")
+    cache_path = Path(CACHE_DIR) / str(z) / str(x)
+    cache_path.mkdir(parents=True, exist_ok=True)
+    file_path = cache_path / f"{y}.png"
 
-    if os.path.exists(file_path):
+    if file_path.exists():
         with open(file_path, "rb") as f:
             data = f.read()
         return Response(content=data, media_type="image/png")
