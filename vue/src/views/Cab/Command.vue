@@ -170,6 +170,7 @@
         :model="formData" 
         :rules="formRules"
         label-width="120px"
+        :label-position="isMobile ? 'top' : 'right'"
       >
         <el-form-item label="功能名称" prop="func">
           <el-input v-model="formData.func" placeholder="请输入唯一功能名称" />
@@ -342,6 +343,13 @@ import { Plus, Upload, Edit, Delete, Menu } from '@element-plus/icons-vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import {http} from '../../api'
 import Sidebar from './Sidebar.vue'
+
+// 判断是否为移动端
+const isMobile = ref(false)
+
+const checkIsMobile = () => {
+  isMobile.value = window.innerWidth < 768
+}
 
 interface Command {
   id:string
@@ -584,11 +592,14 @@ const initGroupStates = () => {
 }
 
 onMounted(() => {
+  checkIsMobile()
+  window.addEventListener('resize', checkIsMobile)
   loadInitialData()
 })
 
 onBeforeUnmount(() => {
   Object.values(sortableInstances).forEach(instance => instance?.destroy())
+  window.removeEventListener('resize', checkIsMobile)
 })
 
 const messageTypeStyleMap = ref<Record<string, string>>({})
@@ -912,6 +923,11 @@ const resetForm = () => {
   .group-title {
     font-size: 14px;
   }
+
+  .el-dialog {
+    width: 95% !important;
+    margin-top: 10vh !important;
+  }
 }
 
 @media (max-width: 768px) {  
@@ -925,6 +941,34 @@ const resetForm = () => {
   
   .group-title {
     font-size: 13px;
+  }
+
+  .el-form-item__label {
+    text-align: left !important;
+    padding: 0 0 6px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .el-form-item__content {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .el-input, .el-select, .el-input-number {
+    width: 100% !important;
+  }
+
+  .el-input-number .el-input__inner {
+    text-align: left !important;
+  }
+
+  .el-dialog__body {
+    padding: 20px 15px;
+  }
+
+  .el-dialog__footer .el-button {
+    width: 48%;
   }
 }
 
