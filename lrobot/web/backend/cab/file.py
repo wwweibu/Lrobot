@@ -366,12 +366,8 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     """移动文件"""
     if not account:
         return
-    src_path = data["src_path"]
-    if src_path == "none":
-        src_path = ""
-    dst_path = data["dst_path"]
-    if dst_path == "none":
-        dst_path = ""
+    src_path = data["src_path"].lstrip("/\\").replace("none", "")
+    dst_path = data["dst_path"].lstrip("/\\").replace("none", "")
     check1 = path_check(src_path)
     if check1 != "路径正确":
         return R(status="fail", data=check1)
