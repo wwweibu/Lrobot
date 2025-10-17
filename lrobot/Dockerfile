@@ -33,8 +33,8 @@ RUN apt-get update && \
 
 # 启用 UTF-8 中文环境，解决 soffice 中文路径问题
 RUN apt-get update && apt-get install -y --no-install-recommends locales && \
-    locale-gen zh_CN.UTF-8 && \
-    update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8
+    sed -i '/zh_CN.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen zh_CN.UTF-8
 
 ENV LANG=zh_CN.UTF-8
 ENV LC_ALL=zh_CN.UTF-8
