@@ -162,7 +162,7 @@ const toggleSortOrder = () => {
 }
 
 // 文件管理器核心逻辑
-const currentPath = ref('none')
+const currentPath = ref('')
 const items = ref([])
 const draggingItem = ref(null)
 const contextMenu = ref({
@@ -210,7 +210,7 @@ const jumpToDirectory = () => {
     // 如果是文件，进入其所在目录
     const parts = item.path.split('/')
     parts.pop() // 去掉文件名
-    const dirPath = parts.join('/') || 'none'
+    const dirPath = parts.join('/') || ''
     currentPath.value = dirPath
   }
 
@@ -285,7 +285,7 @@ const getIconForItem = (item) => {
 const loadData = async (path) => {
   const reqId = ++loadDataReqId
   try {
-    const res = await http.get(`/file/${encodeURIComponent(path || 'none')}`,{timeout:15000})
+    const res = await http.get(`/file/${encodeURIComponent(path)}`,{timeout:15000})
     if (res.data.status==="success"){
       if (reqId !== loadDataReqId) return
       items.value = res.data.data
@@ -301,7 +301,7 @@ const loadData = async (path) => {
 
 // 路径处理
 const pathParts = computed(() => {
-  const parts = currentPath.value === 'none' ? [] : currentPath.value.split('/')
+  const parts = !currentPath.value ? [] : currentPath.value.split('/')
   return parts.reduce((acc, part, index) => {
     if (part) {
       acc.push({
@@ -310,7 +310,7 @@ const pathParts = computed(() => {
       })
     }
     return acc
-  }, [{ name: '网盘', path: 'none' }])
+  }, [{ name: '网盘', path: '' }])
 })
 
 // 导航功能
@@ -454,14 +454,14 @@ const createNewFolder = async () => {
   if (folderName) {
     try {
       const res = await http.post('/file/new_folders', {
-        path: `${currentPath.value === 'none' ? '' : currentPath.value}/${folderName}`
+        path: `${currentPath.value}/${folderName}`.replace(/^\/+/, '')
       })
       if (res.data.status==="success"){
         loadData(currentPath.value)
-        alert('创建成功')
+        alert('创建')
       }
       else{
-        alert('创建失败: '+(res.data.data||'网络异常，请稍后重试'))
+        alert('创建失败'+(res.data.data||'网络异常，请稍后重试'))
       }
     } catch (error) {
       alert('创建失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
@@ -577,7 +577,7 @@ const handleFileUpload = async (e) => {
   const files = e.target.files;
   if (!files || files.length === 0) return;
 
-  const basePath = currentPath.value === 'none' ? '' : currentPath.value;
+  const basePath = currentPath.value;
 
   try {
     // 为避免并发过多导致浏览器异常，按文件顺序上传（可按需改为并发）
@@ -617,7 +617,7 @@ const handleFolderUpload = async (e) => {
     return;
   }
 
-  const basePath = currentPath.value === 'none' ? '' : currentPath.value;
+  const basePath = currentPath.value;
 
   // 将文件按顺序上传，每个 file 需要其 webkitRelativePath（或 file.name）
   try {

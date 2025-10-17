@@ -79,18 +79,26 @@ def folder_size_get(folder: Path):
     return total
 
 
-def path_check(file_path, base_path=UPLOAD_DIR):
+def path_check(file_path):
     """路径合法性检查"""
+    if not isinstance(file_path, str):
+        return "数据必须是字符串"
+    if file_path == "":
+        return "路径正确"
+    if PurePosixPath(file_path).is_absolute():
+        return
+    if file_path.startswith('//') or file_path.startswith('\\\\'):
+        return "UNC 路径非法"
+    parts = [p for p in file_path.split('/') if p != '']
+    if '..' in parts or '' in file_path.split('/')[1:-1]:  # 允许中间单 / 分隔，不允许 //
+        return "路径包含非法序列"
     try:
-        file_path = PurePosixPath(file_path)
-    except Exception as e:
-        return f"路径格式错误: {e}"
-    if file_path.is_absolute():
-        return "不允许绝对路径"
+        resolved_path = (UPLOAD_DIR / file_path).resolve().absolute()
+        if not resolved_path.is_relative_to(UPLOAD_DIR):
+            return "路径超出允许范围"
 
-    resolved_path = (base_path / file_path).resolve()
-    if not resolved_path.is_relative_to(base_path):
-        return "路径超出允许范围"
+    except Exception as e:
+        return f"路径解析失败: {e}"
     return "路径正确"
 
 @router.post("/file/chunk")
@@ -290,8 +298,8 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     if not account:
         return
     file_path = data["path"].lstrip("/\\")
-    if file_path == "none":
-        return R(status="fail", data=f"禁止创建名称为 none 的文件夹")
+    if file_path == "":
+        return R(status="fail", data=f"文件夹名称不能为空")
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
@@ -311,8 +319,6 @@ async def files_search(data: Dict):
     """搜索文件"""
     file_path = data["path"]
     keyword = data["keyword"]
-    if file_path == "none":
-        file_path = ""
     keyword_lower = keyword.lower()
     result = [
         item for item in FILE_INDEX
@@ -328,12 +334,8 @@ async def files_rename(data: Dict, account: str = Depends(cookie_account_get)):
     """重命名文件"""
     if not account:
         return
-    old_path = data["old_path"]
-    if old_path == "none":
-        old_path = ""
-    new_path = data["new_path"]
-    if new_path == "none":
-        new_path = ""
+    old_path = data["old_path"].strip("/")
+    new_path = data["new_path"].strip("/")
     if not new_path:
         return R(status="fail", data="新名称不能为空")
     check1 = path_check(old_path)
@@ -366,8 +368,8 @@ async def files_move(data: Dict, account: str = Depends(cookie_account_get)):
     """移动文件"""
     if not account:
         return
-    src_path = data["src_path"].lstrip("/\\").replace("none", "")
-    dst_path = data["dst_path"].lstrip("/\\").replace("none", "")
+    src_path = data["src_path"].lstrip("/\\")
+    dst_path = data["dst_path"].lstrip("/\\")
     check1 = path_check(src_path)
     if check1 != "路径正确":
         return R(status="fail", data=check1)
@@ -656,8 +658,6 @@ async def download_file(file_path: str):
 @router.get("/file/{file_path:path}")
 async def files_get(file_path: str = ""):
     """访问文件夹目录"""
-    if file_path == "none":
-        file_path = ""
     check = path_check(file_path)
     if check != "路径正确":
         return R(status="fail", data=check)
