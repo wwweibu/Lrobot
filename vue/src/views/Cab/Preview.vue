@@ -763,6 +763,8 @@ const processFile = async () => {
     await handlePsdFile()
   } else if (isEpub.value) {
     await handleEpubFile()
+  } else {
+    alert('当前文件类型暂不支持在线预览，请下载查看')
   }
 }
 
