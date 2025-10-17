@@ -296,6 +296,8 @@ async def file_folders_create(data: Dict, account: str = Depends(cookie_account_
     if check != "路径正确":
         return R(status="fail", data=check)
     full_path = UPLOAD_DIR / file_path
+    if full_path.exists():
+        return R(status="fail", data="路径已存在")
     full_path.mkdir(parents=True, exist_ok=True)
     website_logger.info(
         f"[文件夹新建]{account}-> {str(full_path)}", extra={"event": "网页日志"}

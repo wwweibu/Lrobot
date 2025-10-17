@@ -458,9 +458,10 @@ const createNewFolder = async () => {
       })
       if (res.data.status==="success"){
         loadData(currentPath.value)
+        alert('创建成功')
       }
       else{
-        alert('创建失败'+(res.data.data||'网络异常，请稍后重试'))
+        alert('创建失败: '+(res.data.data||'网络异常，请稍后重试'))
       }
     } catch (error) {
       alert('创建失败: ' + error.response?.data?.detail || error.message || '网络异常，请稍后重试')
