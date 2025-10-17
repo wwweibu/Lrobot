@@ -31,6 +31,14 @@ RUN apt-get update && \
         wget \
         gnupg
 
+# 启用 UTF-8 中文环境，解决 soffice 中文路径问题
+RUN apt-get update && apt-get install -y --no-install-recommends locales && \
+    locale-gen zh_CN.UTF-8 && \
+    update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8
+
+ENV LANG=zh_CN.UTF-8
+ENV LC_ALL=zh_CN.UTF-8
+
 # 配置 MongoDB 4.4 源并安装工具
 RUN mkdir -p /etc/apt/keyrings && \
     wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc \
