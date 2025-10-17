@@ -439,14 +439,19 @@ async def files_preview(data: dict):
         pdf_path = RECYCLE_BIN / pdf_filename
 
         if not pdf_path.exists():
-            await asyncio.to_thread(
+            result = await asyncio.to_thread(
                 subprocess.run,
                 [
                     "soffice", "--headless", "--convert-to", "pdf",
                     str(full_path), "--outdir", str(RECYCLE_BIN)
                 ],
                 check=True,
+                capture_output=True,
+                text=True
             )
+            if result.stderr:
+                website_logger.error(f"[文件转换]soffice 错误-> 错误: {result.stderr}",
+                                     extra={"event": "文件处理"})
         generated_pdf = RECYCLE_BIN / full_path.with_suffix(".pdf").name
         if generated_pdf.exists():
             generated_pdf.rename(pdf_path)
