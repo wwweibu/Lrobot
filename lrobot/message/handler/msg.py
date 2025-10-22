@@ -18,6 +18,12 @@ PATTERN_FIELDS = {
     'json': 'prompt',
 }
 
+VALID_PREFIX = {
+    "文本", "表情", "at", "猜拳", "骰子", "回复", "戳戳",
+    "动画表情", "图片", "语音", "视频", "文件", "卡片", "转发", "节点"
+}
+
+
 class Msg:
     """消息类"""
 
@@ -154,8 +160,11 @@ class Msg:
                 out.append(("文本", content[i:j]))
             else:
                 prefix = content[i + 1: colon]
-                value = content[colon + 1: j - 1]
-                out.append((prefix, value))
+                if prefix in VALID_PREFIX:
+                    value = content[colon + 1: j - 1]
+                    out.append((prefix, value))
+                else:
+                    out.append(('文本', content[i:j]))
             i = j
         merged = []
         for seg_type, seg_value in out:

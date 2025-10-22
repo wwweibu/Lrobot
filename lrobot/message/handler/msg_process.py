@@ -67,14 +67,17 @@ async def safe_msg_process(msg: Msg):
                 if not any(state in states for state in commands["state"]):
                     continue
 
-            # 包含时，待匹配内容为空，匹配所有内容
             judge = commands["judge"]
             contents = commands["content"]
-            matched = (
-                (not contents or any(Msg.content_pattern_contains(msg.content, v) for v in contents))
-                if judge == "contains"
-                else any(Msg.content_pattern_equal(msg.content, v) for v in contents)
-            )
+            matched = False
+            if judge == "contains":  # 包含时，待匹配内容为空，匹配所有内容
+                matched = not contents or any(Msg.content_pattern_contains(msg.content, v) for v in contents)
+            elif judge == "equal":
+                matched = any(Msg.content_pattern_equal(msg.content, v) for v in contents)
+            elif judge == "function":
+                func = getattr(command, contents[0])
+                matched = await func(msg)
+
             if not matched:
                 continue
             func = getattr(command, commands["function"])

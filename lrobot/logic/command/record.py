@@ -17,50 +17,56 @@ name_pool = ["阿富汗医生", "比利时的灰脑袋", "犯罪界的拿破仑"
              "千面女巫", "红约翰追踪者", "时空对讲机"]
 
 
-@monitor_adapter("/基础_记录_开始")
+def record_group(group_id):
+    """记录指定群"""
+    file_path = record_path / f"{group_id}.json"
+    if group_id in recording_groups:  # 结束其他记录中的记录
+        old_record_id = recording_groups[group_id]
+        if file_path.exists():
+            with open(file_path, "r", encoding="utf-8") as f:
+                data_json = json.load(f)
+            for r in data_json:
+                if r["id"] == old_record_id and r["end_time"] is None:
+                    r["end_time"] = datetime.now().isoformat()
+                    break
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(data_json, f, ensure_ascii=False, indent=2)
+        del recording_groups[group_id]
+    if file_path.exists():
+        with open(file_path, "r", encoding="utf-8") as f:
+            data_json = json.load(f)
+    else:
+        data_json = []
+    new_id = max((r["id"] for r in data_json), default=0) + 1
+
+    new_record = {
+        "id": new_id,
+        "start_time": datetime.now().isoformat(),
+        "end_time": None,
+        "messages": []
+    }
+    data_json.append(new_record)
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data_json, f, ensure_ascii=False, indent=2)
+    recording_groups[group_id] = new_id
+    return new_id
+
+
+@monitor_adapter("/工具_记录_开始")
 async def record_add(msg: Msg):
     """开始记录指定群"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
-    if len(parts) < 2:
-        content = "格式错误，请使用 /记录,水群/玩耍地"
+    if len(parts) == 1:
+        content = "请输入水群或玩耍地"
+        await data.status_add(msg.user, msg.platform, "记录1")
     else:
         group = parts[1].strip()
         if group not in config["public"]:
             content = "格式错误，请使用 /记录,水群/玩耍地"
         else:
             group_id = config["public"][group][0]
-
-            file_path = record_path / f"{group_id}.json"
-            if group_id in recording_groups:  # 结束其他记录中的记录
-                old_record_id = recording_groups[group_id]
-                if file_path.exists():
-                    with open(file_path, "r", encoding="utf-8") as f:
-                        data_json = json.load(f)
-                    for r in data_json:
-                        if r["id"] == old_record_id and r["end_time"] is None:
-                            r["end_time"] = datetime.now().isoformat()
-                            break
-                    with open(file_path, "w", encoding="utf-8") as f:
-                        json.dump(data_json, f, ensure_ascii=False, indent=2)
-                del recording_groups[group_id]
-            if file_path.exists():
-                with open(file_path, "r", encoding="utf-8") as f:
-                    data_json = json.load(f)
-            else:
-                data_json = []
-            new_id = max((r["id"] for r in data_json), default=0) + 1
-
-            new_record = {
-                "id": new_id,
-                "start_time": datetime.now().isoformat(),
-                "end_time": None,
-                "messages": []
-            }
-            data_json.append(new_record)
-
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(data_json, f, ensure_ascii=False, indent=2)
-            recording_groups[group_id] = new_id
+            new_id = record_group(group_id)
             content = f"开始记录 {group} 的消息(记录ID: {new_id})"
 
     Msg(
@@ -75,12 +81,39 @@ async def record_add(msg: Msg):
     return content
 
 
-@monitor_adapter("/基础_记录_结束")
+async def record_judge(msg: Msg):
+    """判断群"""
+    return Msg.content_join(msg.content) in config["public"]
+
+
+@monitor_adapter("/工具_记录_开始_回答")
+async def record_add_answer(msg: Msg):
+    """开始记录指定群"""
+    group = Msg.content_join(msg.content)
+    group_id = config["public"][group][0]
+    new_id = record_group(group_id)
+    content = f"开始记录 {group} 的消息(记录ID: {new_id})"
+    await data.status_delete(msg.user, msg.platform, "记录1")
+
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group
+    )
+    return content
+
+
+@monitor_adapter("/工具_记录_结束")
 async def record_delete(msg: Msg):
     """结束记录指定群"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
-    if len(parts) < 2:
-        content = "格式错误，请使用'/结束记录,水群/玩耍地'"
+    if len(parts) == 1:
+        content = "请输入水群或玩耍地"
+        await data.status_add(msg.user, msg.platform, "记录2")
     else:
         group = parts[1].strip()
         if group not in config["public"]:
@@ -114,6 +147,39 @@ async def record_delete(msg: Msg):
     )
     return content
 
+
+@monitor_adapter("/工具_记录_结束_回答")
+async def record_delete_answer(msg: Msg):
+    """结束记录指定群"""
+    group = Msg.content_join(msg.content)
+    group_id = config["public"][group][0]
+    if group_id not in recording_groups:
+        content = f"{group} 当前未在记录中"
+    else:
+        file_path = record_path / f"{group_id}.json"
+        record_id = recording_groups[group_id]
+        with open(file_path, "r", encoding="utf-8") as f:
+            data_json = json.load(f)
+        for r in data_json:
+            if r["id"] == record_id:
+                r["end_time"] = datetime.now().isoformat()
+                break
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data_json, f, ensure_ascii=False, indent=2)
+        del recording_groups[group_id]
+        content = f"已结束记录 {group} 的消息(记录ID: {record_id})"
+    await data.status_delete(msg.user, msg.platform, "记录2")
+
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group
+    )
+    return content
 
 async def record_write(msg: Msg):
     """记录消息"""
@@ -150,7 +216,7 @@ async def record_write(msg: Msg):
         json.dump(data_json, f, ensure_ascii=False, indent=2)
 
 
-@monitor_adapter("/基础_记录_导出")
+@monitor_adapter("/工具_记录_导出")
 async def record_export(msg: Msg):
     """记录导出"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content))
@@ -171,6 +237,8 @@ async def record_export(msg: Msg):
                     end = "进行中"
                 summary.append(f"{group_name}: {r['id']}->{start}: {end}")
         content = "\n".join(summary) if summary else "暂无任何记录。"
+        content = "请输入水群/玩耍地\n" + content
+        await data.status_add(msg.user, msg.platform, "记录导出1")
     elif len(parts) >= 3:
         group = parts[1].strip()
         if group not in config["public"]:
@@ -239,5 +307,131 @@ async def record_export(msg: Msg):
         seq=msg.seq,
         user=msg.user,
         group=msg.group
+    )
+    return content
+
+
+@monitor_adapter("/工具_记录_导出_群名")
+async def record_export_1(msg: Msg):
+    """设置导出群名称"""
+    group = Msg.content_join(msg.content)
+    group_id = config["public"][group][0]
+    record_file = record_path / f"{group_id}.json"
+    if not record_file.exists():
+        content = f"未找到群 {group} 的记录文件。"
+    else:
+        await data.status_delete(msg.user, msg.platform, "记录导出1")
+        await data.status_add(msg.user, msg.platform, "记录导出2", group)
+        content = "请输入记录ID（根据之前的结果），若无回应则无对应id，需要重新尝试"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+async def record_export_2_judge(msg: Msg):
+    """记录导出群ID判断"""
+    try:
+        record_id = int(Msg.content_join(msg.content))
+    except ValueError:
+        return False
+    group = await data.status_check(msg.user, msg.platform, "记录导出2")
+    group_id = config["public"][group][0]
+    record_file = record_path / f"{group_id}.json"
+    with open(record_file, "r", encoding="utf-8") as f:
+        data_json = json.load(f)
+    target_record = next((r for r in data_json if r["id"] == record_id), None)
+    if not target_record:
+        return False
+    return True
+
+
+@monitor_adapter("/工具_记录_导出_ID")
+async def record_export_2(msg: Msg):
+    """设置导出群ID"""
+    id = Msg.content_join(msg.content)
+    group = await data.status_check(msg.user, msg.platform, "记录导出2")
+    group_id = config["public"][group][0]
+    record_file = record_path / f"{group_id}.json"
+    with open(record_file, "r", encoding="utf-8") as f:
+        data_json = json.load(f)
+    record_id = int(id)
+    target_record = next((r for r in data_json if r["id"] == record_id), None)
+    if not target_record.get("messages"):
+        content = f"群 {group} 的记录 ID={record_id} 中没有消息，无法导出"
+    else:
+        content = "请输入记录的格式，包括：文本，转发，匿名"
+        await data.status_delete(msg.user, msg.platform, "记录导出2")
+        await data.status_add(msg.user, msg.platform, "记录导出3", f"{group}|{id}")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/工具_记录_导出_方式")
+async def record_export_3(msg: Msg):
+    """记录导出方式"""
+    info = await data.status_check(msg.user, msg.platform, "记录导出3")
+    group, record_id = info.split("|", 1)
+    mode = Msg.content_join(msg.content)
+    group_id = config["public"][group][0]
+    record_file = record_path / f"{group_id}.json"
+
+    with open(record_file, "r", encoding="utf-8") as f:
+        data_json = json.load(f)
+    target_record = next((r for r in data_json if r["id"] == record_id), None)
+    if mode == "转发":
+        seq_nodes = "".join(
+            f"[节点:{m['user']}|{m['name']}|{m['content']}]" for m in target_record["messages"])
+        content = f"[节点:3502644244|LR5921|{seq_nodes}]"
+    elif mode == "匿名":
+        name_map = {}
+        next_index = 0
+        txt_lines = []
+        for m in target_record["messages"]:
+            if m["name"] not in name_map:
+                if next_index < len(name_pool):
+                    name_map[m["name"]] = name_pool[next_index]
+                    next_index += 1
+                else:
+                    name_map[m["name"]] = f"匿名{next_index}"
+                    next_index += 1
+            anon_name = name_map[m["name"]]
+            txt_lines.append(f"{anon_name}: {m['content']}")
+
+        txt_content = "\n".join(txt_lines)
+        output_path = record_path / f"{group_id}_record_{record_id}_匿名.txt"
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(txt_content)
+        content = f"[文件:{output_path}]"
+    else:
+        txt_lines = [f"{m['name']}: {m['content']}" for m in target_record["messages"]]
+        txt_content = "\n".join(txt_lines)
+        output_path = record_path / f"{group_id}_record_{record_id}.txt"
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(txt_content)
+        content = f"[文件:{output_path}]"
+
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
     )
     return content

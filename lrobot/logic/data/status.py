@@ -4,6 +4,13 @@ import json
 
 from config import database_query, database_update
 
+PERSISTENT_STATUSES = {
+    "入会1",
+    "入会2",
+    "收集",
+    "成语",
+    "日记"
+}
 
 async def id_get(platform, platform_id):
     """查或新建用户"""
@@ -55,6 +62,12 @@ async def status_add(user, platform, status, info=None):
     """插入或更新状态"""
     user_id = await id_get(platform, user)
     info_json = json.dumps(info) if info is not None else None
+    if status not in PERSISTENT_STATUSES:  # 删除非持久性状态
+        placeholders = ','.join(['%s'] * len(PERSISTENT_STATUSES))
+        await database_update(
+            f"DELETE FROM user_status WHERE user_id = %s AND status NOT IN ({placeholders})",
+            (user_id, *PERSISTENT_STATUSES)
+        )
     await database_update(
         "INSERT INTO user_status (user_id, status, info) VALUES (%s, %s, %s) "
         "ON DUPLICATE KEY UPDATE info = VALUES(info)",

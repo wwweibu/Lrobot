@@ -12,7 +12,6 @@ import hashlib
 import logging
 import aiomysql
 import datetime
-import platform
 import traceback
 from pathlib import Path
 import motor.motor_asyncio
@@ -477,8 +476,7 @@ def scheduler_add(func, *args, interval=None, at_time=None, count=None, at_once=
 
 async def config_watcher():
     """开启配置自动更新"""
-    system = platform.system().lower()
-    if system == "linux":
+    if config["SYSTEM"] == "linux":
         observer = InotifyObserver()
     else:
         observer = PollingObserver()

@@ -10,12 +10,13 @@ from .base import APIRouter, Depends, R, website_logger, cookie_account_get, Dic
 router = APIRouter()
 PANEL_CONFIGS = [
     ("测试说明", "此页面功能说明与测试要求", "/hjd/static/panel/1.jpg"),
-    ("系统", "用户和系统", "/hjd/static/panel/2.png"),
+    ("帮助", "系统帮助", "/hjd/static/panel/2.png"),
     ("基础", "基础指令", "/hjd/static/panel/3.png"),
     ("入会", "入会流程", "/hjd/static/panel/4.png"),
     ("收集表", "用户反馈及活动收集", "/hjd/static/panel/5.png"),
-    ("游戏", "小游戏", "/hjd/static/panel/6.png"),
-    ("工具", "实用", "/hjd/static/panel/7.png"),
+    ("工具", "实用工具", "/hjd/static/panel/7.png"),
+    ("游戏", "游戏工具", "/hjd/static/panel/6.png"),
+    ("密码", "密码工具", "/hjd/static/panel/6.png"),
     ("订阅", "订阅提醒", "/hjd/static/panel/8.png"),
     ("活动", "线上活动/活动助手", "/hjd/static/panel/9.png"),
     ("待办", "待办事项汇总", "/hjd/static/panel/1.gif"),
@@ -23,7 +24,7 @@ PANEL_CONFIGS = [
     ("登录页", "登录", "/hjd/static/panel/21.png"),
     ("wiki页", "内阁wiki", "/hjd/static/panel/22.png"),
     ("网盘页", "内阁网盘", "/hjd/static/panel/23.png"),
-    ("时间轴页", "协会活动时间", "/hjd/static/panel/24.png"),
+    ("时间页", "协会活动时间", "/hjd/static/panel/24.png"),
     ("指令页", "系统指令面板", "/hjd/static/panel/25.png"),
     ("数据库页", "系统数据库", "/hjd/static/panel/26.png"),
     ("日志页", "系统日志", "/hjd/static/panel/27.png"),
@@ -39,7 +40,7 @@ async def firefly_get():
 
     for idx, panel_config in enumerate(PANEL_CONFIGS, start=1):
         name, description, url = panel_config
-        func_docs = docs_merge(name, help_mode=False)
+        func_docs = docs_merge(filter_set=name)
         tasks_meta = []
         for func_name, info in func_docs.items():
             tasks_meta.append({

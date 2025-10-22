@@ -11,7 +11,7 @@ from config import storage, monitor_adapter
 bind_list = storage.setdefault("bind_list", {})
 
 
-@monitor_adapter("/系统_绑定")
+@monitor_adapter("/工具_绑定")
 async def bind_platform(msg: Msg):
     """平台绑定 qq"""
     info = await data.status_lr5921_get(msg.user, msg.platform)
@@ -35,7 +35,7 @@ async def bind_platform(msg: Msg):
     return content
 
 
-@monitor_adapter("/系统_绑定_验证")
+@monitor_adapter("/工具_绑定_验证")
 async def bind_qq(msg: Msg):
     """平台绑定确认"""
     content = "绑定失败，请确认完整复制了验证消息且在有效期内"

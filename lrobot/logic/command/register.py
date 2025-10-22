@@ -35,19 +35,19 @@ PATTERN_KEY = {
 register_list = storage.setdefault("register_list", {})
 
 
-@monitor_adapter("/入会_发送模板")
+@monitor_adapter("/入会_模板")
 async def register_first(msg: Msg):
     """入会"""
-    content = "已入会"
+    content = "档案状态：已入会。"
     identity = await data.user_identify(msg.user, msg.platform)
     if "社员" not in identity:
         content = (
-            "入会需要填写信息并缴纳会费20元，如有活动形式、入会权益等需要了解请发送'/常见问题'\n"
-            "信息将发送至管理员审核，且使用此方法入会仍需添加小推\n"
-            "复制并编辑以下内容(到*结束):\n"
-            "姓名:张三,代号:自己取,性别:男,年级:25/25研/25博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*\n"
+            "阁下，欢迎您申请加入我们的推理殿堂。入会需完成信息登记并缴纳20元会费，且使用本方法入会仍需添加小推。\n"
+            "若您对活动形式或会员权益存有疑问，可随时使用'/常见问题'指令查阅。\n"
+            "请您复制并完善以下档案信息（至*号结束）："
+            "姓名:张三,代号:自取,性别:男,年级:24/25研/26博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*\n"
         )
-        await data.status_add(msg.user, msg.platform, "入会", 1)
+        await data.status_add(msg.user, msg.platform, "入会1")
     if msg.platform == "WECHAT":
         content = content.replace("\n", "...")
     Msg(
@@ -61,21 +61,9 @@ async def register_first(msg: Msg):
     return content
 
 
-@monitor_adapter("/入会_填写信息")
+@monitor_adapter("/入会_信息")
 async def register_second(msg: Msg):
     """入会接收信息"""
-    info = await data.status_check(msg.user, msg.platform, "入会")
-    if str(info) != "1":
-        content = "您已填写过信息，请发送截图。如有问题请联系小推"
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind="私聊发送",
-            seq=msg.seq,
-            user=msg.user,
-            content=content
-        )
-        return content
     content = Msg.content_join(msg.content)
     content = re.sub(r'\s+', '', content)
     content = content.rstrip('*')
@@ -84,7 +72,7 @@ async def register_second(msg: Msg):
         match = re.search(pattern, content, re.IGNORECASE)
         field_name = PATTERN_KEY[key]
         if not match:
-            content_msg = f"信息缺少或格式错误: {field_name}"
+            content_msg = f"阁下，您当前的信息字段'{field_name}'缺失或格式错误，请确认保留了冒号且位数正确"
             Msg(
                 platform=msg.platform,
                 event="发送",
@@ -100,7 +88,7 @@ async def register_second(msg: Msg):
 
     result = await data.user_member_judge(user_data["qq"])
     if result:
-        content = f"当前qq已注册，请确认输入正确\n如有问题请联系小推"
+        content = f"阁下，您当前使用的QQ号已在档案中留有记录，请确认信息无误。\n若遇任何困扰，敬请联络小推为您排忧。"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -111,11 +99,12 @@ async def register_second(msg: Msg):
         )
         return content
     register_list[msg.user] = user_data
-    info = f"已录入数据: qq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},电话:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
-    content = info + "\n\n现在请扫描二维码缴纳20会费\n请在同平台发送付款截图\n截图将由管理员核对"
+    info = f"阁下，您的档案已初步建立：\nqq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},电话:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
+    content = info + "\n\n敬请扫描此二维码，完成20元会费的缴纳。\n请在同平台发送付款截图，完成最终的入会确认手续。"
     content += f"[图片:{path / 'storage/file/command/money.jpg'}]"
 
-    await data.status_add(msg.user, msg.platform, "入会", 2)
+    await data.status_delete(msg.user, msg.platform, "入会1")
+    await data.status_add(msg.user, msg.platform, "入会2")
     Msg(
         platform=msg.platform,
         event="发送",
@@ -134,12 +123,9 @@ async def register_second(msg: Msg):
     return content
 
 
-@monitor_adapter("/入会_接收付款截图")
+@monitor_adapter("/入会_截图")
 async def register_third(msg: Msg):
     """入会接收图片"""
-    info = await data.status_check(msg.user, msg.platform, "入会")
-    if str(info) != "2":
-        return "未进入第三阶段"
     file_path = path / f"storage/file/user/{msg.user}/{msg.content[0]['data']['file']}"
     file_url = msg.content[0]['data'].get('url')
     if file_url:
@@ -155,11 +141,11 @@ async def register_third(msg: Msg):
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     user_data = register_list.get(msg.user, "")
     if not user_data:
-        content = "请使用发送付款截图的平台进行入会"
+        content = "阁下，请通过您发送付款截图的同一平台，完成最终的入会确认手续。"
     else:
         await data.user_register(user_data)
-        await data.status_delete(msg.user, msg.platform, "入会")
-        content = "入会成功，请添加小推qq'1326016706'，发送暗号'玩耍地'"
+        await data.status_delete(msg.user, msg.platform, "入会2")
+        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加小推QQ：1326016706，并发送暗号「玩耍地」以完成最后的对接。"
         Msg(
             platform="LR5921",
             event="发送",
@@ -178,7 +164,7 @@ async def register_third(msg: Msg):
     return content
 
 
-@monitor_adapter("/入会_小推填写")
+@monitor_adapter("/入会_小推")
 async def register_official(msg: Msg):
     """小推入会"""
     content = Msg.content_join(msg.content)

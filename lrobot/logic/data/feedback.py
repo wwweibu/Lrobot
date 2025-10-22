@@ -41,8 +41,12 @@ async def feedback_set(name, period, questions):
 
 async def feedback_delete(seq):
     """删除收集表"""
+    rows = await database_query("SELECT 1 FROM system_feedback WHERE seq=%s", (seq))
+    if not rows:
+        return False
     await database_update("DELETE FROM system_feedback WHERE seq=%s", (seq,))
     await feedback_reorder()
+    return True
 
 async def feedback_list(history=False):
     """获取收集表列表"""

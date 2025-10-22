@@ -68,8 +68,8 @@ async def activity_diary_prompt(msg: Msg):
     return content
 
 
-async def activity_diary_answer(msg: Msg):
-    """日记答题"""
+async def activity_diary_judge(msg: Msg):
+    """日记答题判断"""
     id = await data.status_check(msg.user, msg.platform, "日记")
     try:
         id = int(id)
@@ -78,7 +78,6 @@ async def activity_diary_answer(msg: Msg):
     diary_file = path / "storage/file/command/diary/answer.txt"
     if not diary_file.exists():
         return False
-
     lines = diary_file.read_text(encoding="utf-8").splitlines()
     lines = [l.strip() for l in lines if l.strip()]
     groups = [(lines[i], lines[i + 1]) for i in range(0, len(lines), 2)]
@@ -88,18 +87,19 @@ async def activity_diary_answer(msg: Msg):
     correct_answer = groups[id - 1][1].strip()
     user_answer = Msg.content_join(msg.content).strip()
     if user_answer == correct_answer:
-        if id == 16:
-            await data.status_delete(msg.user, msg.platform, "日记")
-        else:
-            await data.status_add(msg.user, msg.platform, "日记", id + 1)
-        await activity_diary_answer_write(msg, id)
         return True
     return False
 
 
 @monitor_adapter("/活动_日记_答题")
-async def activity_diary_answer_write(msg: Msg, id):
-    """日记答题记录"""
+async def activity_diary_answer(msg: Msg):
+    """日记答题"""
+    id = await data.status_check(msg.user, msg.platform, "日记")
+    id = int(id)
+    if id == 16:
+        await data.status_delete(msg.user, msg.platform, "日记")
+    else:
+        await data.status_add(msg.user, msg.platform, "日记", id + 1)
     content = f"[图片:{path}/storage/file/command/diary/{id + 1}.png]"
     Msg(
         platform=msg.platform,

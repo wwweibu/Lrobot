@@ -7,13 +7,13 @@ from config import monitor_adapter
 from message.handler.msg import Msg
 
 
-@monitor_adapter("/系统_测试群入群")
+@monitor_adapter("/工具_测试群入群")
 async def firefly_in(msg: Msg):
     """入群更新 user_test 表"""
     await data.firefly_update()
 
 
-@monitor_adapter("/系统_测试群密码")
+@monitor_adapter("/工具_测试群密码")
 async def firefly_set(msg: Msg):
     """设置测试员密码"""
     identity_list = await data.user_identify(msg.user, msg.platform)
