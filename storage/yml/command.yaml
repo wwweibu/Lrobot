@@ -558,27 +558,6 @@ commands:
   groups:
   - 公测群
   - 内测群
-- func: 待办_事项
-  function: tool_pending_1
-  set: 工具
-  order: 0
-  content:
-  - ' '
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state:
-  - 待办1
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
 - func: 待办_时间
   function: tool_pending_2
   set: 工具
@@ -1138,27 +1117,6 @@ commands:
   groups:
   - 公测群
   - 内测群
-- func: 成语_成语
-  function: game_idiom_1
-  set: 游戏
-  order: 0
-  content:
-  - ' '
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state:
-  - 成语1
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
 - func: 成语_模式
   function: game_idiom_1
   set: 游戏
@@ -1256,48 +1214,6 @@ commands:
   - 群聊接收
   state:
   - 密码1
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 密码_3
-  function: cipher_3
-  set: 密码
-  order: 0
-  content:
-  - ' '
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state:
-  - 密码2
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 密码_4
-  function: cipher_4
-  set: 密码
-  order: 0
-  content:
-  - ' '
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state:
-  - 密码3
   platforms:
   - LR232
   - LR5921
@@ -1471,24 +1387,6 @@ commands:
   kind:
   - 私聊接收
   state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 订阅_回答
-  function: subscribe_subscribe_answer
-  set: 订阅
-  order: 0
-  content:
-  - ' '
-  judge: contains
-  kind:
-  - 私聊接收
-  state:
-  - 订阅
   platforms:
   - LR232
   - LR5921
@@ -1676,10 +1574,70 @@ commands:
   groups:
   - 公测群
   - 内测群
+- func: 订阅_回答
+  function: subscribe_subscribe_answer
+  set: 订阅
+  order: -8
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  state:
+  - 订阅
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 密码_4
+  function: cipher_4
+  set: 密码
+  order: -7
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 密码3
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 密码_3
+  function: cipher_3
+  set: 密码
+  order: -6
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 密码2
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
 - func: 成语_接龙
   function: game_idiom_chain
   set: 游戏
-  order: -4
+  order: -5
   content:
   - ' '
   judge: contains
@@ -1694,6 +1652,48 @@ commands:
   - BILI
   users: []
   groups: []
+- func: 成语_成语
+  function: game_idiom_1
+  set: 游戏
+  order: -4
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 成语1
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 待办_事项
+  function: tool_pending_1
+  set: 工具
+  order: -3
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 待办1
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
 - func: 日记_答题
   function: activity_diary_answer
   set: 活动
