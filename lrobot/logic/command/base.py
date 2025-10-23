@@ -5,7 +5,6 @@ import re
 from logic import data
 from message.handler.msg import Msg
 from config import monitor_adapter, config
-from .activity import activity_diary_answer
 
 
 @monitor_adapter("/基础_活动")

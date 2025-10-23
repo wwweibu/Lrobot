@@ -117,7 +117,7 @@ async def register_second(msg: Msg):
         platform="LR5921",
         event="发送",
         kind="私聊发送",
-        user=config["private"]["微部"][0],
+        user=config["private"]["微部"][1],
         content=info
     )
     return content
@@ -150,7 +150,7 @@ async def register_third(msg: Msg):
             platform="LR5921",
             event="发送",
             kind="私聊发送",
-            user=config["private"]["微部"][0],
+            user=config["private"]["微部"][1],
             content=f"[图片:{file_path}]"
         )
     Msg(
