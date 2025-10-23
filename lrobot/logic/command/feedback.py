@@ -169,7 +169,6 @@ async def feedback_set(msg: Msg):
 async def feedback_set_1(msg: Msg):
     """设置收集表名称"""
     name = Msg.content_join(msg.content)
-    await data.status_delete(msg.user, msg.platform, "收集新建1")
     await data.status_add(msg.user, msg.platform, "收集新建2", name)
     content = "请设置截止日期，格式为YYYY.MM.DD"
     Msg(
@@ -200,7 +199,6 @@ async def feedback_set_2(msg: Msg):
     date_str = Msg.content_join(msg.content)
     period = datetime.strptime(date_str.strip(), "%Y.%m.%d") + timedelta(days=1)
     name = await data.status_check(msg.user, msg.platform, "收集新建2")
-    await data.status_delete(msg.user, msg.platform, "收集新建2")
     await data.status_add(msg.user, msg.platform, "收集新建3", f"{name}|{period}")
     content = "请设置问题，使用回车分割，不需要序号。"
     Msg(
