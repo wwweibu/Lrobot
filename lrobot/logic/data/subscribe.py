@@ -194,14 +194,7 @@ async def subscribe_core(phase, start_h, end_h):
             content=f"[语音:{record}]"
         )
         await asyncio.sleep(2)
-    Msg(
-        platform="LR5921",
-        kind="群聊发送",
-        event="发送",
-        group=config["public"]["水群"][0],
-        content=f"[语音:{record}]"
-    )
-
+        
     await system_edit(f"subscribe_{phase}", today_str)
 
 
