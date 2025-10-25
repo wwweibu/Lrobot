@@ -1,22 +1,23 @@
 """测试相关"""
 
 import asyncio
-from config import path, future
+from config import path, future, config
 from message.handler.msg import Msg
 
 
 
 async def test_1(msg: Msg):
     """测试函数"""
+    record = path / f"storage/file/command/morning_20251025.wav"
     msg = Msg(
         platform=msg.platform,
-        kind=f"私聊发送",
+        kind=f"群聊发送",
         event="发送",
-        content=f"[动画表情:你好呀|{path / 'storage/file/command/download.gif'}]",
+        content=f"[语音:{record}]",
         seq=msg.seq,
-        user=msg.user,
-        group=msg.group
+        group=config["public"]["水群"][0]
     )
+
     # response = await future.wait(msg.num, "测试超时!")
     #
     # response = await future.wait(msg.num, "测试超时!")

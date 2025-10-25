@@ -1,11 +1,11 @@
 """订阅查询相关"""
-
+import asyncio
 import datetime
 
 from .file import bv_download
 from message.handler.msg import Msg
 from .system import system_get, system_edit
-from config import database_update, database_query, scheduler_add, future, path, loggers
+from config import database_update, database_query, scheduler_add, future, path, loggers, config
 
 up = []
 
@@ -193,6 +193,14 @@ async def subscribe_core(phase, start_h, end_h):
             user=r["user"],
             content=f"[语音:{record}]"
         )
+        await asyncio.sleep(2)
+    Msg(
+        platform="LR5921",
+        kind="群聊发送",
+        event="发送",
+        group=config["public"]["水群"][0],
+        content=f"[语音:{record}]"
+    )
 
     await system_edit(f"subscribe_{phase}", today_str)
 
