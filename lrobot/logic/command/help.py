@@ -301,7 +301,6 @@ async def help_answer(msg: Msg):
     idx = int(num) - 1
     q, a = qa_pairs[idx]
     content = f"问：{q.strip()}\n\n答：{a.strip()}"
-    await data.status_delete(msg.user, msg.platform, "常见问题")
     Msg(
         platform=msg.platform,
         event="发送",
