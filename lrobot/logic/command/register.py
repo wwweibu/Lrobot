@@ -145,7 +145,7 @@ async def register_third(msg: Msg):
     else:
         await data.user_register(user_data)
         await data.status_delete(msg.user, msg.platform, "入会2")
-        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加小推QQ：1326016706，并发送暗号「玩耍地」以完成最后的对接。"
+        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加群聊：580111434，并发送暗号「玩耍地」（不用姓名+是否入会了）以完成最后的对接。"
         Msg(
             platform="LR5921",
             event="发送",
