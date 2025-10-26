@@ -6,17 +6,25 @@ from logic import data
 from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
+NEXT_LABELS = ["姓名", "代号", "性别", "年级", "专业", "学号", "电话", "qq", "政治面貌", "籍贯"]
+
+
+def tail(exclude):
+    """正则后缀"""
+    pool = [re.escape(x) for x in NEXT_LABELS if x != exclude]
+    return r"(?=\s*(?:，|,|%s|$))" % "|".join(pool)
+
 FIELD_PATTERNS = {
-    "name": r"姓名[：:]?\s*(?P<name>[^\s，,]+)",
-    "codename": r"代号[：:]?\s*(?P<codename>[^\s，,]+)",
-    "gender": r"性别[：:]?\s*(?P<gender>男|女)",
-    "grade": r"年级[：:]?\s*(?P<grade>\d{2}(研|博)?)",
-    "major": r"专业[：:]?\s*(?P<major>[^\s，,]+)",
-    "student_id": r"学号[：:]?\s*(?P<student_id>20\d{11})",
-    "phone": r"电话[：:]\s*?(?P<phone>1\d{10})",
-    "qq": r"qq[：:]?\s*(?P<qq>\d{5,12})",
-    "political_status": r"政治面貌[：:]?\s*(?P<political_status>群众|团员|党员)",
-    "hometown": r"籍贯[：:]?\s*(?P<hometown>[\u4e00-\u9fff]{2,}([^\s,,，]+)?)",
+    "name": r"姓名[：:]?(?P<name>(?:(?!代号)[^，,])+)",
+    "codename": r"代号[：:]?(?P<codename>(?:(?!性别)[^，,])+)",
+    "gender": r"性别[：:]?(?P<gender>男|女)",
+    "grade": r"年级[：:]?(?P<grade>\d{2}(研|博)?)",
+    "major": r"专业[：:]?(?P<major>[^，,]+)",
+    "student_id": r"学号[：:]?(?P<student_id>20\d{11})",
+    "phone": r"电话[：:]?(?P<phone>1\d{10})",
+    "qq": r"qq[：:]?(?P<qq>\d{5,12})",
+    "political_status": r"政治面貌[：:]?(?P<political_status>群众|团员|党员)",
+    "hometown": r"籍贯[：:]?(?P<hometown>[\u4e00-\u9fff]{2,})",
 }
 
 PATTERN_KEY = {
