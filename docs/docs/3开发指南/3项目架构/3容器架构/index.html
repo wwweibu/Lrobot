@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hans" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-3开发指南/3项目架构/3容器架构" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.1">
+<title data-rh="true">容器架构 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/docs/3开发指南/3项目架构/3容器架构"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="容器架构 | Lrobot"><meta data-rh="true" name="description" content="各容器架构，对应 dockerfile 和除 lrobot 外的所有容器文件"><meta data-rh="true" property="og:description" content="各容器架构，对应 dockerfile 和除 lrobot 外的所有容器文件"><link data-rh="true" rel="icon" href="/Lrobot/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/3项目架构/3容器架构"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/3项目架构/3容器架构" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/3项目架构/3容器架构" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/3项目架构/3容器架构" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/docs/category/开发指南"},{"@type":"ListItem","position":2,"name":"项目架构","item":"https://wwweibu.github.io/Lrobot/docs/category/项目架构"},{"@type":"ListItem","position":3,"name":"容器架构","item":"https://wwweibu.github.io/Lrobot/docs/3开发指南/3项目架构/3容器架构"}]}</script><link rel="stylesheet" href="/Lrobot/assets/css/styles.01e145c3.css">
+<script src="/Lrobot/assets/js/runtime~main.06acd952.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/main.8c8c688a.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"dark"),document.documentElement.setAttribute("data-theme-choice",t||"dark")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/Lrobot/img/logo.png"><div role="region" aria-label="跳到主要内容"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">跳到主要内容</a></div><nav aria-label="主导航" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="切换导航栏" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Lrobot/"><div class="navbar__logo"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Lrobot/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Lrobot</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Lrobot/docs/category/项目总览">文档</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="搜索" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="切换浅色/暗黑模式（当前为system mode）"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="回到顶部" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="文档侧边栏" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/项目总览"><span title="项目总览" class="categoryLinkLabel_W154">项目总览</span></a><button aria-label="展开侧边栏分类 &#x27;项目总览&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/使用指南"><span title="使用指南" class="categoryLinkLabel_W154">使用指南</span></a><button aria-label="展开侧边栏分类 &#x27;使用指南&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/Lrobot/docs/category/开发指南"><span title="开发指南" class="categoryLinkLabel_W154">开发指南</span></a><button aria-label="折叠侧边栏分类 &#x27;开发指南&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/1开发指南"><span title="开发指南" class="linkLabel_WmDU">开发指南</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/代码规范"><span title="代码规范" class="categoryLinkLabel_W154">代码规范</span></a><button aria-label="展开侧边栏分类 &#x27;代码规范&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" tabindex="0" href="/Lrobot/docs/category/项目架构"><span title="项目架构" class="categoryLinkLabel_W154">项目架构</span></a><button aria-label="折叠侧边栏分类 &#x27;项目架构&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/3项目架构/1文件架构"><span title="文件架构" class="linkLabel_WmDU">文件架构</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/docs/3开发指南/3项目架构/2项目总架构"><span title="项目总架构" class="linkLabel_WmDU">项目总架构</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-3 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Lrobot/docs/3开发指南/3项目架构/3容器架构"><span title="容器架构" class="linkLabel_WmDU">容器架构</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/消息处理"><span title="消息处理" class="categoryLinkLabel_W154">消息处理</span></a><button aria-label="展开侧边栏分类 &#x27;消息处理&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/基础配置"><span title="基础配置" class="categoryLinkLabel_W154">基础配置</span></a><button aria-label="展开侧边栏分类 &#x27;基础配置&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/指令开发"><span title="指令开发" class="categoryLinkLabel_W154">指令开发</span></a><button aria-label="展开侧边栏分类 &#x27;指令开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/docs/category/页面开发"><span title="页面开发" class="categoryLinkLabel_W154">页面开发</span></a><button aria-label="展开侧边栏分类 &#x27;页面开发&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/docs/category/项目测试"><span title="项目测试" class="categoryLinkLabel_W154">项目测试</span></a><button aria-label="展开侧边栏分类 &#x27;项目测试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="页面路径"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="主页面" class="breadcrumbs__link" href="/Lrobot/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/开发指南"><span>开发指南</span></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/docs/category/项目架构"><span>项目架构</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">容器架构</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">本页总览</button></div><div class="theme-doc-markdown markdown"><header><h1>容器架构</h1></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="容器环境">容器环境<a href="#容器环境" class="hash-link" aria-label="容器环境的直接链接" title="容器环境的直接链接" translate="no">​</a></h2>
+<ul>
+<li>项目包通过 requirements.in 和 requirements.txt 构建</li>
+<li>config.py 所需依赖包在主目录下的 requirements.in 里，生成的对应 requirements.txt 在 command 目录下</li>
+<li>napcat_log 对应的 requiremnets.in 由 config 的依赖包+docker 包合并而成</li>
+<li>lrobot 对应的 requirements.in 由 config 的依赖包+lrobot 里的依赖包合并而成</li>
+<li>进入 lrobot 文件夹，使用命令 <code>docker run -it --rm -v %cd%:/app -w /app python:3.11 bash -c &quot;python -m pip install --upgrade pip &amp;&amp; pip install -r requirements.in &amp;&amp; pip freeze &gt; requirements.txt&quot;</code> 生成对应的 requirements.txt</li>
+<li>其他方法<!-- -->
+<ul>
+<li>使用 <code>pip-compile requirements.in</code> 会依赖当前 windows 环境生成包，可能不符合 linux 上的要求</li>
+<li>使用 pipreqs 会生成重复包或遗漏包</li>
+<li>如果要在不配置好环境的情况下生成包，只有不断运行并往 requirements.in 添加需要的包</li>
+</ul>
+</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="lrobot">lrobot<a href="#lrobot" class="hash-link" aria-label="lrobot的直接链接" title="lrobot的直接链接" translate="no">​</a></h2>
+<ul>
+<li>
+<p>lrobot 服务是消息处理中枢，将各平台的消息汇总并处理成统一格式，进入消息队列进行不同的指令处理，然后调用各平台的发送 API 进行消息反馈</p>
+</li>
+<li>
+<p>容器内安装 libreoffic 用于处理 word 等文件，ffmpeg 用于处理视频，同时配置 mongodb 4.4 源
+<img decoding="async" loading="lazy" alt="lrobot 架构" src="/Lrobot/assets/images/3-8e5a10c4022ea5bcb9dd9f117dccee86.png" width="3903" height="2126" class="img_ev3q"></p>
+</li>
+<li>
+<p>lrobot 系统中，config.py 为基础配置，包含通用函数</p>
+</li>
+<li>
+<p>main.py 负责并发启动其他服务，在初始化中判断平台是否启用。有些平台使用定时任务，有些平台通过注册路由挂载在 fastapi 下</p>
+</li>
+<li>
+<p>fastapi 服务不仅挂载 vue 的静态页面，也实现了对应的后端，同时挂载了平台的 api</p>
+</li>
+<li>
+<p>定时任务包含消息池清理、数据备份等操作，定期执行</p>
+</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="调试配置">调试配置<a href="#调试配置" class="hash-link" aria-label="调试配置的直接链接" title="调试配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>lrobot 将 5922 端口暴露到本地，方便 vue 调试以及本地直接登录网址测试，在不启动 command 的情况下可以反复调试修改前后端</li>
+<li>vue 调试使用自带的 5173 端口，调试环境为本地，通过访问本地的 5922 端口来与后端通信(在 api.js 与 vite.config.js 中配置);打包后为静态文件挂载在 fastapi 下</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="挂载配置">挂载配置<a href="#挂载配置" class="hash-link" aria-label="挂载配置的直接链接" title="挂载配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>lrobot 挂载 lrobot.logic 目录实现指令功能的热更新</li>
+<li>lrobot 挂载 lrobot.web.frontend 目录实现前端页面的热更新</li>
+<li>lrobot 挂载 storage 实现配置信息与文件的热更新</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="napcat">napcat<a href="#napcat" class="hash-link" aria-label="napcat的直接链接" title="napcat的直接链接" translate="no">​</a></h2>
+<ul>
+<li>napcat 服务提供 LR5921 的运行环境，并将消息上报至 lrobot 服务的 5922 端口上(lrobot:5922)，在容器内的 5921 端口提供消息发送 API，lrobot 通过发送至 napcat:5921 来调用 LR5921 的发送 API</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="调试配置-1">调试配置<a href="#调试配置-1" class="hash-link" aria-label="调试配置的直接链接" title="调试配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>napcat 将 6099 端口暴露到本地，可访问 <a href="http://127.0.0.1:6099/webui?token=napcat" target="_blank" rel="noopener noreferrer">http://127.0.0.1:6099/webui?token=napcat</a> 进行相关配置</li>
+<li>在无图形化界面的服务器上需要通过开放 6099 端口远程访问并配置</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="挂载配置-1">挂载配置<a href="#挂载配置-1" class="hash-link" aria-label="挂载配置的直接链接" title="挂载配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>napcat 挂载 storage/file 实现多平台文件接收与发送的共享</li>
+<li>napcat 挂载 data/napcat 实现快速启动与配置存储</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="napcat_log">napcat_log<a href="#napcat_log" class="hash-link" aria-label="napcat_log的直接链接" title="napcat_log的直接链接" translate="no">​</a></h2>
+<ul>
+<li>napcat_log 通过监听，输出 napcat 部分的日志</li>
+<li>调用 config.py 实现日志存储到 mongodb</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="挂载配置-2">挂载配置<a href="#挂载配置-2" class="hash-link" aria-label="挂载配置的直接链接" title="挂载配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>napcat_log 挂载 docker 守护程序执行监听命令</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="command">command<a href="#command" class="hash-link" aria-label="command的直接链接" title="command的直接链接" translate="no">​</a></h2>
+<ul>
+<li>command 服务提供部分消息的转发(网站消息、LR232 消息、WECHAT 消息)<!-- -->
+<ul>
+<li>将远程服务的 10000 端口消息转发到 lrobot 服务的 5922 端口上(lrobot 部署 fastapi 的端口)</li>
+<li>同时将容器内的 5923 端口(command:5923)通过 socks5 转发至服务器上，将消息从宿主机转发至服务器，lrobot 通过代理 command:5923 来调用三个平台的发送 API</li>
+</ul>
+</li>
+<li>在构建容器时，复制密钥并赋予执行权限</li>
+<li>commnad.py 中，先执行端口清理，然后再调用连接，连接时配置<code>-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</code>不需要输入 yes</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="mihomo">mihomo<a href="#mihomo" class="hash-link" aria-label="mihomo的直接链接" title="mihomo的直接链接" translate="no">​</a></h2>
+<ul>
+<li>使用 7891 端口供 lrobot 以 socks 方式调用转发(mihomo:7891)</li>
+<li>其中挂载了本地的 agent.yaml 作为配置（记得保留前面几个配置，尤其是 socks-port）</li>
+<li>并且挂载了两个下载好的文件<code>geoip.metadb</code>和<code>GeoSite.dat</code>防止服务器因网络原因无法下载</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="mysqlmongodb">mysql&amp;mongodb<a href="#mysqlmongodb" class="hash-link" aria-label="mysql&amp;mongodb的直接链接" title="mysql&amp;mongodb的直接链接" translate="no">​</a></h2>
+<ul>
+<li>mysql 和 mongodb 数据库分别在容器内的 3306 和 27017 端口提供服务</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="调试配置-2">调试配置<a href="#调试配置-2" class="hash-link" aria-label="调试配置的直接链接" title="调试配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>mongodb 和 mysql 分别将 5924 和 5925 端口暴露到本地，方便查看数据（如使用 pycharm 连接到数据库）</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="挂载配置-3">挂载配置<a href="#挂载配置-3" class="hash-link" aria-label="挂载配置的直接链接" title="挂载配置的直接链接" translate="no">​</a></h4>
+<ul>
+<li>mysql 和 mongodb 挂载 storage.data.mysql/mongodb 实现数据库的数据存储</li>
+<li>mysql 和 mongodb 挂载 storage.data.backup 目录实现数据库的定期备份与恢复</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="其他配置">其他配置<a href="#其他配置" class="hash-link" aria-label="其他配置的直接链接" title="其他配置的直接链接" translate="no">​</a></h2>
+<ul>
+<li>所有容器的时区都是上海正常时区，以便日志时间正常记录</li>
+<li>所有容器都配置固定名称以便引用端口</li>
+<li>减小容器大小与构建时间<!-- -->
+<ul>
+<li>Dockerfile 均使用 python:3.11-slim 作为基础镜像</li>
+<li>使用 <code>--no-install-recommends</code> 避免安装不必要包，减少镜像体积</li>
+<li>使用 <code>--no-cache-dir</code> 避免 pip 缓存占用空间</li>
+</ul>
+</li>
+<li>python 配置国内源，pip 下载配置两个国内源，防止下载失败<!-- -->
+<ul>
+<li>lrobot 更换国内源后下载包时间由 10 分钟缩短至 3 分钟</li>
+</ul>
+</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="文件选项卡"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/docs/3开发指南/3项目架构/2项目总架构"><div class="pagination-nav__sublabel">上一页</div><div class="pagination-nav__label">项目总架构</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/docs/category/消息处理"><div class="pagination-nav__sublabel">下一页</div><div class="pagination-nav__label">消息处理</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#容器环境" class="table-of-contents__link toc-highlight">容器环境</a></li><li><a href="#lrobot" class="table-of-contents__link toc-highlight">lrobot</a></li><li><a href="#napcat" class="table-of-contents__link toc-highlight">napcat</a></li><li><a href="#napcat_log" class="table-of-contents__link toc-highlight">napcat_log</a></li><li><a href="#command" class="table-of-contents__link toc-highlight">command</a></li><li><a href="#mihomo" class="table-of-contents__link toc-highlight">mihomo</a></li><li><a href="#mysqlmongodb" class="table-of-contents__link toc-highlight">mysql&amp;mongodb</a></li><li><a href="#其他配置" class="table-of-contents__link toc-highlight">其他配置</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+</body>
+</html>

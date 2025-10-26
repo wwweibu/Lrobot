@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">消息类 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/2消息类"><meta data-rh="true" property="og:locale" content="zh_Hans"><meta data-rh="true" property="og:locale:alternate" content="en"><meta data-rh="true" name="docusaurus_locale" content="zh-Hans"><meta data-rh="true" name="docsearch:language" content="zh-Hans"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="消息类 | Lrobot"><meta data-rh="true" name="description" content="对应 msg.py"><meta data-rh="true" property="og:description" content="对应 msg.py"><link data-rh="true" rel="icon" href="/Lrobot/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/2消息类"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/4消息处理/2消息类" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/2消息类" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/2消息类" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/docs/category/开发指南"},{"@type":"ListItem","position":2,"name":"消息处理","item":"https://wwweibu.github.io/Lrobot/docs/category/消息处理"},{"@type":"ListItem","position":3,"name":"消息类","item":"https://wwweibu.github.io/Lrobot/docs/3开发指南/4消息处理/2消息类"}]}</script><link rel="stylesheet" href="/Lrobot/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/assets/js/runtime~main.4ed6e93f.js" defer="defer"></script>
-<script src="/Lrobot/assets/js/main.70be6bd8.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/runtime~main.06acd952.js" defer="defer"></script>
+<script src="/Lrobot/assets/js/main.8c8c688a.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -19,8 +19,8 @@
 <li>将字母+数字或者是纯数字的其他属性统一转换为字符串</li>
 <li>生成唯一编号<!-- -->
 <ul>
-<li>由毫秒时间戳+计数器生成</li>
-<li>当两条消息在同一毫秒内创建时，计数器自增，确保 num 唯一</li>
+<li>由秒级时间戳+计数器生成，<strong>上限 1 秒内 1k 条消息</strong></li>
+<li>当两条消息在同一秒内创建时，计数器自增，确保 num 唯一</li>
 <li>不直接使用 <code>time.time_ns()</code> 的原因：<!-- -->
 <ul>
 <li>在高并发下，多条消息可能在同一事件循环周期内被批量处理，即使网络层到达时间不同，也可能被记录为同一毫秒</li>
@@ -32,14 +32,14 @@
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="自动处理">自动处理<a href="#自动处理" class="hash-link" aria-label="自动处理的直接链接" title="自动处理的直接链接" translate="no">​</a></h4>
 <ul>
 <li>消息创建后，在 <strong>init</strong> 函数中自动加入消息池</li>
-<li>消息只需要调用 <code>Msg(xx)</code> 就可以自动进行消息处理</li>
+<li>只需要调用 <code>Msg(xx)</code> 就可以创建消息后自动处理</li>
 </ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="打印">打印<a href="#打印" class="hash-link" aria-label="打印的直接链接" title="打印的直接链接" translate="no">​</a></h2>
 <ul>
 <li>重写 <code>__repr__</code> 方法<!-- -->
 <ul>
 <li>打印时仅显示非空字段</li>
-<li>输出为一个属性字典，便于调试和日志记录</li>
+<li>输出为一个<strong>去掉了括号</strong>的属性字典字符串，便于调试和日志记录</li>
 </ul>
 </li>
 </ul>
@@ -49,37 +49,50 @@
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="字符串格式">字符串格式<a href="#字符串格式" class="hash-link" aria-label="字符串格式的直接链接" title="字符串格式的直接链接" translate="no">​</a></h4>
 <ul>
-<li>只存在于日志打印与指令匹配的匹配文本（在匹配时自动转换为消息段）、发送消息的生成文本（在消息初始化时自动转换为消息段）中</li>
-<li>即字符串-&gt;消息段的转换内容完全由程序员控制</li>
+<li>只存在于日志打印的消息内容，以及指令匹配的匹配文本（在匹配时自动转换为消息段）、发送消息的发送文本（在消息初始化时自动转换为消息段）中</li>
+<li>即字符串-&gt;消息段的转换内容完全由程序员控制，<del>若转换失败也是程序员的问题</del></li>
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="消息段格式">消息段格式<a href="#消息段格式" class="hash-link" aria-label="消息段格式的直接链接" title="消息段格式的直接链接" translate="no">​</a></h4>
 <ul>
 <li>所有接收的消息、发送的消息均为消息段格式</li>
 <li>所有比较均为消息段格式</li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="消息字段打印">消息字段打印<a href="#消息字段打印" class="hash-link" aria-label="消息字段打印的直接链接" title="消息字段打印的直接链接" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="消息段转字符串">消息段转字符串<a href="#消息段转字符串" class="hash-link" aria-label="消息段转字符串的直接链接" title="消息段转字符串的直接链接" translate="no">​</a></h4>
 <ul>
+<li>content_join</li>
 <li>handlers 里面列出了 type 对应的处理函数 lambda</li>
-<li>传入参数为 d（msg_seg[&#x27;data&#x27;]），获取 d 中对应的字段（<a href="/Lrobot/docs/3开发指南/4消息处理/1消息/#%E6%B6%88%E6%81%AF%E5%AD%97%E6%AE%B5">消息字段中的加粗字段</a>）</li>
-<li>其中表情解析可以解析不存在于 emoji.yaml 但存在 face_text 的表情并加入 emoji.yaml</li>
+<li>处理时，对于消息内容中的每个消息段，根据 type 属性调用对应的处理函数（默认为<code>lambda _: f&quot;[未知类型:{seg[&#x27;type&#x27;]}]</code>），随后用处理函数处理 data 属性</li>
+<li>处理函数会获取 data 中的关键字段（<a href="/Lrobot/docs/3开发指南/4消息处理/1消息/#%E6%B6%88%E6%81%AF%E5%AD%97%E6%AE%B5">消息字段中的加粗字段</a>）</li>
+<li>其中表情解析可以解析不存在于 emoji.yaml 但存在 face_text 的表情自动加入 emoji.yaml</li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="字段解析">字段解析<a href="#字段解析" class="hash-link" aria-label="字段解析的直接链接" title="字段解析的直接链接" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="字符串转消息段">字符串转消息段<a href="#字符串转消息段" class="hash-link" aria-label="字符串转消息段的直接链接" title="字符串转消息段的直接链接" translate="no">​</a></h4>
 <ul>
-<li>_content_token_match 里可以解析 [prefix<!-- -->:value<!-- -->] 的消息段</li>
-<li>解析规则<!-- -->
+<li>content_disjoin</li>
+<li>_content_token_match 里可以解析 [prefix<!-- -->:value<!-- -->] 的消息段<!-- -->
 <ul>
+<li>解析规则</li>
 <li>value 中包含 [] 可以正常解析（通过 depth）</li>
 <li>[] 之间、之前、之后的文本可以正常解析</li>
 <li>若存在未闭合的 [ ]，会匹配失败到最后，整段保留为文本</li>
+<li>最后合并相邻的文本防止发送/匹配逻辑出错</li>
 </ul>
 </li>
+<li>_face_disjoin 针对含 | 的动画表情，自动把名称转换成对应的几个字段后发送，可以发送商城表情；若名称不在商城表情列表里，则为从文件发送表情</li>
+<li>先使用 _content_token_match 返回 prefix,value，查找 handles 中 prefix 对应的函数（默认为<code>lambda _: {&quot;type&quot;: &quot;text&quot;, &quot;data&quot;: {&quot;text&quot;: f&quot;{p}:{v}&quot;}}</code>），然后用函数处理（func(v)）</li>
 </ul>
+<blockquote>
+<p>v in &quot;123456&quot; 不能代替 v in [&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;]，因为有 12 （</p>
+</blockquote>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="消息字段比较">消息字段比较<a href="#消息字段比较" class="hash-link" aria-label="消息字段比较的直接链接" title="消息字段比较的直接链接" translate="no">​</a></h2>
 <ul>
 <li>消息字段比较分为全等和包含两种</li>
 <li>二者均分段进行比较<!-- -->
 <ul>
-<li>全等时，消息段中所有段与匹配段中所有段比较</li>
+<li>全等时，消息段中所有段与匹配段中所有段比较<!-- -->
+<ul>
+<li>若长度不相等直接跳过</li>
+</ul>
+</li>
 <li>包含时，消息段中设置动态区间与匹配段中所有段比较</li>
 </ul>
 </li>
@@ -99,7 +112,7 @@
 <li>若种类为文本<!-- -->
 <ul>
 <li>相等：两个字段必须相等</li>
-<li>包含：匹配字段&quot; &quot;空格则均可以匹配，否则需要匹配字段在消息字段之内</li>
+<li>包含：匹配字段&quot; &quot;空格则均可以匹配，否则需要消息字段包含匹配字段</li>
 </ul>
 </li>
 <li>若种类为其他<!-- -->

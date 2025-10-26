@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">快速开始 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/1快速开始"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="快速开始 | Lrobot"><meta data-rh="true" name="description" content="快速部署项目"><meta data-rh="true" property="og:description" content="快速部署项目"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/1快速开始"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/1快速开始" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/1项目总览/1快速开始" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/1项目总览/1快速开始" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"项目总览","item":"https://wwweibu.github.io/Lrobot/en/docs/category/项目总览"},{"@type":"ListItem","position":2,"name":"快速开始","item":"https://wwweibu.github.io/Lrobot/en/docs/1项目总览/1快速开始"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/en/assets/js/runtime~main.856bac2d.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.84e03f52.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.140ba5ba.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.50f535da.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -40,26 +40,47 @@
 <li>主要使用自动回复、推送等功能，不涉及群聊、频道管理</li>
 <li>存在入会、会员信息统计等社团相关功能，且相关数据不会提供，需要按需修改 <del>但说明文档很详细</del></li>
 <li>存在网盘、wiki 等大部分聊天机器人都不需要的页面 <del>也有指令配置、日志页面等</del></li>
-<li>本项目不是一体化运行，需要下载项目并逐一启动 6 个 docker <del>对于个人开发和更新指令更高效，以及，可以选择自己需要的服务进行配置</del></li>
+<li>本项目不是一体化运行，需要下载项目并逐一启动数个 docker <del>对于个人开发和更新指令更高效，以及，可以选择自己需要的服务进行配置</del></li>
 </ol>
 </li>
-<li>需要准备一台长期运行项目的电脑(长期运行=不断电+不自动关机+网络稳定)，可以参考<a href="/Lrobot/en/docs/2使用指南/1运行机配置">运行机优化教程</a>安装 Atlas OS</li>
-<li>安装好 docker 环境，参考<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95">docker 配置教程</a></li>
-<li>参考<a href="/Lrobot/en/docs/2使用指南/3平台配置#%E5%B9%B3%E5%8F%B0%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97">各平台注册教程</a>配置各平台</li>
-<li>在服务器上配置 nginx，将 command/nginx.conf 作为 nginx 配置文件，参考<a href="/Lrobot/en/docs/2使用指南/4服务器配置#%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%99%A8">服务器配置教程</a></li>
+<li>本项目存在两种运行方式，拥有公网 ip 地址参考方案 A，没有公网地址或追求更高的运行效率、更强的性能（如搭载大模型）参考方案 B</li>
 </ol>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="项目启动">项目启动<a href="#项目启动" class="hash-link" aria-label="Direct link to 项目启动" title="Direct link to 项目启动" translate="no">​</a></h4>
+<blockquote>
+<p>本地: 本地电脑;服务器: 远程服务器;运行机: 项目主要运行位置，方案 A 为服务器，方案 B 为本地</p>
+</blockquote>
+<ol start="4">
+<li>在运行机上配置 docker 环境，参考<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E5%AE%89%E8%A3%85%E6%96%B9%E6%B3%95">docker 配置教程</a></li>
+<li>参考<a href="/Lrobot/en/docs/2使用指南/3平台配置#%E5%B9%B3%E5%8F%B0%E9%85%8D%E7%BD%AE%E6%8C%87%E5%8D%97">各平台注册教程</a>选择需要的平台并配置，复制并重命名 secret.py，替换为自己的密码</li>
+<li>在服务器上配置 nginx，将 command/nginx.conf 作为 nginx 配置文件(方案 B 把 5922 改为 10000)，参考<a href="/Lrobot/en/docs/2使用指南/4服务器配置#%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%99%A8">服务器配置教程</a></li>
+<li>在运行机上下载项目 <code>git clone https://github.com/wwweibu/Lrobot.git</code>(超时<a href="/Lrobot/en/docs/3开发指南/2代码规范/2git#ssh-%E6%96%B9%E5%BC%8F%E6%8B%89%E5%8F%96%E4%BB%93%E5%BA%93">参考此处</a>) 并进入目录 <code>cd Lrobot</code></li>
+</ol>
+<blockquote>
+<p>无论哪种方案，默认<strong>本地</strong>能够访问 github 服务以及 docker 服务</p>
+</blockquote>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="方案-a">方案 A<a href="#方案-a" class="hash-link" aria-label="Direct link to 方案 A" title="Direct link to 方案 A" translate="no">​</a></h4>
+<blockquote>
+<p>仅使用本项目，不扩展大模型时，采用<code>2核2G运存50G内存</code>的服务器，cpu 占用率不超过 5%，内存占用率不超过 50%，系统盘使用不超过 40GB(其中网盘占用 12GB)，且网盘上传下载速度是方式 2 的 10 倍(可能是家里网太差)
+<img decoding="async" loading="lazy" alt="方案A" src="/Lrobot/en/assets/images/13-116620f89acd0e9f3d4b6ca8936d5412.png" width="2880" height="1496" class="img_ev3q"></p>
+</blockquote>
 <ol>
-<li>下载项目 <code>git clone https://github.com/wwweibu/Lrobot.git</code></li>
-<li>将 storage/yml 文件夹中含 copy 的文件重命名去掉 copy(其中 secret.yaml 需要根据文件中的配置提示配置各平台参数，并配置服务器和域名)</li>
-<li><code>win+r</code>打开命令行，进入项目目录<code>cd Lrobot</code>（注意里面还有一个 lrobot 文件夹，进入的是外面的）</li>
-<li>启动 napcat 服务<!-- -->
+<li>需要一台拥有公网 ip 的服务器，以 ubuntu 系统为例(以下操作未提到本地均在服务器上完成)</li>
+<li>启动 napcat 服务(若需要 napcat 平台)<!-- -->
 <ul>
-<li><code>docker compose up --build -d napcat</code>（linux 使用 docker 命令需要加 sudo，下同）</li>
-<li>访问<a href="http://127.0.0.1:6099/webui?token=napcat" target="_blank" rel="noopener noreferrer">网址</a>进行登录或者扫码登录(位置<!-- -->:storage<!-- -->/data/napcat/cache)</li>
-<li>在页面中配置 HTTP 服务器，<code>启用-开启 Debug-port:5921</code></li>
+<li><code>docker compose up --build -d napcat</code>(失败参考<a href="/Lrobot/en/docs/2使用指南/2Docker配置#docker%E4%BC%A0%E8%BE%93">此处</a>,下同)(linux 使用 docker 命令需要加 sudo,下同)</li>
+<li>临时开放服务器的 6099 端口(可<a href="/Lrobot/en/docs/2使用指南/4服务器配置#%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E5%8F%A3">参考</a>)</li>
+<li>本地访问<code>http://服务器ip:6099/webui?token=napcat</code></li>
+<li>服务器使用<code>docker logs napcat</code>在日志中寻找生成的随机密钥</li>
+<li>本地使用密钥登录，并扫码登录 QQ，进入网络配置</li>
+<li>配置 HTTP 服务器，<code>启用-开启 Debug-主机:0.0.0.0-port:5921</code></li>
 <li>配置 HTTP 客户端，<code>启用-开启 Debug-URL:http://lrobot:5922/LR5921/(配置了 secret 记得改成加密后的路径)-上报自身消息</code></li>
-<li>并在<code>其他配置-登录配置</code>里填写当前 QQ 以便快速登录</li>
+<li>均不开启 cors 和 ws</li>
+<li><code>其他配置-登录配置</code>里填写当前 QQ 以便快速登录</li>
+</ul>
+</li>
+<li>启动 mihomo 服务(服务器网络代理服务，可不使用)<!-- -->
+<ul>
+<li>编辑<code>storage/yml/agent_copy.yaml</code>为 agent.yaml，保留前几行，后面使用对应的 mihomo 代理配置</li>
+<li><code>docker compose up --build -d mihomo</code>启动服务</li>
 </ul>
 </li>
 <li>启动数据库服务<!-- -->
@@ -72,25 +93,76 @@
 <li><code>docker compose up --build -d mongodb</code></li>
 </ul>
 </li>
-<li>启动服务器连接与转发<!-- -->
+<li>启动 napcat 监听服务<!-- -->
 <ul>
-<li><code>docker compose up --build -d command</code></li>
+<li><code>docker compose up --build -d napcat_log</code></li>
+</ul>
+</li>
+<li>配置系统参数<!-- -->
+<ul>
+<li>将<code>storage/yml</code>文件夹中含 copy 的文件重命名去掉 copy(其中 secret.yaml 需要根据文件中的配置提示配置各平台参数，不需要配置服务器和域名)</li>
 </ul>
 </li>
 <li>启动 lrobot 主服务<!-- -->
 <ul>
 <li><code>docker compose up --build -d lrobot</code></li>
 <li>需安装 libreoffice，预计 10 分钟</li>
-<li>遇到报错大概率是网络问题，直接重试</li>
 </ul>
 </li>
 <li>参考<a href="/Lrobot/en/docs/2使用指南/3平台配置#%E5%9B%9E%E8%B0%83%E9%85%8D%E7%BD%AE">回调配置教程</a>配置各平台回调地址</li>
 </ol>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="自定义运行">自定义运行<a href="#自定义运行" class="hash-link" aria-label="Direct link to 自定义运行" title="Direct link to 自定义运行" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="方案-b">方案 B<a href="#方案-b" class="hash-link" aria-label="Direct link to 方案 B" title="Direct link to 方案 B" translate="no">​</a></h4>
+<p><img decoding="async" loading="lazy" alt="方案B" src="/Lrobot/en/assets/images/14-4c0a9c82fe5dac75e2745c68d0c934c9.png" width="2854" height="1436" class="img_ev3q"></p>
+<blockquote>
+<p>使用本方案运行效率的上限肯定比仅使用服务器要高，且如果是 windows 的话 docker desktop 看日志比 linux 更好；但可能会遇到本地网络环境差、电脑死机等意外风险</p>
+</blockquote>
 <ol>
-<li>建议浏览一遍<a href="/Lrobot/en/docs/2使用指南/3平台配置">平台配置教程</a>和<a href="/Lrobot/en/docs/2使用指南/4服务器配置">服务器配置教程</a>来了解本项目</li>
-<li>为了省钱，本项目采用<code>运行机+服务器+域名的模式</code>，使用最低配置的服务器，其他模式也可以通过调整配置来实现</li>
-<li>考虑到社团需求，项目使用了四个平台，使用其他平台或不使用某平台也可以通过调整配置来实现</li>
+<li>需要准备一台长期运行项目的电脑(以下操作未提到服务器均在本地完成)<!-- -->
+<ul>
+<li>长期运行=不断电+不自动关机+网络稳定</li>
+<li>可以参考<a href="/Lrobot/en/docs/2使用指南/1运行机配置">运行机优化教程</a>安装 Atlas OS</li>
+</ul>
+</li>
+<li>启动 napcat 服务(若需要 napcat 平台)<!-- -->
+<ul>
+<li><code>docker compose up --build -d napcat</code></li>
+<li>访问<a href="http://127.0.0.1:6099/webui?token=napcat" target="_blank" rel="noopener noreferrer">网址</a>进行登录及 QQ 扫码(也可以扫<code>storage/data/napcat/cache</code>处的二维码)</li>
+<li>配置 HTTP 服务器，<code>启用-开启 Debug-主机:0.0.0.0-port:5921</code></li>
+<li>配置 HTTP 客户端，<code>启用-开启 Debug-URL:http://lrobot:5922/LR5921/(配置了 secret 记得改成加密后的路径)-上报自身消息</code></li>
+<li>均不开启 cors 和 ws</li>
+<li><code>其他配置-登录配置</code>里填写当前 QQ 以便快速登录</li>
+</ul>
+</li>
+<li>由于默认本地有代理网络环境，不使用 mihomo 容器</li>
+<li>启动数据库服务<!-- -->
+<ul>
+<li><code>docker compose up --build -d mysql</code>
+<blockquote>
+<p>如果不想要 id 太大，手动将<code>storage/data/initdb/mysql.sql</code>中的 id 删掉所有<code>AUTO_INCREMENT=xxx</code></p>
+</blockquote>
+</li>
+<li><code>docker compose up --build -d mongodb</code></li>
+</ul>
+</li>
+<li>启动 napcat 监听服务<!-- -->
+<ul>
+<li><code>docker compose up --build -d napcat_log</code></li>
+</ul>
+</li>
+<li>启动服务器连接与转发<!-- -->
+<ul>
+<li>在<code>storage/yml/secret.yaml</code>中填写服务器 ip 和 username</li>
+<li><code>docker compose up --build -d command</code> 启动服务器连接</li>
+</ul>
+</li>
+<li>将 storage/yml 文件夹中含 copy 的文件重命名去掉 copy(其中 secret.yaml 需要根据文件中的配置提示配置各平台参数，agent.yaml 不用处理)</li>
+<li>启动 lrobot 主服务<!-- -->
+<ul>
+<li><code>docker compose up --build -d lrobot</code></li>
+<li>需安装 libreoffice，预计 10 分钟</li>
+</ul>
+</li>
+<li>参考<a href="/Lrobot/en/docs/2使用指南/3平台配置#%E5%9B%9E%E8%B0%83%E9%85%8D%E7%BD%AE">回调配置教程</a>配置各平台回调地址</li>
 </ol>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="文档结构">文档结构<a href="#文档结构" class="hash-link" aria-label="Direct link to 文档结构" title="Direct link to 文档结构" translate="no">​</a></h4>
 <ul>

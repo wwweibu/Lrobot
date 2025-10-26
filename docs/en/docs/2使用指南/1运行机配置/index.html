@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">运行机配置 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/1运行机配置"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="运行机配置 | Lrobot"><meta data-rh="true" name="description" content="安装 AtlasOS 以及不重启配置"><meta data-rh="true" property="og:description" content="安装 AtlasOS 以及不重启配置"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/1运行机配置"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/1运行机配置" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/2使用指南/1运行机配置" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/2使用指南/1运行机配置" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"使用指南","item":"https://wwweibu.github.io/Lrobot/en/docs/category/使用指南"},{"@type":"ListItem","position":2,"name":"运行机配置","item":"https://wwweibu.github.io/Lrobot/en/docs/2使用指南/1运行机配置"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/en/assets/js/runtime~main.856bac2d.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.84e03f52.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.140ba5ba.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.50f535da.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -17,34 +17,42 @@
 </blockquote>
 <ol>
 <li>访问 <a href="https://www.microsoft.com/zh-cn/windows/windows-11-specifications#table1" target="_blank" rel="noopener noreferrer">win11 规格要求</a> 确保能使用 win11</li>
-<li>访问 <a href="https://docs.atlasos.net/getting-started/installation/#__tabbed_1_1" target="_blank" rel="noopener noreferrer">Atlas 配置指南页</a>，点击 Down load Windows 11 24H2，选择 Chinese Simplified，点击下载</li>
-<li>下载最新版本的 <a href="https://github.com/ventoy/Ventoy/releases/" target="_blank" rel="noopener noreferrer">ventoy</a>，点击 download now，选择 windows.zip 下载</li>
-<li>运行 Ventoy2Disk.exe，插入 U 盘并选择，安装</li>
+<li>访问 <a href="https://docs.atlasos.net/getting-started/installation/#__tabbed_1_1" target="_blank" rel="noopener noreferrer">Atlas 配置指南页</a>，点击<code>Down load Windows 11 24H2</code>，选择<code>Chinese Simplified</code>，点击下载</li>
+<li>下载最新版本的 <a href="https://github.com/ventoy/Ventoy/releases/" target="_blank" rel="noopener noreferrer">ventoy</a>，点击<code>download now</code>，选择<code>windows.zip</code>下载</li>
+<li>运行<code>Ventoy2Disk.exe</code>，插入 U 盘并选择，安装</li>
 <li>将下载的 iso 文件复制进 U 盘</li>
 <li>要安装的电脑断网，插入 U 盘，<code>windows 更新-高级选项-恢复-高级启动</code>（或者其他进入 bios 的方式）</li>
-<li>选择使用设备，使用 U 盘，回车，Boot in normal mode，回车</li>
-<li>进入安装界面（不知道为什么没有鼠标），两次回车，按下下，选中以前版本的更新程序，回车，选择下一页（必须要外接鼠标，应该是触摸板被禁用了），选择现在安装，选择我没有产品密钥，选择 windows11 专业版，接受下一步，自定义安装</li>
-<li>删掉所有分区，选择驱动器 0 未分配的空间，选择下一页，等待安装</li>
-<li>安装完成后选择国家，选择输入法，按下 shift+F10，输入 <code>start ms-cxh:localonly</code> 然后回车，配置账号密码以及安全问题，关闭所有隐私设置选择接受，选择下一步</li>
+<li>选择<code>使用设备</code>，<code>使用 U 盘</code>，回车，<code>Boot in normal mode</code>，回车</li>
+<li>进入安装界面（不知道为什么没有鼠标），两次回车，按下下，选中<code>以前版本的更新程序</code>，回车，选择下一页（必须要外接鼠标，应该是触摸板被禁用了），选择<code>现在安装</code>，选择<code>我没有产品密钥</code>，选择<code>windows11 专业版</code>，接受下一步，自定义安装</li>
+<li>删掉所有分区，选择<code>驱动器 0 未分配的空间</code>，选择下一页，等待安装</li>
+<li>安装完成后选择<code>国家</code>，选择<code>输入法</code>，按下 shift+F10，输入 <code>start ms-cxh:localonly</code> 然后回车，配置账号密码以及安全问题，关闭所有隐私设置选择接受，选择下一步</li>
 <li>联网，打开设置并更新 windows，此时可以拔掉 U 盘，多次更新重启到全部更新完毕</li>
-<li>访问<a href="https://atlasos.net/" target="_blank" rel="noopener noreferrer">官网</a>(建议用非重装的电脑访问)点击 get started now，选择 I&#x27;m following the guide，下载 AME Wizard 和 AtlasPlaybook</li>
-<li>打开 wizard，拖入 playbook，选择 run action,open windows security,然后全关了，选择 <code>next-next-I agree-select options-next-next-next-next-next-选谷歌-next</code></li>
+<li>访问<a href="https://atlasos.net/" target="_blank" rel="noopener noreferrer">官网</a>(建议用非重装的电脑访问)点击<code>get started now</code>，选择<code>I&#x27;m following the guide</code>，下载 AME Wizard 和 AtlasPlaybook</li>
+<li>打开 wizard，拖入 playbook，选择<code>run action</code>,<code>open windows security</code>,然后全关了，选择<code>next-next-I agree-select options-next-next-next-next-next-选谷歌-next</code></li>
 <li>其他设置：Atlas 文件夹里面 Search Indexing，关闭搜索索引，sleep 禁用休眠，system restore 禁用系统还原</li>
-<li>最好下载 directx,driver booster 更新驱动</li>
+<li>最好下载 directx,driver booster 用于更新驱动</li>
 </ol>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="电脑关屏自动重启">电脑关屏自动重启<a href="#电脑关屏自动重启" class="hash-link" aria-label="Direct link to 电脑关屏自动重启" title="Direct link to 电脑关屏自动重启" translate="no">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="电脑自动重启">电脑自动重启<a href="#电脑自动重启" class="hash-link" aria-label="Direct link to 电脑自动重启" title="Direct link to 电脑自动重启" translate="no">​</a></h2>
 <blockquote>
 <p>2025 年 7 月频繁发生</p>
 </blockquote>
 <ul>
-<li>出现日志: Background Intelligent Transfer Service 服务的启动类型从 自动启动 更改为 按需启动</li>
-<li>搜索服务，Background Intelligent Transfer Service-属性-启动类型-禁用</li>
-<li>出现日志<!-- -->
+<li>电脑自动重启</li>
+<li>事件查看器中无异常日志<!-- -->
 <ul>
-<li>安装成功: Windows 成功安装了下列更新: Microsoft Defender Antivirus 的安全智能更新 - KB2267602（版本 1.433.10.0）- 当前频道（广泛）</li>
+<li>存在日志:<code>Background Intelligent Transfer Service 服务的启动类型从 自动启动 更改为 按需启动</code>
+<ul>
+<li>搜索服务，Background Intelligent Transfer Service-属性-启动类型-禁用</li>
 </ul>
 </li>
+<li>存在日志:<code>安装成功: Windows 成功安装了下列更新: Microsoft Defender Antivirus 的安全智能更新 - KB2267602（版本 1.433.10.0）- 当前频道（广泛）</code>
+<ul>
 <li>可能是开启了火绒，Microsoft Defender Antivirus 更新失败，win+r 输入 gpedit.msc,计算机配置 &gt; 管理模板 &gt; Windows 组件 &gt; Microsoft Defender 防病毒程序，选择关闭 Microsoft Defender 防病毒程序</li>
-</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/category/使用指南"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">使用指南</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/2使用指南/2Docker配置"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Docker 配置</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#安装-atlas-os" class="table-of-contents__link toc-highlight">安装 Atlas OS</a></li><li><a href="#电脑关屏自动重启" class="table-of-contents__link toc-highlight">电脑关屏自动重启</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+</ul>
+</li>
+</ul>
+</li>
+<li>以上两种方案均未解决，可能是电脑太烂了，是时候重装了（</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/category/使用指南"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">使用指南</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/2使用指南/2Docker配置"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Docker 配置</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#安装-atlas-os" class="table-of-contents__link toc-highlight">安装 Atlas OS</a></li><li><a href="#电脑自动重启" class="table-of-contents__link toc-highlight">电脑自动重启</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
 </body>
 </html>

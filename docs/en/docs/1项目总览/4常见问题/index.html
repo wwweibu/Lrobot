@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">常见问题 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/4常见问题"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="常见问题 | Lrobot"><meta data-rh="true" name="description" content="常见问题"><meta data-rh="true" property="og:description" content="常见问题"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/4常见问题"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/1项目总览/4常见问题" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/1项目总览/4常见问题" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/1项目总览/4常见问题" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"项目总览","item":"https://wwweibu.github.io/Lrobot/en/docs/category/项目总览"},{"@type":"ListItem","position":2,"name":"常见问题","item":"https://wwweibu.github.io/Lrobot/en/docs/1项目总览/4常见问题"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/en/assets/js/runtime~main.856bac2d.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.84e03f52.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.140ba5ba.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.50f535da.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -25,21 +25,6 @@
 <ul>
 <li>由于协会传统萌发了开发机器人的想法，之后先后找到了 MYQQ、HTQQ、qqbot 和 LLOnebot、Napcat。官方 QQ 机器人框架限制过多，无法获取到消息发送者的 QQ （<em>就离谱</em>）；Napcat 启动器的缺点是发送消息太多可能被屏蔽，且不能输入&#x27;&#x27;/&#x27;&#x27;快速调出指令并 @ 机器人，每次查询指令比较繁琐。所以各取所长，以 Napcat 为主， 官方机器人为辅搭建一个 LRobot 系统。之后又接触了微信、豆瓣，有了开发更多平台的机器人的想法，于是就有了此项目</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="电脑经常自动重启">电脑经常自动重启<a href="#电脑经常自动重启" class="hash-link" aria-label="Direct link to 电脑经常自动重启" title="Direct link to 电脑经常自动重启" translate="no">​</a></h2>
-<ul>
-<li>先禁用 windows 更新</li>
-<li>如果下载了火绒，可能是病毒库更新后安装失败，<a href="/Lrobot/en/docs/2使用指南/1运行机配置#%E7%94%B5%E8%84%91%E5%85%B3%E5%B1%8F%E8%87%AA%E5%8A%A8%E9%87%8D%E5%90%AF">参考此处</a></li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="更新了logicdata中的代码但无法compose-up重构容器">更新了logic.data中的代码，但无法compose-up重构容器<a href="#更新了logicdata中的代码但无法compose-up重构容器" class="hash-link" aria-label="Direct link to 更新了logic.data中的代码，但无法compose-up重构容器" title="Direct link to 更新了logic.data中的代码，但无法compose-up重构容器" translate="no">​</a></h2>
-<ul>
-<li>由于动态更新机制，此时容器已加载更新</li>
-<li>直接使用<code>docker compose restart lrobot</code>即可</li>
-<li>可<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E7%83%AD%E6%9B%B4%E6%96%B0%E4%B8%8Edocker%E9%87%8D%E5%90%AF%E5%86%B2%E7%AA%81">参考此处</a></li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="错误软件包外部的相对导入">错误：”软件包外部的相对导入“<a href="#错误软件包外部的相对导入" class="hash-link" aria-label="Direct link to 错误：”软件包外部的相对导入“" title="Direct link to 错误：”软件包外部的相对导入“" translate="no">​</a></h2>
-<ul>
-<li>在没有 __init__.py 的文件夹（非包文件夹）中不能用&quot;.&quot;来使用相对路径</li>
-</ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="为什么没有releases">为什么没有releases?<a href="#为什么没有releases" class="hash-link" aria-label="Direct link to 为什么没有releases?" title="Direct link to 为什么没有releases?" translate="no">​</a></h2>
 <ul>
 <li>项目需要不断更新新的功能，对于本人来说，打包 releases 并多次发布效率太低</li>
@@ -53,14 +38,6 @@
 <li>一个消息处理可以创建多个发送消息进入消息池，可以并行处理</li>
 <li>便于状态追踪，是处理出了问题还是发送出了问题</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="docker启动后报错端口被占用">docker启动后报错端口被占用<a href="#docker启动后报错端口被占用" class="hash-link" aria-label="Direct link to docker启动后报错端口被占用" title="Direct link to docker启动后报错端口被占用" translate="no">​</a></h2>
-<ul>
-<li>发现启动时 docker 的自用端口被随机占用，使用以下代码解决</li>
-<li><code>netsh interface ipv4 show excludedportrange protocol=tcp</code> 显示5921-5925在其中</li>
-<li><code>netsh int ipv4 set dynamic tcp start=49152 num=16384</code></li>
-<li><code>netsh int ipv6 set dynamic tcp start=49152 num=16384</code></li>
-<li>重启电脑</li>
-</ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="为什么不复用连接">为什么不复用连接<a href="#为什么不复用连接" class="hash-link" aria-label="Direct link to 为什么不复用连接" title="Direct link to 为什么不复用连接" translate="no">​</a></h2>
 <ul>
 <li>在 http/2 中，同一域名多个路径会复用同一连接<!-- -->
@@ -70,10 +47,32 @@
 </ul>
 </li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="connection-closed-by-xxx-port-22-错误">Connection closed by xxx port 22 错误<a href="#connection-closed-by-xxx-port-22-错误" class="hash-link" aria-label="Direct link to Connection closed by xxx port 22 错误" title="Direct link to Connection closed by xxx port 22 错误" translate="no">​</a></h2>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="开发更新了-logicdata-中的代码但-compose-up-重构容器后没有更新">开发：更新了 logic.data 中的代码，但 compose-up 重构容器后没有更新<a href="#开发更新了-logicdata-中的代码但-compose-up-重构容器后没有更新" class="hash-link" aria-label="Direct link to 开发：更新了 logic.data 中的代码，但 compose-up 重构容器后没有更新" title="Direct link to 开发：更新了 logic.data 中的代码，但 compose-up 重构容器后没有更新" translate="no">​</a></h2>
 <ul>
-<li>从 ssh 日志中可以推测，在梯子存在异常情况的时候，会发出两条连接，两条 clean 先把 10000 端口清除了，然后两个 run，第一个成功占用了 10000 端口，第二个命令失败了，因为连接收到的是晚的一个即第二个，所以服务失败</li>
-<li>需要把两条命令合成一个</li>
-</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/1项目总览/3项目功能"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">项目功能</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/1项目总览/5更新日志"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">更新日志</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#如何联系上开发者" class="table-of-contents__link toc-highlight">如何联系上开发者？</a></li><li><a href="#可以参与开发吗" class="table-of-contents__link toc-highlight">可以参与开发吗？</a></li><li><a href="#为什么要开发这个项目" class="table-of-contents__link toc-highlight">为什么要开发这个项目？</a></li><li><a href="#电脑经常自动重启" class="table-of-contents__link toc-highlight">电脑经常自动重启</a></li><li><a href="#更新了logicdata中的代码但无法compose-up重构容器" class="table-of-contents__link toc-highlight">更新了logic.data中的代码，但无法compose-up重构容器</a></li><li><a href="#错误软件包外部的相对导入" class="table-of-contents__link toc-highlight">错误：”软件包外部的相对导入“</a></li><li><a href="#为什么没有releases" class="table-of-contents__link toc-highlight">为什么没有releases?</a></li><li><a href="#消息处理后为什么不直接调用api发送而是重新返回消息池" class="table-of-contents__link toc-highlight">消息处理后为什么不直接调用API发送，而是重新返回消息池</a></li><li><a href="#docker启动后报错端口被占用" class="table-of-contents__link toc-highlight">docker启动后报错端口被占用</a></li><li><a href="#为什么不复用连接" class="table-of-contents__link toc-highlight">为什么不复用连接</a></li><li><a href="#connection-closed-by-xxx-port-22-错误" class="table-of-contents__link toc-highlight">Connection closed by xxx port 22 错误</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+<li>由于动态更新机制，此时容器已加载更新</li>
+<li>直接使用<code>docker compose restart lrobot</code>即可</li>
+<li>可<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E7%83%AD%E6%9B%B4%E6%96%B0%E4%B8%8E-docker-%E9%87%8D%E5%90%AF%E5%86%B2%E7%AA%81">参考此处</a></li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="异常电脑经常自动重启">异常：电脑经常自动重启<a href="#异常电脑经常自动重启" class="hash-link" aria-label="Direct link to 异常：电脑经常自动重启" title="Direct link to 异常：电脑经常自动重启" translate="no">​</a></h2>
+<ul>
+<li>先禁用 windows 更新</li>
+<li>如果下载了火绒，可能是病毒库更新后安装失败，<a href="/Lrobot/en/docs/2使用指南/1运行机配置#%E7%94%B5%E8%84%91%E8%87%AA%E5%8A%A8%E9%87%8D%E5%90%AF">参考此处</a></li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="异常docker-启动后报错端口被占用">异常：docker 启动后报错端口被占用<a href="#异常docker-启动后报错端口被占用" class="hash-link" aria-label="Direct link to 异常：docker 启动后报错端口被占用" title="Direct link to 异常：docker 启动后报错端口被占用" translate="no">​</a></h2>
+<ul>
+<li>参考<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E6%8A%A5%E9%94%99%E7%AB%AF%E5%8F%A3%E5%8D%A0%E7%94%A8">此处</a></li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="异常docker-报错-unknownkey">异常：docker 报错 Unknownkey<a href="#异常docker-报错-unknownkey" class="hash-link" aria-label="Direct link to 异常：docker 报错 Unknownkey" title="Direct link to 异常：docker 报错 Unknownkey" translate="no">​</a></h2>
+<ul>
+<li>参考<a href="/Lrobot/en/docs/2使用指南/2Docker配置#%E6%8A%A5%E9%94%99unknownkey">此处</a></li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="错误软件包外部的相对导入">错误：”软件包外部的相对导入“<a href="#错误软件包外部的相对导入" class="hash-link" aria-label="Direct link to 错误：”软件包外部的相对导入“" title="Direct link to 错误：”软件包外部的相对导入“" translate="no">​</a></h2>
+<ul>
+<li>在没有 __init__.py 的文件夹（非包文件夹）中不能用&quot;.&quot;来使用相对路径</li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="错误connection-closed-by-xxx-port-22">错误：Connection closed by xxx port 22<a href="#错误connection-closed-by-xxx-port-22" class="hash-link" aria-label="Direct link to 错误：Connection closed by xxx port 22" title="Direct link to 错误：Connection closed by xxx port 22" translate="no">​</a></h2>
+<ul>
+<li>参考<a href="/Lrobot/en/docs/2使用指南/4服务器配置#connection-closed-by-xxx-port-22">此处</a></li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/1项目总览/3项目功能"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">项目功能</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/1项目总览/5更新日志"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">更新日志</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#如何联系上开发者" class="table-of-contents__link toc-highlight">如何联系上开发者？</a></li><li><a href="#可以参与开发吗" class="table-of-contents__link toc-highlight">可以参与开发吗？</a></li><li><a href="#为什么要开发这个项目" class="table-of-contents__link toc-highlight">为什么要开发这个项目？</a></li><li><a href="#为什么没有releases" class="table-of-contents__link toc-highlight">为什么没有releases?</a></li><li><a href="#消息处理后为什么不直接调用api发送而是重新返回消息池" class="table-of-contents__link toc-highlight">消息处理后为什么不直接调用API发送，而是重新返回消息池</a></li><li><a href="#为什么不复用连接" class="table-of-contents__link toc-highlight">为什么不复用连接</a></li><li><a href="#开发更新了-logicdata-中的代码但-compose-up-重构容器后没有更新" class="table-of-contents__link toc-highlight">开发：更新了 logic.data 中的代码，但 compose-up 重构容器后没有更新</a></li><li><a href="#异常电脑经常自动重启" class="table-of-contents__link toc-highlight">异常：电脑经常自动重启</a></li><li><a href="#异常docker-启动后报错端口被占用" class="table-of-contents__link toc-highlight">异常：docker 启动后报错端口被占用</a></li><li><a href="#异常docker-报错-unknownkey" class="table-of-contents__link toc-highlight">异常：docker 报错 Unknownkey</a></li><li><a href="#错误软件包外部的相对导入" class="table-of-contents__link toc-highlight">错误：”软件包外部的相对导入“</a></li><li><a href="#错误connection-closed-by-xxx-port-22" class="table-of-contents__link toc-highlight">错误：Connection closed by xxx port 22</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
 </body>
 </html>

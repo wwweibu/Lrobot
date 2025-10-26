@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">开发指南 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/1开发指南"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="开发指南 | Lrobot"><meta data-rh="true" name="description" content="总开发指南"><meta data-rh="true" property="og:description" content="总开发指南"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/1开发指南"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/3开发指南/1开发指南" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/3开发指南/1开发指南" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/en/docs/category/开发指南"},{"@type":"ListItem","position":2,"name":"开发指南","item":"https://wwweibu.github.io/Lrobot/en/docs/3开发指南/1开发指南"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/en/assets/js/runtime~main.856bac2d.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.84e03f52.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.140ba5ba.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.50f535da.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
@@ -15,7 +15,7 @@
 <p><strong>如果对于代码产生疑问，直接在搜索框内输入文件名即可</strong></p>
 <ul>
 <li>代码规范对应 Readme 文档及 docs 文档、gitignore</li>
-<li>项目架构对应 docker-compose.yml，command 文件夹以及各服务的 dockerfile</li>
+<li>项目架构对应 docker-compose.yml，command 文件夹，napcat_log 文件夹以及各服务的 dockerfile</li>
 <li>消息处理对应 lrobot.message 文件夹中内容</li>
 <li>基础配置对应 main.py、config.py、secret.py 中的内容、storage 文件夹中的内容</li>
 <li>页面开发对应 vue 文件夹，lrobot.web 文件夹</li>
@@ -34,10 +34,10 @@
 <ul>
 <li>功能开发前，先想好一些常见的问题:</li>
 <li>所有的消息返回是否在数据编辑之后？可不可能消息返回&#x27;编辑成功但&#x27;数据&#x27;编辑失败&#x27;？</li>
-<li>消息是否有即时性？不能用 BILI</li>
-<li>是否需要复制？不能在 WECHAT 中使用换行（否则是图片）</li>
-<li>是否会发送网址？不能使用 LR232（需要配置固定网址）</li>
-<li>消息中是否存在空值、多余的&#x27;\n&#x27;等等，会导致格式或逻辑错误吗？</li>
+<li>消息是否有即时性？不能用 BILI（一分钟检测一次）</li>
+<li>是否需要复制？不能在 WECHAT 中使用换行（会自动转换成图片）</li>
+<li>是否会发送网址？不能使用 LR232（只能发送固定网址）</li>
+<li>消息中存在空值、多余的&#x27;\n&#x27;等等，会导致格式或逻辑错误吗？</li>
 <li>指令错误后，是否有错误提示指引用户输入正确指令？</li>
 </ul>
 </blockquote>
@@ -60,17 +60,18 @@
 </li>
 <li>平台：4 个平台<!-- -->
 <ul>
+<li>LR5921 功能最多</li>
 <li>LR232 无法返回变化的网址（固定的可配置）</li>
 <li>WECHAT 会发送图片无法复制</li>
 <li>BILI 每隔 1 分钟反馈一次，太慢了</li>
 </ul>
 </li>
-<li>用户组判定：返回消息发送者所在的一个或多个用户组；若在用户组中，同时返回内阁身份；若在测试员表中，同时返回测试员身份。若身份在配置的身份列表中则继续</li>
+<li>用户组判定：返回消息发送者所在的一个或多个用户组；若在用户组中，同时返回内阁身份；若在测试员表中，返回测试员身份。若身份在配置的身份列表中则继续</li>
 <li>群组判定：返回消息所在的群组，若群组在群列表里则继续</li>
 <li>状态：必须要某状态才能触发，如必须要先进入成语接龙状态，才能进行接龙</li>
 <li>顺序<!-- -->
 <ul>
-<li>用于匹配顺序，如 A 指令完全匹配的是&quot;/你好&quot;，B 指令包含匹配的是&quot;/你&quot;，则发送&quot;/你好&quot;时，如果 B 在前面，则会匹配到 B。此时应该拖动排序 AB 让 A 在前面（没有指定顺序时，显示顺序即为排序顺序）</li>
+<li>用于匹配顺序，如 A 指令完全匹配的是&quot;/你好&quot;，B 指令包含匹配的是&quot;/你&quot;，则发送&quot;/你好&quot;时，如果 B 在前面，则会匹配到 B。此时应该拖动排序让 A 在前面（没有指定顺序时，显示顺序即为排序顺序）</li>
 <li>假设有一条匹配很多内容的指令（如成语接龙时，发送任意内容都要进行接龙），但是其他的&quot;/&quot;开头的指令又要先于它进行匹配（如&quot;/退出成语接龙&quot;必须要先于此指令匹配，否则永远无法退出），此时可以设置顺序，设置此指令的顺序为&#x27;-1&#x27;，永远最后匹配，这样其他指令都在它前面。还可以设置 1，2，3，-1，-2，-3 之类的</li>
 </ul>
 </li>
@@ -85,6 +86,7 @@
 </li>
 </ul>
 </li>
+<li>填写完成后，编辑 help_text，标题为<code>#函数</code>，同时写入注意、用法等，用于帮助指令的内容和功能页的展示内容，可参考<a href="/Lrobot/en/docs/3开发指南/6指令开发/5帮助">此处</a></li>
 </ul>
 <h6 class="anchor anchorWithStickyNavbar_LWe7" id="逻辑开发">逻辑开发<a href="#逻辑开发" class="hash-link" aria-label="Direct link to 逻辑开发" title="Direct link to 逻辑开发" translate="no">​</a></h6>
 <ul>
@@ -92,16 +94,16 @@
 </ul>
 <div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">from</span><span class="token plain"> message</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">handler</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">msg </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> Msg</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@monitor_adapter</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;/基础_帮助&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain">  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 数据统计中的名称</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">async</span><span class="token plain"> </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">help_show</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"> Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain">   </span><span class="token comment" style="color:rgb(98, 114, 164)"># help.py 是文件名，函数名对应条件中的函数名</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">Msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    platform</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">platform</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    event</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    kind</span><span class="token operator">=</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">f&quot;</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">{</span><span class="token string-interpolation interpolation">msg</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token string-interpolation interpolation">kind</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">[</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token string-interpolation interpolation format-spec">2]</span><span class="token string-interpolation interpolation punctuation" style="color:rgb(248, 248, 242)">}</span><span class="token string-interpolation string" style="color:rgb(255, 121, 198)">发送&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    seq</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">seq</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    content</span><span class="token operator">=</span><span class="token plain">content</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    user</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">user</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    group</span><span class="token operator">=</span><span class="token plain">msg</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">group</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain">  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 消息发送，只需要 event 设置成发送，即可向对应用户发送消息</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> content  </span><span class="token comment" style="color:rgb(98, 114, 164)"># 此处的 return 是用于数据统计中的结果值</span><br></span></code></pre></div></div>
 <ul>
-<li>期间可以进行很多处理，调用 file 中的函数等等</li>
+<li>期间可以进行很多处理，如调用 file 中的函数等等</li>
 </ul>
 <h6 class="anchor anchorWithStickyNavbar_LWe7" id="功能开发示例">功能开发示例<a href="#功能开发示例" class="hash-link" aria-label="Direct link to 功能开发示例" title="Direct link to 功能开发示例" translate="no">​</a></h6>
 <ol>
 <li>设想</li>
 </ol>
 <ul>
-<li>假设你现在需要开发一个&quot;早上好&quot;的功能，定期发送早上好</li>
+<li>假设现在需要开发一个&quot;早上好&quot;的功能，定期发送早上好</li>
 <li>首先设置逻辑与指令，需要三条指令：订阅早上好，发送早上好，取消订阅早上好</li>
-<li>平台面向的是所有平台吗？只有 LR5921 才能主动发送，故订阅和取消订阅可以设置成所有（调用 user_qq_transform 进行转换），发送只设置 LR5921</li>
+<li>平台面向的是所有平台吗？只有 LR5921 才能主动发送，故只设置 LR5921</li>
 <li>用户需要用户组吗？不需要，任何用户可订阅；群组功能需要吗？在群内发送不太好</li>
 <li>故消息类型设置为&quot;私聊接收&quot;，用户、群组均不填</li>
 <li>状态？订阅早上好应该是任何状态，取消订阅应该是只有早上好状态才能触发</li>
@@ -140,36 +142,19 @@
 <ul>
 <li>这样一个早上好的订阅、发送及取消的功能便做好啦</li>
 </ul>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="进阶开发">进阶开发<a href="#进阶开发" class="hash-link" aria-label="Direct link to 进阶开发" title="Direct link to 进阶开发" translate="no">​</a></h6>
+<ul>
+<li>可以查看指令开发/状态、用户、数据、文件，随后从后面的指令组中挑选功能相近的指令复制逻辑</li>
+</ul>
 <blockquote>
 <ul>
 <li>功能参考:</li>
-<li>常见数据库修改<a href="/Lrobot/en/docs/3开发指南/6指令开发/5系统#%E9%9D%A2%E6%9D%BF%E5%8A%9F%E8%83%BD">参考</a></li>
-<li>常见验证码逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/5系统#%E7%BB%91%E5%AE%9A">参考</a></li>
-<li>常见功能菜单<a href="/Lrobot/en/docs/3开发指南/6指令开发/6基础#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">参考</a></li>
-<li>常见状态递增逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/8反馈#%E6%94%B6%E9%9B%86%E8%A1%A8%E5%BC%80%E5%A7%8B%E5%A1%AB%E5%86%99">参考</a></li>
-<li>常见文字+图片两状态逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/10工具#wiki-%E4%B8%8A%E4%BC%A0">参考</a></li>
+<li>常见数据库修改<a href="/Lrobot/en/docs/3开发指南/6指令开发/6系统#%E7%89%A9%E8%B5%84%E6%9B%B4%E6%96%B0">参考</a></li>
+<li>常见指令+序号逻辑、文本读取分割逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/7基础#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">参考</a></li>
+<li>常见状态递增逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/9反馈#%E6%94%B6%E9%9B%86%E8%A1%A8%E5%BC%80%E5%A7%8B%E5%A1%AB%E5%86%99">参考</a></li>
+<li>常见文字+图片两状态逻辑、图片下载逻辑<a href="/Lrobot/en/docs/3开发指南/6指令开发/11工具#wiki-%E4%B8%8A%E4%BC%A0">参考</a></li>
 </ul>
 </blockquote>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="状态添加">状态添加<a href="#状态添加" class="hash-link" aria-label="Direct link to 状态添加" title="Direct link to 状态添加" translate="no">​</a></h4>
-<ul>
-<li>一个状态除了 status，还有 info，info 可以起到传递信息的作用</li>
-<li>比如说答题活动，如果给每个题都设置一个状态（答题_1~n），添加和判断起来都很麻烦，且不容易合并（两个平台都在答题，一个答题_2，一个答题_10，不好合并）</li>
-<li>改成状态&quot;答题&quot;，信息为&quot;1-n&quot;可以合并（合并时如果是数字取大的），且减少前端状态表中的数据，减少指令的配置项（command 页）以及函数</li>
-<li>按照此方式设计好状态后，在 kind.yaml 中新增，前端即可使用</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="用户组群组配置更改">用户组群组配置更改<a href="#用户组群组配置更改" class="hash-link" aria-label="Direct link to 用户组群组配置更改" title="Direct link to 用户组群组配置更改" translate="no">​</a></h4>
-<ul>
-<li>目前的判断逻辑为：在 cab/user 页面中配置用户组和群组，每个组有组名，成员是一个列表，一个用户可以在多组内</li>
-<li>data/user 的 user_identify 函数负责用户组判断逻辑<!-- -->
-<ul>
-<li>首先统一转换到 LR5921 平台，然后判断是否在用户组内，添加对应用户组身份</li>
-<li>若在任意用户组，添加内阁身份</li>
-<li>判断是否在测试员表内，若在，添加测试员身份</li>
-</ul>
-</li>
-<li>群组判断仅简单判断</li>
-<li>若要加其他逻辑（如其他表，固定用户等等），修改 user_identify 即可</li>
-</ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="消息适配器开发">消息适配器开发<a href="#消息适配器开发" class="hash-link" aria-label="Direct link to 消息适配器开发" title="Direct link to 消息适配器开发" translate="no">​</a></h4>
 <h6 class="anchor anchorWithStickyNavbar_LWe7" id="添加新平台">添加新平台<a href="#添加新平台" class="hash-link" aria-label="Direct link to 添加新平台" title="Direct link to 添加新平台" translate="no">​</a></h6>
 <ul>
@@ -215,6 +200,7 @@
 <li>数据库-数据源-MongoDB，端口选择 5924，架构选择 lrobot_log</li>
 </ul>
 </li>
+<li>若使用方案 A，在数据库页查看 mysql 数据，在日志页查看 mongodb 数据</li>
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="标红处理强迫症狂喜">标红处理(<del>强迫症狂喜</del>)<a href="#标红处理强迫症狂喜" class="hash-link" aria-label="Direct link to 标红处理强迫症狂喜" title="Direct link to 标红处理强迫症狂喜" translate="no">​</a></h4>
 <ul>
@@ -238,12 +224,12 @@
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="项目迁移">项目迁移<a href="#项目迁移" class="hash-link" aria-label="Direct link to 项目迁移" title="Direct link to 项目迁移" translate="no">​</a></h4>
 <ul>
 <li>storage/data/initdb 中的文件需要在 mysql 为空时才能生效，初始化前需要清空 storage/mysql 文件夹</li>
-<li>当 git 更新中存在新表时不会自动新建，需要手动执行 storage/data/initdb/mysql.sql 中更新的语句，或者删除整个 mysql 文件夹（记得保存数据）后重新启动容器</li>
+<li>当 git 更新中存在新表时不会自动新建，需要手动使用数据库恢复方法导入新的 mysql_sql 中的数据（移动 mysql.mql 并把下方命令改路径改成 /app/backup/mysql.mql），或者备份后删除整个 mysql 文件夹（记得保存数据）后重新启动容器再导入</li>
 <li>数据库备份方法<!-- -->
 <ul>
 <li>系统 24 小时自动备份一次</li>
-<li>手动备份:<code>docker exec -it lrobot /bin/bash</code>,<code>cd /app/logic/data</code>,<code>python backup.py</code></li>
-<li>导出空信息表 <code>python backup.py a</code></li>
+<li>手动备份:<code>docker exec -it lrobot bash</code>,<code>cd /app/logic/data</code>,<code>python backup.py</code>（此方法导出的是带日期的备份）</li>
+<li>导出空信息表 <code>python backup.py a</code>（此方法导出的即 mysql.sql）</li>
 <li>备份文件在 storage/data/backup 处</li>
 </ul>
 </li>
@@ -251,6 +237,14 @@
 <ul>
 <li><code>docker exec -it mysql bash</code>,<code>mysql -u root lrobot_data &lt; /app/backup/mysql_2025-07-03.sql</code></li>
 <li><code>docker exec -it mongodb bash</code>,<code>mongorestore --drop --uri=&quot;mongodb://localhost:27017&quot; /app/backup/mongo_2025-07-03</code></li>
+</ul>
+</li>
+<li>数据库手动恢复办法<!-- -->
+<ul>
+<li><code>docker exec -it mysql bash</code></li>
+<li><code>mysql -u root -p</code>,回车</li>
+<li><code>USE lrobot_data;</code></li>
+<li>执行 mysql.sql 中的语句</li>
 </ul>
 </li>
 </ul>

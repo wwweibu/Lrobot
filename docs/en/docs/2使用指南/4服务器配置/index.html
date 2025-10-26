@@ -4,102 +4,53 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.9.1">
 <title data-rh="true">服务器配置 | Lrobot</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" name="twitter:image" content="https://wwweibu.github.io/Lrobot/en/img/logo.png"><meta data-rh="true" property="og:url" content="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/4服务器配置"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" property="og:locale:alternate" content="zh_Hans"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="服务器配置 | Lrobot"><meta data-rh="true" name="description" content="远程服务器的配置指南"><meta data-rh="true" property="og:description" content="远程服务器的配置指南"><link data-rh="true" rel="icon" href="/Lrobot/en/img/logo.png"><link data-rh="true" rel="canonical" href="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/4服务器配置"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/en/docs/2使用指南/4服务器配置" hreflang="en"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/2使用指南/4服务器配置" hreflang="zh-Hans"><link data-rh="true" rel="alternate" href="https://wwweibu.github.io/Lrobot/docs/2使用指南/4服务器配置" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"使用指南","item":"https://wwweibu.github.io/Lrobot/en/docs/category/使用指南"},{"@type":"ListItem","position":2,"name":"服务器配置","item":"https://wwweibu.github.io/Lrobot/en/docs/2使用指南/4服务器配置"}]}</script><link rel="stylesheet" href="/Lrobot/en/assets/css/styles.01e145c3.css">
-<script src="/Lrobot/en/assets/js/runtime~main.856bac2d.js" defer="defer"></script>
-<script src="/Lrobot/en/assets/js/main.84e03f52.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/runtime~main.140ba5ba.js" defer="defer"></script>
+<script src="/Lrobot/en/assets/js/main.50f535da.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <svg style="display: none;"><defs>
 <symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
 </defs></svg>
 <script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"dark"),document.documentElement.setAttribute("data-theme-choice",t||"dark")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/Lrobot/en/img/logo.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Lrobot/en/"><div class="navbar__logo"><img src="/Lrobot/en/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Lrobot/en/img/logo.png" alt="My Site Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Lrobot</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Lrobot/en/docs/category/项目总览">文档</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbarSearchContainer_Bca1"><div class="navbar__search searchBarContainer_NW3z" dir="ltr"><input placeholder="Search" aria-label="Search" class="navbar__search-input searchInput_YFbd" value=""><div class="loadingRing_RJI3 searchBarLoadingRing_YnHq"><div></div><div></div><div></div><div></div></div></div></div><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/en/docs/category/项目总览"><span title="项目总览" class="categoryLinkLabel_W154">项目总览</span></a><button aria-label="Expand sidebar category &#x27;项目总览&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--active" href="/Lrobot/en/docs/category/使用指南"><span title="使用指南" class="categoryLinkLabel_W154">使用指南</span></a><button aria-label="Collapse sidebar category &#x27;使用指南&#x27;" aria-expanded="true" type="button" class="clean-btn menu__caret"></button></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/en/docs/2使用指南/1运行机配置"><span title="运行机配置" class="linkLabel_WmDU">运行机配置</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/en/docs/2使用指南/2Docker配置"><span title="Docker 配置" class="linkLabel_WmDU">Docker 配置</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/Lrobot/en/docs/2使用指南/3平台配置"><span title="平台配置" class="linkLabel_WmDU">平台配置</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/Lrobot/en/docs/2使用指南/4服务器配置"><span title="服务器配置" class="linkLabel_WmDU">服务器配置</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-2 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" tabindex="0" href="/Lrobot/en/docs/category/其他配置"><span title="其他配置" class="categoryLinkLabel_W154">其他配置</span></a><button aria-label="Expand sidebar category &#x27;其他配置&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/en/docs/category/开发指南"><span title="开发指南" class="categoryLinkLabel_W154">开发指南</span></a><button aria-label="Expand sidebar category &#x27;开发指南&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist" href="/Lrobot/en/docs/category/项目测试"><span title="项目测试" class="categoryLinkLabel_W154">项目测试</span></a><button aria-label="Expand sidebar category &#x27;项目测试&#x27;" aria-expanded="false" type="button" class="clean-btn menu__caret"></button></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/Lrobot/en/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/Lrobot/en/docs/category/使用指南"><span>使用指南</span></a></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">服务器配置</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>服务器配置</h1></header><blockquote>
-<p>如果你有服务器搭建 nginx 相关经验，可以忽略以下步骤，只需要进行这两步</p>
 <ul>
-<li>在 secret.yaml 中填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 command/lrobot.pem 处</li>
-<li>将 command/nginx.conf 作为 nginx 配置文件</li>
+<li>如果你有服务器搭建 nginx 相关经验，可以忽略以下步骤，只需要进行这两步</li>
+<li>将 command/nginx.conf 作为 nginx 配置文件，若为方案 B，<strong>将文件中的 5922 改成 10000</strong></li>
+<li>若为方案 B，在 secret.yaml 中填写 SERVER_IP、SERVER_USERNAME，并放置服务器密钥于 command/lrobot.pem 处</li>
 </ul>
 </blockquote>
 <p><strong>切记不要随意公布你的服务器 ip</strong></p>
-<hr>
+<blockquote>
 <ul>
-<li>本项目采用<code>本地运行+小容量服务器+域名</code>的架构</li>
-<li>若存在以下情况，可以在本教程的基础上进行配置修改:<!-- -->
+<li>由于已经默认本地有代理网络环境，服务器无代理环境可访问<a href="https://link.zhihu.com/?target=https%3A//raw.hellogithub.com/hosts" target="_blank" rel="noopener noreferrer">hosts</a>下载 hosts 文件加在<code>/etc/hosts</code>后面</li>
+<li>若此方法无效，对于 git，提供此<a href="/Lrobot/en/docs/3开发指南/2代码规范/2git#ssh-%E6%96%B9%E5%BC%8F%E6%8B%89%E5%8F%96%E4%BB%93%E5%BA%93">方法</a>，对于 docker，提供此<a href="/Lrobot/en/docs/2使用指南/2Docker配置#docker%E4%BC%A0%E8%BE%93">方法</a></li>
+</ul>
+</blockquote>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="配置参考">配置参考<a href="#配置参考" class="hash-link" aria-label="Direct link to 配置参考" title="Direct link to 配置参考" translate="no">​</a></h2>
 <ul>
-<li>本地环境有公网 ip</li>
-<li>拥有大型服务器可以部署整个环境</li>
-<li>使用一个或几个平台</li>
+<li>若本地有 ip，则忽略配置服务器步骤，直接从配置 nginx 开始</li>
+<li>若不需要域名，则修改 nginx.conf 配置</li>
+<li>若只有本地不想用服务器，可以参考其他</li>
 </ul>
-</li>
-</ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="各平台连接方式及需求">各平台连接方式及需求<a href="#各平台连接方式及需求" class="hash-link" aria-label="Direct link to 各平台连接方式及需求" title="Direct link to 各平台连接方式及需求" translate="no">​</a></h2>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="各平台连接方式及需求">各平台连接方式及需求<a href="#各平台连接方式及需求" class="hash-link" aria-label="Direct link to 各平台连接方式及需求" title="Direct link to 各平台连接方式及需求" translate="no">​</a></h4>
 <ul>
-<li>其中 napcat 是基于本地的 http 协议推送和调用，bili 是基于浏览器 cookie 的 api 调用，均不涉及 ip/域名 配置</li>
+<li>其中 napcat 是基于本地的 http 协议推送和调用，bili 是基于浏览器 cookie 的 api 调用，均不涉及<code>ip/域名</code>配置</li>
 </ul>
-<table><thead><tr><th style="text-align:center">平台</th><th style="text-align:center">qqbot</th><th style="text-align:center">qqbot(botpy 方式)</th><th style="text-align:center">微信公众号</th><th style="text-align:center">微博</th><th style="text-align:center">QQ小程序</th></tr></thead><tbody><tr><td style="text-align:center">连接协议</td><td style="text-align:center">https</td><td style="text-align:center">websocket</td><td style="text-align:center">http</td><td style="text-align:center">http</td><td style="text-align:center">https</td></tr><tr><td style="text-align:center">消息接收方式</td><td style="text-align:center">主动推送到对应 ip(https)</td><td style="text-align:center">websocket</td><td style="text-align:center">主动推送到对应 ip(http)</td><td style="text-align:center">主动推送到对应 ip(http)</td><td style="text-align:center">request 请求(https)(域名)</td></tr><tr><td style="text-align:center">消息发送方式</td><td style="text-align:center">白名单 ip 调用对应 api</td><td style="text-align:center">websocket</td><td style="text-align:center">调用对应 api</td><td style="text-align:center">调用对应 api</td><td style="text-align:center">request 请求返回</td></tr><tr><td style="text-align:center">需求</td><td style="text-align:center">支持 https 的域名，公网 ip 发送</td><td style="text-align:center">公网 ip 接收及发送</td><td style="text-align:center">支持 http 的 ip</td><td style="text-align:center">支持 http 的 ip</td><td style="text-align:center">支持 https 的域名</td></tr></tbody></table>
+<table><thead><tr><th style="text-align:center">平台</th><th style="text-align:center">qqbot</th><th style="text-align:center">qqbot(botpy)</th><th style="text-align:center">wechat</th><th style="text-align:center">微博</th><th style="text-align:center">QQ小程序</th></tr></thead><tbody><tr><td style="text-align:center">连接协议</td><td style="text-align:center">https</td><td style="text-align:center">websocket</td><td style="text-align:center">http</td><td style="text-align:center">http</td><td style="text-align:center">https</td></tr><tr><td style="text-align:center">消息接收方式</td><td style="text-align:center">主动推送到对应 ip(https)</td><td style="text-align:center">websocket</td><td style="text-align:center">主动推送到对应 ip(http)</td><td style="text-align:center">主动推送到对应 ip(http)</td><td style="text-align:center">request 请求(https)(域名)</td></tr><tr><td style="text-align:center">消息发送方式</td><td style="text-align:center">白名单 ip 调用对应 api</td><td style="text-align:center">websocket</td><td style="text-align:center">调用对应 api</td><td style="text-align:center">调用对应 api</td><td style="text-align:center">request 请求返回</td></tr><tr><td style="text-align:center">需求</td><td style="text-align:center">支持 https 的域名/ip，公网 ip 发送</td><td style="text-align:center">公网 ip 接收及发送</td><td style="text-align:center">支持 http 的 ip</td><td style="text-align:center">支持 http 的 ip</td><td style="text-align:center">支持 https 的域名</td></tr></tbody></table>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="配置总结">配置总结<a href="#配置总结" class="hash-link" aria-label="Direct link to 配置总结" title="Direct link to 配置总结" translate="no">​</a></h4>
 <ul>
 <li>运行所有服务需要正向代理 + 反向代理 + 域名 + 备案</li>
 <li>没有备案域名无法运行 qqapp(当前虽然不用 qqapp，但无备案域名也无法在 qq 上实现直接访问网站的效果)</li>
-<li>没有域名无法运行 qqbot 和 qqapp</li>
+<li>没有域名无法运行 qqbot 和 QQ 小程序</li>
 <li>考虑到校园网络环境，本项目中正向代理选择<code>服务器+socks</code> 的方法，反向代理选择<code>服务器+nginx</code> 的方法</li>
 <li>本项目中服务器 ip 可随时更换（只需要更改 secret.yaml 的配置即可）</li>
-<li>其他正向及反向代理方法可 <a href="#%E5%85%B6%E4%BB%96%E6%AD%A3%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E6%96%B9%E6%B3%95">参考下方</a></li>
+<li>其他正向及反向代理方法可<a href="#%E5%85%B6%E4%BB%96%E6%AD%A3%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E6%96%B9%E6%B3%95">参考下方</a></li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="名词解释">名词解释<a href="#名词解释" class="hash-link" aria-label="Direct link to 名词解释" title="Direct link to 名词解释" translate="no">​</a></h2>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="ip-与域名">ip 与域名<a href="#ip-与域名" class="hash-link" aria-label="Direct link to ip 与域名" title="Direct link to ip 与域名" translate="no">​</a></h4>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="配置服务器">配置服务器<a href="#配置服务器" class="hash-link" aria-label="Direct link to 配置服务器" title="Direct link to 配置服务器" translate="no">​</a></h2>
 <ul>
-<li>ip 包括 ip 地址(纯数字)和域名(字母)</li>
-<li>域名是通过 DNS 解析成 ip 的</li>
+<li>由于网页端的备案限制，本项目选择方案<code>国内的服务器+国内的域名</code>（不需要备案域名<a href="#%E5%85%B6%E4%BB%96">参考此处</a>）</li>
+<li>本项目服务器配置为：<code>CPU - 2核</code> <code>内存 - 2GB</code> <code>系统盘 - SSD云硬盘 50GB</code> <code>流量包 - 300GB/月（带宽 4Mbps）</code></li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="协议">协议<a href="#协议" class="hash-link" aria-label="Direct link to 协议" title="Direct link to 协议" translate="no">​</a></h4>
-<ul>
-<li>协议: 传输层 tcp/udp，应用层 http/https/websocket</li>
-<li>连接方式: (基于 tcp 协议)http1.0/http1.1/websocket</li>
-<li>消息收发方式: 单向 request+ 单向 response/webhook，双向 websocket</li>
-<li>http 和 https 是两种不同的协议，分别关联服务器的 80 端口和 443 端口，https 需要证书</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="证书">证书<a href="#证书" class="hash-link" aria-label="Direct link to 证书" title="Direct link to 证书" translate="no">​</a></h4>
-<ul>
-<li>SSL 证书是一种数字证书，用于在客户端和服务器之间建立安全的加密通信通道</li>
-<li>多个地方可以提供证书，腾讯提供收费和免费的证书，cloudflare、Let&#x27;s Encrypt 提供免费的证书</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="备案">备案<a href="#备案" class="hash-link" aria-label="Direct link to 备案" title="Direct link to 备案" translate="no">​</a></h4>
-<ul>
-<li>备案指所有国内的域名必须在 ICP 管理局进行备案，由于 QQ 小程序在 25 年年初停止了网址代备案服务，所以所有域名只能在服务器提供商处备案</li>
-<li>国内的域名使用需要备案，国外的域名使用不需要备案</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="域名解析">域名解析<a href="#域名解析" class="hash-link" aria-label="Direct link to 域名解析" title="Direct link to 域名解析" translate="no">​</a></h4>
-<ul>
-<li>域名必须要有一个域名托管处（DNS 解析跳转的地方）</li>
-<li>免费域名的供应商不提供托管服务，可以使用 cloudflare 进行免费托管；收费的域名一般是域名提供商提供托管服务</li>
-<li>域名托管服务器会根据记录将域名请求转发到你的服务器上</li>
-<li>国内大企业服务器提供商无法解析国外的域名，只能解析国内域名（且需要审核）；国内小厂服务器可解析所有域名（但非常容易跑路）；国外的服务器可以解析国外及国内的域名</li>
-<li>解析:<!-- -->
-<ul>
-<li>A 记录: 将域名解析成一个 ipv4 地址</li>
-<li>CNAME 记录: 将你的域名解析成另一个域名</li>
-<li>DS 记录: 包含一个哈希值，用于验证 DNS 区域中下级区域的密钥</li>
-<li>子记录：域名下的子域记录</li>
-<li>* : 所有未明确指定的子域名都会被解析到这个 IP 地址</li>
-<li>www: <code>www.域名</code>会被解析到这个 IP 地址</li>
-<li>域名本身: 仅域名本身会被解析到这个 IP 地址</li>
-</ul>
-</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器正向代理">服务器正向代理<a href="#服务器正向代理" class="hash-link" aria-label="Direct link to 服务器正向代理" title="Direct link to 服务器正向代理" translate="no">​</a></h4>
-<ul>
-<li>正向代理（一般叫做代理）指的是客户端通过代理服务器访问目标服务器</li>
-<li>服务器连接命令中的 <code>-D 5923</code> 就是一种采用 socks5 的正向代理，把 5923 端口的请求转发到服务器</li>
-<li>为什么不用 socks 而用 socks5？在测试 socks 代理时，使用 <code>nslookup  http://ifconfig.me</code>返回服务器 unknown，与网关有关，必须强制在服务器上解析地址，--socks5-hostname 可以做到而 socks 不行；单独使用 --socks5 会报错</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器反向代理">服务器反向代理<a href="#服务器反向代理" class="hash-link" aria-label="Direct link to 服务器反向代理" title="Direct link to 服务器反向代理" translate="no">​</a></h4>
-<ul>
-<li>反向代理指的是服务器在接收到客户端请求后，将请求转发给真实的服务器，并将服务器的响应返回给客户端</li>
-<li>服务器连接命令中如 <code>-R localhost:10000:localhost:5922</code> 就是将本地的 5922 端口绑定到服务器的 10000 端口</li>
-<li>同时配置 nginx 将 10000 端口转发到 80 端口和 443 端口，实现反向代理</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="查看ssh日志">查看ssh日志<a href="#查看ssh日志" class="hash-link" aria-label="Direct link to 查看ssh日志" title="Direct link to 查看ssh日志" translate="no">​</a></h4>
-<p><code>sudo tail -f /var/log/auth.log | grep sshd</code></p>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="服务器价格参考">服务器价格参考<a href="#服务器价格参考" class="hash-link" aria-label="Direct link to 服务器价格参考" title="Direct link to 服务器价格参考" translate="no">​</a></h2>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="价格参考">价格参考<a href="#价格参考" class="hash-link" aria-label="Direct link to 价格参考" title="Direct link to 价格参考" translate="no">​</a></h4>
 <ul>
 <li>免费: 国内的域名大部分都收费，国外的域名有大型的免费域名提供商</li>
 <li>试用期: 国内大厂服务器试用期只有 1-3 月，国外的服务器试用期大多为 1 年（但需要 visa 卡），国内小厂服务器极其不稳定</li>
@@ -112,40 +63,53 @@
 </ul>
 </li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="配置服务器">配置服务器<a href="#配置服务器" class="hash-link" aria-label="Direct link to 配置服务器" title="Direct link to 配置服务器" translate="no">​</a></h2>
-<p><strong><a href="#%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98">服务器配置相关问题</a></strong></p>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="购买服务器域名">购买服务器+域名<a href="#购买服务器域名" class="hash-link" aria-label="Direct link to 购买服务器+域名" title="Direct link to 购买服务器+域名" translate="no">​</a></h4>
 <ul>
-<li>由于网页端的备案限制，本项目选择方案<code>国内的服务器+国内的域名</code>（不需要备案域名<a href="#%E5%85%B6%E4%BB%96">参考此处</a>）</li>
-</ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="腾讯云域名服务器购买">腾讯云域名+服务器购买<a href="#腾讯云域名服务器购买" class="hash-link" aria-label="Direct link to 腾讯云域名+服务器购买" title="Direct link to 腾讯云域名+服务器购买" translate="no">​</a></h4>
-<ul>
+<li>以本项目腾讯云域名+服务器购买为例</li>
 <li>进入<a href="https://cloud.tencent.com/act/pro/lighthouse2021" target="_blank" rel="noopener noreferrer">优惠页面</a>，选择轻量应用服务器，参考价格<code>368/三年</code></li>
 <li>实名后选择域名，购买域名，参考价格<code>109/三年</code></li>
 <li>选择右上角的备案，进行备案，等待腾讯云及信管局审核（7 天）</li>
 <li>备案完成后，进入控制台，搜索 SSL 证书，选择申请免费证书，选择自动 DNS 验证</li>
 <li>进入控制台，选择轻量应用型服务器，<code>SSH 密钥-创建密钥</code>，<code>绑定实例-同意强制关机-继续</code>，私钥会自动下载，重命名为 lrobot.pem，放在 command 文件夹下</li>
-<li><code>管理域名-添加域名解析</code>勾选前两个，第三个输入*，确认</li>
+<li><code>管理域名-添加域名解析</code>勾选前两个，第三个输入*，确认，即使用<code>www * @</code>三条 A 记录
+<img decoding="async" loading="lazy" alt="域名解析" src="/Lrobot/en/assets/images/3-247f92ad8ad2cf7ed8c20e631e5eae4a.png" width="2107" height="551" class="img_ev3q"></li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器连接">服务器连接<a href="#服务器连接" class="hash-link" aria-label="Direct link to 服务器连接" title="Direct link to 服务器连接" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="连接服务器">连接服务器<a href="#连接服务器" class="hash-link" aria-label="Direct link to 连接服务器" title="Direct link to 连接服务器" translate="no">​</a></h4>
+<ol>
+<li>ssh 连接</li>
+</ol>
 <ul>
 <li>使用<code>ssh -i xxx\lrobot.pem username@ip</code>连接服务器（记得替换命令中的密钥文件路径、管理员名称和服务器 ip）（腾讯管理员名称一般是 ubuntu）</li>
 <li><code>Are you sure you want to continue connecting (yes/no/[fingerprint])?</code> 选择 yes</li>
 <li>进入服务器命令行</li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器端口">服务器端口<a href="#服务器端口" class="hash-link" aria-label="Direct link to 服务器端口" title="Direct link to 服务器端口" translate="no">​</a></h4>
+<ol start="2">
+<li>图形界面连接</li>
+</ol>
 <ul>
-<li>为满足连接需要，22 端口（ssh 连接）是需要开启的</li>
-<li>测试连接时，最好能开启 80 及 443 端口，以便直接通过服务器 ip 来测试</li>
+<li>进入腾讯云，选择控制台，进入轻量应用服务器</li>
+<li>选择对应服务器，点击登录</li>
+<li>选择 OrcaTerm，使用图形界面登录</li>
+<li>右侧是命令行，左侧可以打开文件夹快速传输文件</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="配置服务器端口">配置服务器端口<a href="#配置服务器端口" class="hash-link" aria-label="Direct link to 配置服务器端口" title="Direct link to 配置服务器端口" translate="no">​</a></h4>
+<ul>
+<li>22 端口: ssh 连接，若使用方案 B，需要开启</li>
+<li>80 和 443 端口: 通过服务器<code>ip/路径</code>直接测试网页服务能否访问，排查连接错误时可开启<!-- -->
+<ul>
 <li>测试结束后，关闭服务器的 80 及 443 端口，后续都直接通过域名访问</li>
+</ul>
+</li>
+<li>6099 端口:防火墙-来源全部ipv4-TCP-6099-允许，用于方案 A 中临时配置 napcat，使用结束后改为拒绝</li>
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="域名证书">域名证书<a href="#域名证书" class="hash-link" aria-label="Direct link to 域名证书" title="Direct link to 域名证书" translate="no">​</a></h4>
 <ul>
+<li>我的证书中可以下载证书（nginx 中需要）</li>
 <li>使用免费证书，开启自动续费</li>
 <li>不用开启托管，因为一般的服务器不满足条件</li>
 <li>证书有效期为 3 个月，开启了在到期前 1 个月替换的话，可以每 2 个月替换证书（方法在下面）；如果改成到期前 10 天的话可能替换的间隔久一点</li>
 </ul>
-<h2 class="anchor anchorWithStickyNavbar_LWe7" id="nginx配置">nginx配置<a href="#nginx配置" class="hash-link" aria-label="Direct link to nginx配置" title="Direct link to nginx配置" translate="no">​</a></h2>
-<p><strong><a href="#%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98">nginx配置相关问题</a></strong></p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="配置-nginx">配置 nginx<a href="#配置-nginx" class="hash-link" aria-label="Direct link to 配置 nginx" title="Direct link to 配置 nginx" translate="no">​</a></h2>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="linux">linux<a href="#linux" class="hash-link" aria-label="Direct link to linux" title="Direct link to linux" translate="no">​</a></h4>
 <ul>
 <li>参考<a href="https://www.cnblogs.com/orangebooks/p/12058830.html" target="_blank" rel="noopener noreferrer">教程</a>或下文的安装命令在服务器上配置 nginx</li>
@@ -163,11 +127,11 @@
 <li>输入<code>cd /usr/local/nginx/sbin</code> <code>sudo ./nginx -s reload</code>来重启 nginx 服务</li>
 </ul>
 </li>
-<li>修改 nginx 配置，使用项目中的 nginx.conf(command/nginx.conf)<!-- -->
+<li>修改 nginx 配置，使用项目中的 nginx.conf(command/nginx.conf)(方案 B 更改 5922 为 10000)<!-- -->
 <ul>
 <li>传输方法：</li>
 <li>在本地命令行使用命令<code>type xxxx\nginx.conf | ssh -i xxx\lrobot.pem username@ip &quot;sudo tee /usr/local/nginx/conf/nginx.conf &gt; /dev/null&quot;</code></li>
-<li>以更改服务器上的 nginx 配置文件（记得替换 nginx 文件路径、密钥文件路径、管理员名称和服务器 ip）</li>
+<li>以更改服务器上的 nginx 配置文件（记得替换 nginx 配置路径、密钥文件路径、管理员名称和服务器 ip）</li>
 <li>随后通过 ssh 连接服务器</li>
 <li>输入<code>cd /usr/local/nginx/sbin</code> <code>sudo ./nginx -s reload</code>来重启 nginx 服务</li>
 </ul>
@@ -180,8 +144,21 @@
 <li>复制本地文件 nginx.conf 到 nginx/conf/nginx.conf</li>
 <li>同样复制证书文件（需要修改 nginx.conf 中密钥文件路径为 windows 上的路径）</li>
 </ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="nginx-配置">nginx 配置<a href="#nginx-配置" class="hash-link" aria-label="Direct link to nginx 配置" title="Direct link to nginx 配置" translate="no">​</a></h4>
+<ul>
+<li><strong>nginx.conf 文件说明</strong></li>
+<li>由于没有配置 AAAA 记录以及服务器无 IPV6 地址，故 nginx.conf 里不考虑 IPV6</li>
+<li>配置开启 Gzip，并支持 WebSocket</li>
+<li>禁止通过服务器 IP 直接访问，所有 HTTP 请求 301 重定向到 HTTPS，并将请求转发到本地 5922 端口</li>
+<li>配置默认错误页面（需要根据路径自行在服务器上设置页面）</li>
+<li>nginx 配置在请求头处携带 ip，供后端分析原 ip</li>
+<li>若是方案 B，使用 command 容器启用转发时，需要转发到 10000 端口，故把两处 5922 改为 10000</li>
+</ul>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="相关问题">相关问题<a href="#相关问题" class="hash-link" aria-label="Direct link to 相关问题" title="Direct link to 相关问题" translate="no">​</a></h2>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="connection-closed-by-xxx-port-22">Connection closed by xxx port 22<a href="#connection-closed-by-xxx-port-22" class="hash-link" aria-label="Direct link to Connection closed by xxx port 22" title="Direct link to Connection closed by xxx port 22" translate="no">​</a></h4>
+<blockquote>
+<p>省流: 直接刷新代理</p>
+</blockquote>
 <ul>
 <li>解决步骤如下：</li>
 </ul>
@@ -197,7 +174,7 @@
 </ol>
 <ul>
 <li>执行 <code>sudo grep -E &quot;AllowTcpForwarding|GatewayPorts&quot; /etc/ssh/sshd_config</code>看 ssh 是否允许远程转发</li>
-<li>结果：<code>sudo vim /etc/ssh/sshd_config``AllowTcpForwarding yes``GatewayPorts yes``sudo systemctl restart ssh</code></li>
+<li>结果：允许：<code>sudo vim /etc/ssh/sshd_config``AllowTcpForwarding yes``GatewayPorts yes``sudo systemctl restart ssh</code></li>
 </ul>
 <ol start="3">
 <li>步骤：日志 <code>Remote: Forwarding listen address &quot;localhost&quot; overridden by server GatewayPorts</code></li>
@@ -221,17 +198,17 @@
 <li>步骤：删除退出重连机制，检测日志，本地只有两次认证，而服务器有三次<code>Accepted publickey for ubuntu from xx port xx</code></li>
 </ol>
 <ul>
-<li>现象1：新ssh请求进入：localhost sshd[286370]<!-- -->:Accepted<!-- --> publickey for ubuntu from xxx port 51623</li>
-<li>现象2：清理进程登录成功：localhost sshd[286370]: pam_unix(sshd<!-- -->:session<!-- -->): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</li>
-<li>现象3：旧10000端口进程被清理：sshd[286205]: pam_unix(sshd<!-- -->:session<!-- -->): session closed for user ubuntu</li>
-<li>现象4：清理进程主动断开：localhost sshd[286417]: Received disconnect from xx port xx:11: disconnected by user</li>
-<li>现象5：清理进程断开完成：localhost sshd[286417]: Disconnected from user ubuntu xx port 51623</li>
-<li>现象6：新ssh请求进入：localhost sshd[286424]: Accepted publickey for ubuntu from xx port xx ssh2: RSA SHA256:...</li>
-<li>现象7：连接进程登录成功： localhost sshd[286424]: pam_unix(sshd<!-- -->:session<!-- -->): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</li>
-<li>现象8：新ssh请求进入： localhost sshd[286496]: Accepted publickey for ubuntu from xx port 51634 ssh2: RSA SHA256:...</li>
-<li>现象9：未知进程登录成功：localhost sshd[286496]: pam_unix(sshd<!-- -->:session<!-- -->): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</li>
-<li>现象10：连接进程被关闭：localhost sshd[286424]: pam_unix(sshd<!-- -->:session<!-- -->): session closed for user ubuntu</li>
-<li>现象11：未知进程被关闭： localhost sshd[286543]: Received disconnect from xx port 51634:11: disconnected by user</li>
+<li>现象1：新ssh请求进入：<code>localhost sshd[286370]:Accepted publickey for ubuntu from xxx port 51623</code></li>
+<li>现象2：清理进程登录成功：<code>localhost sshd[286370]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</code></li>
+<li>现象3：旧10000端口进程被清理：<code>sshd[286205]: pam_unix(sshd:session): session closed for user ubuntu</code></li>
+<li>现象4：清理进程主动断开：<code>localhost sshd[286417]: Received disconnect from xx port xx:11: disconnected by user</code></li>
+<li>现象5：清理进程断开完成：<code>localhost sshd[286417]: Disconnected from user ubuntu xx port 51623</code></li>
+<li>现象6：新ssh请求进入：<code>localhost sshd[286424]: Accepted publickey for ubuntu from xx port xx ssh2: RSA SHA256:...</code></li>
+<li>现象7：连接进程登录成功：<code>localhost sshd[286424]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</code></li>
+<li>现象8：新ssh请求进入：<code>localhost sshd[286496]: Accepted publickey for ubuntu from xx port 51634 ssh2: RSA SHA256:...</code></li>
+<li>现象9：未知进程登录成功：<code>localhost sshd[286496]: pam_unix(sshd:session): session opened for user ubuntu(uid=1000) by ubuntu(uid=0)</code></li>
+<li>现象10：连接进程被关闭：<code>localhost sshd[286424]: pam_unix(sshd:session): session closed for user ubuntu</code></li>
+<li>现象11：未知进程被关闭：<code>localhost sshd[286543]: Received disconnect from xx port 51634:11: disconnected by user</code></li>
 <li>推测：由于ssh机制或者代理问题，清理进程和未知进程都被发送了两次，后一个清理进程关闭了前一个已经连接上的连接进程</li>
 <li>结论：解决这个多次连接的问题，只有把两条命令合并</li>
 </ul>
@@ -255,27 +232,25 @@
 <li>步骤：合并指令均失败，尝试自动清理 ssh 端口</li>
 </ol>
 <ul>
-<li>执行：使用 ForceCommand，在 sshd_config：<code>Match User your_username``ForceCommand /usr/local/bin/ssh_wrapper.sh</code></li>
+<li>执行1：使用 ForceCommand，在 sshd_config：<code>Match User your_username``ForceCommand /usr/local/bin/ssh_wrapper.sh</code></li>
 </ul>
 <div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">#!/bin/bash</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># 清理10000端口占用</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">sudo lsof -t -i:10000 | xargs -r sudo kill -9</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># 执行原始命令（ssh传入的）</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">if [[ -n &quot;$SSH_ORIGINAL_COMMAND&quot; ]]; then</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    exec $SSH_ORIGINAL_COMMAND</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">else</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    exec bash</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">fi</span><br></span></code></pre></div></div>
 <ul>
-<li>执行：编辑脚本 ssh_wrapper.sh</li>
+<li>执行1：编辑脚本 ssh_wrapper.sh</li>
 <li>结果：ForceCommand 发生在用户 session 建立之前，10000 端口被占用时连接直接失败了，无法执行</li>
+<li>执行2：使用 ~/.ssh/rc 来清除端口</li>
 </ul>
-<ol start="8">
-<li>步骤：使用 ~/.ssh/rc 来清除端口</li>
-</ol>
 <div class="language-text codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-text codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token plain">#!/bin/bash</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"># 检查是否有 sshd 进程已经在尝试绑定10000端口（处于 LISTEN 状态）</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">if ss -lntp 2&gt;/dev/null | grep -q &quot;:10000&quot;; then</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    sudo lsof -t -i:10000 | xargs -r sudo kill -9</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">fi</span><br></span></code></pre></div></div>
 <ul>
 <li>结论：~/.ssh/rc 是在 用户的 shell/session 已经建立后才执行，但连接 10000 端口已经被占用了，失败</li>
 </ul>
-<ol start="9">
+<ol start="8">
 <li>步骤：清除端口失败，重新尝试使用 &amp;&amp; 合并两个 ssh 命令</li>
 </ol>
 <ul>
 <li>结论：仍存在这个问题</li>
 </ul>
-<ol start="10">
+<ol start="9">
 <li>步骤：重新回到问题，本地只有两次 ssh 连接，服务器却收到三次 Accepted publickey</li>
 </ol>
 <ul>
@@ -293,14 +268,14 @@
 <li>结果：其就是一模一样的连接，参数、命令行同转发命令</li>
 <li>结果：本地无日志，因为是绕过 docker 另一个进程发的</li>
 </ul>
-<ol start="11">
+<ol start="10">
 <li>步骤：确认产生了新连接，排查新连接是否为 docker 产生</li>
 </ol>
 <ul>
 <li>执行 docker logs command 2&gt;&amp;1 | findstr &quot;ssh.*10000.*lrobot&quot;</li>
 <li>只有一条日志，不是 docker 产生</li>
 </ul>
-<ol start="12">
+<ol start="11">
 <li>步骤：查找此时谁使用了对服务器的连接</li>
 </ol>
 <ul>
@@ -348,8 +323,6 @@
 <li>步骤：推测是执行了两次导致四个连接</li>
 </ol>
 <ul>
-<li>执行：又无法复现此现象，且无法输出 ssh 连接历史，排查中断</li>
-<li>执行：继续排查</li>
 <li>结果：四个连接分别是正常情况下的连接+ssh 简单连接+两个 mihomo 转发</li>
 </ul>
 <ol start="17">
@@ -410,6 +383,14 @@
 <li>结果：一次 ssh 只建立了一次连接，是产生了多条 ssh 而不是单条</li>
 </ul>
 <ol start="23">
+<li>步骤：确认为，一次 ssh 的 forword 连接由于失败，尝试了 2~3 次连接，跟 clean 无关</li>
+</ol>
+<ul>
+<li>在可以复现的网络环境下，只使用 ssh_run 指令，手动在服务器上清理 10000 端口，则可以成功转发；</li>
+<li>关闭当前连接，重新执行 ssh_run，转发失败，服务器显示 3 次连接</li>
+<li>故问题仅在于清理程序失效</li>
+</ul>
+<ol start="24">
 <li>步骤：回顾 AI 关键错误</li>
 </ol>
 <ul>
@@ -419,11 +400,31 @@
 <li>结论：所以这些尝试才会使用相同的命令</li>
 <li>最终结论：“重试”只是同一个 ssh 进程在 TCP/SSH 协议层的自动复连，没有新的进程、没有新的横幅，也没有新的错误回显，所以容器终端里看不到</li>
 </ul>
+<ol start="25">
+<li>步骤：修改清理命令</li>
+</ol>
+<ul>
+<li>最终采用：<code>sudo lsof -i:10000; sudo fuser -k 10000/tcp;sudo lsof -i:10000;</code></li>
+<li>之前使用<code>sudo lsof -i:10000;sudo kill -9 ……</code></li>
+<li>以及还有其他几条命令，均失败</li>
+<li>此命令仍有时候会失败</li>
+</ul>
+<ol start="26">
+<li>步骤：拆分重连</li>
+</ol>
+<ul>
+<li>取消 command 的 restart<!-- -->:always</li>
+<li>有时存在容器无日志、同时网页访问不了的情况，由于 ssh 连接日志阻塞，没有输出日志，也没有触发检测&#x27;closed by&#x27;的退出机制</li>
+<li>改为在 lrobot 里定时检测网址，失败则使用 LR5921 向用户发送消息（但方案 A 中 Napcat 与 Lrobot 处于同一服务器，假设服务器崩溃可能也不会触发）</li>
+<li>重启容器由 lrobot 中的指令触发命令行<code>docker restart</code>完成，command 有时自动重启会失败，换成 lrobot 暂时没有出现失败情况</li>
+<li>之后本系统直接从方案 B 换成方案 A 了，只观察了三天此方法</li>
+<li>偶尔连不上刷新一下代理就好了</li>
+</ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-user-dnsmasq-from-xxxxxx-port-33570">Invalid user dnsmasq from xxxxxx port 33570<a href="#invalid-user-dnsmasq-from-xxxxxx-port-33570" class="hash-link" aria-label="Direct link to Invalid user dnsmasq from xxxxxx port 33570" title="Direct link to Invalid user dnsmasq from xxxxxx port 33570" translate="no">​</a></h4>
 <ul>
-<li>在使用代理时，可能会出现，dnsmasq 是使用代理后被更改的用户名，需要关闭代理</li>
+<li>在使用代理时，可能会出现此日志，dnsmasq 是使用代理后被更改的用户名，需要关闭代理</li>
 </ul>
-<h4 class="anchor anchorWithStickyNavbar_LWe7" id="卡在debug1-pledge-network">卡在debug1: pledge: network<a href="#卡在debug1-pledge-network" class="hash-link" aria-label="Direct link to 卡在debug1: pledge: network" title="Direct link to 卡在debug1: pledge: network" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="连接卡在-debug1-pledge-network">连接卡在 debug1: pledge: network<a href="#连接卡在-debug1-pledge-network" class="hash-link" aria-label="Direct link to 连接卡在 debug1: pledge: network" title="Direct link to 连接卡在 debug1: pledge: network" translate="no">​</a></h4>
 <ul>
 <li>在同一电脑向服务器建立两个 ssh 连接时，如果开启 debug，有时会发现卡在此处，没找到解决方法，可能是服务器无法处理两个 ssh 连接的问题，使用网上的清理 btmp 文件、禁用 DNS 解析、重启 systemd-logind 服务三种方法，均未解决</li>
 </ul>
@@ -442,14 +443,15 @@
 </ul>
 <h4 class="anchor anchorWithStickyNavbar_LWe7" id="错误调试">错误调试<a href="#错误调试" class="hash-link" aria-label="Direct link to 错误调试" title="Direct link to 错误调试" translate="no">​</a></h4>
 <ul>
-<li>当 ssh 测试出现错误时可按照此步骤逐步排除配置错误</li>
+<li>当配置 nginx 完成后却无法访问网站/发送消息显示不在白名单时可按照此步骤逐步排除配置错误</li>
+<li>针对方案 B</li>
 <li>本地运行后端代码开启测试端口（自行配置或者新建 test.py，复制下方代码）</li>
 </ul>
 <div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#F8F8F2;--prism-background-color:#282A36"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#F8F8F2;background-color:#282A36"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#F8F8F2"><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">from</span><span class="token plain"> fastapi </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> FastAPI</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> Response</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">app </span><span class="token operator">=</span><span class="token plain"> FastAPI</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">@app</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token decorator annotation punctuation" style="color:rgb(248, 248, 242)">get</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;/test&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">def</span><span class="token plain"> </span><span class="token function" style="color:rgb(80, 250, 123)">read_test</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">return</span><span class="token plain"> Response</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">content</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;Hello World!&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> media_type</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;text/plain&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain"></span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">if</span><span class="token plain"> __name__ </span><span class="token operator">==</span><span class="token plain"> </span><span class="token string" style="color:rgb(255, 121, 198)">&quot;__main__&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    </span><span class="token keyword" style="color:rgb(189, 147, 249);font-style:italic">import</span><span class="token plain"> uvicorn</span><br></span><span class="token-line" style="color:#F8F8F2"><span class="token plain">    uvicorn</span><span class="token punctuation" style="color:rgb(248, 248, 242)">.</span><span class="token plain">run</span><span class="token punctuation" style="color:rgb(248, 248, 242)">(</span><span class="token plain">app</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> host</span><span class="token operator">=</span><span class="token string" style="color:rgb(255, 121, 198)">&quot;0.0.0.0&quot;</span><span class="token punctuation" style="color:rgb(248, 248, 242)">,</span><span class="token plain"> port</span><span class="token operator">=</span><span class="token number">5922</span><span class="token punctuation" style="color:rgb(248, 248, 242)">)</span><br></span></code></pre></div></div>
 <ul>
 <li>访问 <code>127.0.0.1:5922/test</code> 成功返回 Hello World!</li>
 <li>命令行 1 输入 <code>ssh -i xxx\lrobot.pem username@ip</code>测试连接，命令行进入 linux 界面</li>
-<li>命令行 2 输入 <code>ssh -i xxx\lrobot.pem -v -N -R 10000:localhost:5922 username@ip</code> 显示 remote forward success 即为监听成功</li>
+<li>命令行 2 输入 <code>ssh -i xxx\lrobot.pem -v -N -R 10000:localhost:5922 username@ip</code> 显示<code>remote forward success</code>即为监听成功</li>
 <li>命令行 1 分别用 <code>curl http://localhost:10000/test</code> 和 <code>curl http://localhost:80/test</code> 测试端口是否转发成功、服务器是否配置成功</li>
 <li>访问<code>服务器/test</code>,<code>域名/test</code>测试反向代理、域名代理是否成功（如果服务器未开启 80/443 端口则不用测试服务器）</li>
 <li>关闭命令行 2</li>
@@ -554,6 +556,124 @@
 <li>DDNS-GO 可用于不存在网关的网络系统中。对于家庭组网路由，ipv4 和网关的 ipv4 相同，动态 DDNS 解析没有用，本质上还是获取你的固定的 ipv4 上报到类似于 cloudflared 的域名解析平台，访问提交给网关时，无法正确定位到你的电脑上</li>
 <li>如果网关不是光猫而是路由器直接连接网线，可以尝试配置路由器分配固定 ip 的方法，即配置路由器某端口固定返回本机。光猫网关不支持分配端口</li>
 <li>使用 ipv6 也许是可行的，但 Hurricane Electric 的 6in4 注册不了，可能是网络问题</li>
-</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/2使用指南/3平台配置"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">平台配置</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/category/其他配置"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">其他配置</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#各平台连接方式及需求" class="table-of-contents__link toc-highlight">各平台连接方式及需求</a></li><li><a href="#名词解释" class="table-of-contents__link toc-highlight">名词解释</a></li><li><a href="#服务器价格参考" class="table-of-contents__link toc-highlight">服务器价格参考</a></li><li><a href="#配置服务器" class="table-of-contents__link toc-highlight">配置服务器</a></li><li><a href="#nginx配置" class="table-of-contents__link toc-highlight">nginx配置</a></li><li><a href="#相关问题" class="table-of-contents__link toc-highlight">相关问题</a></li><li><a href="#其他" class="table-of-contents__link toc-highlight">其他</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="相关知识">相关知识<a href="#相关知识" class="hash-link" aria-label="Direct link to 相关知识" title="Direct link to 相关知识" translate="no">​</a></h2>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="常用命令">常用命令<a href="#常用命令" class="hash-link" aria-label="Direct link to 常用命令" title="Direct link to 常用命令" translate="no">​</a></h4>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="目录操作">目录操作<a href="#目录操作" class="hash-link" aria-label="Direct link to 目录操作" title="Direct link to 目录操作" translate="no">​</a></h6>
+<ul>
+<li><code>cd /path/to/dir</code>	进入目录</li>
+<li><code>cd ..</code>	返回上一级目录</li>
+<li><code>pwd</code>	查看当前路径</li>
+<li><code>ls</code>	列出当前目录下的文件</li>
+<li><code>ls -l</code>	以详细列表形式显示文件信息</li>
+<li><code>ls -a</code>	显示包括隐藏文件在内的所有文件</li>
+<li><code>mkdir 文件夹名</code>	创建文件夹</li>
+<li><code>rm 文件名</code>	删除文件</li>
+<li><code>rm -rf 文件夹名</code>	强制删除文件夹及其内容</li>
+<li><code>cp 源文件 目标路径</code>	复制文件</li>
+<li><code>mv 源文件 目标路径</code>	移动或重命名文件</li>
+</ul>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="文件操作">文件操作<a href="#文件操作" class="hash-link" aria-label="Direct link to 文件操作" title="Direct link to 文件操作" translate="no">​</a></h6>
+<p><code>cat 文件名</code>	查看文件内容
+<code>tail -f 文件名</code>	实时查看文件日志输出
+<code>vim 文件名</code>	使用 Vim 编辑文件
+<code>nano 文件名</code>	使用 Nano 编辑文件
+<code>touch 文件名</code>	创建空文件或更新修改时间</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="磁盘空间">磁盘空间<a href="#磁盘空间" class="hash-link" aria-label="Direct link to 磁盘空间" title="Direct link to 磁盘空间" translate="no">​</a></h6>
+<p><code>df -h</code>	查看磁盘分区使用情况
+<code>du -sh *</code>	查看当前目录下每个文件夹大小
+<code>du -h --max-depth=1 /</code>	查看根路径下一级目录的总大小
+<code>sudo journalctl --vacuum-size=100M</code>	清理系统日志，限制总大小为100M
+<code>sudo apt autoremove</code>	自动清理不再需要的软件包
+<code>sudo apt clean</code>	清理 apt 缓存文件
+<code>sudo apt autoclean</code>	删除无用的旧包缓存</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="系统操作">系统操作<a href="#系统操作" class="hash-link" aria-label="Direct link to 系统操作" title="Direct link to 系统操作" translate="no">​</a></h6>
+<p><code>free -h</code>	查看内存使用情况
+<code>uptime</code>	查看系统运行时间与平均负载
+<code>ps aux</code>	查看所有进程
+<code>kill 进程号</code>	结束进程
+<code>kill -9 进程号</code>	强制结束进程</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="网络相关">网络相关<a href="#网络相关" class="hash-link" aria-label="Direct link to 网络相关" title="Direct link to 网络相关" translate="no">​</a></h6>
+<p><code>ping 域名或IP</code>	测试网络连通性
+<code>curl http://example.com</code>	请求网页内容
+<code>wget URL</code>	下载文件
+<code>ss -tuln</code>	查看端口占用情况
+<code>netstat -tulnp</code>	查看监听端口
+<code>ifconfig</code>	查看网卡信息
+<code>ip addr</code>	查看 IP 地址</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="ssh相关">SSH相关<a href="#ssh相关" class="hash-link" aria-label="Direct link to SSH相关" title="Direct link to SSH相关" translate="no">​</a></h6>
+<p><code>ssh 用户名@服务器IP</code>	连接远程服务器
+<code>ssh -p 端口 用户名@IP</code>	指定端口连接
+<code>sudo tail -f /var/log/auth.log	grep sshd</code>
+<code>scp 本地文件 用户名@远程IP:/目标路径</code>	从本地上传文件到服务器
+<code>scp 用户名@远程IP:/远程文件 本地路径</code>	从服务器下载文件到本地</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="软件相关">软件相关<a href="#软件相关" class="hash-link" aria-label="Direct link to 软件相关" title="Direct link to 软件相关" translate="no">​</a></h6>
+<p><code>sudo apt update</code>	更新软件包索引
+<code>sudo apt upgrade</code>	升级所有可更新的软件包
+<code>sudo apt install</code> 包名	安装软件
+<code>sudo apt remove</code> 包名	卸载软件
+<code>apt list --installed</code>	查看已安装软件
+<code>whereis 软件名</code>	查找软件安装路径</p>
+<h6 class="anchor anchorWithStickyNavbar_LWe7" id="用户相关">用户相关<a href="#用户相关" class="hash-link" aria-label="Direct link to 用户相关" title="Direct link to 用户相关" translate="no">​</a></h6>
+<p><code>sudo su</code>	切换为 root 用户
+<code>adduser 用户名</code>	新建用户
+<code>deluser 用户名</code>	删除用户
+<code>passwd 用户名</code>	修改密码
+<code>chmod 权限 文件名</code>	修改文件权限（如 chmod 755 script.sh）
+<code>chown 用户:用户组 文件名</code>	修改文件拥有者
+<code>sudo</code>	临时以管理员身份执行命令</p>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="名词解释">名词解释<a href="#名词解释" class="hash-link" aria-label="Direct link to 名词解释" title="Direct link to 名词解释" translate="no">​</a></h4>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="ip-与域名">ip 与域名<a href="#ip-与域名" class="hash-link" aria-label="Direct link to ip 与域名" title="Direct link to ip 与域名" translate="no">​</a></h4>
+<ul>
+<li>ip 包括 ip 地址(纯数字)和域名(字母)</li>
+<li>域名是通过 DNS 解析成 ip 的</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="协议">协议<a href="#协议" class="hash-link" aria-label="Direct link to 协议" title="Direct link to 协议" translate="no">​</a></h4>
+<ul>
+<li>协议: 传输层 tcp/udp，应用层 http/https/websocket</li>
+<li>连接方式: (基于 tcp 协议)http1.0/http1.1/websocket</li>
+<li>消息收发方式: 单向 request+ 单向 response/webhook，双向 websocket</li>
+<li>http 和 https 是两种不同的协议，分别关联服务器的 80 端口和 443 端口，https 需要证书</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="证书">证书<a href="#证书" class="hash-link" aria-label="Direct link to 证书" title="Direct link to 证书" translate="no">​</a></h4>
+<ul>
+<li>SSL 证书是一种数字证书，用于在客户端和服务器之间建立安全的加密通信通道</li>
+<li>多个地方可以提供证书，腾讯提供收费和免费的证书，cloudflare、Let&#x27;s Encrypt 提供免费的证书</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="备案">备案<a href="#备案" class="hash-link" aria-label="Direct link to 备案" title="Direct link to 备案" translate="no">​</a></h4>
+<ul>
+<li>备案指所有国内的域名必须在 ICP 管理局进行备案，由于 QQ 小程序在 25 年年初停止了网址代备案服务，所以所有域名只能在服务器提供商处备案</li>
+<li>国内的域名使用需要备案，国外的域名使用不需要备案</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="域名解析">域名解析<a href="#域名解析" class="hash-link" aria-label="Direct link to 域名解析" title="Direct link to 域名解析" translate="no">​</a></h4>
+<ul>
+<li>域名必须要有一个域名托管处（DNS 解析跳转的地方）</li>
+<li>免费域名的供应商不提供托管服务，可以使用 cloudflare 进行免费托管；收费的域名一般是域名提供商提供托管服务</li>
+<li>域名托管服务器会根据记录将域名请求转发到你的服务器上</li>
+<li>国内大企业服务器提供商无法解析国外的域名，只能解析国内域名（且需要审核）；国内小厂服务器可解析所有域名（但非常容易跑路）；国外的服务器可以解析国外及国内的域名</li>
+<li>解析:<!-- -->
+<ul>
+<li>A 记录: 将域名解析成一个 ipv4 地址</li>
+<li>CNAME 记录: 将你的域名解析成另一个域名</li>
+<li>DS 记录: 包含一个哈希值，用于验证 DNS 区域中下级区域的密钥</li>
+<li>子记录：域名下的子域记录</li>
+<li>* : 所有未明确指定的子域名都会被解析到这个 IP 地址</li>
+<li>www: <code>www.域名</code>会被解析到这个 IP 地址</li>
+<li>域名本身: 仅域名本身会被解析到这个 IP 地址</li>
+</ul>
+</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器正向代理">服务器正向代理<a href="#服务器正向代理" class="hash-link" aria-label="Direct link to 服务器正向代理" title="Direct link to 服务器正向代理" translate="no">​</a></h4>
+<ul>
+<li>正向代理（一般叫做代理）指的是客户端通过代理服务器访问目标服务器</li>
+<li>服务器连接命令中的 <code>-D 5923</code> 就是一种采用 socks5 的正向代理，把 5923 端口的请求转发到服务器</li>
+<li>为什么不用 socks 而用 socks5？在测试 socks 代理时，使用 <code>nslookup  http://ifconfig.me</code>返回服务器 unknown，与网关有关，必须强制在服务器上解析地址，--socks5-hostname 可以做到而 socks 不行；单独使用 --socks5 会报错</li>
+</ul>
+<h4 class="anchor anchorWithStickyNavbar_LWe7" id="服务器反向代理">服务器反向代理<a href="#服务器反向代理" class="hash-link" aria-label="Direct link to 服务器反向代理" title="Direct link to 服务器反向代理" translate="no">​</a></h4>
+<ul>
+<li>反向代理指的是服务器在接收到客户端请求后，将请求转发给真实的服务器，并将服务器的响应返回给客户端</li>
+<li>服务器连接命令中如 <code>-R localhost:10000:localhost:5922</code> 就是将本地的 5922 端口绑定到服务器的 10000 端口</li>
+<li>同时配置 nginx 将 10000 端口转发到 80 端口和 443 端口，实现反向代理</li>
+</ul></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/Lrobot/en/docs/2使用指南/3平台配置"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">平台配置</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/Lrobot/en/docs/category/其他配置"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">其他配置</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#配置参考" class="table-of-contents__link toc-highlight">配置参考</a></li><li><a href="#配置服务器" class="table-of-contents__link toc-highlight">配置服务器</a></li><li><a href="#配置-nginx" class="table-of-contents__link toc-highlight">配置 nginx</a></li><li><a href="#相关问题" class="table-of-contents__link toc-highlight">相关问题</a></li><li><a href="#其他" class="table-of-contents__link toc-highlight">其他</a></li><li><a href="#相关知识" class="table-of-contents__link toc-highlight">相关知识</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">文档</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/1快速开始">快速开始</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/5更新日志">更新日志</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/4常见问题">常见问题</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/1项目总览/3项目功能">项目功能</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南#功能开发示例">功能开发</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/docs/3开发指南/1开发指南">代码解释</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">联系我们</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">QQ : 3502644244</a></li><li class="footer__item"><a class="footer__link-item" href="/Lrobot/en/">输入 &quot;/留言xxx&quot; 来留言或获取帮助 </a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">更多</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/wwweibu/Lrobot" target="_blank" rel="noopener noreferrer" class="footer__link-item">项目仓库<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://whumystery.cn" target="_blank" rel="noopener noreferrer" class="footer__link-item">社团官网<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 微步. Lrobot</div></div></div></footer></div>
 </body>
 </html>
