@@ -15,7 +15,7 @@ async def activity_diary_start(msg: Msg):
     content = f"[图片:{path}/storage/file/command/diary/1.png]"
     content += ("所有答案的形式均为小写英文字母/数字/中文\n"
                 "且中间无空格\n"
-                "输入'航海日记提示'获取当前题目的提示\n"
+                "输入'/提示'获取当前题目的提示\n"
                 "可在绑定的多平台同步答题\n"
                 "不要过于依赖提示哦＞﹏＜")
 

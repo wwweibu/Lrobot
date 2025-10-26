@@ -1,17 +1,20 @@
 """水群"""
 
+import time
 from config import config
 from message.handler.msg import Msg
 
 count = 0
-
+last_send_time = 0
 
 async def water_send(msg: Msg):
     """水群"""
-    global count
-    if msg.group == config["public"]["水群"][0]:
-        count += 1
-    if count == 100:
+    global count, last_send_time
+    if msg.group != config["public"]["水群"][0]:
+        return
+    count += 1
+    now = time.time()
+    if count >= 100 and now - last_send_time >= 1800:
         Msg(
             platform=msg.platform,
             kind=f"群聊发送",
@@ -20,3 +23,5 @@ async def water_send(msg: Msg):
             seq=msg.seq,
             group=config["public"]["水群"][0]
         )
+        count = 0
+        last_send_time = now
