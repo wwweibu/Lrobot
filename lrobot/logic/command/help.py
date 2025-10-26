@@ -248,9 +248,7 @@ async def help_question(msg: Msg):
         question_list = "\n".join([f"{i + 1}. {q.strip()}" for i, (q, a) in enumerate(qa_pairs)])
         content = (
                 "尊敬的侦探阁下,您希望查阅哪个问题?\n"
-                "请直接告知我对应的序号即可\n"
-                "为免混淆,一次仅能查询一个问题的答案\n"
-                "若需更换,请重新使用'/常见问题'\n" + question_list
+                "请直接告知我对应的序号即可\n" + question_list
         )
         await data.status_add(msg.user, msg.platform, "常见问题")
     else:
