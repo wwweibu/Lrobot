@@ -22,7 +22,7 @@ async def water_send(msg: Msg):
             platform=msg.platform,
             kind=f"群聊发送",
             event="发送",
-            content=f"欢迎找小推[at:1326016706]或小推·人机版(me)入会。可以不用加好友直接私聊我，发送\n\n/入会\n\n对协会活动有疑问也可以找我发送'/常见问题'\n注意去掉引号，保留/\n注：仅支持固定指令，智能问答请找另一个推[图片:{path / 'storage/file/command/water.jpg'}]",
+            content=f"欢迎找小推[at:1326016706]或小推·人机版(me)入会。可以不用加好友直接私聊我，发送'/入会'\n对协会活动有疑问也可以找我发送'/常见问题'\n内阁招新正在火热进行中，关注群置顶公告，不要错过啦~\n注：仅支持固定指令，智能问答请找另一个推[图片:{path / 'storage/file/command/water.jpg'}]",
             seq=msg.seq,
             group=config["public"]["水群"][0]
         )
