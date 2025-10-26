@@ -393,7 +393,8 @@ async def record_export_3(msg: Msg):
     target_record = next((r for r in data_json if r["id"] == record_id), None)
     if mode == "转发":
         seq_nodes = "".join(
-            f"[节点:{m['user']}|{m['name']}|{m['content']}]" for m in target_record["messages"])
+            f"[节点:{m['user']}|{m['name']}|{m['content'].replace('[', '').replace(']', '')}]" for m in
+            target_record["messages"])
         content = f"[节点:3502644244|LR5921|{seq_nodes}]"
     elif mode == "匿名":
         name_map = {}
