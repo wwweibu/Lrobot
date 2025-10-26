@@ -2,12 +2,13 @@
 
 import signal
 import asyncio
+import datetime
 
 from config import config  # 放在前面
 from secret import secret
 from message.handler.msg_pool import MsgPool
 from web.backend.app import server_runner, app, rotator
-from logic import backup_mysql, backup_mongo, remind_load, subscribe_up_init, check_net
+from logic import backup_mysql, backup_mongo, remind_load, subscribe_up_init, check_net, water_send_evening
 from config import (
     future,
     loggers,
@@ -65,6 +66,7 @@ async def LR5921_init():
     """LR5921 初始化函数"""
     app.include_router(LR5921_router, prefix=secret("/LR5921"))
     await remind_load()  # 加载待办等待
+    scheduler_add(water_send_evening, at_time=datetime.time(0, 0))  # 定时发送晚上好
 
 
 async def WECHAT_init():

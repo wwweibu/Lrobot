@@ -439,33 +439,62 @@ def monitor_adapter(source):
     return decorator
 
 
+async def chunk_sleep(seconds, chunk=3600):
+    """分段睡眠"""
+    remaining = seconds
+    try:
+        while remaining > 0:
+            await asyncio.sleep(min(remaining, chunk))
+            remaining -= chunk
+    except asyncio.CancelledError:
+        raise
+
 async def scheduler_run(func, *args, interval=None, at_time=None, count=None, at_once=False, **kwargs):
     """定时任务执行"""
     executed = 0
-    while True:
-        if count is not None and executed >= count:
-            break
-        if interval:
-            if executed == 0 and at_once:
-                pass
-            else:
-                await asyncio.sleep(interval)
-        else:
+    if interval is None and at_time is None:
+        raise ValueError("必须提供 interval 或 at_time 其一")
+    if interval is not None:
+        next_run = time.monotonic()
+        if not at_once:
+            next_run += interval
+        while True:
+            if count is not None and executed >= count:
+                break
+            sleep_for = next_run - time.monotonic()
+            if sleep_for > 0:
+                await chunk_sleep(sleep_for)
+            try:
+                await func(*args, **kwargs)
+            except Exception as e:
+                loggers["system"].error(
+                    f"[定时任务]{func.__name__} 异常-> {type(e).__name__}: {e}", extra={"event": "定时任务"}
+                )
+                loggers["system"].debug(f"[定时任务]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
+                                        extra={"event": "错误堆栈"})
+            executed += 1
+            next_run += interval
+    else:
+        while True:
+            if count is not None and executed >= count:
+                break
             now = datetime.datetime.now()
             target = datetime.datetime.combine(now.date(), at_time)
-            if now > target:  # 如果当前时间已过目标时间，调整到第二天
+            if now >= target:  # 如果当前时间已过目标时间，调整到第二天
                 target += datetime.timedelta(days=1)
             wait_time = (target - now).total_seconds()
-            await asyncio.sleep(wait_time)
-        try:
-            await func(*args, **kwargs)  # 只能执行异步
-        except Exception as e:
-            loggers["system"].error(
-                f"[定时任务]{func.__name__} 异常-> {type(e).__name__}: {e}", extra={"event": "定时任务"}
-            )
-            loggers["system"].debug(f"[定时任务]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
-                                    extra={"event": "错误堆栈"})
-        executed += 1
+            await chunk_sleep(wait_time)
+            try:
+                await func(*args, **kwargs)
+            except Exception as e:
+                loggers["system"].error(
+                    f"[定时任务]{func.__name__} 异常-> {type(e).__name__}: {e}", extra={"event": "定时任务"}
+                )
+                loggers["system"].debug(f"[定时任务]-> 堆栈: {traceback.format_exc()}\n变量: {locals()}",
+                                        extra={"event": "错误堆栈"})
+            executed += 1
+
+
 
 
 def scheduler_add(func, *args, interval=None, at_time=None, count=None, at_once=False, **kwargs):

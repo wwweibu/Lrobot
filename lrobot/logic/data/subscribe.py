@@ -5,7 +5,7 @@ import datetime
 from .file import bv_download
 from message.handler.msg import Msg
 from .system import system_get, system_edit
-from config import database_update, database_query, scheduler_add, future, path, loggers, config
+from config import database_update, database_query, scheduler_add, future, path, loggers
 
 up = []
 

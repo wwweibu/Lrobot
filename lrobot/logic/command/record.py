@@ -188,6 +188,8 @@ async def record_write(msg: Msg):
     group_id = str(msg.group)
     if group_id not in recording_groups:
         return
+    if msg.kind != "群聊接收":  # 默认机器人不在群内发送指令，故不记录机器人消息
+        return
     record_id = recording_groups[group_id]
     file_path = record_path / f"{group_id}.json"
     if not file_path.exists():
@@ -198,12 +200,8 @@ async def record_write(msg: Msg):
     current_record = next((r for r in data_json if r["id"] == record_id), None)
     if not current_record:
         return
-    if msg.event == "发送":
-        user = config["LR5921_ID"]
-        name = "LR5921"
-    else:
-        user = msg.user
-        name = await data.user_name(user, "LR5921")
+    user = msg.user
+    name = await data.user_name(user, "LR5921")
     message_entry = {
         "seq": msg.seq,
         "user": user,
@@ -272,7 +270,8 @@ async def record_export(msg: Msg):
                             content = f"[文件:{output_path}]"
                         elif mode == "转发":
                             seq_nodes = "".join(
-                                f"[节点:{m['user']}|{m['name']}|{m['content']}]" for m in target_record["messages"])
+                                f"[节点:{m['user']}|{m['name']}|{m['content'].replace('[', '').replace(']', '')}]" for m
+                                in target_record["messages"])
                             content = f"[节点:3502644244|LR5921|{seq_nodes}]"
                         elif mode == "匿名":
                             name_map = {}
@@ -320,7 +319,6 @@ async def record_export_1(msg: Msg):
     if not record_file.exists():
         content = f"未找到群 {group} 的记录文件。"
     else:
-        await data.status_delete(msg.user, msg.platform, "记录导出1")
         await data.status_add(msg.user, msg.platform, "记录导出2", group)
         content = "请输入记录ID（根据之前的结果），若无回应则无对应id，需要重新尝试"
     Msg(
@@ -367,7 +365,6 @@ async def record_export_2(msg: Msg):
         content = f"群 {group} 的记录 ID={record_id} 中没有消息，无法导出"
     else:
         content = "请输入记录的格式，包括：文本，转发，匿名"
-        await data.status_delete(msg.user, msg.platform, "记录导出2")
         await data.status_add(msg.user, msg.platform, "记录导出3", f"{group}|{id}")
     Msg(
         platform=msg.platform,
@@ -386,6 +383,7 @@ async def record_export_3(msg: Msg):
     """记录导出方式"""
     info = await data.status_check(msg.user, msg.platform, "记录导出3")
     group, record_id = info.split("|", 1)
+    record_id = int(record_id)
     mode = Msg.content_join(msg.content)
     group_id = config["public"][group][0]
     record_file = record_path / f"{group_id}.json"

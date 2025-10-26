@@ -1,7 +1,9 @@
 """水群"""
 
 import time
-from config import config
+import datetime
+
+from config import config, path
 from message.handler.msg import Msg
 
 count = 0
@@ -25,3 +27,20 @@ async def water_send(msg: Msg):
         )
         count = 0
         last_send_time = now
+
+
+async def water_send_evening():
+    """每天0点发送语音"""
+    yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m%d")
+    storage_path = path / "storage/file/command"
+    record = storage_path / f"evening_{yesterday}.wav"
+    if not record.exists():
+        return
+
+    Msg(
+        platform="LR5921",
+        kind="群聊发送",
+        event="发送",
+        group=config["public"]["水群"][0],
+        content=f"[语音:{record}]"
+    )
