@@ -51,7 +51,7 @@ async def safe_msg_process(msg: Msg):
             # 平台和消息类型
             if msg.platform not in commands["platforms"] or msg.kind not in commands["kind"]:
                 continue
-            if msg.group:  # 群需要在 groups 列表里
+            if msg.kind.startswith("群聊") and msg.group:  # 群需要在 groups 列表里
                 if commands["groups"] and not any(msg.group in config["public"][group] for group in commands["groups"]):
                     continue
             else:  # 个人需要身份在 users 列表里
