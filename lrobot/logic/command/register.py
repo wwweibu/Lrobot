@@ -50,7 +50,7 @@ async def register_first(msg: Msg):
     identity = await data.user_identify(msg.user, msg.platform)
     if "社员" not in identity:
         content = (
-            "阁下，欢迎您申请加入我们的推理殿堂。入会需完成信息登记并缴纳20元会费，且使用本方法入会仍需添加小推。\n"
+            "阁下，欢迎您申请加入我们的推理殿堂。入会需完成信息登记并缴纳20元会费。\n"  # ，且使用本方法入会仍需添加小推
             "若您对活动形式或会员权益存有疑问，可随时使用'/常见问题'指令查阅。\n"
             "请您复制并完善以下档案信息（至*号结束）："
             "姓名:张三,代号:自取,性别:男,年级:24/25研/26博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*\n"
@@ -153,7 +153,7 @@ async def register_third(msg: Msg):
     else:
         await data.user_register(user_data)
         await data.status_delete(msg.user, msg.platform, "入会2")
-        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加群聊：580111434，并发送暗号「玩耍地」（不用姓名+是否入会了）以完成最后的对接。"
+        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加群聊：580111434，并发送暗号「玩耍地」（不用姓名+是否入会了）以完成最后的对接。"  # 请添加小推1326016706，并发送暗号「玩耍地」以完成最后的对接。
         Msg(
             platform="LR5921",
             event="发送",
