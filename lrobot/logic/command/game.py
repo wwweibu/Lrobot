@@ -204,7 +204,7 @@ async def game_idiom_start(msg: Msg):
     await data.status_add(msg.user, msg.platform, "成语接龙", info)
     content = ("接龙游戏现已开始，阁下。\n"
                f"请您随意出题，我将依据{info}模式进行接龙。\n"
-               "若要结束这场文字游戏，请使用'/成语接龙结束'指令")
+               "若要结束这场文字游戏，请使用'/成语接龙退出'指令")
     Msg(
         platform=msg.platform,
         event="发送",

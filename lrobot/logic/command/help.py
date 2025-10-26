@@ -170,6 +170,7 @@ async def help_help(msg: Msg):
             "网站：https://whumystery.cn/home\n"
             f"{cab_web if isCab else ''}"
             "<温馨提示>\n"
+            "指令格式为/指令，需要携带/，以及不用带引号\n"
             "'/进阶'获取指令的便捷用法\n"
             "指令中的逗号中英文通用\n"
             "在LR232，输入'/'或点击机器人图标，均可唤出指令面板"
