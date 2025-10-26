@@ -7,16 +7,16 @@ from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
 FIELD_PATTERNS = {
-    "name": r"姓名[：:]?(?P<name>[^，,]+)",
-    "codename": r"代号[：:]?(?P<codename>[^，,]+)",
-    "gender": r"性别[：:]?(?P<gender>男|女)",
-    "grade": r"年级[：:]?(?P<grade>\d{2}(研|博)?)",
-    "major": r"专业[：:]?(?P<major>[^，,]+)",
-    "student_id": r"学号[：:]?(?P<student_id>20\d{11})",
-    "phone": r"电话[：:]?(?P<phone>1\d{10})",
-    "qq": r"qq[：:]?(?P<qq>\d{5,12})",
-    "political_status": r"政治面貌[：:]?(?P<political_status>群众|团员|党员)",
-    "hometown": r"籍贯[：:]?(?P<hometown>[\u4e00-\u9fff]{2,})",
+    "name": r"姓名[：:]?\s*(?P<name>[^\s，,]+)",
+    "codename": r"代号[：:]?\s*(?P<codename>[^\s，,]+)",
+    "gender": r"性别[：:]?\s*(?P<gender>男|女)",
+    "grade": r"年级[：:]?\s*(?P<grade>\d{2}(研|博)?)",
+    "major": r"专业[：:]?\s*(?P<major>[^\s，,]+)",
+    "student_id": r"学号[：:]?\s*(?P<student_id>20\d{11})",
+    "phone": r"电话[：:]\s*?(?P<phone>1\d{10})",
+    "qq": r"qq[：:]?\s*(?P<qq>\d{5,12})",
+    "political_status": r"政治面貌[：:]?\s*(?P<political_status>群众|团员|党员)",
+    "hometown": r"籍贯[：:]?\s*(?P<hometown>[\u4e00-\u9fff]{2,}([^\s,,，]+)?)",
 }
 
 PATTERN_KEY = {
