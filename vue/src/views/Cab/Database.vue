@@ -343,7 +343,7 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  height: calc(100vh - 40px);
+  height: calc(100dvh - 40px);
   display: flex;
   flex-direction: column;
 }
