@@ -314,7 +314,6 @@ watch([tableData, currentTable], () => {
 // 防抖的窗口大小变化处理
 let resizeTimeout;
 const handleResize = () => {
-  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     calculateColumnWidths();
@@ -344,7 +343,7 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  height: calc(var(--vh,1vh)*100 - 40px);
+  height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
 }
@@ -523,7 +522,7 @@ td.editing {
 @media (min-width: 768px) {
   .database-manager {
     margin-top: 40px;
-    height: calc(var(--vh,1vh)*100- 80px);
+    height: calc(100dvh - 80px);
   }
   
   .table-tabs {
@@ -541,7 +540,10 @@ td.editing {
   .database-manager {
     margin: 10px;
     padding: 15px;
-    height: calc(var(--vh,1vh)*100 - 20px);
+    height: 100dvh;
+    min-height: auto;
+    max-height: 100dvh;
+    padding-bottom: 0;
   }
   
   .table-tabs {
@@ -560,6 +562,7 @@ td.editing {
   .data-table-container {
     flex: 1;
     min-height: 300px; /* 确保表格区域有最小高度 */
+    overflow: hidden;
   }
   
   th, td {
@@ -583,6 +586,10 @@ td.editing {
   
   .add-row-container {
     padding: 12px;
+    flex-shrink: 0;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    background: white;
+    border-top: 1px solid #dee2e6;
   }
   
   .add-row-btn {
