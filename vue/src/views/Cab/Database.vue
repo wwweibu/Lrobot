@@ -346,6 +346,7 @@ onUnmounted(() => {
   height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
+  overflow: hidden; 
 }
 
 .table-tabs {
@@ -392,6 +393,7 @@ onUnmounted(() => {
   flex: 1;
   overflow: auto;
   position: relative;
+  min-height: 0;
 }
 
 table {
@@ -522,7 +524,7 @@ td.editing {
 @media (min-width: 768px) {
   .database-manager {
     margin-top: 40px;
-    height: calc(100dvh - 80px);
+    height: calc(100vh - 80px);
   }
   
   .table-tabs {
@@ -540,10 +542,7 @@ td.editing {
   .database-manager {
     margin: 10px;
     padding: 15px;
-    height: 100dvh;
-    min-height: auto;
-    max-height: 100dvh;
-    padding-bottom: 0;
+    height: calc(100vh - 20px);
   }
   
   .table-tabs {
@@ -562,7 +561,6 @@ td.editing {
   .data-table-container {
     flex: 1;
     min-height: 300px; /* 确保表格区域有最小高度 */
-    overflow: hidden;
   }
   
   th, td {
@@ -586,10 +584,6 @@ td.editing {
   
   .add-row-container {
     padding: 12px;
-    flex-shrink: 0;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-    background: white;
-    border-top: 1px solid #dee2e6;
   }
   
   .add-row-btn {
