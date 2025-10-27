@@ -6,13 +6,6 @@ from logic import data
 from message.handler.msg import Msg
 from config import path, storage, monitor_adapter, future, config
 
-NEXT_LABELS = ["姓名", "代号", "性别", "年级", "专业", "学号", "电话", "qq", "政治面貌", "籍贯"]
-
-
-def tail(exclude):
-    """正则后缀"""
-    pool = [re.escape(x) for x in NEXT_LABELS if x != exclude]
-    return r"(?=\s*(?:，|,|%s|$))" % "|".join(pool)
 
 FIELD_PATTERNS = {
     "name": r"姓名[：:]?(?P<name>(?:(?!代号)[^，,])+)",
