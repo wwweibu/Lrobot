@@ -314,6 +314,7 @@ watch([tableData, currentTable], () => {
 // 防抖的窗口大小变化处理
 let resizeTimeout;
 const handleResize = () => {
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     calculateColumnWidths();
@@ -343,7 +344,7 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  height: calc(100dvh - 40px);
+  height: calc(var(--vh,1vh)*100 - 40px);
   display: flex;
   flex-direction: column;
 }
@@ -522,7 +523,7 @@ td.editing {
 @media (min-width: 768px) {
   .database-manager {
     margin-top: 40px;
-    height: calc(100dvh - 80px);
+    height: calc(var(--vh,1vh)*100- 80px);
   }
   
   .table-tabs {
@@ -540,7 +541,7 @@ td.editing {
   .database-manager {
     margin: 10px;
     padding: 15px;
-    height: calc(100dvh - 20px);
+    height: calc(var(--vh,1vh)*100 - 20px);
   }
   
   .table-tabs {
