@@ -3,12 +3,14 @@
 import time
 import datetime
 
-from config import config, path
+from config import config, path, monitor_adapter
 from message.handler.msg import Msg
 
 count = 0
 last_send_time = 0
 
+
+@monitor_adapter("/水群_入会")
 async def water_send(msg: Msg):
     """水群"""
     global count, last_send_time
@@ -26,7 +28,7 @@ async def water_send(msg: Msg):
             platform=msg.platform,
             kind=f"群聊发送",
             event="发送",
-            content=f"欢迎找小推[at:1326016706]或小推·人机版(me)入会。可以不用加好友直接私聊我，发送'/入会'\n对协会活动有疑问也可以找我发送'/常见问题'\n内阁招新还有{total_hours:.2f}就结束了，关注群置顶公告，走过路过不要错过。\n注：本推仅支持固定指令，智能问答请找另一个推[图片:{path / 'storage/file/command/water.jpg'}]",
+            content=f"欢迎找小推[at:1326016706]或小推·人机版(me)入会。可以不用加好友直接私聊我，发送'/入会'\n对协会活动有疑问也可以找我发送'/常见问题'\n内阁招新还有{total_hours:.2f}h就结束了，关注群置顶公告，走过路过不要错过。\n注：本推仅支持固定指令，智能问答请找另一个推[图片:{path / 'storage/file/command/water.jpg'}]",
             seq=msg.seq,
             group=config["public"]["水群"][0]
         )
