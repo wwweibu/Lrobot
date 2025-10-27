@@ -256,6 +256,7 @@ commands:
   - 内测群
 - content:
   - /入会
+  - 入会
   func: 模板
   function: register_first
   groups: []
