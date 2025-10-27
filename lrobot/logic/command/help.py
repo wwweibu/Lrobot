@@ -170,6 +170,7 @@ async def help_help(msg: Msg):
             "网站：https://whumystery.cn/home\n"
             f"{cab_web if isCab else ''}"
             "<使用示例>\n"
+            "注：一行为一次输入\n"
             "/常见问题\n"
             "2(输入/常见问题后)\n"
             "/入会\n"

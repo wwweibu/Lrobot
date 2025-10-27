@@ -522,7 +522,7 @@ td.editing {
 @media (min-width: 768px) {
   .database-manager {
     margin-top: 40px;
-    height: calc(100vh - 80px);
+    height: calc(100dvh - 80px);
   }
   
   .table-tabs {
@@ -540,7 +540,7 @@ td.editing {
   .database-manager {
     margin: 10px;
     padding: 15px;
-    height: calc(100vh - 20px);
+    height: calc(100dvh - 20px);
   }
   
   .table-tabs {
