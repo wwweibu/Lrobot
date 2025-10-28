@@ -320,7 +320,15 @@ const handleResize = () => {
   }, 150);
 };
 
+const setRealViewportHeight = () => {
+  // 计算实际视口高度
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`);
+};
+
 onMounted(() => {
+  setRealViewportHeight();
+  window.addEventListener('resize', setRealViewportHeight);
   window.addEventListener('resize', handleResize);
   ws.addEventListener('open', () => console.log('WebSocket connected!'));
   handleWebSocket();
@@ -329,6 +337,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
+  window.removeEventListener('resize', setRealViewportHeight);
   if (resizeTimeout) clearTimeout(resizeTimeout);
   closeWebSocket('database/ws');
 });
@@ -346,7 +355,6 @@ onUnmounted(() => {
   height: calc(100vh - 40px);
   display: flex;
   flex-direction: column;
-  overflow: hidden; 
 }
 
 .table-tabs {
@@ -393,7 +401,6 @@ onUnmounted(() => {
   flex: 1;
   overflow: auto;
   position: relative;
-  min-height: 0;
 }
 
 table {
