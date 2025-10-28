@@ -13,6 +13,8 @@ last_send_time = 0.0
 async def water_send(msg: Msg):
     """水群"""
     global count, last_send_time
+    if msg.kind != "群聊接收":
+        return
     if msg.group != config["public"]["水群"][0]:
         return
     count += 1
