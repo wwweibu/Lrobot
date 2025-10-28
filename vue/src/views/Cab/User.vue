@@ -107,7 +107,7 @@ class<template>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,onUnmounted } from 'vue';
 import { http } from '@/api.js';
 import Sidebar from './Sidebar.vue';
 
@@ -294,9 +294,24 @@ const discardChanges = () => {
   }
 };
 
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
+
 onMounted(() => {
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
   loadUserGroups();
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
+})
+
 </script>
 
 <style scoped>
@@ -305,7 +320,7 @@ onMounted(() => {
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
-  height: 100vh;
+  height: calc(var(--real-vh, 1vh) * 100);
   overflow-y: auto;
   box-sizing: border-box;
   background: #fafafa;

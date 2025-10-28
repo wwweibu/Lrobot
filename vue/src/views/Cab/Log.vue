@@ -92,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref,onMounted,onUnmounted } from 'vue'
 import { http } from '@/api'
 import Sidebar from './Sidebar.vue'
 
@@ -251,12 +251,27 @@ const handlePageChange = (val) => {
   page.value = val
   fetchLogs()
 }
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
+onMounted(() => {
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
+})
 </script>
 
 <style scoped>
 .log-panel {
   padding: 20px;
-  max-height: 95vh;
+  max-height: calc(var(--real-vh, 1vh) * 95);
   overflow-y: auto;
 }
 
@@ -417,7 +432,7 @@ const handlePageChange = (val) => {
 
   .log-panel {
     margin-top: 60px;
-    max-height: calc(95vh - 60px);
+    max-height: calc(var(--real-vh, 1vh) * 95 - 60px);
   }
 }
 
