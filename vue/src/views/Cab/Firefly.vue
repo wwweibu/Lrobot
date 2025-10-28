@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted,onUnmounted } from 'vue';
 import { useWindowSize } from '@vueuse/core';
 import { http } from '@/api.js'; 
 import Sidebar from './Sidebar.vue';
