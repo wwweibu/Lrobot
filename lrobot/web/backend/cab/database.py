@@ -17,9 +17,11 @@ async def database_get():
     query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = '{db_name}' AND table_type = 'BASE TABLE'"
     result = await database_query(query)
     table_names = [row["TABLE_NAME"] for row in result]
-    if "user_information" in table_names:
-        table_names.remove("user_information")
-        table_names.insert(0, "user_information")
+    priority = ["user_information", "user_external_information", "system_writer"]
+    sorted_tables = [t for t in priority if t in table_names]
+    remaining_tables = [t for t in table_names if t not in priority]
+    table_names = sorted_tables + remaining_tables
+
     all_data = {}
     for table in table_names:
         try:
