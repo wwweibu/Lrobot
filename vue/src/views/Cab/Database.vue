@@ -323,7 +323,7 @@ const handleResize = () => {
 const setRealViewportHeight = () => {
   // 计算实际视口高度
   const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--real-vh', `${vh}px`);
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
 };
 
 onMounted(() => {
@@ -352,7 +352,7 @@ onUnmounted(() => {
   background: #f5f5f5;
   border-radius: 8px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  height: calc(100vh - 40px);
+  height: calc(var(--vh,1vh)*100 - 40px);
   display: flex;
   flex-direction: column;
 }
@@ -455,10 +455,11 @@ th {
 
 .add-row-container {
   flex-shrink: 0;
-  padding: 15px;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
   background: white;
   border-top: 1px solid #dee2e6;
-  text-align: center;
 }
 
 .add-row-btn {
@@ -531,7 +532,7 @@ td.editing {
 @media (min-width: 768px) {
   .database-manager {
     margin-top: 40px;
-    height: calc(100vh - 80px);
+    height: calc(var(--vh,1vh)*100 - 80px);
   }
   
   .table-tabs {
@@ -549,7 +550,7 @@ td.editing {
   .database-manager {
     margin: 10px;
     padding: 15px;
-    height: calc(100vh - 20px);
+    height: calc(var(--vh,1vh)*100 - 20px);
   }
   
   .table-tabs {
