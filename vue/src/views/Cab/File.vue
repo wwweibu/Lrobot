@@ -262,8 +262,17 @@ const handleInteraction = (event) => {
   }
 }
 
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
+
 // 初始化加载
 onMounted(() => {
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
   loadData(currentPath.value)
   // 添加统一的交互事件监听器
   window.addEventListener('interaction', handleInteraction)
@@ -271,6 +280,8 @@ onMounted(() => {
 
 // 组件卸载时移除事件监听器
 onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
   window.removeEventListener('interaction', handleInteraction)
 })
 
@@ -689,7 +700,7 @@ const handleSearch = async () => {
 <style scoped>
 .file-manager {
   padding: 20px;
-  min-height: 100vh;
+  min-height: calc(var(--real-vh, 1vh) * 100);
 }
 
 @media (min-width: 768px) {
