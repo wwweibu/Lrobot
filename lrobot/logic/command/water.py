@@ -3,14 +3,13 @@
 import time
 import datetime
 
-from config import config, path, monitor_adapter
+from config import config, path
 from message.handler.msg import Msg
 
 count = 0
 last_send_time = 0
 
 
-@monitor_adapter("/水群_入会")
 async def water_send(msg: Msg):
     """水群"""
     global count, last_send_time
