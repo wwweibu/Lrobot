@@ -244,7 +244,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted,onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { http } from '@/api'
 
@@ -495,8 +495,16 @@ const getRandomColor = () => {
 // 滚动事件处理
 const handleScroll = () => {}
 
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
 onMounted(() => {
   fetchData()
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
   
   // 添加滚动事件监听器
   const container = document.querySelector('.dashboard-container')
@@ -504,18 +512,24 @@ onMounted(() => {
     container.addEventListener('scroll', handleScroll)
   }
 })
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
+})
+
 </script>
 
 <style scoped>
 .dashboard-container {
-  height: 100vh;
+  height: calc(var(--real-vh, 1vh) * 100);
   overflow-y: auto;
   scroll-behavior: smooth;
   scroll-snap-type: y mandatory;
 }
 
 .page {
-  height: 100vh;
+  height: calc(var(--real-vh, 1vh) * 100);
   padding: 20px;
   box-sizing: border-box;
   scroll-snap-align: start;
