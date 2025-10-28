@@ -180,12 +180,23 @@ const updateFeatureTasks = async (featureIndex) => {
   }
 };
 
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+};
+
 onMounted(async () => {
+  setRealViewportHeight();
+  window.addEventListener('resize', setRealViewportHeight);
   await loadData();
   // 等待 DOM 渲染后获取高度
   setTimeout(() => {
     containerHeight.value = featuresContainer.value ? featuresContainer.value.scrollHeight : 0;
   }, 50);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight);
 });
 
 const canScrollDown = computed(() => {
@@ -225,15 +236,20 @@ const deleteAnswer = async (featureIndex, taskIndex, answerIndex) => {
 <style scoped>
 .firefly-container {
   position: relative;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
-  overflow: hidden;
+  overflow: hidden; /* ✅ 保留外层静态布局 */
+  display: flex;
+  flex-direction: column;
 }
+
 .features-container {
-  height: 100%;
-  overflow-y: auto;
+  flex: 1;
+  overflow-y: auto; /* ✅ 内部滚动 */
   padding: 20px;
+  min-height: 0; /* ✅ 避免 flex 子项溢出 */
 }
+
 .feature-panel {
   background-color: #fff;
   border-radius: 12px;
