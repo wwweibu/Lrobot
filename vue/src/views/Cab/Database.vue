@@ -460,6 +460,8 @@ th {
   z-index: 20;
   background: white;
   border-top: 1px solid #dee2e6;
+  text-align: center;
+  padding: 15px;
 }
 
 .add-row-btn {
