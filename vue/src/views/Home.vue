@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive,onMounted,onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -226,6 +226,22 @@ function onTouchEnd(e) {
 function goToBoard() {
   router.push('/board')
 }
+
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
+onMounted(() => {
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
+})
 </script>
 
 <style>
@@ -248,7 +264,7 @@ function goToBoard() {
 
 <style scoped>
 .home-container {
-  min-height: 100vh;
+  min-height: calc(var(--real-vh, 1vh) * 100);
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   color: #e0e0e0;
   overflow: hidden;
@@ -283,7 +299,7 @@ function goToBoard() {
 /* ------ 3D 舞台 ------ */
 .stage {
   position: relative;
-  height: 70vh;
+  height: calc(var(--real-vh, 1vh) * 70);
   display: flex;
   align-items: center;
   justify-content: center;
