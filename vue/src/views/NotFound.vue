@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,onUnmounted } from 'vue';
 import { http } from '@/api';
 
 // 响应式数据
@@ -36,10 +36,23 @@ const fetchJoke = async () => {
   }
 };
 
+const setRealViewportHeight = () => {
+  const vh = window.innerHeight * 0.01
+  document.documentElement.style.setProperty('--real-vh', `${vh}px`)
+}
+
 // 组件挂载后请求数据
 onMounted(() => {
+  setRealViewportHeight()
+  window.addEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.addEventListener('resize', setRealViewportHeight)
   fetchJoke();
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', setRealViewportHeight)
+  window.visualViewport?.removeEventListener('resize', setRealViewportHeight)
+})
 </script>
 
 <style scoped>
@@ -53,7 +66,7 @@ onMounted(() => {
 }
 
 .not-found {
-  min-height: 100dvh; /* 关键：使用 100dvh 而不是 100vh */
+  min-height: calc(var(--real-vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -72,7 +85,7 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  height: 100dvh;
+  height: calc(var(--real-vh, 1vh) * 100);
 }
 
 h1 {
