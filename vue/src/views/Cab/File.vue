@@ -799,7 +799,7 @@ const handleSearch = async () => {
   gap: 20px;
   position: relative;
   z-index: 1;
-  max-height: 85vh; 
+  max-height: calc(var(--real-vh, 1vh) * 85);
   overflow-y: auto;
   padding-right: 6px;
 }
@@ -898,7 +898,7 @@ const handleSearch = async () => {
     justify-content: space-between;
   }
    .file-list {
-    max-height: 70vh;
+    max-height: calc(var(--real-vh, 1vh) * 70);
   }
 }
 </style>
