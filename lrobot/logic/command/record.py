@@ -272,7 +272,7 @@ async def record_export(msg: Msg):
                             seq_nodes = "".join(
                                 f"[节点:{m['user']}|{m['name']}|{m['content'].replace('[', '').replace(']', '')}]" for m
                                 in target_record["messages"])
-                            content = f"[节点:3502644244|LR5921|{seq_nodes}]"
+                            content = f"[节点:{config['LR5921_ID']}|LR5921|{seq_nodes}]"
                         elif mode == "匿名":
                             name_map = {}
                             next_index = 0

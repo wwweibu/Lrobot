@@ -5,8 +5,9 @@ from datetime import datetime, timedelta
 
 from .firefly import firefly_judge
 from message.handler.msg import Msg
-from .status import status_lr5921_get
 from config import config, future, database_query, database_update
+from .status import status_lr5921_get, status_delete, status_add, status_user_check
+
 
 
 async def user_identify(user, platform):

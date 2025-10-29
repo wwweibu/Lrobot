@@ -1,15 +1,22 @@
 """测试相关"""
 
+import random
 import asyncio
 from config import path, future, config
 from message.handler.msg import Msg
-from record import recording_groups
+from logic import data
 
 
 async def test_1(msg: Msg):
     """测试函数"""
-    print(recording_groups)
-
+    Msg(
+        platform=msg.platform,
+        kind="群聊发送",
+        event="发送",
+        content=f"",
+        user=msg.user,
+        group=msg.group
+    )
     # response = await future.wait(msg.num, "测试超时!")
     #
     # response = await future.wait(msg.num, "测试超时!")

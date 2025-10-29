@@ -156,7 +156,7 @@ async def lr5921_member(num, group):
     data = {"group_id": group}
     data = await request_deal(url, data, "群聊成员")
     user_list = [
-        {"user_id": u["user_id"], "nickname": u["nickname"]} for u in data.get("data")
+        {"user_id": u["user_id"], "nickname": u["nickname"], "role": u["role"]} for u in data.get("data")
     ]
     future.set(num, user_list)
 
