@@ -1580,7 +1580,7 @@ commands:
   set: 帮助
   order: 0
   content:
-  - 更换
+  - 换成
   judge: contains
   kind:
   - 私聊接收
