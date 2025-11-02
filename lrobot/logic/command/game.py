@@ -108,7 +108,6 @@ async def game_idiom(msg: Msg):
 async def game_idiom_1(msg: Msg):
     """成语接龙输入成语"""
     idiom = Msg.content_join(msg.content).strip()
-    await data.status_delete(msg.user, msg.platform, "成语1")
     await data.status_add(msg.user, msg.platform, "成语2", idiom)
     content = "请选择模式，输入'同字'代表同字接龙，'同音'代表同音接龙，'严格'代表获取成语的释义，任意数字代表进行连续的同音接龙"
     Msg(
