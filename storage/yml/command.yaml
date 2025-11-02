@@ -1515,7 +1515,7 @@ commands:
   - 公测群
   - 内测群
 - func: 成语_模式
-  function: game_idiom_1
+  function: game_idiom_2
   set: 游戏
   order: 0
   content:
