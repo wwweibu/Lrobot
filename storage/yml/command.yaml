@@ -1592,6 +1592,24 @@ commands:
   - BILI
   users: []
   groups: []
+- func: 活动_管理
+  function: base_activity
+  set: 基础
+  order: 0
+  content:
+  - /活动
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 水群
+  - 玩耍地
 - func: 订阅_回答
   function: subscribe_subscribe_answer
   set: 订阅
