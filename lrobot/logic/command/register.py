@@ -203,7 +203,7 @@ async def register_official(msg: Msg):
             content=content
         )
         return content
-    content = f"已录入数据: qq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},手机:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
+    content = f"已录入数据: qq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},电话:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
     Msg(
         platform=msg.platform,
         event="发送",

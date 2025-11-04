@@ -11,9 +11,9 @@ async def test_1(msg: Msg):
     """测试函数"""
     Msg(
         platform=msg.platform,
-        kind="群聊发送",
+        kind=f"{msg.kind[:2]}发送",
         event="发送",
-        content=f"",
+        content=f"[语音:{path / 'storage/file/command/morning_20251104.wav'}]",
         user=msg.user,
         group=msg.group
     )
