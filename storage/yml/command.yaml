@@ -1424,6 +1424,7 @@ commands:
   order: 0
   content:
   - /航海日记
+  - 小推的航海日记
   judge: equal
   kind:
   - 私聊接收
@@ -1444,6 +1445,7 @@ commands:
   order: 0
   content:
   - /提示
+  - 航海日记提示
   judge: equal
   kind:
   - 私聊接收
