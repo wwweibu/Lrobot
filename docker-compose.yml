@@ -102,7 +102,3 @@ services:
       - MYSQL_DATABASE=lrobot_data
       - MYSQL_USER=weibu
       - TZ=Asia/Shanghai
-    command: >
-      bash -c "apt-get update && apt-get install -y locales &&
-               sed -i 's/^# *\\(en_US.UTF-8\\)/\\1/' /etc/locale.gen &&
-               locale-gen && exec docker-entrypoint.sh mysqld"
