@@ -96,6 +96,8 @@ services:
       - ./storage/data/backup:/app/backup
     restart: always
     environment:
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
       - MYSQL_ALLOW_EMPTY_PASSWORD="yes"
       - MYSQL_DATABASE=lrobot_data
       - MYSQL_USER=weibu
