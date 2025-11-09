@@ -11,7 +11,34 @@ from message.handler.msg import Msg
 async def firefly_in(msg: Msg):
     """入群更新 user_test 表"""
     await data.firefly_update()
+    content = f"[at:{msg.user}]新人要什么头衔?"
+    await data.status_add(msg.user, msg.platform, "头衔")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind="群聊发送",
+        content=content,
+        seq=msg.seq,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
 
+
+@monitor_adapter("/工具_测试群头衔")
+async def firefly_title(msg: Msg):
+    """入群第一句设置成头衔"""
+    await data.status_delete(msg.user, msg.platform, "头衔")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind="群聊头衔",
+        content=Msg.content_join(msg.content),
+        seq=msg.seq,
+        user=msg.user,
+        group=msg.group,
+    )
+    return Msg.content_join(msg.content)
 
 @monitor_adapter("/工具_测试群密码")
 async def firefly_set(msg: Msg):

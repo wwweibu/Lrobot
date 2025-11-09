@@ -1,4 +1,20 @@
 commands:
+- func: 测试群_头衔
+  function: firefly_title
+  set: 工具
+  order: 1
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 群聊接收
+  state:
+  - 头衔
+  platforms:
+  - LR5921
+  users: []
+  groups:
+  - 公测群
 - func: 帮助
   function: help_help
   set: 帮助
