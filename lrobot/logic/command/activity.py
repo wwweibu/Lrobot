@@ -119,10 +119,11 @@ async def activity_blood_help(msg: Msg):
     """血字帮助"""
     content = ("在玩耍地和水群中可开血字，限内阁成员使用。\n"
                "输入'/血字开始'开始血字，随后输入血字名称，输入'/血字@张三@李四……'\n"
-               "血字中某人死亡时，使用'/血字死亡@张三'(可以是回复张三的消息，那样会自动@张三，只需要包含/血字死亡，可以在后面向张三描述死亡过程)\n"
+               "血字中某人死亡时，使用'/血字死亡@张三@李四……'(可以是回复张三的消息，那样会自动@张三，只需要包含/血字死亡，可以在后面向张三描述死亡过程)\n"
                "血字结束时，使用'/血字结束'结束当前血字\n"
                "使用'/血字MVP@张三'来设置血字MVP\n"
                "使用'/血字查询'可查询血字记录\n"
+               "血字死亡可以反复死亡，MVP也可以反复设置\n"
                "注意：同一时间只能开启一个血字")
     Msg(
         platform=msg.platform,
@@ -154,8 +155,17 @@ async def activity_blood_start1(msg: Msg):
             )
 
             return content
-    content = "请请您为本次血字命名，系统将自动记录您为主持人。"
-    await data.status_add(msg.user, msg.platform, "血字1")
+    ongoing = await database_query(
+        "SELECT id, name, dm, start_time FROM user_blood WHERE end_time IS NULL ORDER BY id DESC LIMIT 1"
+    )
+    if ongoing:
+        b = ongoing[0]
+        dm_name = await data.user_name(b["dm"], msg.platform)
+        start_time = b["start_time"].strftime("%m-%d %H:%M")
+        content = f"阁下，血字⌈{b['name']}⌋仍在进行中，由 {dm_name} 主持（开始于 {start_time}）。请先结束该血字后再开启新的。"
+    else:
+        content = "请请您为本次血字命名，系统将自动记录您为主持人。"
+        await data.status_add(msg.user, msg.platform, "血字1")
     Msg(
         platform=msg.platform,
         event="发送",
@@ -172,7 +182,7 @@ async def activity_blood_start1(msg: Msg):
 @monitor_adapter("/活动_血字_开始_2")
 async def activity_blood_start2(msg: Msg):
     """血字名称"""
-    content = "请使用'/血字'指令并@所有参与者以完成召集。建议您先单独@一次，确认诸位侦探均已就位。"
+    content = "请使用'/血字'指令并@所有住户以完成召集。建议您先单独@一次，确认诸位住户均已就位。"
     await data.status_add(msg.user, msg.platform, "血字2", f"{Msg.content_join(msg.content)}|{msg.user}")
     Msg(
         platform=msg.platform,
@@ -191,25 +201,50 @@ async def activity_blood_start3(msg: Msg):
     """血字参与者"""
     info = await data.status_check(msg.user, msg.platform, "血字2")
     name, dm = info.split("|", 1)
-    players = []
-    for seg in msg.content:
-        if seg["type"] == "at":
-            players.append(seg["data"]["qq"])
-    if not players:
-        content = "一场血字至少需要一位参与者，请重新确认名单。"
+
+    # 提取 @ 用户
+    players = [seg["data"]["qq"] for seg in msg.content if seg["type"] == "at"]
+
+    # 去重
+    seen = set()
+    unique_players = []
+    for p in players:
+        if p not in seen:
+            seen.add(p)
+            unique_players.append(p)
+
+    if not unique_players:
+        content = "一场血字至少需要一位住户，请重新确认名单。"
     else:
         start_time = datetime.now()
+
+        # 创建血字记录
         blood_id = await database_update(
             "INSERT INTO user_blood (name, dm, start_time) VALUES (%s, %s, %s)",
             (name, msg.user, start_time)
         )
-        for u in players:
+
+        # 插入参与者
+        for u in unique_players:
             await database_update(
-                "INSERT INTO user_blood_player (blood_id, user,alive) VALUES (%s, %s, 1)",
+                "INSERT INTO user_blood_player (blood_id, user, alive) VALUES (%s, %s, 1)",
                 (blood_id, u)
             )
-        content = f"血字⌈{name}⌋现已开幕\n主持人：{dm}\n与会侦探：{', '.join(players)}"
+
+        # 输出玩家名称
+        player_names = []
+        for u in unique_players:
+            n = await data.user_name(u, msg.platform)
+            player_names.append(n or u)
+        dm = await data.user_name(dm, msg.platform)
+        content = (
+            f"血字⌈{name}⌋现已开幕\n"
+            f"主持人：{dm}\n"
+            f"与会侦探：{', '.join(player_names)}"
+        )
+
         await data.status_delete(msg.user, msg.platform, "血字2")
+
     Msg(
         platform=msg.platform,
         event="发送",
@@ -245,7 +280,7 @@ async def activity_blood_die(msg: Msg):
         if seg["type"] == "at":
             players.append(seg["data"]["qq"])
     if not players:
-        content = "请@需要被记录为“牺牲”的参与者。"
+        content = "请@需要被记录为“牺牲”的住户。"
     else:
         blood = await database_query(
             "SELECT id, start_time FROM user_blood WHERE end_time IS NULL ORDER BY id DESC LIMIT 1"
@@ -256,13 +291,32 @@ async def activity_blood_die(msg: Msg):
             blood_id = blood[0]["id"]
             start_time = blood[0]["start_time"]
             now = datetime.now()
+            died = []
+            not_in_game = []
             for u in players:
+                check = await database_query(
+                    "SELECT id FROM user_blood_player WHERE blood_id=%s AND user=%s AND alive=1",
+                    (blood_id, u)
+                )
+                if not check:
+                    not_in_game.append(u)
+                    continue
                 duration = int((now - start_time).total_seconds())
                 await database_update(
                     "UPDATE user_blood_player SET survival_duration=%s, alive=0 WHERE blood_id=%s AND user=%s",
                     (duration, blood_id, u)
                 )
-            content = f"已确认玩家{', '.join(players)}在本次血字中牺牲。"
+                died.append(u)
+            died_names = [await data.user_name(u, msg.platform) or u for u in died]
+            notin_names = [await data.user_name(u, msg.platform) or u for u in not_in_game]
+            parts = []
+            if died_names:
+                parts.append(f"已确认住户 {', '.join(died_names)} 在本次血字中牺牲。")
+            if notin_names:
+                parts.append(f"以下用户未参加本次血字：{', '.join(notin_names)}。")
+            if not parts:
+                parts.append("未检测到有效的牺牲记录。")
+            content = "\n".join(parts)
     Msg(
         platform=msg.platform,
         event="发送",
@@ -345,19 +399,14 @@ async def activity_blood_mvp(msg: Msg):
         else:
             blood_id = blood[0]["id"]
             blood_name = blood[0]["name"]
-            existing_mvp = blood[0].get("mvp")
-            if existing_mvp:
-                nick = await data.user_name(existing_mvp, msg.platform)
-                content = f"该血字会议的MVP已有归属：{nick}，无法重复设定。"
-            else:
 
-                # 更新数据库
-                await database_update(
-                    "UPDATE user_blood SET mvp=%s WHERE id=%s",
-                    (mvp_user, blood_id)
-                )
-                nick = await data.user_name(mvp_user, msg.platform)
-                content = f"血字⌈{blood_name}⌋的杰出表现者已记录为：{nick}"
+            # 更新数据库
+            await database_update(
+                "UPDATE user_blood SET mvp=%s WHERE id=%s",
+                (mvp_user, blood_id)
+            )
+            nick = await data.user_name(mvp_user, msg.platform)
+            content = f"血字⌈{blood_name}⌋的杰出表现者已记录为：{nick}"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -402,7 +451,7 @@ async def activity_blood_search1(msg: Msg):
                 headers, rows = await data.blood_person_query(target)
         elif query_type == "血字":
             if target == "所有":
-                headers, rows = await data.blood_all_query()
+                headers, rows = await data.blood_blood_query_all()
             else:
                 # 查询单个血字
                 headers, rows = await data.blood_blood_query(target)
