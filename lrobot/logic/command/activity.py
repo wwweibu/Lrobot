@@ -386,7 +386,7 @@ async def activity_blood_mvp(msg: Msg):
             return content
     players = [seg["data"]["qq"] for seg in msg.content if seg["type"] == "at"]
     if not players:
-        content = "请@一位参与者，以提名其为本次会议的杰出表现者。"
+        content = "请@一位住户，以提名其为本次血字的杰出表现者。"
     else:
         mvp_user = players[0]
 
@@ -400,13 +400,22 @@ async def activity_blood_mvp(msg: Msg):
             blood_id = blood[0]["id"]
             blood_name = blood[0]["name"]
 
-            # 更新数据库
-            await database_update(
-                "UPDATE user_blood SET mvp=%s WHERE id=%s",
-                (mvp_user, blood_id)
+            player_check = await database_query(
+                "SELECT id FROM user_blood_player WHERE blood_id=%s AND user=%s",
+                (blood_id, mvp_user),
             )
-            nick = await data.user_name(mvp_user, msg.platform)
-            content = f"血字⌈{blood_name}⌋的杰出表现者已记录为：{nick}"
+
+            if not player_check:
+                nick = await data.user_name(mvp_user, msg.platform)
+                content = f"阁下，{nick} 并未参与血字『{blood_name}』，无法设为 MVP。"
+            else:
+                # 更新数据库
+                await database_update(
+                    "UPDATE user_blood SET mvp=%s WHERE id=%s",
+                    (mvp_user, blood_id)
+                )
+                nick = await data.user_name(mvp_user, msg.platform)
+                content = f"血字⌈{blood_name}⌋的杰出住户已记录为：{nick}"
     Msg(
         platform=msg.platform,
         event="发送",
