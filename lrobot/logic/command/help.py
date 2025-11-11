@@ -170,7 +170,7 @@ async def help_help(msg: Msg):
             "<联络站>\n"
             f"{platform_text}"
             "网站：https://whumystery.cn/home\n"
-            f"{cab_web if isCab and msg.group != config['public']['公测群'] else ''}"
+            f"{cab_web if isCab and msg.group != config['public']['公测群'][0] else ''}"
             "<温馨提示>\n"
             "指令格式为 /指令，需要携带 /，如： /入会\n"
             "指令提示里有时会携带引号（如：输入'/常见问题'），需要忽略引号，只需要输入： /常见问题\n"
