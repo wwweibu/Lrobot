@@ -1079,6 +1079,157 @@ commands:
   users:
   - 微部
   groups: []
+- func: 成语_接龙退出
+  function: game_idiom_end
+  set: 游戏
+  order: 0
+  content:
+  - /成语接龙退出
+  judge: equal
+  kind:
+  - 私聊接收
+  state:
+  - 成语接龙
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 成语_接龙开始
+  function: game_idiom_start
+  set: 游戏
+  order: 0
+  content:
+  - /成语接龙
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 成语
+  function: game_idiom
+  set: 游戏
+  order: 0
+  content:
+  - /成语
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 成语_模式
+  function: game_idiom_2
+  set: 游戏
+  order: 0
+  content:
+  - game_idiom_2_judge
+  judge: function
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 成语2
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 真心话
+  function: game_truth
+  set: 游戏
+  order: 0
+  content:
+  - /真心话
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 大冒险
+  function: game_dare
+  set: 游戏
+  order: 0
+  content:
+  - /大冒险
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 水群
+  function: water_set
+  set: 帮助
+  order: 0
+  content:
+  - 换成
+  judge: contains
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
+- func: 活动_管理
+  function: base_activity
+  set: 基础
+  order: 0
+  content:
+  - /活动
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 水群
+  - 玩耍地
 - func: 密码_1
   function: cipher_1
   set: 密码
@@ -1477,157 +1628,6 @@ commands:
   groups:
   - 公测群
   - 内测群
-- func: 成语_接龙退出
-  function: game_idiom_end
-  set: 游戏
-  order: 0
-  content:
-  - /成语接龙退出
-  judge: equal
-  kind:
-  - 私聊接收
-  state:
-  - 成语接龙
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 成语_接龙开始
-  function: game_idiom_start
-  set: 游戏
-  order: 0
-  content:
-  - /成语接龙
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 成语
-  function: game_idiom
-  set: 游戏
-  order: 0
-  content:
-  - /成语
-  judge: contains
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 成语_模式
-  function: game_idiom_2
-  set: 游戏
-  order: 0
-  content:
-  - game_idiom_2_judge
-  judge: function
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state:
-  - 成语2
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 真心话
-  function: game_truth
-  set: 游戏
-  order: 0
-  content:
-  - /真心话
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 大冒险
-  function: game_dare
-  set: 游戏
-  order: 0
-  content:
-  - /大冒险
-  judge: equal
-  kind:
-  - 私聊接收
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups:
-  - 公测群
-  - 内测群
-- func: 水群
-  function: water_set
-  set: 帮助
-  order: 0
-  content:
-  - 换成
-  judge: contains
-  kind:
-  - 私聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  users: []
-  groups: []
-- func: 活动_管理
-  function: base_activity
-  set: 基础
-  order: 0
-  content:
-  - /活动
-  judge: equal
-  kind:
-  - 群聊接收
-  state: []
-  platforms:
-  - LR232
-  - LR5921
-  users:
-  - 内阁
-  groups:
-  - 水群
-  - 玩耍地
 - func: 血字_开始_1
   function: activity_blood_start1
   set: 活动
