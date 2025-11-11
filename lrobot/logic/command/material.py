@@ -18,7 +18,7 @@ async def material_add(msg: Msg):
         content = "请输入物资"
         await data.status_add(msg.user, msg.platform, "物资1")
     else:
-        content = "更新失败，请使用 /物资,物资,备注 类似格式"
+        content = "更新失败，请使用'/物资,物资,备注'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",

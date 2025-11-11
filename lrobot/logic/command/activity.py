@@ -16,7 +16,7 @@ async def activity_diary_start(msg: Msg):
     await data.status_add(msg.user, msg.platform, "日记", 1)
     content = f"[图片:{path}/storage/file/command/diary/1.png]"
     content += ("谨记答案格式：连续的小写字母、数字或中文，无空格\n"
-                "陷入困境时，可调阅 /提示 获取指引\n"
+                "陷入困境时，可调阅'/提示'获取指引\n"
                 "进度已支持多平台同步\n"
                 "独立发现的真相，往往更加甘美")
 
@@ -114,6 +114,28 @@ async def activity_diary_answer(msg: Msg):
     return content
 
 
+@monitor_adapter("/活动_血字_帮助")
+async def activity_blood_help(msg: Msg):
+    """血字帮助"""
+    content = ("在玩耍地和水群中可开血字，限内阁成员使用。\n"
+               "输入'/血字开始'开始血字，随后输入血字名称，输入'/血字@张三@李四……'\n"
+               "血字中某人死亡时，使用'/血字死亡@张三'(可以是回复张三的消息，那样会自动@张三，只需要包含/血字死亡，可以在后面向张三描述死亡过程)\n"
+               "血字结束时，使用'/血字结束'结束当前血字\n"
+               "使用'/血字MVP@张三'来设置血字MVP\n"
+               "使用'/血字查询'可查询血字记录\n"
+               "注意：同一时间只能开启一个血字")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+
+    return content
+
 @monitor_adapter("/活动_血字_开始_1")
 async def activity_blood_start1(msg: Msg):
     """血字开始"""
@@ -150,7 +172,7 @@ async def activity_blood_start1(msg: Msg):
 @monitor_adapter("/活动_血字_开始_2")
 async def activity_blood_start2(msg: Msg):
     """血字名称"""
-    content = "请使用 /血字 指令并@所有参与者以完成召集。建议您先单独@一次，确认诸位侦探均已就位。"
+    content = "请使用'/血字'指令并@所有参与者以完成召集。建议您先单独@一次，确认诸位侦探均已就位。"
     await data.status_add(msg.user, msg.platform, "血字2", f"{Msg.content_join(msg.content)}|{msg.user}")
     Msg(
         platform=msg.platform,
@@ -355,7 +377,7 @@ async def activity_blood_search1(msg: Msg):
     if msg.group and msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
         identity_list = await data.user_identify(msg.user, msg.platform)
         if "内阁" not in identity_list:
-            content = "阁下，查询会议记录请通过私聊进行。"
+            content = "阁下，查询血字记录请通过私聊进行。"
             Msg(
                 platform=msg.platform,
                 event="发送",
@@ -368,38 +390,42 @@ async def activity_blood_search1(msg: Msg):
             return content
     parts = re.split(r"[，,]", Msg.content_join(msg.content))
     if len(parts) == 1:
-        content = "请指定查询类型：个人 / 血字"
+        content = "请指定查询类型：'个人'或'血字'"
         await data.status_add(msg.user, msg.platform, "血字查询1")
     elif len(parts) == 3:
         output_path = path / f"storage/file/command/blood/user_{msg.seq}.png"
         query_type, target = parts[1].strip(), parts[2].strip()
         if query_type == "个人":
-            headers, rows = await data.blood_person_query(target)
-            if headers == 0:
-                content = rows
+            if target == "所有":
+                headers, rows = await data.blood_person_query_all()
             else:
-                await data.table_to_image(headers, rows, output_path)
-                content = f"[图片:{output_path}]"
+                headers, rows = await data.blood_person_query(target)
         elif query_type == "血字":
             if target == "所有":
                 headers, rows = await data.blood_all_query()
-                if headers == 0:
-                    content = rows
-                else:
-                    await data.table_to_image(headers, rows, output_path)
-                    content = f"[图片:{output_path}]"
             else:
                 # 查询单个血字
                 headers, rows = await data.blood_blood_query(target)
-                if headers == 0:
-                    content = rows
-                else:
-                    await data.table_to_image(headers, rows, output_path)
-                    content = f"[图片:{output_path}]"
         else:
-            content = "类型无效，请选择 个人 或 血字。"
+            content = "类型无效，请选择'个人'或'血字'。"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+            return content
+        if headers == 0:
+            content = rows
+        else:
+            await data.table_to_image(headers, rows, output_path)
+            content = f"[图片:{output_path}]"
+            asyncio.create_task(data.remove_later(output_path))
     else:
-        content = "阁下，指令格式有误。请遵循 /血字查询,个人,[玩家QQ号] 或 /血字查询,血字,[血字名称] 或 /血字查询,血字,所有 的规范。"
+        content = "阁下，指令格式有误。请遵循'/血字查询,个人,[玩家QQ号]'或'/血字查询,个人,所有'或'/血字查询,血字,[血字名称]'或'/血字查询,血字,所有'的规范。"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -417,7 +443,7 @@ async def activity_blood_search2(msg: Msg):
     """血字查询输入目标"""
     query_type = Msg.content_join(msg.content)
     if query_type == "个人":
-        content = "请输入您要查询的玩家QQ号。"
+        content = "请输入您要查询的玩家QQ号或者输入'所有'。"
     else:
         # 查询所有血字名称
         blood_list = await database_query(
@@ -435,7 +461,7 @@ async def activity_blood_search2(msg: Msg):
             name_list_text = "\n".join(
                 [f"{b['name']}（DM：{b['dm']}）" for b in blood_display]
             )
-        content = "请输入您要查询的血字名称或者输入 所有\n\n可选血字如下：\n" + name_list_text
+        content = "请输入您要查询的血字名称或者输入'所有'\n\n可选血字如下：\n" + name_list_text
     await data.status_add(msg.user, msg.platform, "血字查询2", query_type)
     Msg(
         platform=msg.platform,
@@ -457,29 +483,22 @@ async def activity_blood_search3(msg: Msg):
 
     if query_type == "个人":
         player = Msg.content_join(msg.content)
-        headers, rows = await data.blood_person_query(player)
-        if headers == 0:
-            content = rows
+        if player == "所有":
+            headers, rows = await data.blood_person_query_all()
         else:
-            await data.table_to_image(headers, rows, output_path)
-            content = f"[图片:{output_path}]"
+            headers, rows = await data.blood_person_query(player)
     else:
         name = Msg.content_join(msg.content).strip()
         if name == "所有":
-            headers, rows = await data.blood_all_query()
-            if headers == 0:
-                content = rows
-            else:
-                await data.table_to_image(headers, rows, output_path)
-                content = f"[图片:{output_path}]"
+            headers, rows = await data.blood_blood_query_all()
         else:
             # 查询单个血字
             headers, rows = await data.blood_blood_query(name)
-            if headers == 0:
-                content = rows
-            else:
-                await data.table_to_image(headers, rows, output_path)
-                content = f"[图片:{output_path}]"
+    if headers == 0:
+        content = rows
+    else:
+        await data.table_to_image(headers, rows, output_path)
+        content = f"[图片:{output_path}]"
     await data.status_delete(msg.user, msg.platform, "血字查询2")
     Msg(
         platform=msg.platform,

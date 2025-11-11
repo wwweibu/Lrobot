@@ -191,7 +191,7 @@ async def cipher_caesar(msg: Msg):
         try:
             shift = int(parts[2].strip())
         except ValueError:
-            content = "位移应为整数,请使用 /凯撒,abc , /凯撒,abc,3 类似格式"
+            content = "位移应为整数,请使用'/凯撒,abc','/凯撒,abc,3'类似格式"
         else:
             decoded = "".join(
                 caesar_shift(ch, shift)
@@ -199,7 +199,7 @@ async def cipher_caesar(msg: Msg):
             )
             content = f"解密 {shift}: {decoded}"
     else:
-        content = "请使用: /凯撒,abc 或 /凯撒,abc,3 类似格式"
+        content = "请使用:'/凯撒,abc'或'/凯撒,abc,3'类似格式"
 
     Msg(
         platform=msg.platform,
@@ -245,7 +245,7 @@ async def cipher_vigenere(msg: Msg):
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
 
     if len(parts) != 3:
-        content = "格式错误,请使用 /维吉尼亚,abc,abcedf 的格式(密钥,密文)"
+        content = "格式错误,请使用'/维吉尼亚,abc,abcedf'的格式(密钥,密文)"
     else:
         key = parts[1].strip()
         text = parts[2].strip()
@@ -332,7 +332,7 @@ async def cipher_morse_encrypt(msg: Msg):
         table = "\n".join(
             f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
         )
-        content = f"请使用 /摩斯加密,ab 类似格式\n\n{table}"
+        content = f"请使用'/摩斯加密,ab'类似格式\n\n{table}"
     else:
         text = parts[1].strip()
 
@@ -359,7 +359,7 @@ async def cipher_morse_decrypt(msg: Msg):
         table = "\n".join(
             f"{k} → {v}" for k, v in sorted(MORSE_CODE_DICT.items())
         )
-        content = f"请使用 /摩斯解密,-.- 类似格式，请提供由英文句点('-')和点('.')组成的原文，以空格或换行分隔\n\n{table}"
+        content = f"请使用'/摩斯解密,-.-'类似格式，请提供由英文句点('-')和点('.')组成的原文，以空格或换行分隔\n\n{table}"
     else:
         text = parts[1].strip()
 
@@ -423,7 +423,7 @@ async def cipher_bacon_encrypt(msg: Msg):
         table = "\n".join(
             f"{k} → {v}" for k, v in sorted(BACON_FULL.items())
         )
-        content = f"请使用 /培根加密,ab \n\n{table}"
+        content = f"请使用'/培根加密,ab'\n\n{table}"
     else:
         text = parts[1].strip()
 
@@ -451,7 +451,7 @@ async def cipher_bacon_decrypt(msg: Msg):
         table = "\n".join(
             f"{k} → {v}" for k, v in sorted(BACON_FULL.items())
         )
-        content = f"请使用 /培根解密,AAAAABAAAA 类似格式\n\n{table}"
+        content = f"请使用'/培根解密,AAAAABAAAA'类似格式\n\n{table}"
     else:
         text = parts[1].strip()
 
@@ -521,7 +521,7 @@ async def cipher_freq_decrypt(msg: Msg):
         if not freq_table:
             freq_table = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
     else:
-        content = "格式错误，请使用 /频率解密,密文 或 /频率解密,频率表,密文 \n\n默认频率表:ETAOINSHRDLCUMWFGYPBVKJXQZ"
+        content = "格式错误，请使用'/频率解密,密文'或'/频率解密,频率表,密文'\n\n默认频率表:ETAOINSHRDLCUMWFGYPBVKJXQZ"
         Msg(
             platform=msg.platform,
             event="发送",

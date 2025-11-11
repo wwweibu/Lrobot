@@ -53,7 +53,47 @@ async def blood_person_query(player):
     return headers, rows
 
 
-async def blood_all_query():
+async def blood_person_query_all():
+    """查询所有玩家总体血字表现"""
+    records = await database_query("""
+        SELECT 
+            p.user,
+            COUNT(*) AS total_games,
+            SUM(p.alive) AS survived,
+            SUM(CASE WHEN b.mvp = p.user THEN 1 ELSE 0 END) AS mvp_count,
+            AVG(p.survival_duration) AS avg_survival
+        FROM user_blood_player p
+        JOIN user_blood b ON p.blood_id = b.id
+        WHERE b.duration > 0
+        GROUP BY p.user
+        ORDER BY total_games DESC,survived DESC
+    """)
+
+    if not records:
+        return 0, "暂无玩家参与记录。"
+
+    headers = ["玩家", "参与次数", "存活次数", "存活率(%)", "MVP次数", "平均生存时长(分钟)"]
+    rows = []
+
+    for r in records:
+        name = await user_name(r["user"], "LR5921")
+        total = r["total_games"]
+        survived = r["survived"] or 0
+        survival_rate = (survived / total) * 100 if total else 0
+        avg_time = int((r["avg_survival"] or 0) // 60)
+        rows.append([
+            name,
+            total,
+            survived,
+            f"{survival_rate:.1f}",
+            r["mvp_count"] or 0,
+            avg_time
+        ])
+
+    return headers, rows
+
+
+async def blood_blood_query_all():
     """查询所有血字"""
     records = await database_query("""
                             SELECT 

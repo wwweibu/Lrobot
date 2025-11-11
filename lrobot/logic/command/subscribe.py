@@ -271,9 +271,9 @@ async def subscribe_delete(msg: Msg):
                 id = int(id)
                 content = await data.subscribe_delete(user, id)
             except ValueError:
-                content = "格式似乎有误，阁下。正确的形式应为 /订阅删除,1 这样的格式，请您再试一次。"
+                content = "格式似乎有误，阁下。正确的形式应为'/订阅删除,1'这样的格式，请您再试一次。"
         else:
-            content = "格式似乎有误，阁下。正确的形式应为 /订阅删除,1 这样的格式，请您再试一次。"
+            content = "格式似乎有误，阁下。正确的形式应为'/订阅删除,1'这样的格式，请您再试一次。"
     Msg(
         platform=msg.platform,
         event="发送",

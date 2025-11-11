@@ -58,12 +58,12 @@ async def record_add(msg: Msg):
     """开始记录指定群"""
     parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=1)
     if len(parts) == 1:
-        content = "请输入水群或玩耍地"
+        content = "请输入'水群'或'玩耍地'"
         await data.status_add(msg.user, msg.platform, "记录1")
     else:
         group = parts[1].strip()
         if group not in config["public"]:
-            content = "格式错误，请使用 /记录,水群or玩耍地"
+            content = "格式错误，请使用'/记录,水群or玩耍地'"
         else:
             group_id = config["public"][group][0]
             new_id = record_group(group_id)
@@ -117,7 +117,7 @@ async def record_delete(msg: Msg):
     else:
         group = parts[1].strip()
         if group not in config["public"]:
-            content = "格式错误，请使用 /结束记录,水群or玩耍地"
+            content = "格式错误，请使用'/结束记录,水群or玩耍地'"
         else:
             group_id = config["public"][group][0]
             if group_id not in recording_groups:
@@ -235,7 +235,7 @@ async def record_export(msg: Msg):
                     end = "进行中"
                 summary.append(f"{group_name}: {r['id']}->{start}: {end}")
         content = "\n".join(summary) if summary else "暂无任何记录。"
-        content = "请输入水群or玩耍地\n" + content
+        content = "请输入'水群'或'玩耍地'\n" + content
         await data.status_add(msg.user, msg.platform, "记录导出1")
     elif len(parts) >= 3:
         group = parts[1].strip()
@@ -295,9 +295,9 @@ async def record_export(msg: Msg):
                                 f.write(txt_content)
                             content = f"[文件:{output_path}]"
                         else:
-                            content = "格式错误，请使用: /记录导出,群,id、/记录导出,群,id,转发 或 /记录导出,群,id,匿名"
+                            content = "格式错误，请使用:'/记录导出,群,id'、'/记录导出,群,id,转发'或'/记录导出,群,id,匿名'"
     else:
-        content = "格式错误，请使用 /记录导出,/记录导出,群,id,/记录导出,群,id,转发"
+        content = "格式错误，请使用'/记录导出','/记录导出,群,id','/记录导出,群,id,转发'"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -364,7 +364,7 @@ async def record_export_2(msg: Msg):
     if not target_record.get("messages"):
         content = f"群 {group} 的记录 ID={record_id} 中没有消息，无法导出"
     else:
-        content = "请输入记录的格式，包括：文本，转发，匿名"
+        content = "请输入记录的格式，包括：'文本'，'转发'，'匿名'"
         await data.status_add(msg.user, msg.platform, "记录导出3", f"{group}|{id}")
     Msg(
         platform=msg.platform,

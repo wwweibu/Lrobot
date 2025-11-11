@@ -44,7 +44,8 @@ async def register_first(msg: Msg):
     if "社员" not in identity:
         content = (
             "阁下，欢迎您申请加入我们的推理殿堂。入会需完成信息登记并缴纳20元会费。\n"  # ，且使用本方法入会仍需添加小推
-            "若您对活动形式或会员权益存有疑问，可随时使用 /常见问题 （五个字符）指令查阅。\n"
+            "若您对活动形式或会员权益存有疑问，可随时使用'/常见问题'（/，常，见，问，题）指令查阅。\n"
+            "若遇任何困扰，敬请联络小推·真人版1316016706为您排忧。\n"
             "请您复制并完善以下档案信息（至*号结束）："
             "姓名:张三,代号:自取,性别:男,年级:24/25研/26博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*"
         )
@@ -89,7 +90,7 @@ async def register_second(msg: Msg):
 
     result = await data.user_member_judge(user_data["qq"])
     if result:
-        content = f"阁下，您当前使用的QQ号已在档案中留有记录，请确认信息无误。\n若遇任何困扰，敬请联络小推为您排忧。"
+        content = f"阁下，您当前使用的QQ号已在档案中留有记录，请确认信息无误。\n若遇任何困扰，敬请联络小推·真人版1316016706为您排忧。"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -101,7 +102,7 @@ async def register_second(msg: Msg):
         return content
     register_list[msg.user] = user_data
     info = f"阁下，您的档案已初步建立：\nqq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},电话:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
-    content = info + "\n\n敬请扫描此二维码，完成20元会费的缴纳。\n请在本平台发送付款截图，完成最终的入会确认手续。\n若出现问题请联系小推·真人版 1326016706"
+    content = info + "\n\n敬请扫描此二维码，完成20元会费的缴纳。\n请在本平台发送付款截图，完成最终的入会确认手续。\n若遇任何困扰，敬请联络小推·真人版1316016706为您排忧。"
     content += f"[图片:{path / 'storage/file/command/money.jpg'}]"
 
     await data.status_delete(msg.user, msg.platform, "入会1")
@@ -142,11 +143,11 @@ async def register_third(msg: Msg):
         await future.wait(msg1.num, f"[消息]文件下载超时-> {msg.content}")
     user_data = register_list.get(msg.user, "")
     if not user_data:
-        content = "阁下，请通过您发送付款截图的同一平台，完成最终的入会确认手续。"
+        content = "阁下，请通过您发送付款截图的同一平台，完成最终的入会确认手续。\n若遇任何困扰，敬请联络小推·真人版1316016706为您排忧。"
     else:
         await data.user_register(user_data)
         await data.status_delete(msg.user, msg.platform, "入会2")
-        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加群聊：580111434，并发送暗号「玩耍地」（不用姓名+是否入会了）以完成最后的对接。"  # 请添加小推1326016706，并发送暗号「玩耍地」以完成最后的对接。
+        content = "恭贺阁下！您已正式成为我会一员。为便于后续联络，请添加群聊：580111434，并发送暗号「玩耍地」（不用姓名+是否入会了）以完成最后的对接。\n若遇任何困扰，敬请联络小推·真人版1316016706为您排忧。"  # 请添加小推1326016706，并发送暗号「玩耍地」以完成最后的对接。
         Msg(
             platform="LR5921",
             event="发送",

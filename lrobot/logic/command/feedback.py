@@ -23,7 +23,7 @@ async def feedback_list(msg: Msg):
             else:
                 content = "阁下，您所指的序号似乎超出了当前档案的范围。烦请您核对后，从列表中选择一个有效的序号。"
         except ValueError:
-            content = "格式似乎有误，阁下。正确的形式应为 /收集表,1 这样的格式，请您再试一次。"
+            content = "格式似乎有误，阁下。正确的形式应为'/收集表,1'这样的格式，请您再试一次。"
     else:
         feed_list = await data.feedback_list()
         content = "阁下，当前开放的档案收集表如下：\n" + feed_list
@@ -120,7 +120,7 @@ async def feedback_set(msg: Msg):
         )
         return content
     elif len(parts) < 4:
-        content = "格式错误！请使用：/收集表设置,名称,日期(YYYY.MM.DD),问题1\n问题2..."
+        content = "格式错误！请使用：'/收集表设置,名称,日期(YYYY.MM.DD),问题1\n问题2\n...'"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -136,7 +136,7 @@ async def feedback_set(msg: Msg):
     try:
         period = datetime.strptime(date_str.strip(), "%Y.%m.%d") + timedelta(days=1)
     except ValueError:
-        content = "日期格式错误！请使用 YYYY.MM.DD 格式（如 2023.10.10）"
+        content = "日期格式错误！请使用'YYYY.MM.DD'格式（如 2023.10.10）"
         Msg(
             platform=msg.platform,
             event="发送",
@@ -170,7 +170,7 @@ async def feedback_set_1(msg: Msg):
     """设置收集表名称"""
     name = Msg.content_join(msg.content)
     await data.status_add(msg.user, msg.platform, "收集新建2", name)
-    content = "请设置截止日期，格式为YYYY.MM.DD"
+    content = "请设置截止日期，格式为'YYYY.MM.DD'"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -251,9 +251,9 @@ async def feedback_result(msg: Msg):
             id = int(id)
             content = await data.feedback_export(id)
             if not content:
-                content = "序号超出范围，请输入 /收集表结果 获取到的序号"
+                content = "序号超出范围，请输入'/收集表结果'获取到的序号"
         except ValueError:
-            content = "序号错误,请输入 /收集表结果,1 类似格式"
+            content = "序号错误,请输入'/收集表结果,1'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -313,9 +313,9 @@ async def feedback_delete(msg: Msg):
             if result:
                 content = "删除成功"
             else:
-                content = "序号超出范围，请输入从 /收集表删除 获取到的序号"
+                content = "序号超出范围，请输入从'/收集表删除'获取到的序号"
         except ValueError:
-            content = "序号错误，请输入 /收集表删除,1 类似格式"
+            content = "序号错误，请输入'/收集表删除,1'类似格式"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -337,7 +337,7 @@ async def feedback_delete_answer(msg: Msg):
     if result:
         content = "删除成功"
     else:
-        content = "序号超出范围，请输入从 /收集表删除 获取到的序号"
+        content = "序号超出范围，请输入从'/收集表删除'获取到的序号"
     await data.status_delete(msg.user, msg.platform, "收集删除")
     Msg(
         platform=msg.platform,
