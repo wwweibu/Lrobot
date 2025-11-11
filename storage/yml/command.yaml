@@ -1628,6 +1628,191 @@ commands:
   groups:
   - 水群
   - 玩耍地
+- func: 血字_开始_1
+  function: activity_blood_start1
+  set: 活动
+  order: 0
+  content:
+  - /血字开始
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_开始_2
+  function: activity_blood_start2
+  set: 活动
+  order: 0
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 群聊接收
+  state:
+  - 血字1
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_开始_3
+  function: activity_blood_start3
+  set: 活动
+  order: 0
+  content:
+  - /血字
+  judge: contains
+  kind:
+  - 群聊接收
+  state:
+  - 血字2
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_死亡
+  function: activity_blood_die
+  set: 活动
+  order: 0
+  content:
+  - /血字死亡
+  judge: contains
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_结束
+  function: activity_blood_end
+  set: 活动
+  order: 0
+  content:
+  - /血字结束
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_MVP
+  function: activity_blood_mvp
+  set: 活动
+  order: 0
+  content:
+  - /血字MVP
+  judge: contains
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_查询_1
+  function: activity_blood_search1
+  set: 活动
+  order: 0
+  content:
+  - /血字查询
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_查询_2
+  function: activity_blood_search2
+  set: 活动
+  order: 0
+  content:
+  - 个人
+  - 血字
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 血字查询1
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
+- func: 血字_查询_3
+  function: activity_blood_search3
+  set: 活动
+  order: 0
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 血字查询2
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
 - func: 订阅_回答
   function: subscribe_subscribe_answer
   set: 订阅

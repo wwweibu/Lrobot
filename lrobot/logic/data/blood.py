@@ -1,0 +1,130 @@
+"""血字相关数据处理"""
+
+from .user import user_name
+from config import database_query
+
+
+async def blood_person_query(player):
+    """血字个人查询"""
+    records = await database_query("""
+                    SELECT 
+                        b.name AS blood_name,
+                        b.dm,
+                        p.survival_duration,
+                        p.alive,
+                        CASE WHEN b.mvp = p.user THEN 1 ELSE 0 END AS is_mvp
+                    FROM user_blood_player p
+                    JOIN user_blood b ON p.blood_id = b.id
+                    WHERE p.user = %s AND b.duration > 0
+                    ORDER BY b.id DESC
+                """, (player,))
+
+    if not records:
+        return 0, f"玩家 {player} 暂无已结束的血字记录。"
+
+    headers = ["血字名称", "DM", "存活时长(分钟)", "状态", "MVP"]
+    rows = []
+    total_count = len(records)
+    total_time = 0
+    survive_count = 0
+    mvp_count = 0
+    for r in records:
+        duration_min = int((r["survival_duration"] or 0) // 60)
+        total_time += r["survival_duration"] or 0
+        status = "存活" if r["alive"] else "死亡"
+        if r["alive"]:
+            survive_count += 1
+        if r["is_mvp"]:
+            mvp_count += 1
+        dm = await user_name(r["dm"], "LR5921")
+        rows.append([
+            r["blood_name"], dm, duration_min, status, "★" if r["is_mvp"] else ""
+        ])
+    avg_time_min = int((total_time / total_count) // 60) if total_count else 0
+    survival_rate = survive_count / total_count * 100 if total_count else 0
+    # 汇总行
+    rows.append([
+        "总计",
+        f"{total_count}",
+        f"{avg_time_min}",
+        f"{survival_rate:.1f}%",
+        f"{mvp_count}"
+    ])
+    return headers, rows
+
+
+async def blood_all_query():
+    """查询所有血字"""
+    records = await database_query("""
+                            SELECT 
+                                b.name, b.dm,
+                                GROUP_CONCAT(CASE WHEN p.alive=1 THEN p.user END) AS alive_users,
+                                GROUP_CONCAT(CASE WHEN p.alive=0 THEN p.user END) AS dead_users,
+                                SUM(p.alive)/COUNT(p.id)*100 AS survival_rate,
+                                b.duration, b.mvp
+                            FROM user_blood b
+                            LEFT JOIN user_blood_player p ON b.id=p.blood_id
+                            WHERE b.duration>0
+                            GROUP BY b.id
+                            ORDER BY b.id DESC
+                        """)
+    if not records:
+        return 0, "暂无已结束血字。"
+
+    headers = ["血字-DM", "存活玩家", "死亡玩家", "存活率(%)", "总时长(分)", "MVP"]
+    rows = []
+    for r in records:
+        dm = await user_name(r['dm'], "LR5921")
+        alive_users = "无"
+        dead_users = "无"
+        if r["alive_users"]:
+            alive_ids = [u for u in r["alive_users"].split(",") if u]
+            alive_names = [await user_name(uid, "LR5921") for uid in alive_ids]
+            alive_users = "、".join(alive_names) if alive_names else "无"
+
+        if r["dead_users"]:
+            dead_ids = [u for u in r["dead_users"].split(",") if u]
+            dead_names = [await user_name(uid, "LR5921") for uid in dead_ids]
+            dead_users = "、".join(dead_names) if dead_names else "无"
+        rows.append([
+            f"{r['name']}-{dm}",
+            alive_users,
+            dead_users,
+            f"{float(r['survival_rate'] or 0):.1f}",
+            f"{(r['duration'] or 0) // 60}",
+            r["mvp"] or ""
+        ])
+    return headers, rows
+
+
+async def blood_blood_query(name):
+    """查询某个血字"""
+    record = await database_query("""
+                            SELECT b.id, b.name, b.dm, b.duration, b.mvp
+                            FROM user_blood b
+                            WHERE b.name=%s AND b.duration>0
+                            ORDER BY b.id DESC LIMIT 1
+                        """, (name,))
+    if not record:
+        return 0, f"未找到名为『{name}』的已结束血字。"
+
+    b = record[0]
+    players = await database_query("""
+                            SELECT user, alive, survival_duration FROM user_blood_player
+                            WHERE blood_id=%s
+                        """, (b["id"],))
+    headers = ["玩家", "状态"]
+    for p in players:
+        p["user"] = await user_name(p["user"], "LR5921")
+    rows = [[p["user"], "存活" if p["alive"] else "死亡"] for p in players]
+    total = len(players)
+    survive = len([p for p in players if p["alive"]])
+    survival_rate = survive / total * 100 if total else 0
+    avg_time = int(sum(p["survival_duration"] or 0 for p in players) / total // 60) if total else 0
+    mvp = await user_name(b['mvp'], "LR5921") if b['mvp'] else "无"
+    rows.append(["参与人数", f"{total}"])
+    rows.append(["存活率", f"{survival_rate:.1f}%"])
+    rows.append(["总时长", f"{b['duration'] // 60}分"])
+    rows.append(["平均存活", f"{avg_time}分"])
+    rows.append(["MVP", mvp])
+    return headers, rows

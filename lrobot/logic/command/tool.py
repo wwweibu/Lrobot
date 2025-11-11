@@ -18,7 +18,7 @@ async def tool_pending(msg: Msg):
         content = "阁下，此功能专为 LR5921 平台或已绑定该平台的平台所设。请您确认当前使用的身份凭证。"
     else:
         parts = re.split(r"[，,]", Msg.content_join(msg.content), maxsplit=2)
-        content = "指令格式似乎有误。正确的范例应为'/待办，明天晚六点，用餐'，烦请您依此格式重新下达指令。"
+        content = "指令格式似乎有误。正确的范例应为 /待办，明天晚六点，用餐 ，烦请您依此格式重新下达指令。"
         if len(parts) == 3:
             try:
                 pending_time = jio.parse_time(parts[1].strip(), time_base=time.time(), time_type="time_point")

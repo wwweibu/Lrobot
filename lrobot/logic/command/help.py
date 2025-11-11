@@ -100,7 +100,7 @@ def docs_merge(mode="wiki", platform=None, func_text=None, filter_set=None):
     if mode == "wiki":
         return wiki_text
     elif mode == "help_find":
-        return "容我禀告，阁下所指的指令，目前还未收录在我的档案库中。您不妨通过'/帮助'指令，重新查阅可用的指令列表。"
+        return "容我禀告，阁下所指的指令，目前还未收录在我的档案库中。您不妨通过 /帮助 指令，重新查阅可用的指令列表。"
     else:
         return help_member, help_manager
 
@@ -137,7 +137,7 @@ async def help_help(msg: Msg):
             bonus_scene = caesar_encrypt("bonus scene", current_hour)
             content = (
                 "阁下若有任何疑问或高见，谨此邀请您将其记录在日志之中\n"
-                "您只需使用'/留言，[您的内容]'即可\n\n"
+                "您只需使用 /留言，[您的内容] 即可\n\n"
                 f"此外，为您献上：zeroth {bonus_scene}"
             )
         else:
@@ -161,7 +161,7 @@ async def help_help(msg: Msg):
         cab_prompt = f"\n在帮助和进阶中，下方用换行隔开的是管理指令，可以在私聊及公测群中使用"
         content = (
             "我亲爱的搭档，这是我能为您提供的所有协助：\n"
-            "私聊中使用'/'+指令即可触发，如需引导，请使用'/帮助,指令'\n"
+            "私聊中使用 /指令 即可触发，如需引导，请使用 /帮助,指令 \n"
             "<指令一览>\n"
             f"{','.join(member_text)}\n"
             f"{cab_text}"
@@ -175,11 +175,11 @@ async def help_help(msg: Msg):
             "/帮助，活动\n"
             "/入会\n"
             "<温馨提示>\n"
-            "指令格式为/指令，需要携带/，以及不用带引号\n"
-            "回答时不需要携带/，如接收到常见问题列表后，回复2\n"
-            "'/进阶'获取指令的便捷用法\n"
+            "指令格式为 /指令，需要携带 /，如： /入会\n"
+            "回答时，根据提示回答，如接收到常见问题列表后，回复 2\n"
+            "/进阶 获取指令的便捷用法\n"
             "指令中的逗号中英文通用\n"
-            "在LR232，输入'/'或点击机器人图标，均可唤出指令面板"
+            "在LR232，输入 / 或点击机器人图标，均可唤出指令面板"
             f"{cab_prompt if isCab else ''}"
         )
     Msg(
@@ -214,16 +214,16 @@ async def help_advance(msg: Msg):
             if isCab and cab_text:
                 content = content + "\n\n" + "\n".join(cab_text)
         else:
-            content = "阁下，指令未能识别——您可通过'/进阶'重新校准分组。"
+            content = "阁下，指令未能识别——您可通过 /进阶 重新校准分组。"
     else:
         content = (
             "<进阶说明>\n"
             "阁下，关于指令系统，容我为您提供一个更为高效之道:\n"
-            "常规的分步指令('/a,输入b,输入c')在批量处理时略显繁琐\n"
-            "进阶指令采用'/a,b,c'一步实现的方法\n"
-            "为此，您可直接使用'/进阶,[分组]'来获取完整指令集\n"
+            "常规的分步指令(/a,输入b,输入c)在批量处理时略显繁琐\n"
+            "进阶指令采用 /a,b,c 一步实现的方法\n"
+            "为此，您可直接使用 /进阶,[分组] 来获取完整指令集\n"
             f"分组列表如下：{','.join(command_groups)}\n"
-            "列表将呈现'指令: 用法'格式，其中'[]'内即为需要您提供的核心参数"
+            "列表将呈现'指令: 用法'格式，其中'[]'内即为需要您替换的核心参数"
         )
     Msg(
         platform=msg.platform,
@@ -262,7 +262,7 @@ async def help_question(msg: Msg):
             else:
                 content = f"序号 {num} 并未收录在案\n请从 1 至 {len(qa_pairs)} 之间选择一个合适的数字"
         except ValueError:
-            content = "格式似乎有误，阁下。正确的形式应为'/常见问题,1'这样的格式，烦请您再试一次。"
+            content = "格式似乎有误，阁下。正确的形式应为 /常见问题,1 这样的格式，烦请您再试一次。"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -322,7 +322,7 @@ async def help_welcome(msg: Msg):
         "协会的最新动态将于各社交平台呈现，诚邀您关注\n"
         "若您有意加入我们，请移步至QQ招新群：708346432\n"
         "成为会员后，更有诸多谜题游戏在活动群中静候您的光临\n"
-        "最后，不妨一试'/帮助'指令，或许能带来些许惊喜"
+        "最后，不妨一试 /帮助 指令（三个字符），或许能带来些许惊喜"
     )
     Msg(
         platform=msg.platform,

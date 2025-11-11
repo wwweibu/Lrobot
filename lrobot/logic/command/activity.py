@@ -2,10 +2,12 @@
 
 import re
 import json
+import asyncio
+from datetime import datetime
 
 from logic import data
 from message.handler.msg import Msg
-from config import monitor_adapter, path, future, database_update
+from config import monitor_adapter, path, future, database_update, database_query, config
 
 
 @monitor_adapter("/活动_日记_开始")
@@ -13,11 +15,10 @@ async def activity_diary_start(msg: Msg):
     """日记开始答题"""
     await data.status_add(msg.user, msg.platform, "日记", 1)
     content = f"[图片:{path}/storage/file/command/diary/1.png]"
-    content += ("所有答案的形式均为小写英文字母/数字/中文\n"
-                "且中间无空格\n"
-                "输入'/提示'获取当前题目的提示\n"
-                "可在绑定的多平台同步答题\n"
-                "不要过于依赖提示哦＞﹏＜")
+    content += ("谨记答案格式：连续的小写字母、数字或中文，无空格\n"
+                "陷入困境时，可调阅 /提示 获取指引\n"
+                "进度已支持多平台同步\n"
+                "独立发现的真相，往往更加甘美")
 
     Msg(
         platform=msg.platform,
@@ -112,6 +113,385 @@ async def activity_diary_answer(msg: Msg):
     )
     return content
 
+
+@monitor_adapter("/活动_血字_开始_1")
+async def activity_blood_start1(msg: Msg):
+    """血字开始"""
+    if msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
+        identity_list = await data.user_identify(msg.user, msg.platform)
+        if "内阁" not in identity_list:
+            content = "阁下，开启血字的权限仅限于内阁成员。"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+
+            return content
+    content = "请请您为本次血字命名，系统将自动记录您为主持人。"
+    await data.status_add(msg.user, msg.platform, "血字1")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+
+    return content
+
+
+@monitor_adapter("/活动_血字_开始_2")
+async def activity_blood_start2(msg: Msg):
+    """血字名称"""
+    content = "请使用 /血字 指令并@所有参与者以完成召集。建议您先单独@一次，确认诸位侦探均已就位。"
+    await data.status_add(msg.user, msg.platform, "血字2", f"{Msg.content_join(msg.content)}|{msg.user}")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_开始_3")
+async def activity_blood_start3(msg: Msg):
+    """血字参与者"""
+    info = await data.status_check(msg.user, msg.platform, "血字2")
+    name, dm = info.split("|", 1)
+    players = []
+    for seg in msg.content:
+        if seg["type"] == "at":
+            players.append(seg["data"]["qq"])
+    if not players:
+        content = "一场血字至少需要一位参与者，请重新确认名单。"
+    else:
+        start_time = datetime.now()
+        blood_id = await database_update(
+            "INSERT INTO user_blood (name, dm, start_time) VALUES (%s, %s, %s)",
+            (name, msg.user, start_time)
+        )
+        for u in players:
+            await database_update(
+                "INSERT INTO user_blood_player (blood_id, user,alive) VALUES (%s, %s, 1)",
+                (blood_id, u)
+            )
+        content = f"血字⌈{name}⌋现已开幕\n主持人：{dm}\n与会侦探：{', '.join(players)}"
+        await data.status_delete(msg.user, msg.platform, "血字2")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_死亡")
+async def activity_blood_die(msg: Msg):
+    """标记玩家死亡"""
+    if msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
+        identity_list = await data.user_identify(msg.user, msg.platform)
+        if "内阁" not in identity_list:
+            content = "阁下，调整血字状态的权限仅限于内阁成员。"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+            return content
+
+    players = []
+    for seg in msg.content:
+        if seg["type"] == "at":
+            players.append(seg["data"]["qq"])
+    if not players:
+        content = "请@需要被记录为“牺牲”的参与者。"
+    else:
+        blood = await database_query(
+            "SELECT id, start_time FROM user_blood WHERE end_time IS NULL ORDER BY id DESC LIMIT 1"
+        )
+        if not blood:
+            content = "目前未有进行中的血字。"
+        else:
+            blood_id = blood[0]["id"]
+            start_time = blood[0]["start_time"]
+            now = datetime.now()
+            for u in players:
+                duration = int((now - start_time).total_seconds())
+                await database_update(
+                    "UPDATE user_blood_player SET survival_duration=%s, alive=0 WHERE blood_id=%s AND user=%s",
+                    (duration, blood_id, u)
+                )
+            content = f"已确认玩家{', '.join(players)}在本次血字中牺牲。"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_结束")
+async def activity_blood_end(msg: Msg):
+    """血字结束"""
+    blood = await database_query(
+        "SELECT id, start_time FROM user_blood WHERE end_time IS NULL ORDER BY id DESC LIMIT 1"
+    )
+    if not blood:
+        content = "目前未有进行中的血字。"
+    else:
+        blood_id = blood[0]["id"]
+        start_time = blood[0]["start_time"]
+        now = datetime.now()
+        duration = int((now - start_time).total_seconds())
+        # 更新血字结束时间
+        await database_update(
+            "UPDATE user_blood SET end_time=%s, duration=%s WHERE id=%s",
+            (now, duration, blood_id)
+        )
+
+        # 更新所有仍存活的玩家的存活时长
+        await database_update(
+            "UPDATE user_blood_player SET survival_duration=%s, alive=1 WHERE blood_id=%s AND survival_duration IS NULL",
+            (duration, blood_id)
+        )
+
+        content = f"本次血字已落幕，历时 {duration // 60} 分钟。"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_MVP")
+async def activity_blood_mvp(msg: Msg):
+    """设置血字 MVP"""
+    if msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
+        identity_list = await data.user_identify(msg.user, msg.platform)
+        if "内阁" not in identity_list:
+            content = "阁下，提名杰出表现者的权限仅限于内阁成员。"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+            return content
+    players = [seg["data"]["qq"] for seg in msg.content if seg["type"] == "at"]
+    if not players:
+        content = "请@一位参与者，以提名其为本次会议的杰出表现者。"
+    else:
+        mvp_user = players[0]
+
+        # 获取最近一场血字（进行中或刚结束）
+        blood = await database_query(
+            "SELECT id, name FROM user_blood ORDER BY id DESC LIMIT 1"
+        )
+        if not blood:
+            content = "目前未有可设置的血字。"
+        else:
+            blood_id = blood[0]["id"]
+            blood_name = blood[0]["name"]
+            existing_mvp = blood[0].get("mvp")
+            if existing_mvp:
+                nick = await data.user_name(existing_mvp, msg.platform)
+                content = f"该血字会议的MVP已有归属：{nick}，无法重复设定。"
+            else:
+
+                # 更新数据库
+                await database_update(
+                    "UPDATE user_blood SET mvp=%s WHERE id=%s",
+                    (mvp_user, blood_id)
+                )
+                nick = await data.user_name(mvp_user, msg.platform)
+                content = f"血字⌈{blood_name}⌋的杰出表现者已记录为：{nick}"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+
+    return content
+
+
+@monitor_adapter("/活动_血字_查询_1")
+async def activity_blood_search1(msg: Msg):
+    """血字查询选择类型"""
+    if msg.group and msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
+        identity_list = await data.user_identify(msg.user, msg.platform)
+        if "内阁" not in identity_list:
+            content = "阁下，查询会议记录请通过私聊进行。"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+            return content
+    parts = re.split(r"[，,]", Msg.content_join(msg.content))
+    if len(parts) == 1:
+        content = "请指定查询类型：个人 / 血字"
+        await data.status_add(msg.user, msg.platform, "血字查询1")
+    elif len(parts) == 3:
+        output_path = path / f"storage/file/command/blood/user_{msg.seq}.png"
+        query_type, target = parts[1].strip(), parts[2].strip()
+        if query_type == "个人":
+            headers, rows = await data.blood_person_query(target)
+            if headers == 0:
+                content = rows
+            else:
+                await data.table_to_image(headers, rows, output_path)
+                content = f"[图片:{output_path}]"
+        elif query_type == "血字":
+            if target == "所有":
+                headers, rows = await data.blood_all_query()
+                if headers == 0:
+                    content = rows
+                else:
+                    await data.table_to_image(headers, rows, output_path)
+                    content = f"[图片:{output_path}]"
+            else:
+                # 查询单个血字
+                headers, rows = await data.blood_blood_query(target)
+                if headers == 0:
+                    content = rows
+                else:
+                    await data.table_to_image(headers, rows, output_path)
+                    content = f"[图片:{output_path}]"
+        else:
+            content = "类型无效，请选择 个人 或 血字。"
+    else:
+        content = "阁下，指令格式有误。请遵循 /血字查询,个人,[玩家QQ号] 或 /血字查询,血字,[血字名称] 或 /血字查询,血字,所有 的规范。"
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_查询_2")
+async def activity_blood_search2(msg: Msg):
+    """血字查询输入目标"""
+    query_type = Msg.content_join(msg.content)
+    if query_type == "个人":
+        content = "请输入您要查询的玩家QQ号。"
+    else:
+        # 查询所有血字名称
+        blood_list = await database_query(
+            "SELECT name FROM user_blood WHERE duration > 0 ORDER BY id DESC"
+        )
+        if not blood_list:
+            name_list_text = "暂无已结束的血字记录。"
+        else:
+            # 将血字名与主持人显示出来更直观
+            blood_display = await database_query(
+                "SELECT name, dm FROM user_blood WHERE duration > 0 ORDER BY id DESC"
+            )
+            for b in blood_display:
+                b['dm'] = await data.user_name(b['dm'], "LR5921")
+            name_list_text = "\n".join(
+                [f"{b['name']}（DM：{b['dm']}）" for b in blood_display]
+            )
+        content = "请输入您要查询的血字名称或者输入 所有\n\n可选血字如下：\n" + name_list_text
+    await data.status_add(msg.user, msg.platform, "血字查询2", query_type)
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
+@monitor_adapter("/活动_血字_查询_3")
+async def activity_blood_search3(msg: Msg):
+    """血字查询"""
+    query_type = await data.status_check(msg.user, msg.platform, "血字查询2")
+    output_path = path / f"storage/file/command/blood/user_{msg.seq}.png"
+
+    if query_type == "个人":
+        player = Msg.content_join(msg.content)
+        headers, rows = await data.blood_person_query(player)
+        if headers == 0:
+            content = rows
+        else:
+            await data.table_to_image(headers, rows, output_path)
+            content = f"[图片:{output_path}]"
+    else:
+        name = Msg.content_join(msg.content).strip()
+        if name == "所有":
+            headers, rows = await data.blood_all_query()
+            if headers == 0:
+                content = rows
+            else:
+                await data.table_to_image(headers, rows, output_path)
+                content = f"[图片:{output_path}]"
+        else:
+            # 查询单个血字
+            headers, rows = await data.blood_blood_query(name)
+            if headers == 0:
+                content = rows
+            else:
+                await data.table_to_image(headers, rows, output_path)
+                content = f"[图片:{output_path}]"
+    await data.status_delete(msg.user, msg.platform, "血字查询2")
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    asyncio.create_task(data.remove_later(output_path))
+    return content
 
 async def merge_img():
     """生成合并后的寻宝群总图"""

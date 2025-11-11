@@ -70,6 +70,88 @@ async def text_to_image(text, output, font_path=path / "storage/file/command/sim
     )
 
 
+async def table_to_image(
+        headers, rows, output,
+        font_path="storage/file/command/simsun.ttc",
+        font_size=24):
+    """文字转表格图片"""
+    padding_x = 20
+    padding_y = 15
+    border_width = 2
+    font = ImageFont.truetype(font_path, font_size)
+
+    # 临时画布用于测量
+    draw_tmp = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    num_cols = len(headers)
+    col_widths = [0] * num_cols
+
+    # 精确计算列宽
+    for i in range(num_cols):
+        col_texts = [str(headers[i])]
+        for row in rows:
+            if i < len(row):
+                col_texts.append(str(row[i]))
+        max_w = 0
+        for txt in col_texts:
+            bbox = draw_tmp.textbbox((0, 0), txt, font=font)
+            w = bbox[2] - bbox[0]
+            if w > max_w:
+                max_w = w
+        col_widths[i] = int(max_w + padding_x * 2)
+
+    # 计算行高
+    sample_bbox = font.getbbox("汉")
+    text_height = sample_bbox[3] - sample_bbox[1]
+    row_height = int(text_height + padding_y * 2)
+
+    table_width = int(sum(col_widths) + border_width)
+    table_height = int(row_height * (len(rows) + 1) + border_width)
+
+    img = Image.new("RGB", (table_width, table_height), color="white")
+    draw = ImageDraw.Draw(img)
+
+    # 绘制表头
+    y = 0
+    draw.rectangle([0, y, table_width, y + row_height],
+                   fill="#E6E6E6", outline="#000000", width=border_width)
+
+    x = 0
+    for i, header in enumerate(headers):
+        text = str(header)
+        w = col_widths[i]
+        text_w = draw.textlength(text, font=font)
+        draw.text((int(x + (w - text_w) / 2), int(y + padding_y)),
+                  text, font=font, fill="black")
+        x += w
+        draw.line([(int(x), 0), (int(x), table_height)],
+                  fill="#000000", width=border_width)
+
+    # 绘制表格内容
+    for row_idx, row in enumerate(rows):
+        y = int(row_height * (row_idx + 1))
+        draw.rectangle([0, y, table_width, y + row_height],
+                       fill="#FFFFFF", outline="#000000", width=border_width)
+
+        x = 0
+        for col_idx in range(num_cols):
+            cell = row[col_idx] if col_idx < len(row) else ""
+            text = str(cell)
+            w = col_widths[col_idx]
+            text_w = draw.textlength(text, font=font)
+            draw.text((int(x + (w - text_w) / 2), int(y + padding_y)),
+                      text, font=font, fill="black")
+            x += w
+        draw.line([(0, y), (table_width, y)],
+                  fill="#000000", width=border_width)
+
+    # 保存图片
+    Path(output).parent.mkdir(parents=True, exist_ok=True)
+    img.save(output)
+
+    msg_logger.debug(f"[表格图片]转换成功 -> 图片: {output}",
+                     extra={"event": "文件处理"})
+
+
 async def image_merge(image_paths, output, direction="vertical", padding=0):
     """合并多张图片"""
     images = [Image.open(p).convert("RGB") for p in image_paths]

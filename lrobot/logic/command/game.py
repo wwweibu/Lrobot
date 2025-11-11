@@ -81,7 +81,7 @@ async def game_idiom(msg: Msg):
                     current_last_char = next_idiom[-1]
                 content = ",".join(chain) if chain else "经过一番侦察，未能发现与之匹配的成语。"
             except ValueError:
-                content = "指令格式似乎有些蹊跷，阁下。正确的形式应为'/成语,愚公移山,10'这样的格式。"
+                content = "指令格式似乎有些蹊跷，阁下。正确的形式应为 /成语,愚公移山,10 这样的格式。"
     elif len(parts) == 2:
         idiom = parts[1].strip()
         last_char = idiom[-1]
@@ -179,7 +179,7 @@ async def game_idiom_2(msg: Msg):
                 current_last_char = next_idiom[-1]
             content = ",".join(chain) if chain else "经过一番侦察，未能发现与之匹配的成语。"
         except ValueError:
-            content = "指令格式似乎有些蹊跷，阁下。请从'/成语'开始，重新尝试一次。"
+            content = "指令格式似乎有些蹊跷，阁下。请从 /成语 开始，重新尝试一次。"
     await data.status_delete(msg.user, msg.platform, "成语2")
     Msg(
         platform=msg.platform,
@@ -203,7 +203,7 @@ async def game_idiom_start(msg: Msg):
     await data.status_add(msg.user, msg.platform, "成语接龙", info)
     content = ("接龙游戏现已开始，阁下。\n"
                f"请您随意出题，我将依据{info}模式进行接龙。\n"
-               "若要结束这场文字游戏，请使用'/成语接龙退出'指令")
+               "若要结束这场文字游戏，请使用 /成语接龙退出 指令")
     Msg(
         platform=msg.platform,
         event="发送",

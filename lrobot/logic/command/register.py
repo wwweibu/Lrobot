@@ -44,7 +44,7 @@ async def register_first(msg: Msg):
     if "社员" not in identity:
         content = (
             "阁下，欢迎您申请加入我们的推理殿堂。入会需完成信息登记并缴纳20元会费。\n"  # ，且使用本方法入会仍需添加小推
-            "若您对活动形式或会员权益存有疑问，可随时使用'/常见问题'指令查阅。\n"
+            "若您对活动形式或会员权益存有疑问，可随时使用 /常见问题 （五个字符）指令查阅。\n"
             "请您复制并完善以下档案信息（至*号结束）："
             "姓名:张三,代号:自取,性别:男,年级:24/25研/26博,专业:计算机科学与技术,学号:2025,电话:137,qq:123,政治面貌:群众/团员/党员,籍贯:湖北武汉*"
         )
@@ -101,7 +101,7 @@ async def register_second(msg: Msg):
         return content
     register_list[msg.user] = user_data
     info = f"阁下，您的档案已初步建立：\nqq:{user_data['qq']},代号:{user_data['codename']},姓名:{user_data['name']},年级:{user_data['grade']},性别:{user_data['gender']},专业:{user_data['major']},学号:{user_data['student_id']},电话:{user_data['phone']},政治面貌:{user_data['political_status']},籍贯:{user_data['hometown']}"
-    content = info + "\n\n敬请扫描此二维码，完成20元会费的缴纳。\n请在同平台发送付款截图，完成最终的入会确认手续。"
+    content = info + "\n\n敬请扫描此二维码，完成20元会费的缴纳。\n请在本平台发送付款截图，完成最终的入会确认手续。\n若出现问题请联系小推·真人版 1326016706"
     content += f"[图片:{path / 'storage/file/command/money.jpg'}]"
 
     await data.status_delete(msg.user, msg.platform, "入会1")

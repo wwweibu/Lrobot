@@ -19,6 +19,7 @@ PANEL_CONFIGS = [
     ("密码", "密码工具", "/hjd/static/panel/6.png"),
     ("订阅", "订阅提醒", "/hjd/static/panel/8.png"),
     ("活动", "线上活动/活动助手", "/hjd/static/panel/9.png"),
+    ("其他", "其他功能", "/hjd/static/panel/9.png"),
     ("待办", "待办事项汇总", "/hjd/static/panel/1.gif"),
     ("官网", "官网主页", "/hjd/static/panel/20.png"),
     ("登录页", "登录", "/hjd/static/panel/21.png"),

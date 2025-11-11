@@ -155,7 +155,7 @@ async def base_unknown(msg: Msg):
             event="发送",
             user=msg.user,
             seq=msg.seq,
-            content="阁下，此指令不在当前行动清单内。建议使用'/帮助'进行核查。",
+            content="阁下，此指令不在当前行动清单内。建议使用 /帮助 进行核查。",
             group=msg.group,
         )
     if msg.platform in ["LR232", "WECHAT", "BILI"]:

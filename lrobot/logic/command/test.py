@@ -9,11 +9,13 @@ from logic import data
 
 async def test_1(msg: Msg):
     """测试函数"""
+    text_path = path / 'storage/file/command/text.png'
+    await data.table_to_image(["a", "b", "c"], [[1, 2, 3], [4, 5, 6], [7, 8, 9]], text_path)
     Msg(
         platform=msg.platform,
         kind=f"{msg.kind[:2]}发送",
         event="发送",
-        content=f"[语音:{path / 'storage/file/command/morning_20251104.wav'}]",
+        content=f"[图片:{text_path}]",
         user=msg.user,
         group=msg.group
     )
