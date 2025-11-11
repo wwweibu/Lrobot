@@ -1628,6 +1628,26 @@ commands:
   groups:
   - 公测群
   - 内测群
+- func: 血字_帮助
+  function: activity_blood_help
+  set: 活动
+  order: 0
+  content:
+  - /血字
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
 - func: 血字_开始_1
   function: activity_blood_start1
   set: 活动
