@@ -483,7 +483,7 @@ async def activity_blood_search1(msg: Msg):
             content = f"[图片:{output_path}]"
             asyncio.create_task(data.remove_later(output_path))
     else:
-        content = "阁下，指令格式有误。请遵循'/血字查询,个人,[玩家QQ号]'或'/血字查询,个人,所有'或'/血字查询,血字,[血字名称]'或'/血字查询,血字,所有'的规范。"
+        content = "阁下，指令格式有误。请遵循'/血字查询,个人,[玩家QQ号]'或'/血字查询,个人,所有'或'/血字查询,血字,[血字名称]'或'/血字查询,血字,[dmQQ号]'或'/血字查询,血字,所有'的规范。"
     Msg(
         platform=msg.platform,
         event="发送",
@@ -519,7 +519,7 @@ async def activity_blood_search2(msg: Msg):
             name_list_text = "\n".join(
                 [f"{b['name']}（DM：{b['dm']}）" for b in blood_display]
             )
-        content = "请输入您要查询的血字名称或者输入'所有'\n\n可选血字如下：\n" + name_list_text
+        content = "请输入您要查询的血字名称或者输入dm的QQ号或者输入'所有'\n\n可选血字如下：\n" + name_list_text
     await data.status_add(msg.user, msg.platform, "血字查询2", query_type)
     Msg(
         platform=msg.platform,
