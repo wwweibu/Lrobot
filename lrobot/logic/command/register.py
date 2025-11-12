@@ -216,3 +216,32 @@ async def register_official(msg: Msg):
     )
     await data.user_register(user_data)
     return content
+
+
+@monitor_adapter("/入会_查询")
+async def register_query(msg: Msg):
+    """入会信息查询"""
+    user = await data.status_lr5921_get(msg.user, msg.platform)
+    if not user:
+        content = "阁下当前身份未绑定 LR5921 平台账户，请先完成绑定后再查询入会信息。"
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            user=msg.user,
+            group=msg.group,
+            content=content,
+        )
+        return content
+    content = await data.user_register_query(user)
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        user=msg.user,
+        group=msg.group,
+        content=content,
+    )
+    return content

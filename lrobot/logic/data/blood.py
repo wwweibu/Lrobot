@@ -31,7 +31,7 @@ async def blood_person_query(player):
     mvp_count = 0
     for r in records:
         if r["start_time"]:
-            date_str = r["start_time"].strftime("%m.%d")
+            date_str = r["start_time"].strftime("%Y.%m.%d")
         else:
             date_str = "--"
         duration_min = int((r["survival_duration"] or 0) // 60)
@@ -121,7 +121,7 @@ async def blood_blood_query_all():
     rows = []
     for r in records:
         if r["start_time"]:
-            date_str = r["start_time"].strftime("%m.%d")
+            date_str = r["start_time"].strftime("%Y.%m.%d")
         else:
             date_str = "--"
         dm = await user_name(r['dm'], "LR5921")
@@ -174,7 +174,7 @@ async def blood_blood_query(name):
             rows = []
             for r in records:
                 # 格式化日期
-                date_str = r["start_time"].strftime("%m.%d") if r["start_time"] else "--"
+                date_str = r["start_time"].strftime("%Y.%m.%d") if r["start_time"] else "--"
 
                 alive_users = "无"
                 dead_users = "无"
@@ -224,7 +224,7 @@ async def blood_blood_query(name):
     survival_rate = survive / total * 100 if total else 0
     avg_time = int(sum(p["survival_duration"] or 0 for p in players) / total // 60) if total else 0
     mvp = await user_name(b['mvp'], "LR5921") if b['mvp'] else "无"
-    date_str = b["start_time"].strftime("%m.%d") if b["start_time"] else "--"
+    date_str = b["start_time"].strftime("%Y.%m.%d") if b["start_time"] else "--"
     rows.append(["日期", date_str])
     rows.append(["参与住户", f"{total}"])
     rows.append(["存活率", f"{survival_rate:.1f}%"])

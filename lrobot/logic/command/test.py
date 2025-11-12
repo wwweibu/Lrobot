@@ -1,11 +1,13 @@
 """测试相关"""
 
+import json
 import random
 import asyncio
-from config import path, future, config
+import openpyxl
+from datetime import datetime, timedelta
+from config import path, future, config, database_update
 from message.handler.msg import Msg
 from logic import data
-
 
 async def test_1(msg: Msg):
     """测试函数"""

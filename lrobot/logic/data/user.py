@@ -94,6 +94,10 @@ async def user_codename_qq_change(user):
     result = await database_query(query_code, (user,))
     if result:
         return result[0]["codename"]
+    query_backup = "SELECT codename FROM user_external_information WHERE qq = %s LIMIT 1"
+    result_backup = await database_query(query_backup, (user,))
+    if result_backup:
+        return result_backup[0]["codename"]
     return None
 
 
@@ -146,3 +150,37 @@ async def user_register(user_data):
             user_data["hometown"],
         ),
     )
+
+
+async def user_register_query(qq):
+    """入会查询"""
+    record = await database_query(
+        """
+        SELECT 
+            qq, codename, name, grade, gender, major, 
+            student_id, phone, political_status, hometown
+        FROM user_information
+        WHERE qq = %s
+        """,
+        (qq,),
+    )
+
+    if not record:
+        content = f"阁下（{qq}）暂无入会信息，请先通过'/入会'指令完成登记。"
+        return content
+
+    info = record[0]
+    content = (
+        f"阁下的入会信息如下：\n"
+        f"QQ：{info['qq']}\n"
+        f"代号：{info['codename']}\n"
+        f"姓名：{info['name']}\n"
+        f"年级：{info['grade']}\n"
+        f"性别：{info['gender']}\n"
+        f"专业：{info['major']}\n"
+        f"学号：{info['student_id']}\n"
+        f"电话：{info['phone']}\n"
+        f"政治面貌：{info['political_status']}\n"
+        f"籍贯：{info['hometown']}"
+    )
+    return content
