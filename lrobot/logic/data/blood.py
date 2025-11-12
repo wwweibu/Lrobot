@@ -23,7 +23,7 @@ async def blood_person_query(player):
     if not records:
         return 0, f"用户 {player} 暂无已结束的血字记录。"
 
-    headers = ["日期", "血字名称", "DM", "存活时长(分钟)", "状态", "MVP"]
+    headers = ["日期", "血字名称", "DM", "存活时长(分钟)", "存活", "MVP"]
     rows = []
     total_count = len(records)
     total_time = 0
@@ -217,7 +217,7 @@ async def blood_blood_query(name):
                         """, (b["id"],))
     for p in players:
         p["user"] = await user_name(p["user"], "LR5921")
-    headers = ["住户", "状态"]
+    headers = ["住户", "存活"]
     rows = [[p["user"], "存活" if p["alive"] else "死亡"] for p in players]
     total = len(players)
     survive = len([p for p in players if p["alive"]])
