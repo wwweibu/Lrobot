@@ -182,7 +182,7 @@ async def activity_blood_start1(msg: Msg):
 @monitor_adapter("/活动_血字_开始_2")
 async def activity_blood_start2(msg: Msg):
     """血字名称"""
-    content = "请使用'/血字'指令并@所有住户以完成召集。建议您先单独@一次，确认诸位住户均已就位。"
+    content = "请输入'/血字'并@所有住户以完成召集。建议您先单独@一次，确认诸位住户均已就位。"
     await data.status_add(msg.user, msg.platform, "血字2", f"{Msg.content_join(msg.content)}|{msg.user}")
     Msg(
         platform=msg.platform,
@@ -313,7 +313,7 @@ async def activity_blood_die(msg: Msg):
             if died_names:
                 parts.append(f"已确认住户 {', '.join(died_names)} 在本次血字中牺牲。")
             if notin_names:
-                parts.append(f"以下用户未参加本次血字：{', '.join(notin_names)}。")
+                parts.append(f"以下用户未参加本次血字或已死亡：{', '.join(notin_names)}。")
             if not parts:
                 parts.append("未检测到有效的牺牲记录。")
             content = "\n".join(parts)
