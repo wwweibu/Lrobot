@@ -432,7 +432,8 @@ async def activity_blood_mvp(msg: Msg):
 @monitor_adapter("/活动_血字_查询_1")
 async def activity_blood_search1(msg: Msg):
     """血字查询选择类型"""
-    if msg.group and msg.group not in config["public"]["公测群"] and msg.group not in config["public"]["内测群"]:
+    if msg.kind.startswith("群聊") and msg.group not in config["public"]["公测群"] and msg.group not in \
+            config["public"]["内测群"]:
         identity_list = await data.user_identify(msg.user, msg.platform)
         if "内阁" not in identity_list:
             content = "阁下，查询血字记录请通过私聊进行。"
