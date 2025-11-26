@@ -1,8 +1,69 @@
 """血字相关数据处理"""
 
-from .user import user_name
-from config import database_query
+import random
+from datetime import datetime
 
+from .user import user_name
+from config import database_query, database_update
+
+
+async def blood_state(blood_id: int, target: str, start_time):
+    """血字状态改变"""
+    # 查询玩家当前状态
+    player_info = await database_query(
+        "SELECT id, alive FROM user_blood_player WHERE blood_id=%s AND user=%s",
+        (blood_id, target)
+    )
+
+    if not player_info:
+        nick = await user_name(target, "LR5921")
+        return f"{nick} 未参与本次血字。"
+
+    alive = player_info[0]["alive"]
+    now = datetime.now()
+
+    # 已死亡 → 复活
+    if alive == 0:
+        await database_update(
+            "UPDATE user_blood_player SET alive=1, survival_duration=NULL WHERE blood_id=%s AND user=%s",
+            (blood_id, target)
+        )
+        nick = await user_name(target, "LR5921")
+        return f"{nick} 已被复活，存活时间已重新开始计算。"
+
+    # 存活 → 死亡
+    else:
+        duration = int((now - start_time).total_seconds())
+        await database_update(
+            "UPDATE user_blood_player SET alive=0, survival_duration=%s WHERE blood_id=%s AND user=%s",
+            (duration, blood_id, target)
+        )
+        nick = await user_name(target, "LR5921")
+        death_descriptions = [
+            "影子从 {nick} 身边逃脱。等众人发现时，他早已没了声息。",
+            "{nick} 的影子忽然与本体错开了一步，像脱离了控制。下一秒，本体便像被抽空了一样倒了下去。",
+            "{nick} 的影子突然抖动了一下，像被什么东西拽住。他整个人随之被拉进一片无形的缝隙。",
+            "空气像被谁按下了静音键，{nick} 的声音被迫停在喉间。随后，他的影子比身体先倒了下去。",
+            "有什么在暗处轻轻唤了 {nick} 的名字。他回头的瞬间，像是看到了自己正在褪色。",
+            "黑色从 {nick} 的眼底透出，像墨浸进了一张纸。他还未来得及说话，整个人便安静地崩散了。",
+            "墙角的阴影伸来一只细长的手指，轻轻点在了 {nick} 的眉心。他像被关机的机器一样瞬间沉寂。",
+            "{nick} 的呼吸开始倒流，像被拉回了影子里。他的胸膛只起伏了半次，就再也没有动静。",
+            "影子里传来第二个 {nick} 的脚步声，与他重叠、靠近，然后与他合为一体。他立刻失去了生命迹象。",
+            "影子把 {nick} 围住，像一张无形的网。他眼中的光一点点被抽走，仿佛整个人被抹掉了。",
+            "影子把 {nick} 的意识按入黑暗深处。他的身体还站着，但灵魂已被取走。",
+            "影子把 {nick} 的呼吸夺走，像捂住了一盏灯。等灯灭时，他的身体无力倒下。",
+            "影子把 {nick} 从背后抱住，那拥抱冰冷得像要融进骨头。他的动作越来越慢，最终静止不动。",
+            "影子把 {nick} 的声音吞没。他张了张口，却再也发不出任何声响，只剩下一具安静的躯壳。",
+            "影子把 {nick} 推入了一个看不见的深处。他的眼神逐渐空洞，像是被彻底带离了这个世界。",
+            "影子把 {nick} 的心跳压住了。那一下沉默之后，心再也没能重新跳动。",
+            "影子把 {nick} 的意识撕成碎片。他的身体瞬间僵硬，就像被无形力量夺走了生命。",
+            "影子像有生命的墨，慢慢地沿着 {nick} 的身体爬了上来。",
+            "一团无脸的黑在背后拍了拍他的肩膀，{nick} 顺着那只手走进了空白。",
+            "影子在 {nick} 耳后轻轻吹息，所有能反抗的念头都像火苗被吹灭了。",
+        ]
+        text = random.choice(death_descriptions)
+        text = text.format(nick=nick)
+        return text
 
 async def blood_person_query(player):
     """血字个人查询"""

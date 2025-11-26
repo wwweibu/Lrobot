@@ -1686,6 +1686,25 @@ commands:
   - 内测群
   - 水群
   - 玩耍地
+- func: 血字_死亡_戳戳
+  function: activity_blood_die_poke
+  set: 活动
+  order: 0
+  content:
+  - ' '
+  judge: contains
+  kind:
+  - 群聊戳戳
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+  - 内测群
+  - 水群
+  - 玩耍地
 - func: 血字_MVP
   function: activity_blood_mvp
   set: 活动
