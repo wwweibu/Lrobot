@@ -235,7 +235,7 @@ async def subscribe_list_judge(msg: Msg):
         user = await data.status_lr5921_get(msg.user, msg.platform)
         id = int(Msg.content_join(msg.content))
         content = await data.subscribe_delete(user, id)
-        if content.startwith("已取消"):
+        if content.startswith("已取消"):
             return True
         return False
     except ValueError:
