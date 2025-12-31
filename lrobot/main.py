@@ -50,7 +50,7 @@ async def scheduler():
     """定时任务"""
     await asyncio.sleep(5)  # 执行其他任务
     scheduler_add(backup_mysql, interval=86400)  # 备份 Mysql
-    scheduler_add(backup_mongo, interval=86400)  # 备份 Mongo
+    # scheduler_add(backup_mongo, interval=86400)  # 备份 Mongo
     scheduler_add(MsgPool.clean, 86400, interval=86400)  # 消息池清理
     scheduler_add(rotator, interval=600)  # 临时网址更换
 

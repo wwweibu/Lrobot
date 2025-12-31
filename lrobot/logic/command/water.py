@@ -24,7 +24,7 @@ async def water_send(msg: Msg):
     count += 1
     now = time.time()
 
-    if count >= 120 and now - last_send_time >= 3600:
+    if count >= 200 and now - last_send_time >= 3600:
         content = await data.system_get("activity")
         Msg(
             platform=msg.platform,
