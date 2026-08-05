@@ -2376,3 +2376,133 @@ commands:
   users: []
   set: 基础
   order: -1
+- func: 海龟汤
+  function: soup_start
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+- func: 海龟汤认领
+  function: soup_claim
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤认领
+  judge: equal
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+- func: 海龟汤上传输入
+  function: soup_upload_input
+  set: 游戏
+  order: -2
+  content:
+  - soup_upload_input_judge
+  judge: function
+  kind:
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups: []
+- func: 海龟汤删除确认
+  function: soup_delete_confirm
+  set: 游戏
+  order: -2
+  content:
+  - soup_delete_confirm_judge
+  judge: function
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+- func: 海龟汤上传
+  function: soup_upload
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤上传
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+- func: 海龟汤删除
+  function: soup_delete
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤删除
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+- func: 海龟汤查询
+  function: soup_query
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤查询
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群
+- func: 海龟汤取消
+  function: soup_cancel
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤取消
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 公测群

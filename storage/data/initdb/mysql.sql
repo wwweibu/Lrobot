@@ -479,3 +479,39 @@ commit;
 /*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
 
 -- Dump completed on 2025-11-11 20:34:15
+
+--
+-- Table structure for table `system_soup`
+-- 海龟汤题目库：title 默认空、author 默认 '全民制作人'
+--
+
+DROP TABLE IF EXISTS `system_soup`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `system_soup` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT '',
+  `author` varchar(64) DEFAULT '全民制作人',
+  `surface` text NOT NULL,
+  `bottom` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `system_soup`
+--
+
+LOCK TABLES `system_soup` WRITE;
+/*!40000 ALTER TABLE `system_soup` DISABLE KEYS */;
+set autocommit=0;
+INSERT INTO `system_soup` (`title`, `author`, `surface`, `bottom`) VALUES
+('半根火柴','全民制作人','一个人在南极探险，被困在暴风雪里。他绝望地掏出一根火柴，划燃后只看到半根火柴就昏迷了。醒来后他自杀了。为什么？','他和同伴在南极遇险，约定如果一人死亡就抽签决定吃掉对方的肉续命。他抽到短签（半根火柴）意味着要被吃，所以选择自杀。'),
+('雨夜的伞','全民制作人','雨天，一个男人撑着一把黑伞走进小巷，再出来时换了一把红伞，次日被人发现死在家中。','他是盲人，红伞是妻子送的定情信物。小巷里有人抢走了他的红伞换上黑伞，他回家后被妻子误会移情别恋，被妻子毒死。'),
+('多出来的烟','全民制作人','几个朋友聚在宾馆打牌，其中一人起身去上厕所，回来后闻到房间里多了一根烟的味道，他立刻跳窗自杀。','他其实是被绑架到这里的植物人之一，"朋友"都是臆想。烟味说明现实里有人在旁边抽烟，证明他感知到了真实世界，意味着即将被清算。'),
+('未拨出的电话','全民制作人','女人手机里有通未拨出的电话，只输了一半号码。她看着这通电话笑了一下，就从桥上跳了下去。','她丈夫失踪多年，今天终于找到线索——那个半截号码是丈夫的。她笑自己终于能确认丈夫还活着，于是没有遗憾地赴死。'),
+('倒走的钟','全民制作人','家里的挂钟突然倒着走，丈夫看到后崩溃大哭。','他妻子去世前反复念叨"时间倒流我就能再见你"，他一直当作遗愿。钟倒走后他误以为奇迹降临，发现只是电池快没电了，希望瞬间落空。'),
+('递错的水','全民制作人','酒会上服务员递给绅士一杯水，绅士喝完脸色大变，说了一句"原来如此"就死了。','他一直以为自己是被仇家下毒追杀才隐姓埋名，看到服务员毫无防备地递水给他，意识到仇家根本没找上他，自己多年的逃亡毫无意义，抑郁而终。');
+/*!40000 ALTER TABLE `system_soup` ENABLE KEYS */;
+UNLOCK TABLES;
+commit;
