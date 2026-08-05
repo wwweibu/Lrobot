@@ -30,12 +30,14 @@ routers = [
     metrics_router,
     panel_router,
     static_router,
+    textgame_router,
     time_router,
     user_router,
     wiki_router
 ]
 for router in routers:
     app.include_router(router, prefix="/hjd")
+app.include_router(textgame_page_router)  # 页面直出,和前端一样走 /cab
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # 允许所有主机
 app.add_middleware(GZipMiddleware)
 
@@ -108,6 +110,15 @@ async def rotator():
 @app.get("/{full_path:path}")
 async def vue(full_path: str, request: Request):
     """vue 挂载"""
+    if full_path.startswith("bnecxy"):
+          from message.adapter.wechat_receive import set_callback
+          params = request.query_params
+          return set_callback(
+              params.get("signature", ""),
+              params.get("timestamp", ""),
+              params.get("nonce", ""),
+              params.get("echostr", "")
+          )
     ip = request.client.host
     if ip != "222.20.193.18":  # 武汉大学 ip
         if await ip_check(ip):

@@ -12,6 +12,7 @@ from config import config, path, monitor_adapter
 
 count = 0
 last_send_time = 0.0
+EVENING_TO_GROUP = False  # 2026-08-05 关闭:新老水群都不再自动发晚安语音;私聊订阅"晚安"的人照旧收得到
 
 
 async def water_send(msg: Msg):
@@ -19,7 +20,7 @@ async def water_send(msg: Msg):
     global count, last_send_time
     if msg.kind != "群聊接收":
         return
-    if msg.group != config["public"]["水群"][0]:
+    if msg.group not in config["public"]["水群"]:
         return
     count += 1
     now = time.time()
@@ -32,7 +33,7 @@ async def water_send(msg: Msg):
             event="发送",
             content=f"欢迎找小推(1326016706)或小推·人机版(me)入会。可以不用加好友直接私聊我，发送'入会'二字\n对协会活动有疑问也可以找我发送'/常见问题'(5个字符)\n当前活动：\n{content}\n注：本推仅支持固定指令，智能问答请找另一个推",
             seq=msg.seq,
-            group=config["public"]["水群"][0]
+            group=msg.group
         )
         user1 = "小推·人机版"
         id1 = config['LR5921_ID']
@@ -96,20 +97,23 @@ async def water_send(msg: Msg):
 
 
 async def water_send_evening():
-    """每天0点发送语音"""
+    """每天0点把前一天的晚安语音发到水群"""
+    if not EVENING_TO_GROUP:
+        return
     yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y%m%d")
     storage_path = path / "storage/file/command"
     record = storage_path / f"evening_{yesterday}.wav"
     if not record.exists():
         return
 
-    Msg(
-        platform="LR5921",
-        kind="群聊发送",
-        event="发送",
-        group=config["public"]["水群"][0],
-        content=f"[语音:{record}]"
-    )
+    for group in config["public"]["水群"]:
+        Msg(
+            platform="LR5921",
+            kind="群聊发送",
+            event="发送",
+            group=group,
+            content=f"[语音:{record}]"
+        )
 
 
 @monitor_adapter("/帮助_水群")

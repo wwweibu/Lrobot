@@ -40,7 +40,7 @@ async def safe_msg_process(msg: Msg):
 
     content_str = Msg.content_join(msg.content) or msg.kind
     await record_write(msg)
-    await water_send(msg)
+    # await water_send(msg)
     if msg.event == "处理":
         name = await user_name(msg.user, msg.platform)
         msg_logger.info(
