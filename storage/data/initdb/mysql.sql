@@ -358,9 +358,11 @@ CREATE TABLE `user_status` (
   `user_id` int DEFAULT NULL,
   `status` varchar(64) DEFAULT NULL,
   `info` json DEFAULT NULL,
+  `expire_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ux_user_status` (`user_id`,`status`),
   KEY `ix_status` (`status`),
+  KEY `ix_expire_at` (`expire_at`),
   CONSTRAINT `fk_user_status_user` FOREIGN KEY (`user_id`) REFERENCES `user_platform` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
