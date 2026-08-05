@@ -1533,7 +1533,7 @@ commands:
   users: []
   groups: []
 - func: up
-  function: subscribe_up
+  function: subscribe_up1
   set: 订阅
   order: 0
   content:
@@ -1631,7 +1631,6 @@ commands:
   set: 活动
   order: 0
   content:
-  - /提示
   - 航海日记提示
   judge: equal
   kind:
@@ -1872,6 +1871,113 @@ commands:
   - 内测群
   - 水群
   - 玩耍地
+- func: 七年之约_开始
+  function: activity_appointment_start
+  set: 活动
+  order: 0
+  content:
+  - /七年之约
+  - 七年之约
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 七年之约_提示
+  function: activity_appointment_prompt
+  set: 活动
+  order: 0
+  content:
+  - 提示
+  - /提示
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 七年之约
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 海军案_开始
+  function: activity_navy_start
+  set: 活动
+  order: 0
+  content:
+  - /海军案
+  - 海军案
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state: []
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 海军案_解锁查询
+  function: activity_navy_query
+  set: 活动
+  order: 0
+  content:
+  - /解锁查询
+  - 解锁查询
+  judge: equal
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 海军案
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 海军案_结束
+  function: activity_navy_end
+  set: 活动
+  order: 0
+  content:
+  - 调查完成
+  judge: contains
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 海军案
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
 - func: 订阅_回答
   function: subscribe_subscribe_answer
   set: 订阅
@@ -2004,6 +2110,48 @@ commands:
   - 群聊接收
   state:
   - 日记
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 七年之约_答题
+  function: activity_appointment_answer
+  set: 活动
+  order: -3
+  content:
+  - activity_appointment_judge
+  judge: function
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 七年之约
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 内测群
+- func: 海军案_答题
+  function: activity_navy_answer
+  set: 活动
+  order: -3
+  content:
+  - activity_navy_judge
+  judge: function
+  kind:
+  - 私聊接收
+  - 群聊接收
+  state:
+  - 海军案
   platforms:
   - LR232
   - LR5921

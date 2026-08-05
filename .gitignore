@@ -26,3 +26,7 @@
 /storage/file/command/record
 
 /.idea
+
+__pycache__/
+/storage/file/command/textgame
+/storage/file/command/*.wav

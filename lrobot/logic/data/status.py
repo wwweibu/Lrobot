@@ -9,7 +9,8 @@ PERSISTENT_STATUSES = {
     "入会2",
     "收集",
     "成语接龙",
-    "日记"
+    "日记",
+    "七年之约"
 }
 
 async def id_get(platform, platform_id):
