@@ -7,12 +7,17 @@ from config import database_query, database_update
 
 
 async def soup_random_get(exclude_id=None):
-    """随机抽取一条海龟汤，exclude_id 指定时不重复"""
+    """随机抽取一条海龟汤，exclude_id 指定时尽量不重复；
+    若题库只有一条则直接返回该条"""
     if exclude_id:
         rows = await database_query(
             "SELECT id, title, author, surface, bottom FROM system_soup WHERE id != %s",
             (exclude_id,),
         )
+        if not rows:
+            rows = await database_query(
+                "SELECT id, title, author, surface, bottom FROM system_soup"
+            )
     else:
         rows = await database_query(
             "SELECT id, title, author, surface, bottom FROM system_soup"

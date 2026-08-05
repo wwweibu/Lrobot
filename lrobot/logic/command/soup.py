@@ -1,10 +1,15 @@
 """海龟汤游戏"""
 
+import asyncio
 import datetime
 
 from logic import data
 from message.handler.msg import Msg
-from config import monitor_adapter, loggers
+from config import monitor_adapter
+
+
+# 全局锁，保护同一时刻只有一个认领操作在读写状态
+_soup_claim_lock = asyncio.Lock()
 
 
 def _format_surface(soup):
@@ -78,34 +83,40 @@ async def soup_claim(msg: Msg):
     if not msg.group:
         return
 
-    state = await data.soup_state_get(msg.group)
-    if not state:
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind=f"{msg.kind[:2]}发送",
-            seq=msg.seq,
-            content="当前没有进行中的海龟汤，请先发送 /海龟汤 抽取一题",
-            user=msg.user,
-            group=msg.group,
-        )
-        return
+    async with _soup_claim_lock:
+        state = await data.soup_state_get(msg.group)
+        if not state:
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content="当前没有进行中的海龟汤，请先发送 /海龟汤 抽取一题",
+                user=msg.user,
+                group=msg.group,
+            )
+            return
 
-    if state.get("host_qq"):
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind=f"{msg.kind[:2]}发送",
-            seq=msg.seq,
-            content="本局海龟汤已有主持人",
-            user=msg.user,
-            group=msg.group,
-        )
-        return
+        if state.get("host_qq"):
+            host = state["host_qq"]
+            if host == msg.user:
+                content = "你已经是本局海龟汤的主持人了"
+            else:
+                content = "本局海龟汤已有主持人"
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=content,
+                user=msg.user,
+                group=msg.group,
+            )
+            return
 
-    # 记录主持人
-    state["host_qq"] = msg.user
-    await data.soup_state_set(msg.group, state)
+        # 记录主持人
+        state["host_qq"] = msg.user
+        await data.soup_state_set(msg.group, state)
 
     # 私信发汤底
     title = state.get("title") or ""
