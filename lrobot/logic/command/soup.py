@@ -335,15 +335,20 @@ async def soup_delete(msg: Msg):
             )
             return
 
-    # 进入二次确认状态
-    await data.status_add(msg.user, msg.platform, "海龟汤删除", {"soup_id": soup["id"], "title": soup["title"] or ""})
+    # 进入二次确认状态，带 5 分钟超时
+    import time
+    await data.status_add(msg.user, msg.platform, "海龟汤删除", {
+        "soup_id": soup["id"],
+        "title": soup["title"] or "",
+        "expire_at": time.time() + 300,
+    })
     title_display = soup["title"] or "(无标题)"
     Msg(
         platform=msg.platform,
         event="发送",
         kind=f"{msg.kind[:2]}发送",
         seq=msg.seq,
-        content=f"确认删除海龟汤【{title_display}】？\n回复'是'确认删除，其他内容取消",
+        content=f"确认删除海龟汤【{title_display}】？\n回复'是'确认删除，其他内容取消\n（5 分钟内未回复将自动取消）",
         user=msg.user,
         group=msg.group,
     )
@@ -354,6 +359,21 @@ async def soup_delete_confirm(msg: Msg):
     """二次确认删除"""
     info = await data.status_check(msg.user, msg.platform, "海龟汤删除")
     if not info:
+        return
+    # 超时检查
+    import time
+    expire_at = info.get("expire_at") if isinstance(info, dict) else None
+    if expire_at and time.time() > expire_at:
+        await data.status_delete(msg.user, msg.platform, "海龟汤删除")
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            content="删除确认已超时，请重新发起",
+            user=msg.user,
+            group=msg.group,
+        )
         return
     answer = Msg.content_join(msg.content).strip()
     if answer in ("是", "确认", "yes", "YES"):
@@ -428,6 +448,14 @@ async def soup_upload_input_judge(msg: Msg):
 
 
 async def soup_delete_confirm_judge(msg: Msg):
-    """判断用户是否处于海龟汤删除确认状态"""
+    """判断用户是否处于海龟汤删除确认状态（未超时）"""
     status = await data.status_check(msg.user, msg.platform)
-    return bool(status and "海龟汤删除" in status)
+    if not status or "海龟汤删除" not in status:
+        return False
+    import time
+    info = await data.status_check(msg.user, msg.platform, "海龟汤删除")
+    if info and isinstance(info, dict) and info.get("expire_at") and time.time() > info["expire_at"]:
+        # 已超时，清理状态，不再捕获此消息
+        await data.status_delete(msg.user, msg.platform, "海龟汤删除")
+        return False
+    return True
