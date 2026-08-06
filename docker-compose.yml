@@ -11,6 +11,11 @@ services:
       - ./config.py:/app/config.py  # 挂载这个为了共享函数而不是热更新
       - ./secret.py:/app/secret.py  # 同上
       - /var/run/docker.sock:/var/run/docker.sock  # docker 环境
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai  # 时区-上海
       - PYTHONUNBUFFERED=1  # 不使用缓冲
@@ -29,6 +34,11 @@ services:
       - ./storage/data/napcat:/app/napcat
       - ./storage/data/napcat/config/QQ:/app/napcat/config/QQ  # 必须挂载此项以创建 QQ 文件夹
       - ./storage/file:/app/storage/file  # 发送文件
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai
       # linux 中需要执行 id -u 和 id -g 获取这两个值
@@ -41,6 +51,11 @@ services:
     volumes:
       - ./config.py:/app/config.py
       - ./storage/yml:/app/storage/yml  # 配置信息
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai
     depends_on:
@@ -54,6 +69,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config.py:/app/config.py
       - ./storage/yml:/app/storage/yml
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai
     depends_on:
@@ -70,6 +90,11 @@ services:
     volumes:
       - ./storage/yml/agent.yaml:/root/.config/mihomo/config.yaml
       - ./storage/data/mihomo:/root/.config/mihomo
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai
 
@@ -82,6 +107,11 @@ services:
       - ./storage/data/mongodb:/data/db  # 数据存储
       - ./storage/data/backup:/app/backup # 备份
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - TZ=Asia/Shanghai
 
@@ -95,6 +125,11 @@ services:
       - ./storage/data/mysql:/var/lib/mysql
       - ./storage/data/backup:/app/backup
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - LANG=C.UTF-8
       - LC_ALL=C.UTF-8

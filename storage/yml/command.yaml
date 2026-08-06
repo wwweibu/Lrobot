@@ -2360,22 +2360,6 @@ commands:
   groups:
   - 公测群
   - 内测群
-- content: []
-  func: 转发
-  function: base_unknown
-  groups: []
-  judge: contains
-  kind:
-  - 私聊接收
-  platforms:
-  - LR232
-  - LR5921
-  - WECHAT
-  - BILI
-  state: []
-  users: []
-  set: 基础
-  order: -1
 - func: 海龟汤
   function: soup_start
   set: 游戏
@@ -2506,3 +2490,21 @@ commands:
   - 内阁
   groups:
   - 公测群
+
+- content: []
+  func: 转发
+  function: base_unknown
+  groups: []
+  judge: contains
+  kind:
+  - 私聊接收
+  platforms:
+  - LR232
+  - LR5921
+  - WECHAT
+  - BILI
+  state: []
+  users: []
+  set: 基础
+  order: -1
+

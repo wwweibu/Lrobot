@@ -53,12 +53,12 @@ MONITOR_METRICS = {}
 MONGODB_INDEX = [
     # 主要
     ([("time", -1)], {}),
-    ([("message", 1)], {}),
+    ([("event", 1), ("time", -1)], {}),  # 原为 [message]，2026-08-05 换掉：整条正文做索引占 5G，且 log.py 用的是非锚定正则，根本用不上
     ([("level", 1), ("time", -1)], {}),
     ([("source", 1), ("time", -1)], {}),
     ([("source", 1), ("event", 1), ("time", -1)], {}),
     ([("event", 1), ("source", 1), ("level", 1), ("time", -1)], {}),
-    ([("source", 1), ("event", 1), ("level", 1), ("message", 1), ("time", -1)], {}),
+    ([("source", 1), ("event", 1), ("level", 1), ("time", -1)], {}),  # 原含 message，2026-08-05 去掉：同样占 5G，message 段不参与任何查询
     # 其他  l,s,e,s-e,lse 存在，补 l-s,l-e
     ([("event", 1), ("level", 1), ("time", -1)], {}),
     ([("source", 1), ("level", 1), ("time", -1)], {}),
