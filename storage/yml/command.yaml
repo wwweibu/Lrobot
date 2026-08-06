@@ -2480,8 +2480,8 @@ commands:
   set: 游戏
   order: 0
   content:
-  - /海龟汤
-  judge: contains
+  - soup_start_judge
+  judge: function
   kind:
   - 群聊接收
   - 私聊接收

@@ -196,6 +196,7 @@ async def soup_upload(msg: Msg):
         kind="私聊发送",
         seq=msg.seq,
         content="开始上传海龟汤，请按提示依次输入\n发送 /取消 可随时取消",
+        user=msg.user,
     )
     Msg(
         platform=msg.platform,
@@ -203,6 +204,7 @@ async def soup_upload(msg: Msg):
         kind="私聊发送",
         seq=msg.seq,
         content=_UPLOAD_STEPS[0][3],
+        user=msg.user,
     )
 
 
@@ -459,3 +461,21 @@ async def soup_delete_confirm_judge(msg: Msg):
     """判断用户是否处于海龟汤删除确认状态"""
     status = await data.status_check(msg.user, msg.platform)
     return bool(status and "海龟汤删除" in status)
+
+
+# /海龟汤 后紧跟的子命令词，这些不应触发 soup_start
+_SOUP_SUBCOMMANDS = ("认领", "上传", "查询", "删除", "取消")
+
+
+async def soup_start_judge(msg: Msg):
+    """/海龟汤 精确匹配：/海龟汤 或 /海龟汤 [标题]，排除 /海龟汤认领 等子命令"""
+    text = Msg.content_join(msg.content).strip()
+    if text == "/海龟汤":
+        return True
+    if text.startswith("/海龟汤 "):
+        # 空格后的内容若恰好是子命令词则不匹配（如 /海龟汤 认领）
+        rest = text[len("/海龟汤 "):].strip()
+        if rest in _SOUP_SUBCOMMANDS:
+            return False
+        return True
+    return False
