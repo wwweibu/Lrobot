@@ -32,9 +32,6 @@ def _format_surface(soup):
 @monitor_adapter("/海龟汤_开始")
 async def soup_start(msg: Msg):
     """抽取一条海龟汤发送汤面，支持 /海龟汤 [标题] 按标题开局"""
-    if not msg.group:
-        return
-
     text = Msg.content_join(msg.content).strip()
     parts = text.split(" ", 1)
     title = parts[1].strip() if len(parts) == 2 else ""
@@ -54,8 +51,9 @@ async def soup_start(msg: Msg):
             return
         soup = rows[0]
     else:
-        # 读取当前对局状态，切换时避免重复
-        state = await data.soup_state_get(msg.group)
+        # 读取当前对局状态，切换时避免重复（群聊按群，私聊按用户）
+        state_key = msg.group or msg.user
+        state = await data.soup_state_get(state_key)
         exclude_id = state.get("soup_id") if state else None
 
         soup = await data.soup_random_get(exclude_id=exclude_id)
@@ -71,17 +69,18 @@ async def soup_start(msg: Msg):
             )
             return
 
-    # 写入对局状态（覆盖上一局，清空主持人）
-    new_state = {
-        "soup_id": soup["id"],
-        "surface": soup["surface"],
-        "bottom": soup["bottom"],
-        "title": soup["title"],
-        "author": soup["author"],
-        "host_qq": None,
-        "started_at": datetime.datetime.now().isoformat(timespec="seconds"),
-    }
-    await data.soup_state_set(msg.group, new_state)
+    # 群聊写入对局状态（覆盖上一局，清空主持人）；私聊不记状态
+    if msg.group:
+        new_state = {
+            "soup_id": soup["id"],
+            "surface": soup["surface"],
+            "bottom": soup["bottom"],
+            "title": soup["title"],
+            "author": soup["author"],
+            "host_qq": None,
+            "started_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        }
+        await data.soup_state_set(msg.group, new_state)
 
     content = _format_surface(soup)
     Msg(
@@ -196,7 +195,14 @@ async def soup_upload(msg: Msg):
         event="发送",
         kind="私聊发送",
         seq=msg.seq,
-        content=f"开始上传海龟汤，请按提示依次输入\n发送 /取消 可随时取消\n{_UPLOAD_STEPS[0][3]}",
+        content="开始上传海龟汤，请按提示依次输入\n发送 /取消 可随时取消",
+    )
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind="私聊发送",
+        seq=msg.seq,
+        content=_UPLOAD_STEPS[0][3],
     )
 
 
