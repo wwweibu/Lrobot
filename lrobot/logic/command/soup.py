@@ -35,6 +35,7 @@ async def soup_start(msg: Msg):
     text = Msg.content_join(msg.content).strip()
     parts = text.split(" ", 1)
     title = parts[1].strip() if len(parts) == 2 else ""
+    state_key = msg.group or msg.user
 
     if title:
         rows = await data.soup_find_by_title(title)
@@ -52,7 +53,6 @@ async def soup_start(msg: Msg):
         soup = rows[0]
     else:
         # 读取当前对局状态，切换时避免重复（群聊按群，私聊按用户）
-        state_key = msg.group or msg.user
         state = await data.soup_state_get(state_key)
         exclude_id = state.get("soup_id") if state else None
 
@@ -69,18 +69,17 @@ async def soup_start(msg: Msg):
             )
             return
 
-    # 群聊写入对局状态（覆盖上一局，清空主持人）；私聊不记状态
-    if msg.group:
-        new_state = {
-            "soup_id": soup["id"],
-            "surface": soup["surface"],
-            "bottom": soup["bottom"],
-            "title": soup["title"],
-            "author": soup["author"],
-            "host_qq": None,
-            "started_at": datetime.datetime.now().isoformat(timespec="seconds"),
-        }
-        await data.soup_state_set(msg.group, new_state)
+    # 写入对局状态（覆盖上一局，清空主持人）；群聊按群、私聊按用户
+    new_state = {
+        "soup_id": soup["id"],
+        "surface": soup["surface"],
+        "bottom": soup["bottom"],
+        "title": soup["title"],
+        "author": soup["author"],
+        "host_qq": None,
+        "started_at": datetime.datetime.now().isoformat(timespec="seconds"),
+    }
+    await data.soup_state_set(state_key, new_state)
 
     content = _format_surface(soup)
     Msg(
