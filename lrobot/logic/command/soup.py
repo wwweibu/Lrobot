@@ -97,12 +97,11 @@ async def soup_start(msg: Msg):
 
 @monitor_adapter("/海龟汤_认领")
 async def soup_claim(msg: Msg):
-    """认领主持人，汤底私信发给认领者"""
-    if not msg.group:
-        return
+    """认领主持人，汤底私信发给认领者；私聊时以用户为维度独立对局"""
+    state_key = msg.group or msg.user
 
     async with _soup_claim_lock:
-        state = await data.soup_state_get(msg.group)
+        state = await data.soup_state_get(state_key)
         if not state:
             Msg(
                 platform=msg.platform,
@@ -134,7 +133,7 @@ async def soup_claim(msg: Msg):
 
         # 记录主持人
         state["host_qq"] = msg.user
-        await data.soup_state_set(msg.group, state)
+        await data.soup_state_set(state_key, state)
 
     # 私信发汤底
     title = state.get("title") or ""
@@ -149,16 +148,17 @@ async def soup_claim(msg: Msg):
         user=msg.user,
     )
 
-    # 群里提示认领成功
-    Msg(
-        platform=msg.platform,
-        event="发送",
-        kind=f"{msg.kind[:2]}发送",
-        seq=msg.seq,
-        content="已将汤底私信发送给认领者，请等待主持人引导",
-        user=msg.user,
-        group=msg.group,
-    )
+    # 群聊才在群里提示认领成功
+    if msg.group:
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            content="已将汤底私信发送给认领者，请等待主持人引导",
+            user=msg.user,
+            group=msg.group,
+        )
     return bottom_content
 
 

@@ -2369,6 +2369,7 @@ commands:
   judge: equal
   kind:
   - 群聊接收
+  - 私聊接收
   state: []
   platforms:
   - LR5921
