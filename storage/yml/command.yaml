@@ -2360,21 +2360,6 @@ commands:
   groups:
   - 公测群
   - 内测群
-- func: 海龟汤
-  function: soup_start
-  set: 游戏
-  order: 0
-  content:
-  - /海龟汤
-  judge: equal
-  kind:
-  - 群聊接收
-  state: []
-  platforms:
-  - LR5921
-  users: []
-  groups:
-  - 公测群
 - func: 海龟汤认领
   function: soup_claim
   set: 游戏
@@ -2490,7 +2475,21 @@ commands:
   - 内阁
   groups:
   - 公测群
-
+- func: 海龟汤
+  function: soup_start
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤
+  judge: contains
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups:
+  - 公测群
 - content: []
   func: 转发
   function: base_unknown
@@ -2507,4 +2506,3 @@ commands:
   users: []
   set: 基础
   order: -1
-

@@ -31,26 +31,45 @@ def _format_surface(soup):
 
 @monitor_adapter("/海龟汤_开始")
 async def soup_start(msg: Msg):
-    """抽取一条海龟汤发送汤面"""
+    """抽取一条海龟汤发送汤面，支持 /海龟汤 [标题] 按标题开局"""
     if not msg.group:
         return
 
-    # 读取当前对局状态，切换时避免重复
-    state = await data.soup_state_get(msg.group)
-    exclude_id = state.get("soup_id") if state else None
+    text = Msg.content_join(msg.content).strip()
+    parts = text.split(" ", 1)
+    title = parts[1].strip() if len(parts) == 2 else ""
 
-    soup = await data.soup_random_get(exclude_id=exclude_id)
-    if not soup:
-        Msg(
-            platform=msg.platform,
-            event="发送",
-            kind=f"{msg.kind[:2]}发送",
-            seq=msg.seq,
-            content="暂无可用海龟汤",
-            user=msg.user,
-            group=msg.group,
-        )
-        return
+    if title:
+        rows = await data.soup_find_by_title(title)
+        if not rows:
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content=f"未找到标题为'{title}'的海龟汤",
+                user=msg.user,
+                group=msg.group,
+            )
+            return
+        soup = rows[0]
+    else:
+        # 读取当前对局状态，切换时避免重复
+        state = await data.soup_state_get(msg.group)
+        exclude_id = state.get("soup_id") if state else None
+
+        soup = await data.soup_random_get(exclude_id=exclude_id)
+        if not soup:
+            Msg(
+                platform=msg.platform,
+                event="发送",
+                kind=f"{msg.kind[:2]}发送",
+                seq=msg.seq,
+                content="暂无可用海龟汤",
+                user=msg.user,
+                group=msg.group,
+            )
+            return
 
     # 写入对局状态（覆盖上一局，清空主持人）
     new_state = {
@@ -153,7 +172,7 @@ async def soup_claim(msg: Msg):
 
 _UPLOAD_STEPS = [
     # (step_status, next_status, field, prompt)
-    ("海龟汤上传1", "海龟汤上传2", "title", "请输入标题（无标题请直接发送空格）"),
+    ("海龟汤上传1", "海龟汤上传2", "title", "请输入标题"),
     ("海龟汤上传2", "海龟汤上传3", "author", "请输入作者（留空默认'全民制作人'）"),
     ("海龟汤上传3", "海龟汤上传4", "surface", "请输入汤面"),
     ("海龟汤上传4", None, "bottom", "请输入汤底"),
@@ -177,7 +196,7 @@ async def soup_upload(msg: Msg):
         event="发送",
         kind="私聊发送",
         seq=msg.seq,
-        content="开始上传海龟汤，请按提示依次输入\n发送 /取消 可随时取消",
+        content=f"开始上传海龟汤，请按提示依次输入\n发送 /取消 可随时取消\n{_UPLOAD_STEPS[0][3]}",
     )
 
 
@@ -211,8 +230,8 @@ async def soup_upload_input(msg: Msg):
     nxt, field, prompt = _upload_step(cur_status)
     text = Msg.content_join(msg.content).strip()
 
-    # 标题/作者允许为空
-    if field in ("title", "author"):
+    # 作者允许为空，标题必填
+    if field == "author":
         info[field] = "" if text in ("", "/取消") else text
     else:
         if not text:
@@ -240,7 +259,7 @@ async def soup_upload_input(msg: Msg):
             event="发送",
             kind="私聊发送",
             seq=msg.seq,
-            content=f"海龟汤上传成功\n标题：{title or '(无)'}\n作者：{author}\n汤面：{surface[:30]}...",
+            content=f"海龟汤上传成功\n标题：{title or '(无)'}\n作者：{author}\n汤面：{surface[:30]}...\n汤底：{bottom}",
             user=msg.user,
         )
     else:
