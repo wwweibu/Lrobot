@@ -2169,10 +2169,11 @@ commands:
   set: 游戏
   order: 0
   content:
-  - /海龟汤
-  judge: equal
+  - soup_start_judge
+  judge: function
   kind:
   - 群聊接收
+  - 私聊接收
   state: []
   platforms:
   - LR5921
@@ -2191,6 +2192,7 @@ commands:
   judge: equal
   kind:
   - 群聊接收
+  - 私聊接收
   state: []
   platforms:
   - LR5921
