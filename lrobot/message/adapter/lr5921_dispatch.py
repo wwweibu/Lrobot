@@ -1,6 +1,7 @@
 """LR5921 API 调用"""
 
 import json
+from pathlib import Path
 
 from logic import file_download
 from config import config, loggers, connect, future
@@ -108,6 +109,19 @@ async def lr5921_file_download(num, file, file_path):
     url = response.get("data", {}).get("url")
     response = await file_download(file_path, url)
     future.set(num, response)
+
+
+async def lr5921_file_upload(file, kind=None, user=None, group=None):
+    """通过 NapCat 专用接口上传私聊或群聊文件。"""
+    file_path = Path(file)
+    private_chat = kind.startswith("私聊")
+    url = "upload_private_file" if private_chat else "upload_group_file"
+    id_key, target = ("user_id", user) if private_chat else ("group_id", group)
+    await request_deal(
+        url,
+        {id_key: target, "file": str(file_path), "name": file_path.name},
+        f"{kind[:2]}文件上传",
+    )
 
 
 async def lr5921_withdraw(seq, user=None, kind=None):

@@ -94,6 +94,41 @@ async def soup_start(msg: Msg):
     return content
 
 
+@monitor_adapter("/海龟汤_汤面")
+async def soup_surface(msg: Msg):
+    """重新发送当前对局的汤面"""
+    state_key = msg.group or msg.user
+    state = await data.soup_state_get(state_key)
+    if not state or not state.get("surface"):
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            content="当前没有进行中的海龟汤，请先发送 /海龟汤 抽取一题",
+            user=msg.user,
+            group=msg.group,
+        )
+        return
+
+    soup = {
+        "title": state.get("title") or "",
+        "author": state.get("author") or "",
+        "surface": state["surface"],
+    }
+    content = _format_surface(soup)
+    Msg(
+        platform=msg.platform,
+        event="发送",
+        kind=f"{msg.kind[:2]}发送",
+        seq=msg.seq,
+        content=content,
+        user=msg.user,
+        group=msg.group,
+    )
+    return content
+
+
 @monitor_adapter("/海龟汤_认领")
 async def soup_claim(msg: Msg):
     """认领主持人，汤底私信发给认领者；私聊时以用户为维度独立对局"""
@@ -113,22 +148,33 @@ async def soup_claim(msg: Msg):
             )
             return
 
+        is_resend = False
         if state.get("host_qq"):
             host = state["host_qq"]
             if host == msg.user:
-                content = "你已经是本局海龟汤的主持人了"
+                is_resend = True
+                # 重新发送汤底，在群内提示
+                if msg.group:
+                    Msg(
+                        platform=msg.platform,
+                        event="发送",
+                        kind=f"{msg.kind[:2]}发送",
+                        seq=msg.seq,
+                        content="你已经是主持人，已重新发送汤底",
+                        user=msg.user,
+                        group=msg.group,
+                    )
             else:
-                content = "本局海龟汤已有主持人"
-            Msg(
-                platform=msg.platform,
-                event="发送",
-                kind=f"{msg.kind[:2]}发送",
-                seq=msg.seq,
-                content=content,
-                user=msg.user,
-                group=msg.group,
-            )
-            return
+                Msg(
+                    platform=msg.platform,
+                    event="发送",
+                    kind=f"{msg.kind[:2]}发送",
+                    seq=msg.seq,
+                    content="本局海龟汤已有主持人",
+                    user=msg.user,
+                    group=msg.group,
+                )
+                return
 
         # 记录主持人
         state["host_qq"] = msg.user
@@ -147,14 +193,14 @@ async def soup_claim(msg: Msg):
         user=msg.user,
     )
 
-    # 群聊才在群里提示认领成功
-    if msg.group:
+    # 群聊才在群里提示认领成功（重新发送时不重复提示）
+    if msg.group and not is_resend:
         Msg(
             platform=msg.platform,
             event="发送",
             kind=f"{msg.kind[:2]}发送",
             seq=msg.seq,
-            content="已将汤底私信发送给认领者，请等待主持人引导",
+            content="已将汤底私信发送给认领者，请等待主持人引导（如未收到，请先随便给机器人发一条私聊消息建立对话，再重新认领）",
             user=msg.user,
             group=msg.group,
         )
@@ -463,7 +509,7 @@ async def soup_delete_confirm_judge(msg: Msg):
 
 
 # /海龟汤 后紧跟的子命令词，这些不应触发 soup_start
-_SOUP_SUBCOMMANDS = ("认领", "上传", "查询", "删除", "取消")
+_SOUP_SUBCOMMANDS = ("认领", "上传", "查询", "删除", "取消", "汤面")
 
 
 async def soup_start_judge(msg: Msg):

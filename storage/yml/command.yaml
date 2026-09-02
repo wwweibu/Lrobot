@@ -2183,6 +2183,25 @@ commands:
   - 水群
   - 玩耍地
   - 内阁
+- func: 海龟汤汤面
+  function: soup_surface
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤汤面
+  judge: equal
+  kind:
+  - 群聊接收
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  users: []
+  groups:
+  - 公测群
+  - 水群
+  - 玩耍地
+  - 内阁
 - func: 海龟汤认领
   function: soup_claim
   set: 游戏
@@ -2523,6 +2542,66 @@ commands:
   - 水群
   - 内阁
   - 玩耍地
+- func: 海龟汤AI_开始
+  function: soup_ai_start
+  set: 游戏
+  order: 0
+  content:
+  - /海龟汤AI
+  judge: equal
+  kind:
+  - 群聊接收
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 水群
+  - 玩耍地
+  - 内阁
+- func: 海龟汤AI_结束
+  function: soup_ai_end
+  set: 游戏
+  order: 0
+  content:
+  - soup_ai_end_judge
+  judge: function
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  users: []
+  groups:
+  - 公测群
+  - 水群
+  - 玩耍地
+  - 内阁
+- func: 海龟汤AI_回答
+  function: soup_ai_answer
+  set: 游戏
+  order: -5
+  content:
+  - soup_ai_judge
+  judge: function
+  kind:
+  - 群聊接收
+  state: []
+  platforms:
+  - LR5921
+  - LR232
+  - WECHAT
+  - BILI
+  users: []
+  groups: []
 - content: []
   func: 转发
   function: base_unknown

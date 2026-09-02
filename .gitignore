@@ -30,3 +30,4 @@
 __pycache__/
 /storage/file/command/textgame
 /storage/file/command/*.wav
+/storage/yml/knowledge_api_token

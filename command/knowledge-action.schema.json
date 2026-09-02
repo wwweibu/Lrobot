@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "action": {"type": "string", "enum": ["search_wiki", "read_wiki", "search_drive", "read_file", "final"]},
+    "query": {"type": ["string", "null"]},
+    "id": {"type": ["string", "null"]},
+    "answer": {"type": ["string", "null"]},
+    "sources": {"type": "array", "items": {"type": "string"}, "maxItems": 10},
+    "attachments": {"type": "array", "items": {"type": "string"}, "maxItems": 3}
+  },
+  "required": ["action", "query", "id", "answer", "sources", "attachments"]
+}

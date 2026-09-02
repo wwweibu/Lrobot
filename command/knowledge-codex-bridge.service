@@ -1,0 +1,19 @@
+[Unit]
+Description=LRobot Codex Knowledge Bridge
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/knowledge-codex-bridge
+EnvironmentFile=/home/ubuntu/knowledge-codex-bridge/bridge.env
+ExecStart=/usr/bin/node /home/ubuntu/knowledge-codex-bridge/knowledge-codex-bridge.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -36,7 +36,9 @@ async def msg_send(msg: Msg):
             await bili_msg_get(msg.seq, user=msg.user)
     elif msg.kind.endswith("文件上传"):
         file = msg.content[0]["data"]["file"]
-        if msg.platform == "LR232":
+        if msg.platform == "LR5921":
+            await lr5921_file_upload(file, msg.kind, msg.user, msg.group)
+        elif msg.platform == "LR232":
             url = f"https://api.sgroup.qq.com/v2/users/{msg.user if msg.kind.startswith('私聊') else msg.group}/files"
             await lr232_file_upload(file, url=url)
         elif msg.platform == "BILI":
