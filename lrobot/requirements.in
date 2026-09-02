@@ -15,6 +15,7 @@ av
 pilk
 ffmpeg-python
 Pillow
+pypdf
 cachetools
 pandas
 pypinyin

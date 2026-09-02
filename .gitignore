@@ -7,6 +7,7 @@
 /storage/yml/secret.yaml
 /storage/yml/storage.yaml
 /storage/yml/user.yaml
+/storage/yml/knowledge_api_token
 
 /storage/data/backup
 /storage/data/map
@@ -18,6 +19,7 @@
 
 /storage/file/recycle
 /storage/file/user
+/storage/file/knowledge_exports
 
 /storage/file/clouddrive
 /storage/file/resource
@@ -26,6 +28,7 @@
 /storage/file/command/record
 
 /.idea
+/.codex/LROBOT_STATE.local.md
 
 __pycache__/
 /storage/file/command/textgame

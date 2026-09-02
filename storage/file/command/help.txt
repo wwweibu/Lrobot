@@ -319,6 +319,7 @@ wikiLR5921查询并返回相关内容
 水群不打扰：在用户发送消息的间隔水群
 空间记录导出及发表说说（参考项目）
 全相册（记录消息中所有图片+筛选表情包+分类）+会员上传照片，返还匹配图片
+推理小说抽卡模拟器
 ---
 主更新计划
 1：一键脚本，自动判断linux/windows并安装对应的docker，一键启动manager主docker和打开配置页面
@@ -352,6 +353,10 @@ wiki页排序增加排序比较功能
 SQL: INSERT INTO user_platform (lr5921) VALUES (%s) | 参数: ('2082957414',) 变量: {'msg': "num": 1764423677002, "platform": "LR5921", "event": "处理", "kind": "群聊接收", "seq": "2070773814", "content": [{"type": "text", "data": {"text": "问一下，谁有这位学姐的电话号码，有事需要联系她，但是好友一直无法通过"}}], "user": "2082957414", "group": "708346432", 'e': RuntimeError('[数据库]更新失败: (1062, "Duplicate entry \'2082957414\' for key \'user_platform.ux_lr5921\'") | SQL: INSERT INTO user_platform (lr5921) VALUES (%s) | 参数: (\'2082957414\',)'), 'content_str': '问一下，谁有这位学姐的电话号码，有事需要联系她，但是好友一直无法通过'}
 转发消息被当作文本消息处理导致意外匹配命令
 未知错误：数据库查询失败且插入失败，可能原因是某人第一次在水群发言且群昵称未记录，导致消息接收记录状态和获取昵称的记录状态同一时间发生，导致插入冲突
+---
+已有用户退群入群会出现错误
+1062, "Duplicate entry '1740105978' for key 'user_platform.ux_lr5921'") | SQL: INSERT INTO user_platform (lr5921) VALUES (%s) | 参数: ('1740105978',
+
 
 # home_func
 分组: 官网

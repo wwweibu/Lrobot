@@ -2506,6 +2506,24 @@ commands:
   groups:
   - 公测群
   - 内测群
+- func: 知识问答
+  function: knowledge_ask
+  set: 工具
+  order: 0
+  content:
+  - knowledge_ask_judge
+  judge: function
+  kind:
+  - 群聊接收
+  - 私聊接收
+  state: []
+  platforms:
+  - LR5921
+  users:
+  - 内阁
+  groups:
+  - 内阁
+  - 内测群
 - func: 海龟汤上传输入
   function: soup_upload_input
   set: 游戏
