@@ -1,6 +1,5 @@
 """WECHAT API 调用"""
 
-import asyncio
 import mimetypes
 from datetime import datetime, timedelta
 
@@ -14,6 +13,7 @@ from config import (
     connect,
     database_query,
     database_update,
+    create_background_task,
     path
 )
 
@@ -128,8 +128,8 @@ async def wechat_dispatch(
             media_id = await wechat_file_upload(merged_img, type="image")
             base += f"""<MsgType><![CDATA[image]]></MsgType>
                     <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
-            asyncio.create_task(remove_later(text_img))
-            asyncio.create_task(remove_later(merged_img))
+            create_background_task(remove_later(text_img), name="remove-wechat-file")
+            create_background_task(remove_later(merged_img), name="remove-wechat-file")
         elif texts:
             text_content = "\n\n".join(texts)
             if "\n" in text_content:
@@ -138,7 +138,7 @@ async def wechat_dispatch(
                 media_id = await wechat_file_upload(text_img, type="image")
                 base += f"""<MsgType><![CDATA[image]]></MsgType>
                         <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
-                asyncio.create_task(remove_later(text_img))
+                create_background_task(remove_later(text_img), name="remove-wechat-file")
             else:
                 send_content = text_content
                 base += f"""<MsgType><![CDATA[text]]></MsgType>
@@ -156,7 +156,7 @@ async def wechat_dispatch(
                 media_id = await wechat_file_upload(merged_img, type="image")
                 base += f"""<MsgType><![CDATA[image]]></MsgType>
                             <Image><MediaId><![CDATA[{media_id}]]></MediaId></Image>\n"""
-                asyncio.create_task(remove_later(merged_img))
+                create_background_task(remove_later(merged_img), name="remove-wechat-file")
 
     base += "</xml>"
     future.set(seq, base)

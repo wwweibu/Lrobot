@@ -2,12 +2,19 @@
 
 import re
 import json
-import asyncio
 from datetime import datetime
 
 from logic import data
 from message.handler.msg import Msg
-from config import monitor_adapter, path, future, database_update, database_query, config
+from config import (
+    config,
+    create_background_task,
+    database_query,
+    database_update,
+    future,
+    monitor_adapter,
+    path,
+)
 
 
 NAVY_CONFIG_PATH = path / "storage/file/command/navy/config.json"
@@ -848,7 +855,7 @@ async def activity_blood_search1(msg: Msg):
         else:
             await data.table_to_image(headers, rows, output_path)
             content = f"[图片:{output_path}]"
-            asyncio.create_task(data.remove_later(output_path))
+            create_background_task(data.remove_later(output_path), name="remove-activity-image")
     else:
         content = "阁下，指令格式有误。请遵循'/血字查询,个人,[玩家QQ号]'或'/血字查询,个人,所有'或'/血字查询,血字,[血字名称]'或'/血字查询,血字,[dmQQ号]'或'/血字查询,血字,所有'的规范。"
     Msg(
@@ -934,7 +941,7 @@ async def activity_blood_search3(msg: Msg):
         user=msg.user,
         group=msg.group,
     )
-    asyncio.create_task(data.remove_later(output_path))
+    create_background_task(data.remove_later(output_path), name="remove-activity-image")
     return content
 
 async def merge_img():

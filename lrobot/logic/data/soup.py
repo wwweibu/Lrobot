@@ -1,7 +1,6 @@
 """海龟汤数据处理"""
 
 import json
-import random
 
 from config import database_query, database_update
 
@@ -11,20 +10,21 @@ async def soup_random_get(exclude_id=None):
     若题库只有一条则直接返回该条"""
     if exclude_id:
         rows = await database_query(
-            "SELECT id, title, author, surface, bottom FROM system_soup WHERE id != %s",
+            "SELECT id, title, author, surface, bottom FROM system_soup "
+            "WHERE id != %s ORDER BY RAND() LIMIT 1",
             (exclude_id,),
         )
         if not rows:
             rows = await database_query(
-                "SELECT id, title, author, surface, bottom FROM system_soup"
+                "SELECT id, title, author, surface, bottom FROM system_soup "
+                "ORDER BY RAND() LIMIT 1"
             )
     else:
         rows = await database_query(
-            "SELECT id, title, author, surface, bottom FROM system_soup"
+            "SELECT id, title, author, surface, bottom FROM system_soup "
+            "ORDER BY RAND() LIMIT 1"
         )
-    if not rows:
-        return None
-    return random.choice(rows)
+    return rows[0] if rows else None
 
 
 async def soup_get(soup_id):
@@ -71,8 +71,8 @@ async def soup_search(keyword):
     """按名称或作者模糊查询，返回列表"""
     like = f"%{keyword}%"
     rows = await database_query(
-        "SELECT id, title, author, surface, bottom FROM system_soup "
-        "WHERE title LIKE %s OR author LIKE %s ORDER BY id DESC",
+        "SELECT id, title, author FROM system_soup "
+        "WHERE title LIKE %s OR author LIKE %s ORDER BY id DESC LIMIT 50",
         (like, like),
     )
     return rows or []
@@ -88,12 +88,12 @@ async def soup_find_by_title(title):
     if title == "":
         rows = await database_query(
             "SELECT id, title, author, surface, bottom FROM system_soup "
-            "WHERE title = '' OR title IS NULL ORDER BY id DESC"
+            "WHERE title = '' OR title IS NULL ORDER BY id DESC LIMIT 20"
         )
     else:
         rows = await database_query(
             "SELECT id, title, author, surface, bottom FROM system_soup "
-            "WHERE title = %s ORDER BY id DESC",
+            "WHERE title = %s ORDER BY id DESC LIMIT 20",
             (title,),
         )
     return rows or []

@@ -11,6 +11,7 @@ from config import config, loggers, path
 # 全局 httpx 客户端
 _client = None
 _client_lock = asyncio.Lock()
+_rate_lock = asyncio.Lock()
 
 # 速率限制
 _last_request_time = 0
@@ -22,10 +23,14 @@ _daily_tokens = {"prompt": 0, "completion": 0, "date": ""}
 # Codex bridge 配置
 _BRIDGE_TOKEN_PATH = path / "storage/yml/knowledge_api_token"
 _BRIDGE_URL = "http://172.18.0.1:10003"
-_BRIDGE_TIMEOUT = 50.0
+_BRIDGE_TIMEOUT = 35.0
 
 # codex 提取失败重试次数（超过后转 deepseek 兜底）
-_CODEX_ATTEMPTS = 3
+_CODEX_ATTEMPTS = 2
+_CODEX_CIRCUIT_THRESHOLD = 1
+_CODEX_CIRCUIT_SECONDS = 5 * 60
+_codex_failures = 0
+_codex_open_until = 0.0
 
 # 判断词提取：判断词 + 逗号开头
 _JUDGE_RE = re.compile(r"^\s*(是或不是|不是|是|无关|否)\s*[，,]")
@@ -69,8 +74,21 @@ async def _get_client() -> httpx.AsyncClient:
     global _client
     async with _client_lock:
         if _client is None:
-            _client = httpx.AsyncClient(timeout=130)
+            _client = httpx.AsyncClient(
+                timeout=httpx.Timeout(60.0, connect=10.0),
+                limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+            )
     return _client
+
+
+async def soup_client_close() -> None:
+    """程序退出时关闭共享 HTTP 客户端。"""
+    global _client
+    async with _client_lock:
+        client = _client
+        _client = None
+    if client is not None:
+        await client.aclose()
 
 
 def _bridge_token() -> str:
@@ -83,6 +101,10 @@ def _bridge_token() -> str:
 
 async def _codex_chat(prompt: str) -> str:
     """通过 codex bridge 调用 gpt-5.3-codex-spark，返回原始回答文本，失败返回 None"""
+    global _codex_failures, _codex_open_until
+    now = time.monotonic()
+    if now < _codex_open_until:
+        return None
     client = await _get_client()
     try:
         response = await client.post(
@@ -94,12 +116,19 @@ async def _codex_chat(prompt: str) -> str:
         response.raise_for_status()
         data = response.json()
         answer = (data.get("answer") or "").strip()
+        _codex_failures = 0
+        _codex_open_until = 0.0
         return answer or None
     except Exception as e:
+        _codex_failures += 1
+        status_code = getattr(getattr(e, "response", None), "status_code", None)
+        if status_code in (401, 403, 429) or _codex_failures >= _CODEX_CIRCUIT_THRESHOLD:
+            _codex_open_until = time.monotonic() + _CODEX_CIRCUIT_SECONDS
         logger = loggers.get("system")
         if logger:
             logger.error(
-                f"[海龟汤AI] codex bridge 调用失败: {type(e).__name__}: {e}",
+                f"[海龟汤AI] codex bridge 调用失败: {type(e).__name__}"
+                f" | failures={_codex_failures} | status={status_code}",
                 extra={"event": "海龟汤AI"},
             )
         return None
@@ -113,13 +142,14 @@ async def _llm_chat(messages: list, max_tokens: int = 500) -> dict:
     if not cfg:
         return {"content": "【AI 主持人未配置，请联系管理员设置 soup_llm】", "usage": None}
 
-    # 速率限制
-    now = time.time()
-    elapsed = now - _last_request_time
-    min_interval = cfg.get("min_interval", _MIN_INTERVAL)
-    if elapsed < min_interval:
-        await asyncio.sleep(min_interval - elapsed)
-    _last_request_time = time.time()
+    # 速率限制：使用锁避免并发请求同时穿过。
+    async with _rate_lock:
+        now = time.time()
+        elapsed = now - _last_request_time
+        min_interval = cfg.get("min_interval", _MIN_INTERVAL)
+        if elapsed < min_interval:
+            await asyncio.sleep(min_interval - elapsed)
+        _last_request_time = time.time()
 
     # 日限额检查
     today = time.strftime("%Y-%m-%d")
@@ -188,8 +218,8 @@ def _format_history(history: list) -> str:
     lines = []
     for entry in history[-10:]:
         role = "玩家" if entry.get("role") == "user" else "AI主持人"
-        lines.append(f"{role}: {entry.get('content', '')}")
-    return "\n".join(lines)
+        lines.append(f"{role}: {str(entry.get('content', ''))[:2000]}")
+    return "\n".join(lines)[-12000:]
 
 
 def _extract_answer(text: str):
@@ -230,6 +260,9 @@ async def llm_judge_question(
     cfg = config["soup_llm"] if "soup_llm" in config else None
     backend = cfg.get("backend", "codex") if cfg else "codex"
 
+    surface = str(surface)[:4000]
+    bottom = str(bottom)[:8000]
+    question = str(question)[:2000]
     history_text = _format_history(history)
     base_prompt = _PROMPT_TEMPLATE.format(
         surface=surface, bottom=bottom, history=history_text, question=question
@@ -248,6 +281,8 @@ async def llm_judge_question(
                             extra={"event": "海龟汤AI"},
                         )
                     return result
+            if time.monotonic() < _codex_open_until:
+                break
             if logger:
                 logger.warning(
                     f"[海龟汤AI] codex 第{attempt}次调用或提取失败",

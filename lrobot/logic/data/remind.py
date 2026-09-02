@@ -1,10 +1,9 @@
 """待办与提醒创建"""
 
-import asyncio
 from datetime import datetime
 
 from message.handler.msg import Msg
-from config import database_update, database_query, chunk_sleep
+from config import chunk_sleep, create_background_task, database_query, database_update
 
 
 async def remind_send(id, target_time, content, user):
@@ -30,4 +29,7 @@ async def remind_load():
     reminders = await database_query(sql)
 
     for r in reminders:
-        asyncio.create_task(remind_send(r["id"], r["time"], r["content"], r["user"]))
+        create_background_task(
+            remind_send(r["id"], r["time"], r["content"], r["user"]),
+            name=f"reminder:{r['id']}",
+        )

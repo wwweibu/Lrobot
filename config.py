@@ -2,6 +2,7 @@
 # 包含：全局路径、代理连接、future 变量、消息处理监控、进程池任务、定时任务、配置信息读写、日志记录器、数据库写入查询操作
 # 需要使用 mysql 数据库引入 mysql_init；日志写入需要 gather log_writer；配置自动更新需要 gather config_watcher
 import re
+import os
 import sys
 import json
 import time
@@ -13,6 +14,7 @@ import logging
 import aiomysql
 import datetime
 import traceback
+from collections import OrderedDict
 from pathlib import Path
 import motor.motor_asyncio
 from functools import wraps
@@ -49,36 +51,38 @@ SOURCE_DICT = {
 }
 # 监视器统计数据
 MONITOR_METRICS = {}
-# mongodb 索引
-MONGODB_INDEX = [
-    # 主要
-    ([("time", -1)], {}),
-    ([("event", 1), ("time", -1)], {}),  # 原为 [message]，2026-08-05 换掉：整条正文做索引占 5G，且 log.py 用的是非锚定正则，根本用不上
-    ([("level", 1), ("time", -1)], {}),
-    ([("source", 1), ("time", -1)], {}),
-    ([("source", 1), ("event", 1), ("time", -1)], {}),
-    ([("event", 1), ("source", 1), ("level", 1), ("time", -1)], {}),
-    ([("source", 1), ("event", 1), ("level", 1), ("time", -1)], {}),  # 原含 message，2026-08-05 去掉：同样占 5G，message 段不参与任何查询
-    # 其他  l,s,e,s-e,lse 存在，补 l-s,l-e
-    ([("event", 1), ("level", 1), ("time", -1)], {}),
-    ([("source", 1), ("level", 1), ("time", -1)], {}),
-    ([("message", "text"), ("time", -1)], {"hasTextIndex": True})  # 放在最后
-]
-
 path = Path(__file__).resolve().parent  # 全局路径,python 中为 /lrobot,dokcer 中为 /app
 mongo_client = None  # mongo 连接
 mongo_db = None
 mysql_db_pool = None  # mysql 连接
-log_queue = asyncio.Queue()  # 日志队列
+LOG_QUEUE_MAX = max(100, int(os.getenv("LROBOT_LOG_QUEUE_MAX", "2000")))
+LOG_MESSAGE_MAX_CHARS = max(1000, int(os.getenv("LROBOT_LOG_MESSAGE_MAX_CHARS", "65536")))
+BACKGROUND_TASK_MAX = max(10, int(os.getenv("LROBOT_BACKGROUND_TASK_MAX", "1000")))
+FUTURE_EARLY_RESULT_MAX = max(10, int(os.getenv("LROBOT_FUTURE_EARLY_MAX", "1000")))
+FUTURE_EARLY_RESULT_TTL = max(1.0, float(os.getenv("LROBOT_FUTURE_EARLY_TTL", "60")))
+
+log_queue = asyncio.Queue(maxsize=LOG_QUEUE_MAX)  # 有界日志队列
 loggers = {}  # 日志记录器
 temp_key = {}  # 网址临时密钥
 process_pool = ProcessPoolExecutor()  # 进程池
+RUNTIME_METRICS = {
+    "future_early_evicted": 0,
+    "log_dropped": 0,
+    "log_evicted": 0,
+    "log_truncated": 0,
+    "background_task_rejected": 0,
+}
+_background_tasks = set()
+_last_log_drop_report = 0.0
 
 class FutureManager:
-    """管理 future 变量，用于协程间通信"""
+    """管理协程回调，并对已消费/超时/早到结果做有界回收。"""
 
-    def __init__(self):
-        self._futures = {}  # Future 对象字典
+    def __init__(self, early_ttl=FUTURE_EARLY_RESULT_TTL, early_max=FUTURE_EARLY_RESULT_MAX):
+        self._futures = {}  # 只保留正在等待的 Future
+        self._early_results = OrderedDict()  # key -> (expires_at, is_error, value)
+        self._early_ttl = early_ttl
+        self._early_max = early_max
         self._loop = None  # 主事件循环
 
     def init(self, loop):
@@ -86,26 +90,146 @@ class FutureManager:
         self._loop = loop
 
     def get(self, key):
-        """获取已有的 Future 对象，若不存在则创建一个新的"""
+        """获取等待对象；若结果早到，将其一次性转入 Future。"""
+        if self._loop is None:
+            raise RuntimeError("[future]主事件循环尚未初始化")
+        self._purge_early()
         if key not in self._futures:
-            self._futures[key] = self._loop.create_future()
+            future_obj = self._loop.create_future()
+            early = self._early_results.pop(key, None)
+            if early:
+                _, is_error, value = early
+                if is_error:
+                    future_obj.set_exception(value)
+                else:
+                    future_obj.set_result(value)
+            self._futures[key] = future_obj
         return self._futures[key]
 
     def set(self, key, result):
-        """设置 Future 对象的结果"""
-        _future = self.get(key)
-        if not _future.done():
-            self._loop.call_soon_threadsafe(
-                _future.set_result, result
-            )  # 同步线程调用时可唤醒异步线程
-            self._loop.call_soon_threadsafe(lambda: None)
+        """设置结果；无等待者时只保留有 TTL 的早到结果。"""
+        return self._schedule_resolve(key, result, is_error=False)
+
+    def set_exception(self, key, error):
+        """让等待者立即收到异常，同样支持先到回调。"""
+        if not isinstance(error, BaseException):
+            error = RuntimeError(str(error))
+        return self._schedule_resolve(key, error, is_error=True)
+
+    def _schedule_resolve(self, key, value, is_error):
+        if self._loop is None or self._loop.is_closed():
+            return False
+        try:
+            if asyncio.get_running_loop() is self._loop:
+                self._resolve(key, value, is_error)
+                return True
+        except RuntimeError:
+            pass
+        try:
+            self._loop.call_soon_threadsafe(self._resolve, key, value, is_error)
+            return True
+        except RuntimeError:
+            return False
+
+    def _resolve(self, key, value, is_error):
+        self._purge_early()
+        future_obj = self._futures.get(key)
+        if future_obj is not None:
+            if not future_obj.done():
+                if is_error:
+                    future_obj.set_exception(value)
+                else:
+                    future_obj.set_result(value)
+            return
+
+        self._early_results[key] = (
+            time.monotonic() + self._early_ttl,
+            is_error,
+            value,
+        )
+        self._early_results.move_to_end(key)
+        while len(self._early_results) > self._early_max:
+            self._early_results.popitem(last=False)
+            RUNTIME_METRICS["future_early_evicted"] += 1
+
+    def _purge_early(self):
+        now = time.monotonic()
+        while self._early_results:
+            first_key = next(iter(self._early_results))
+            if self._early_results[first_key][0] > now:
+                break
+            self._early_results.popitem(last=False)
 
     async def wait(self, key, err_msg=None, timeout=20):
-        """等待 Future 结果"""
+        """等待 Future 结果并保证移除该 key。"""
+        future_obj = self.get(key)
         try:
-            return await asyncio.wait_for(self.get(key), timeout=timeout)
-        except asyncio.TimeoutError:
-            raise TimeoutError(err_msg or f"[future]请求失败-> {key} 获取超时: {timeout}s")
+            return await asyncio.wait_for(asyncio.shield(future_obj), timeout=timeout)
+        except asyncio.TimeoutError as error:
+            raise TimeoutError(
+                err_msg or f"[future]请求失败-> {key} 获取超时: {timeout}s"
+            ) from error
+        finally:
+            if self._futures.get(key) is future_obj:
+                self._futures.pop(key, None)
+            if not future_obj.done():
+                future_obj.cancel()
+
+    def clear(self):
+        """关闭时取消所有等待并丢弃早到结果。"""
+        for future_obj in self._futures.values():
+            if not future_obj.done():
+                future_obj.cancel()
+        self._futures.clear()
+        self._early_results.clear()
+
+    def stats(self):
+        """返回可用于运行观察的当前数量。"""
+        self._purge_early()
+        return {
+            "pending": len(self._futures),
+            "early": len(self._early_results),
+            "early_evicted": RUNTIME_METRICS["future_early_evicted"],
+        }
+
+
+def create_background_task(coro, *, name=None):
+    """创建可追踪、有数量上限的后台任务。"""
+    if len(_background_tasks) >= BACKGROUND_TASK_MAX:
+        RUNTIME_METRICS["background_task_rejected"] += 1
+        close = getattr(coro, "close", None)
+        if close:
+            close()
+        return None
+
+    task = asyncio.create_task(coro, name=name)
+    _background_tasks.add(task)
+
+    def _done(completed):
+        _background_tasks.discard(completed)
+        if completed.cancelled():
+            return
+        try:
+            error = completed.exception()
+        except asyncio.CancelledError:
+            return
+        if error and loggers.get("system"):
+            loggers["system"].error(
+                f"[后台任务]{completed.get_name()} 异常-> {type(error).__name__}: {error}",
+                extra={"event": "运行失败"},
+            )
+
+    task.add_done_callback(_done)
+    return task
+
+
+async def cancel_background_tasks():
+    """取消并等待本进程中受管的后台任务。"""
+    tasks = list(_background_tasks)
+    for task in tasks:
+        task.cancel()
+    if tasks:
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 class SafeDict(dict):
     """支持多层嵌套访问的字典，访问不存在的键时返回空 safe_dict 而非抛异常"""
@@ -285,17 +409,45 @@ class DatabaseHandler(logging.Handler):
     """数据库日志写入"""
     def emit(self, record):
         """数据库日志数据格式化"""
+        global _last_log_drop_report
         message = record.getMessage()
         message = COLOR_PATTERN.sub("", message)
+        if len(message) > LOG_MESSAGE_MAX_CHARS:
+            message = message[:LOG_MESSAGE_MAX_CHARS] + "\n…[日志已截断]"
+            RUNTIME_METRICS["log_truncated"] += 1
 
-        log_queue.put_nowait(
-            (
-                record.levelname,
-                SOURCE_DICT.get(record.name, record.name).strip(),
-                getattr(record, "event", "-"),
-                message,
-            )
+        item = (
+            record.levelname,
+            SOURCE_DICT.get(record.name, record.name).strip(),
+            getattr(record, "event", "-"),
+            message,
         )
+        try:
+            log_queue.put_nowait(item)
+            return
+        except asyncio.QueueFull:
+            pass
+
+        # 队列已满时丢弃低级日志；高级日志可替换最旧的一条。
+        if record.levelno >= logging.WARNING:
+            try:
+                log_queue.get_nowait()
+                log_queue.task_done()
+                RUNTIME_METRICS["log_evicted"] += 1
+                log_queue.put_nowait(item)
+            except (asyncio.QueueEmpty, asyncio.QueueFull):
+                RUNTIME_METRICS["log_dropped"] += 1
+        else:
+            RUNTIME_METRICS["log_dropped"] += 1
+
+        now = time.monotonic()
+        if now - _last_log_drop_report >= 60:
+            _last_log_drop_report = now
+            sys.stderr.write(
+                "[LRobot]日志队列已满，"
+                f"累计丢弃 {RUNTIME_METRICS['log_dropped']} 条，"
+                f"替换 {RUNTIME_METRICS['log_evicted']} 条\n"
+            )
 
 
 class UvicornFilter(logging.Filter):
@@ -499,8 +651,9 @@ async def scheduler_run(func, *args, interval=None, at_time=None, count=None, at
 
 def scheduler_add(func, *args, interval=None, at_time=None, count=None, at_once=False, **kwargs):
     """定时任务(需添加异步函数)"""
-    return asyncio.create_task(
-        scheduler_run(func, *args, interval=interval, at_time=at_time, count=count, at_once=at_once, **kwargs)
+    return create_background_task(
+        scheduler_run(func, *args, interval=interval, at_time=at_time, count=count, at_once=at_once, **kwargs),
+        name=f"scheduler:{func.__name__}",
     )
 
 async def config_watcher():
@@ -539,75 +692,27 @@ def mongo_get():
     return mongo_db
 
 
-async def mongo_indexes_create():
-    """建立索引"""
-    coll = mongo_db.system_log
+def runtime_metrics_snapshot():
+    """汇总不包含用户内容的内存风险指标。"""
+    from message.handler.msg_pool import MsgPool
 
-    normalized_indexes = []
-    for i, (keys, filter_expr) in enumerate(MONGODB_INDEX, start=1):
-        options = {"name": f"idx_{i}"}
-        if filter_expr:  # 空 dict 不加
-            options["partialFilterExpression"] = filter_expr
-        normalized_indexes.append((keys, options))
+    return {
+        "future": future.stats(),
+        "log_queue": log_queue.qsize(),
+        "log_queue_max": log_queue.maxsize,
+        "background_tasks": len(_background_tasks),
+        "background_task_max": BACKGROUND_TASK_MAX,
+        **MsgPool.stats(),
+        **RUNTIME_METRICS,
+    }
 
-    # 获取已存在索引
-    existing_indexes = await coll.index_information()
 
-    normalized_existing = {}
-    for name, info in existing_indexes.items():
-        keys = tuple(info["key"])
-        pfe = info.get("partialFilterExpression") or {}
-        normalized_existing[name] = (keys, pfe)
-
-    for keys, options in normalized_indexes:
-        index_name = options["name"]
-        pfe = options.get("partialFilterExpression", {})
-
-        if any(v == "text" for v in dict(keys).values()):  # text 索引
-            if any("text" in str(info.get("key", {})) for info in existing_indexes.values()):
-                loggers["system"].debug(
-                    f"[索引创建]{index_name} 已存在 text 索引-> 跳过",
-                    extra={"event": "索引创建"}
-                )
-                continue
-
-        # 检查是否有同名索引
-        if index_name in normalized_existing:
-            exist_keys, exist_pfe = normalized_existing[index_name]
-            if exist_keys == tuple(keys) and exist_pfe == pfe:
-                loggers["system"].debug(f"[索引创建]{index_name} 已存在-> {keys}: {options}",
-                                        extra={"event": "索引创建"})
-                continue  # 已存在
-            else:
-                await coll.drop_index(index_name)
-                loggers["system"].debug(
-                    f"[索引删除]{index_name} 名称冲突-> {exist_keys}: {exist_pfe}",
-                    extra={"event": "索引创建"}
-                )
-                normalized_existing.pop(index_name, None)
-
-        duplicate_name = None
-        for exist_name, (exist_keys, exist_pfe) in normalized_existing.items():
-            if exist_name == "_id_":
-                continue
-            if exist_keys == tuple(keys):
-                duplicate_name = exist_name
-                loggers["system"].debug(
-                    f"[索引删除]{duplicate_name} 键值冲突-> {exist_keys}: {exist_pfe}",
-                    extra={"event": "索引创建"}
-                )
-                break
-        if duplicate_name:
-            await coll.drop_index(duplicate_name)
-            normalized_existing.pop(duplicate_name, None)
-
-        try:
-            await coll.create_index(keys, **options)
-            loggers["system"].debug(f"[索引创建]{index_name} 成功-> {keys}: {options}", extra={"event": "索引创建"})
-        except Exception as e:
-            loggers["system"].error(f"[索引创建]{index_name} 失败-> {type(e).__name__}: {e}",
-                                    extra={"event": "索引创建"})
-    loggers["system"].debug("[索引创建]完成", extra={"event": "索引创建"})
+async def runtime_metrics_report():
+    """定期输出有界队列/Future 指标，用于发现接近上限的趋势。"""
+    loggers["system"].info(
+        f"[资源边界]{json.dumps(runtime_metrics_snapshot(), ensure_ascii=False)}",
+        extra={"event": "运行指标"},
+    )
 
 
 async def log_writer():
@@ -630,6 +735,8 @@ async def log_writer():
             await mongo_db.system_log.insert_one(document)
         except Exception as e:
             print(f"[数据库]写入失败-> Mongodb: {e}")
+        finally:
+            log_queue.task_done()
 
 
 async def mysql_init():
@@ -646,6 +753,18 @@ async def mysql_init():
         autocommit=False,  # 必须为 False 才能手动控制提交与回滚
     )
     loggers["system"].debug("[数据库]连接成功-> Mysql", extra={"event": "运行日志"})
+
+
+async def connections_close():
+    """关闭数据库连接和 Future，避免重启时遗留资源。"""
+    global mysql_db_pool
+    future.clear()
+    if mysql_db_pool is not None:
+        mysql_db_pool.close()
+        await mysql_db_pool.wait_closed()
+        mysql_db_pool = None
+    if mongo_client is not None:
+        mongo_client.close()
 
 
 async def database_query(query: str, params: tuple = ()):

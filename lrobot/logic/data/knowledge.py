@@ -454,6 +454,16 @@ async def _client() -> httpx.AsyncClient:
     return _http_client
 
 
+async def knowledge_client_close() -> None:
+    """程序退出时关闭共享 HTTP 客户端。"""
+    global _http_client
+    async with _http_client_lock:
+        client = _http_client
+        _http_client = None
+    if client is not None:
+        await client.aclose()
+
+
 def _bridge_url() -> str:
     bridge_config = config["knowledge_llm"]
     return bridge_config.get("bridge_url", DEFAULT_BRIDGE_URL).rstrip("/")

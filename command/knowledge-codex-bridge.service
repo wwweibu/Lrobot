@@ -12,6 +12,10 @@ EnvironmentFile=/home/ubuntu/knowledge-codex-bridge/bridge.env
 ExecStart=/usr/bin/node /home/ubuntu/knowledge-codex-bridge/knowledge-codex-bridge.mjs
 Restart=on-failure
 RestartSec=5
+MemoryHigh=256M
+MemoryMax=384M
+TasksMax=64
+TimeoutStopSec=10
 NoNewPrivileges=true
 PrivateTmp=true
 

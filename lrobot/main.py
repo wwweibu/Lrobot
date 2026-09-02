@@ -17,7 +17,9 @@ from config import (
     log_writer,
     config_watcher,
     storage,
-    mongo_indexes_create
+    cancel_background_tasks,
+    connections_close,
+    runtime_metrics_report,
 )
 from message.adapter import (
     refresh_tokens,
@@ -35,7 +37,6 @@ async def start():
         loop = asyncio.get_running_loop()
         future.init(loop)  # future 管理器记录主循环
         await mysql_init()
-        await mongo_indexes_create()  # mongodb 建立索引
     except Exception as e:
         loggers["system"].error(f"[初始化]失败-> {type(e).__name__}: {e}", extra={"event": "运行失败"})
 
@@ -53,6 +54,7 @@ async def scheduler():
     # scheduler_add(backup_mongo, interval=86400)  # 备份 Mongo
     scheduler_add(MsgPool.clean, 86400, interval=86400)  # 消息池清理
     scheduler_add(rotator, interval=600)  # 临时网址更换
+    scheduler_add(runtime_metrics_report, interval=300, at_once=True)  # 有界资源指标
 
 
 
@@ -119,21 +121,27 @@ def task_warp(func, exit_event):
         """装饰器"""
         task = asyncio.create_task(func())
         task.name = func.__name__
-        await asyncio.wait(
-            [task, asyncio.create_task(exit_event.wait())],
-            return_when=asyncio.FIRST_COMPLETED
-        )  # 等待任意一个完成
+        exit_waiter = asyncio.create_task(exit_event.wait(), name=f"exit:{func.__name__}")
+        try:
+            await asyncio.wait(
+                [task, exit_waiter],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
 
-        if exit_event.is_set():
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                loggers["system"].debug(
-                    f"[任务]被取消-> {func.__name__}", extra={"event": "运行日志"}
-                )
+            if exit_event.is_set() and not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    loggers["system"].debug(
+                        f"[任务]被取消-> {func.__name__}", extra={"event": "运行日志"}
+                    )
 
-        return await task if not task.cancelled() else None
+            return await task if not task.cancelled() else None
+        finally:
+            if not exit_waiter.done():
+                exit_waiter.cancel()
+            await asyncio.gather(exit_waiter, return_exceptions=True)
 
     return asyncio.create_task(wrapper(), name=func.__name__)
 
@@ -165,7 +173,19 @@ async def main():
                     f"[任务]{name} 异常-> {type(r).__name__}: {r}", extra={"event": "运行失败"}
                 )
     finally:
-        stop()
+        try:
+            from logic.data.knowledge import knowledge_client_close
+            from logic.data.soup_llm import soup_client_close
+
+            await asyncio.gather(
+                knowledge_client_close(),
+                soup_client_close(),
+                return_exceptions=True,
+            )
+            await cancel_background_tasks()
+            await connections_close()
+        finally:
+            stop()
 
 
 if __name__ == "__main__":

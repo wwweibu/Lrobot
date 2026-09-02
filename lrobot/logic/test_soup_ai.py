@@ -1,30 +1,57 @@
+"""海龟汤 LLM 的无外网回归测试。"""
+
 import sys
-sys.path.insert(0, '/app')
-import asyncio
-from logic.data.soup_llm import llm_atomize_facts, llm_judge_question, llm_generate_hint
+import unittest
+from pathlib import Path
+from unittest.mock import AsyncMock, patch
 
-async def test():
-    surface = "一个人在沙漠中走了很久，他划燃一根火柴，然后死了"
-    bottom = "一个男子在沙漠中迷路，他决定用火柴数数来计算自己走了多少步。他划燃一根火柴，然后在火柴熄灭前数到20，这样他就知道自己走了20步。但后来他发现火柴盒里只剩最后一根火柴，他绝望地自杀了。"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-    print("=== 测试1: 事实原子化 ===")
-    facts = await llm_atomize_facts(surface, bottom)
-    print("事实清单:", facts[:3], "...")
+from logic.data import soup_llm  # noqa: E402
 
-    print()
-    print("=== 测试2: 问题判断 ===")
-    result = await llm_judge_question(surface, bottom, facts, "问他是自杀的吗？", [])
-    t = result["type"]
-    c = result["content"]
-    print("类型:", t)
-    print("回答:", c)
 
-    print()
-    print("=== 测试3: 生成提示 ===")
-    hint = await llm_generate_hint(surface, bottom, facts, [])
-    print("提示:", hint)
+class SoupLlmTests(unittest.IsolatedAsyncioTestCase):
+    def test_extracts_allowed_answers(self):
+        self.assertEqual(
+            soup_llm._extract_answer("是，这个细节与汤底一致"),
+            {"type": "answer", "content": "是"},
+        )
+        self.assertEqual(
+            soup_llm._extract_answer("否。"),
+            {"type": "answer", "content": "不是"},
+        )
 
-    print()
-    print("=== 全部测试通过 ===")
+    def test_history_is_bounded(self):
+        history = [
+            {"role": "user", "content": "x" * 3000},
+            {"role": "assistant", "content": "y" * 3000},
+        ] * 20
+        formatted = soup_llm._format_history(history)
+        self.assertLessEqual(len(formatted), 12000)
 
-asyncio.run(test())
+    async def test_codex_success_is_post_processed(self):
+        fake_config = {"soup_llm": {"backend": "codex"}}
+        with (
+            patch.object(soup_llm, "config", fake_config),
+            patch.object(soup_llm, "_codex_chat", AsyncMock(return_value="无关，这与故事无关")),
+        ):
+            result = await soup_llm.llm_judge_question("汤面", "汤底", "问天气有关吗？", [])
+        self.assertEqual(result, {"type": "answer", "content": "无关"})
+
+    async def test_codex_failure_falls_back_without_network(self):
+        fake_config = {"soup_llm": {"backend": "codex"}}
+        with (
+            patch.object(soup_llm, "config", fake_config),
+            patch.object(soup_llm, "_codex_chat", AsyncMock(return_value=None)),
+            patch.object(
+                soup_llm,
+                "_llm_chat",
+                AsyncMock(return_value={"content": "不是，与汤底矛盾", "usage": None}),
+            ),
+        ):
+            result = await soup_llm.llm_judge_question("汤面", "汤底", "问是这样吗？", [])
+        self.assertEqual(result, {"type": "answer", "content": "不是"})
+
+
+if __name__ == "__main__":
+    unittest.main()

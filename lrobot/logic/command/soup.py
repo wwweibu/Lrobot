@@ -10,6 +10,12 @@ from config import monitor_adapter
 
 # 全局锁，保护同一时刻只有一个认领操作在读写状态
 _soup_claim_lock = asyncio.Lock()
+_TITLE_MAX = 100
+_AUTHOR_MAX = 100
+_SURFACE_MAX = 4000
+_BOTTOM_MAX = 8000
+_UPLOAD_TIMEOUT = 15 * 60
+_DELETE_TIMEOUT = 5 * 60
 
 
 def _format_surface(soup):
@@ -36,6 +42,18 @@ async def soup_start(msg: Msg):
     parts = text.split(" ", 1)
     title = parts[1].strip() if len(parts) == 2 else ""
     state_key = msg.group or msg.user
+
+    if len(title) > _TITLE_MAX:
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            content=f"标题过长，请限制在 {_TITLE_MAX} 字以内",
+            user=msg.user,
+            group=msg.group,
+        )
+        return
 
     if title:
         rows = await data.soup_find_by_title(title)
@@ -68,6 +86,13 @@ async def soup_start(msg: Msg):
                 group=msg.group,
             )
             return
+
+    # 覆盖上局前一并回收 AI 缓存/锁。
+    previous_state = await data.soup_state_get(state_key)
+    if previous_state and previous_state.get("ai_host"):
+        from logic.command.soup_ai import soup_ai_reset
+
+        await soup_ai_reset(state_key, previous_state.get("ai_session_id"))
 
     # 写入对局状态（覆盖上一局，清空主持人）；群聊按群、私聊按用户
     new_state = {
@@ -234,7 +259,13 @@ def _upload_step(status):
 @monitor_adapter("/海龟汤_上传")
 async def soup_upload(msg: Msg):
     """开始上传海龟汤流程"""
-    await data.status_add(msg.user, msg.platform, "海龟汤上传1", {"title": "", "author": "", "surface": "", "bottom": ""})
+    await data.status_add(
+        msg.user,
+        msg.platform,
+        "海龟汤上传1",
+        {"title": "", "author": "", "surface": "", "bottom": ""},
+        timeout=_UPLOAD_TIMEOUT,
+    )
     Msg(
         platform=msg.platform,
         event="发送",
@@ -283,6 +314,23 @@ async def soup_upload_input(msg: Msg):
     nxt, field, prompt = _upload_step(cur_status)
     text = Msg.content_join(msg.content).strip()
 
+    limits = {
+        "title": _TITLE_MAX,
+        "author": _AUTHOR_MAX,
+        "surface": _SURFACE_MAX,
+        "bottom": _BOTTOM_MAX,
+    }
+    if len(text) > limits[field]:
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind="私聊发送",
+            seq=msg.seq,
+            content=f"{field}过长，请限制在 {limits[field]} 字以内",
+            user=msg.user,
+        )
+        return
+
     # 作者允许为空，标题必填
     if field == "author":
         info[field] = "" if text in ("", "/取消") else text
@@ -316,7 +364,13 @@ async def soup_upload_input(msg: Msg):
             user=msg.user,
         )
     else:
-        await data.status_add(msg.user, msg.platform, nxt, info)
+        await data.status_add(
+            msg.user,
+            msg.platform,
+            nxt,
+            info,
+            timeout=_UPLOAD_TIMEOUT,
+        )
         _, _, next_prompt = _upload_step(nxt)
         Msg(
             platform=msg.platform,
@@ -408,10 +462,16 @@ async def soup_delete(msg: Msg):
             return
 
     # 进入二次确认状态
-    await data.status_add(msg.user, msg.platform, "海龟汤删除", {
-        "soup_id": soup["id"],
-        "title": soup["title"] or "",
-    })
+    await data.status_add(
+        msg.user,
+        msg.platform,
+        "海龟汤删除",
+        {
+            "soup_id": soup["id"],
+            "title": soup["title"] or "",
+        },
+        timeout=_DELETE_TIMEOUT,
+    )
     title_display = soup["title"] or "(无标题)"
     Msg(
         platform=msg.platform,
@@ -462,6 +522,17 @@ async def soup_query(msg: Msg):
             kind=f"{msg.kind[:2]}发送",
             seq=msg.seq,
             content="请输入查询关键字，如 /海龟汤查询 半根火柴",
+            user=msg.user,
+            group=msg.group,
+        )
+        return
+    if len(keyword) > _TITLE_MAX:
+        Msg(
+            platform=msg.platform,
+            event="发送",
+            kind=f"{msg.kind[:2]}发送",
+            seq=msg.seq,
+            content=f"查询关键字过长，请限制在 {_TITLE_MAX} 字以内",
             user=msg.user,
             group=msg.group,
         )

@@ -2,6 +2,7 @@ services:
   lrobot:
     build: ./lrobot
     container_name: lrobot
+    restart: unless-stopped
     ports:
       - "5922:5922"
     volumes:
@@ -14,8 +15,14 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-T", "5", "-O", "/dev/null", "http://127.0.0.1:5922/"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 30s
     environment:
       - TZ=Asia/Shanghai  # 时区-上海
       - PYTHONUNBUFFERED=1  # 不使用缓冲
@@ -37,7 +44,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - TZ=Asia/Shanghai
@@ -54,7 +61,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - TZ=Asia/Shanghai
@@ -72,7 +79,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - TZ=Asia/Shanghai
@@ -93,7 +100,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - TZ=Asia/Shanghai
@@ -110,7 +117,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - TZ=Asia/Shanghai
@@ -128,7 +135,7 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
     environment:
       - LANG=C.UTF-8
