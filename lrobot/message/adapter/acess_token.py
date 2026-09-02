@@ -41,7 +41,11 @@ async def update_tokens(platform_list):
         token_data = response.json()
         # 校验响应
         if "access_token" not in token_data:
-            raise Exception(f"[令牌刷新]⌈{platform}⌋请求失败-> 无 access_token: {token_data}")
+            response_keys = sorted(str(key) for key in token_data) if isinstance(token_data, dict) else []
+            raise Exception(
+                f"[令牌刷新]⌈{platform}⌋请求失败-> 无 access_token; "
+                f"status={response.status_code}, keys={response_keys}"
+            )
         expires_in = int(token_data.get("expires_in", 10800))  # 默认 3h
         access_token = token_data["access_token"]
         access_tokens[platform] = {
@@ -49,7 +53,7 @@ async def update_tokens(platform_list):
             "expires_at": current_time + expires_in
         }
         adapter_logger.debug(
-            f"[令牌刷新]⌈{platform}⌋-> {access_token}: {expires_in}",
+            f"[令牌刷新]⌈{platform}⌋成功，有效期 {expires_in} 秒",
             extra={"event": "消息发送"},
         )
 

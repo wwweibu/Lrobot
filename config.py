@@ -574,7 +574,10 @@ def monitor_adapter(source):
                             raw_data = json.loads(raw_data)
                         except Exception:
                             raw_data = {}
-                    data_str = "-".join(str(v) for v in raw_data.values()) if isinstance(raw_data, dict) else ""
+                    if source == "#内阁_登录密码":
+                        data_str = "[REDACTED]"
+                    else:
+                        data_str = "-".join(str(v) for v in raw_data.values()) if isinstance(raw_data, dict) else ""
                     result_str = f"{result.status}-{result.data}" if result.data is not None else result.status
                     await system_command_add(source, account, "web", data_str, result_str)
                 return result
